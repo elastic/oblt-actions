@@ -1,0 +1,20 @@
+name: google/auth
+
+description: |
+  This is an opinionated GitHub Action to authenticate with GCP.
+  It generates a Workload Identity Pool Provider ID based on the repository name, which is compatible with the
+  GCP Workload Identity Pool Provider ID we use for Elastic Observability repositories.
+
+runs:
+  using: composite
+  steps:
+    - name: Generate workloadIdentityPool provider ID
+      id: generate-workload-identity-pool-provider-id
+      run: |
+        HASH=$(echo -n "${GITHUB_REPOSITORY}" | sha256sum | cut -c1-27)
+        echo "workload_identity_provider_id=repo-${HASH}" >> "${GITHUB_OUTPUT}"
+      shell: bash
+    - uses: google-github-actions/auth@v2
+      with:
+        project_id: 'elastic-observability'
+        workload_identity_provider: 'projects/8560181848/locations/global/workloadIdentityPools/github/providers/${{ steps.generate-workload-identity-pool-provider-id.outputs.workload_identity_provider_id }}'
