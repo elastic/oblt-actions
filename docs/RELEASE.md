@@ -13,9 +13,12 @@ See the [release-drafter configuration](../.github/release-drafter.yml) for more
 ## Creating a New Release
 
 Every time a pull request is merged into the `main` branch, release-drafter will
-create or update a draft release in the [Releases](https://github.com/elastic/oblt-actions/releases) page.
+create a draft release or update the existing draft release in the [Releases](https://github.com/elastic/oblt-actions/releases) page.
 
 To create a new release you need to publish the existing draft release created by release-drafter.
+
+> [!IMPORTANT]
+> Make sure the [release-drafter workflow](../.github/workflows/release-drafter.yml) is finished before publishing the release.
 
 > [!NOTE]
 > When a release is published, the [create-major-tag workflow](../.github/workflows/create-major-tag.yml)
