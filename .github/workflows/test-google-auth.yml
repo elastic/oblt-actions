@@ -32,8 +32,3 @@ jobs:
           "projects/8560181848/locations/global/workloadIdentityPools/github/providers/repo-37af2ab116595bd21e72f6b8478"
           =
           "${{ steps.google-auth.outputs.workload-identity-provider }}"
-      - run: >
-          test
-          "projects/8560181848/locations/global/workloadIdentityPools/github/providers/repo-abc"
-          !=
-          "${{ steps.google-auth.outputs.workload-identity-provider }}"
