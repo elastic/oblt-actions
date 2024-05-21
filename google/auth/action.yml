@@ -5,17 +5,34 @@ description: |
   It generates a Workload Identity Pool Provider ID based on the repository name, which is compatible with the
   GCP Workload Identity Pool Provider ID we use for Elastic Observability repositories.
 
+inputs:
+  project-number:
+    description: 'The GCP project number'
+    default: '8560181848'
+  repository:
+    description: 'The repository name'
+    default: ${{ github.repository }}
+
+outputs:
+    workload-identity-provider:
+      value: ${{ steps.generate-workload-identity-pool-provider-id.outputs.workload_identity_provider_id }}
+      description: 'The generated Workload Identity Pool Provider ID'
+
 runs:
   using: composite
   steps:
     - name: Generate workloadIdentityPool provider ID
       id: generate-workload-identity-pool-provider-id
       run: |
-        HASH=$(echo -n "${GITHUB_REPOSITORY}" | sha256sum | cut -c1-27)
-        echo "workload_identity_provider_id=repo-${HASH}" >> "${GITHUB_OUTPUT}"
+        HASH=$(echo -n "${GH_REPOSITORY}" | sha256sum | cut -c1-27)
+        PREFIX="projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/github/providers/"
+        echo "workload_identity_provider_id=${PREFIX}repo-${HASH}" >> "${GITHUB_OUTPUT}"
       shell: bash
+      env:
+        GH_REPOSITORY: ${{ inputs.repository }}
+        PROJECT_NUMBER: ${{ inputs.project-number }}
     - uses: google-github-actions/auth@71fee32a0bb7e97b4d33d548e7d957010649d8fa # v2.1.3
       with:
         project_id: 'elastic-observability'
-        workload_identity_provider: 'projects/8560181848/locations/global/workloadIdentityPools/github/providers/${{ steps.generate-workload-identity-pool-provider-id.outputs.workload_identity_provider_id }}'
+        workload_identity_provider: ${{ steps.generate-workload-identity-pool-provider-id.outputs.workload_identity_provider_id }}
         request_reason: ${{ github.workflow_ref	}}
