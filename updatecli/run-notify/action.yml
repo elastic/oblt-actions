@@ -1,0 +1,27 @@
+name: updatecli/run-notify
+description: |
+  This is an opinionated GitHub Action to run the updatecli
+inputs:
+  command:
+    description: 'Specify the updatecli command to be executed.'
+    required: true
+  slack-channel-id:
+    channel-id: 'Specify the slack channel-id.'
+    required: true
+  slack-bot-token:
+    description: 'Specify the slack bot token.'
+    required: true
+  slack-message:
+    description: 'Specify the message to be sent (markdown format).'
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: elastic/oblt-actions/updatecli/run@v1
+      with:
+        command: ${{ inputs.command }}
+    - uses: elastic/oblt-actions/slack/send@v1
+      with:
+        channel-id: ${{ inputs.slack-channel-id }}
+        bot-token: ${{ inputs.slack-channel-id }}
+        message: ${{ inputs.slack-message }}
