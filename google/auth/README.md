@@ -4,14 +4,14 @@ This is an opinionated GitHub Action to authenticate with GCP.
 It generates a Workload Identity Pool Provider ID based on the repository name, which is compatible with the
 GCP Workload Identity Pool Provider ID we use for Elastic Observability repositories.
 
-### Inputs
+## Inputs
 
 | name             | description                    | required | default                    |
 |------------------|--------------------------------|----------|----------------------------|
 | `project-number` | <p>The GCP project number</p>  | `false`  | `8560181848`               |
 | `repository`     | <p>The repository name</p>     | `false`  | `${{ github.repository }}` |
 
-### Outputs
+## Outputs
 
 | name                         | description                                             |
 |------------------------------|---------------------------------------------------------|
