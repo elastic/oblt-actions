@@ -27,11 +27,11 @@ runs:
         import hashlib
         import os
 
-        repository = os.getenv('GH_REPOSITORY')
-        project_number = os.getenv('PROJECT_NUMBER')
+        repository = os.environ['GH_REPOSITORY']
+        project_number = os.environ['PROJECT_NUMBER']
 
         m = hashlib.sha256()
-        m.update(os.getenv(repository).encode('utf-8'))
+        m.update(repository.encode('utf-8'))
         hash = m.hexdigest()[:27]
         prefix = f"projects/{project_number}/locations/global/workloadIdentityPools/github/providers/repo-"
 
