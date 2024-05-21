@@ -27,20 +27,18 @@ runs:
         import hashlib
         import os
 
+        repository = os.getenv('GH_REPOSITORY')
+        project_number = os.getenv('PROJECT_NUMBER')
+
         m = hashlib.sha256()
-        m.update("${{ inputs.repository }}".encode('utf-8'))
+        m.update(os.getenv(repository).encode('utf-8'))
         hash = m.hexdigest()[:27]
-        prefix = f"projects/${{ inputs.project-number }}/locations/global/workloadIdentityPools/github/providers/repo-"
+        prefix = f"projects/{project_number}/locations/global/workloadIdentityPools/github/providers/repo-"
 
         with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
             f.write(f"workload_identity_provider_id={prefix}{hash}")
 
       shell: python
-#      run: |
-#        HASH=$(echo -n "${GH_REPOSITORY}" | sha256sum | cut -c1-27)
-#        PREFIX="projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/github/providers/"
-#        echo "workload_identity_provider_id=${PREFIX}repo-${HASH}" >> "${GITHUB_OUTPUT}"
-#      shell: bash
       env:
         GH_REPOSITORY: ${{ inputs.repository }}
         PROJECT_NUMBER: ${{ inputs.project-number }}
