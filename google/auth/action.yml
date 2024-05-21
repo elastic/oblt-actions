@@ -33,10 +33,10 @@ runs:
         m = hashlib.sha256()
         m.update(repository.encode('utf-8'))
         hash = m.hexdigest()[:27]
-        prefix = f"projects/{project_number}/locations/global/workloadIdentityPools/github/providers/repo-"
+        id = f"projects/{project_number}/locations/global/workloadIdentityPools/github/providers/repo-{hash}"
 
         with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-            f.write(f"workload_identity_provider_id={prefix}{hash}")
+            f.write(f"workload_identity_provider_id={id}")
 
       shell: python
       env:
