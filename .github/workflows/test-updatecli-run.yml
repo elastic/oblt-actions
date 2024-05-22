@@ -1,0 +1,27 @@
+name: test-updatecli-run
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-updatecli-run.yml'
+      - 'updatecli/run/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-updatecli-run.yml'
+      - 'updatecli/run/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test-updatecli-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./updatecli/run
+        with:
+          command: help
