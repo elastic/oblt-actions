@@ -1,0 +1,49 @@
+name: google/auth
+
+description: |
+  This is an opinionated GitHub Action to authenticate with GCP.
+  It generates a Workload Identity Pool Provider ID based on the repository name, which is compatible with the
+  GCP Workload Identity Pool Provider ID we use for Elastic Observability repositories.
+
+inputs:
+  project-number:
+    description: 'The GCP project number'
+    default: '8560181848'
+  repository:
+    description: 'The repository name'
+    default: ${{ github.repository }}
+
+outputs:
+    workload-identity-provider:
+      value: ${{ steps.generate-workload-identity-pool-provider-id.outputs.workload_identity_provider_id }}
+      description: 'The generated Workload Identity Pool Provider ID'
+
+runs:
+  using: composite
+  steps:
+    - name: Generate workloadIdentityPool provider ID
+      id: generate-workload-identity-pool-provider-id
+      run: |
+        import hashlib
+        import os
+
+        repository = os.environ['GH_REPOSITORY']
+        project_number = os.environ['PROJECT_NUMBER']
+
+        m = hashlib.sha256()
+        m.update(repository.encode('utf-8'))
+        hash = m.hexdigest()[:27]
+        id = f"projects/{project_number}/locations/global/workloadIdentityPools/github/providers/repo-{hash}"
+
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+            f.write(f"workload_identity_provider_id={id}")
+
+      shell: python
+      env:
+        GH_REPOSITORY: ${{ inputs.repository }}
+        PROJECT_NUMBER: ${{ inputs.project-number }}
+    - uses: google-github-actions/auth@71fee32a0bb7e97b4d33d548e7d957010649d8fa # v2.1.3
+      with:
+        project_id: 'elastic-observability'
+        workload_identity_provider: ${{ steps.generate-workload-identity-pool-provider-id.outputs.workload_identity_provider_id }}
+        request_reason: ${{ github.workflow_ref	}}
