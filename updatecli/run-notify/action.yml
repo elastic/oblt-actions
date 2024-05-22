@@ -1,6 +1,7 @@
 name: updatecli/run-notify
 description: |
-  This is an opinionated GitHub Action to run the updatecli
+  This is an opinionated GitHub Action to run the updatecli with some slack
+  notifications.
 inputs:
   command:
     description: 'Specify the updatecli command to be executed.'
@@ -14,14 +15,34 @@ inputs:
   slack-message:
     description: 'Specify the message to be sent (markdown format).'
     required: true
+  send-when:
+    description: 'When to send the message, always, failure, success.'
+    default: 'failure'
+    required: false
 runs:
   using: composite
   steps:
     - uses: elastic/oblt-actions/updatecli/run@v1
       with:
         command: ${{ inputs.command }}
-    - uses: elastic/oblt-actions/slack/send@v1
+
+    - if: ${{ always() && input.send-when == 'always' }}
+      uses: elastic/oblt-actions/slack/send@v1
       with:
         channel-id: ${{ inputs.slack-channel-id }}
-        bot-token: ${{ inputs.slack-channel-id }}
+        bot-token: ${{ inputs.slack-bot-token }}
+        message: ${{ inputs.slack-message }}
+
+    - if: ${{ failure() && input.send-when == 'failure' }}
+      uses: elastic/oblt-actions/slack/send@v1
+      with:
+        channel-id: ${{ inputs.slack-channel-id }}
+        bot-token: ${{ inputs.slack-bot-token }}
+        message: ${{ inputs.slack-message }}
+
+    - if: ${{ success() && input.send-when == 'success' }}
+      uses: elastic/oblt-actions/slack/send@v1
+      with:
+        channel-id: ${{ inputs.slack-channel-id }}
+        bot-token: ${{ inputs.slack-bot-token }}
         message: ${{ inputs.slack-message }}
