@@ -1,8 +1,14 @@
-# Updatecli run Github Action
+# updatecli/run
 
+* [Inputs](#inputs)
 * [Usage](#usage)
   * [Workflow](#workflow)
-* [License](#license)
+
+## Inputs
+
+| name               | description                                               | required | default  |
+|--------------------|-----------------------------------------------------------|----------|----------|
+| `command`          | <p>The updatecli command to run</p>                       | `true`   |          |
 
 ## Usage
 
@@ -21,10 +27,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Updatecli in the runner
-        uses: elastic/oblt-actions/updatecli/run@v2
+        uses: elastic/oblt-actions/updatecli/run@v1
         with:
           command: apply --config updatecli/updatecli.d
-
 ```
-
-**WARNING**: Don't enable --debug mode in Github Action as it may leak information.

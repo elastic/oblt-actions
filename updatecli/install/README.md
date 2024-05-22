@@ -1,8 +1,7 @@
-# Updatecli Github Action
+# updatecli/install
 
 * [Usage](#usage)
   * [Workflow](#workflow)
-* [License](#license)
 
 ## Usage
 
@@ -22,7 +21,4 @@ jobs:
 
       - name: Install Updatecli in the runner
         uses: elastic/oblt-actions/updatecli/install@v1
-
 ```
-
-**WARNING**: Don't enable --debug mode in Github Action as it may leak information.

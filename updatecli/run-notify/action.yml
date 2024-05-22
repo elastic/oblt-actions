@@ -15,7 +15,7 @@ inputs:
   slack-message:
     description: 'Specify the message to be sent (markdown format).'
     required: true
-  send-when:
+  slack-send-when:
     description: 'When to send the message, always, failure, success.'
     default: 'failure'
     required: false
@@ -26,21 +26,21 @@ runs:
       with:
         command: ${{ inputs.command }}
 
-    - if: ${{ always() && input.send-when == 'always' }}
+    - if: ${{ always() && input.slack-send-when == 'always' }}
       uses: elastic/oblt-actions/slack/send@v1
       with:
         channel-id: ${{ inputs.slack-channel-id }}
         bot-token: ${{ inputs.slack-bot-token }}
         message: ${{ inputs.slack-message }}
 
-    - if: ${{ failure() && input.send-when == 'failure' }}
+    - if: ${{ failure() && input.slack-send-when == 'failure' }}
       uses: elastic/oblt-actions/slack/send@v1
       with:
         channel-id: ${{ inputs.slack-channel-id }}
         bot-token: ${{ inputs.slack-bot-token }}
         message: ${{ inputs.slack-message }}
 
-    - if: ${{ success() && input.send-when == 'success' }}
+    - if: ${{ success() && input.slack-send-when == 'success' }}
       uses: elastic/oblt-actions/slack/send@v1
       with:
         channel-id: ${{ inputs.slack-channel-id }}
