@@ -24,8 +24,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./git/setup
       - name: validate git user
-        run:
-          test $(git config user.name) = "obltmachine"
+        run: test $(git config user.name) = "obltmachine"
       - name: validate git email
-        run:
-          test $(git config user.email) = "obltmachine@users.noreply.github.com"
+        run: test $(git config user.email) = "obltmachine@users.noreply.github.com"
+      - name: validate GIT_USER env
+        run: test "${GIT_USER}" = "obltmachine"
+      - name: validate GIT_EMAIL env
+        run: test "${GIT_EMAIL}" = "obltmachine@users.noreply.github.com"
