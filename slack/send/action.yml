@@ -1,0 +1,37 @@
+name: slack/send
+
+description: |
+  This is an opinionated GitHub Action to send a message in slack.
+
+inputs:
+  channel-id:
+    channel-id: 'Specify the slack channel-id.'
+    required: true
+  bot-token:
+    description: 'Specify the slack bot token.'
+    required: true
+  message:
+    description: 'Specify the message to be sent (markdown format).'
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: slackapi/slack-github-action@70cd7be8e40a46e8b0eced40b0de447bdb42f68e # v1.26.0
+      with:
+        channel-id: ${{ inputs.channel-id }}
+        payload: |
+          {
+            "text": "${{ env.SLACK_MESSAGE }}",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "${{ env.SLACK_MESSAGE }}"
+                }
+              }
+            ]
+          }
+      env:
+        SLACK_BOT_TOKEN: ${{ inputs.bot-token }}
+        SLACK_MESSAGE: ${{ inputs.message }}
