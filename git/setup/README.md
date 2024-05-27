@@ -4,13 +4,12 @@ GitHub Action that setups the git username, email, and authentication with git C
 
 ## Inputs
 
-| Name           | Type    | Default                                | Description        |
-|----------------|---------|----------------------------------------|--------------------|
-| `username`     | String  | `obltmachine`                          | Git username       |
-| `secretId`     | String  | `obltmachine@users.noreply.github.com` | Git email.         |
-| `trace`        | Boolean | `false`                                | Enable git trace.  |
-| `token`        | String  | `github.token`                         | GitHub token.      |
-
+| name           | description             | required | default                                |
+|----------------|-------------------------|----------|----------------------------------------|
+| `username`     | <p>Git username</p>     | `false`  | `obltmachine`                          |
+| `email`        | <p>Git email</p>        | `false`  | `obltmachine@users.noreply.github.com` |
+| `trace`        | <p>Enable git trace</p> | `false`  | `false`                                |
+| `github-token` | <p>GitHub token</p>     | `false`  | `${{ github.token }}`                  |
 
 ## Usage
 

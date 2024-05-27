@@ -1,29 +1,31 @@
----
 name: 'Configure git CLI'
+
 description: |
   Setup the git usename, email, and authentication with git CLI.
   After this action you can use https URL repos in git commands.
   The GITHUB_TOKEN (not needed here) will be used to authenticate with the git CLI,
   after this action.
+
 inputs:
   username:
-    description: 'Git username.'
+    description: 'Git username'
     required: false
     default: 'obltmachine'
   email:
-    description: 'Git email.'
+    description: 'Git email'
     required: false
     default: 'obltmachine@users.noreply.github.com'
   trace:
-    description: 'Enable git trace.'
+    description: 'Enable git trace'
     required: false
     default: 'false'
-  token:
-    description: 'GitHub token.'
+  github-token:
+    description: 'GitHub token'
     default: ${{ github.token }}
     required: false
+
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - name: Setup git
       shell: bash
@@ -36,7 +38,7 @@ runs:
         echo "GIT_EMAIL=${GIT_EMAIL}" >> $GITHUB_ENV
 
       env:
-        GIT_USER: "${{ inputs.username }}"
-        GIT_EMAIL: "${{ inputs.email }}"
-        GIT_TRACE: "${{ inputs.trace }}"
-        GITHUB_TOKEN: ${{ inputs.token }}
+        GIT_USER: '${{ inputs.username }}'
+        GIT_EMAIL: '${{ inputs.email }}'
+        GIT_TRACE: '${{ inputs.trace }}'
+        GITHUB_TOKEN: '${{ inputs.github-token }}'
