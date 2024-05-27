@@ -1,0 +1,21 @@
+name: no-test
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**'
+      - '!.github/workflows/test-*'
+      - '!git/setup/**'
+      - '!google/auth/**'
+      - '!updatecli/run/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "No test to run"
