@@ -11,6 +11,13 @@ GitHub Action that setups the git username, email, and authentication with git C
 | `trace`        | <p>Enable git trace</p> | `false`  | `false`                                |
 | `github-token` | <p>GitHub token</p>     | `false`  | `${{ github.token }}`                  |
 
+## Exported Environment Variables
+
+| name       | description             |
+|------------|-------------------------|
+| `GIT_USER` | <p>Git username</p>     |
+| `GIT_EMAIL`| <p>Git email</p>        |
+
 ## Usage
 
 ```yaml
@@ -21,12 +28,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      ...
-
+      # ...
       - uses: elastic/oblt-actions/git/setup@v1
         with:
           username: "John"
           email: "john@acme.com"
           token: ${{ secrets.MY_GITHUB_PAT }}
-      ...
+      # ...
 ```
