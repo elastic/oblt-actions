@@ -1,0 +1,16 @@
+name: updatecli/run
+description: |
+  This is an opinionated GitHub Action to run the updatecli
+inputs:
+  command:
+    description: 'Specify the updatecli command to be executed.'
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: elastic/oblt-actions/updatecli/install@v1
+
+    - run: updatecli ${{ env.COMMAND }}
+      env:
+        COMMAND: ${{ inputs.command }}
+      shell: bash
