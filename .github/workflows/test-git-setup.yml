@@ -1,0 +1,27 @@
+name: test-git-setup
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-git-setup.yml'
+      - 'git/setup/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-git-setup.yml'
+      - 'git/setup/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test-google-auth:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./git/setup
+      - run:
+          git config user.name
