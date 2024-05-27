@@ -1,0 +1,33 @@
+name: test-git-setup
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-git-setup.yml'
+      - 'git/setup/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-git-setup.yml'
+      - 'git/setup/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./git/setup
+      - name: validate git user
+        run: test $(git config user.name) = "obltmachine"
+      - name: validate git email
+        run: test $(git config user.email) = "obltmachine@users.noreply.github.com"
+      - name: validate GIT_USER env
+        run: test "${GIT_USER}" = "obltmachine"
+      - name: validate GIT_EMAIL env
+        run: test "${GIT_EMAIL}" = "obltmachine@users.noreply.github.com"
