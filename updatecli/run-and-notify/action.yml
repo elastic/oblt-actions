@@ -26,21 +26,21 @@ runs:
       with:
         command: ${{ inputs.command }}
 
-    - if: ${{ always() && input.slack-send-when == 'always' }}
+    - if: ${{ always() && inputs.slack-send-when == 'always' }}
       uses: elastic/oblt-actions/slack/send@v1
       with:
         channel-id: ${{ inputs.slack-channel-id }}
         bot-token: ${{ inputs.slack-bot-token }}
         message: ${{ inputs.slack-message }}
 
-    - if: ${{ failure() && input.slack-send-when == 'failure' }}
+    - if: ${{ failure() && inputs.slack-send-when == 'failure' }}
       uses: elastic/oblt-actions/slack/send@v1
       with:
         channel-id: ${{ inputs.slack-channel-id }}
         bot-token: ${{ inputs.slack-bot-token }}
         message: ${{ inputs.slack-message }}
 
-    - if: ${{ success() && input.slack-send-when == 'success' }}
+    - if: ${{ success() && inputs.slack-send-when == 'success' }}
       uses: elastic/oblt-actions/slack/send@v1
       with:
         channel-id: ${{ inputs.slack-channel-id }}
