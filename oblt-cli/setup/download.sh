@@ -29,10 +29,6 @@ else
   exit 1
 fi
 
-if [ "${OBLT_CLI_VERSION}" == "6.5.3" ]; then
-  echo "::warning::It will download the version 6.5.3. Latest version does not support Vault access anymore."
-fi
-
 # Downloads the latest release if OBLT_CLI_VERSION is not set
 gh release download "${OBLT_CLI_VERSION}" \
   --repo elastic/observability-test-environments \
