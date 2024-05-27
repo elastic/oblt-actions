@@ -23,4 +23,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./oblt-cli/setup
+        with:
+          github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
       - run: oblt-cli version
