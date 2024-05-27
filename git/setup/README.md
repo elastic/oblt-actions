@@ -33,6 +33,6 @@ jobs:
         with:
           username: "John"
           email: "john@acme.com"
-          token: ${{ secrets.MY_GITHUB_PAT }}
+          github-token: ${{ secrets.MY_GITHUB_PAT }}
       # ...
 ```
