@@ -12,7 +12,7 @@
 | `slack-bot-token`  | <p>The slack bot token</p>                                | `true`   |          |
 | `slack-channel-id` | <p>The slack channel ID</p>                               | `true`   |          |
 | `slack-message`    | <p>The slack message to be sent in MD format</p>          | `true`   |          |
-| `slack-send-when`  | <p>When to send the message (always, success, failure)</p>| `false`  | `always` |
+| `slack-send-when`  | <p>When to send the message (always, success, failure)</p>| `false`  | `failure` |
 
 ## Usage
 
