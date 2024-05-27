@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: elastic/oblt-actions/updatecli/run-and-notify@v2
+      - uses: elastic/oblt-actions/updatecli/run-and-notify@v1
         with:
           command: apply --config updatecli/updatecli.d
           slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
