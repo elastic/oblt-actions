@@ -1,4 +1,4 @@
-name: 'Oblt-cli cluster credentials'
+name: 'oblt-cli/cluster-credentials'
 description: 'Run the oblt-cli wrapper to retrieve the credentials to connect to the given cluster'
 inputs:
   cluster-name:
