@@ -10,6 +10,7 @@ on:
       - '!git/setup/**'
       - '!google/auth/**'
       - '!updatecli/run/**'
+      - '!oblt-cli/cluster-name-validation/**'
 
 permissions:
   contents: read
