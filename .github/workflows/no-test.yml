@@ -11,7 +11,7 @@ on:
       - '!google/auth/**'
       - '!updatecli/run/**'
       - '!oblt-cli/setup/**'
-      - '!oblt-cli/cluster-credentials/**'
+      - '!oblt-cli/cluster-name-validation/**'
 
 permissions:
   contents: read
