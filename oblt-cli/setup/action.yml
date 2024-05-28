@@ -1,0 +1,46 @@
+name: Setup oblt-cli
+
+description: |
+  Setup oblt-cli for use in GitHub Actions workflows.
+
+inputs:
+  github-token:
+    description: "The GitHub access token."
+    required: true
+  slack-channel:
+    description: "The slack channel to notify the status."
+    default: "#observablt-bots"
+    required: false
+  username:
+    description: "Username to show in the deployments with oblt-cli, format: [a-z0-9]"
+    default: "obltmachine"
+    required: false
+  version:
+    description: "Install a specific version of oblt-cli"
+    default: ""
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Download oblt-cli and append to PATH
+      run: ${{ github.action_path }}/download.sh
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        OBLT_CLI_VERSION: ${{ inputs.version }}
+      shell: bash
+    - name: Configure oblt-cli
+      run: >
+        oblt-cli configure
+        --git-http-mode
+        --username="${OBLT_CLI_USERNAME}"
+        --slack-channel="${OBLT_CLI_SLACK_CHANNEL}"
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        ELASTIC_APM_ENVIRONMENT: ci
+        OBLT_CLI_USERNAME: ${{ inputs.username }}
+        OBLT_CLI_SLACK_CHANNEL: ${{ inputs.slack-channel }}
+      shell: bash
+    - name: Export env
+      run: echo "ELASTIC_APM_ENVIRONMENT=ci" >> $GITHUB_ENV
+      shell: bash
