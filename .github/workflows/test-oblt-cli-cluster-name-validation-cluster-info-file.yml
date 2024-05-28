@@ -1,0 +1,31 @@
+name: test-oblt-cli-cluster-name-validation-cluster-info-file
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-oblt-cli-cluster-name-validation.yml'
+      - 'oblt-cli/cluster-name-validation/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-oblt-cli-cluster-name-validation.yml'
+      - 'oblt-cli/cluster-name-validation/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "{\"ClusterName\":\"bar\"}" | tee ${{ github.workspace }}/cluster-info.json
+      - uses: ./oblt-cli/cluster-name-validation
+        id: validation
+        with:
+          cluster-info-file: ${{ github.workspace }}/cluster-info.json
+      - name: Assert is bar
+        run: test "${{steps.validation.outputs.cluster-name}}" = "bar"
