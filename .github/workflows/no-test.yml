@@ -12,6 +12,7 @@ on:
       - '!updatecli/run/**'
       - '!oblt-cli/setup/**'
       - '!oblt-cli/cluster-name-validation/**'
+      - '!oblt-cli/run/**'
 
 permissions:
   contents: read
