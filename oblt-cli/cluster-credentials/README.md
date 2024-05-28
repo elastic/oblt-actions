@@ -4,11 +4,11 @@ Run the oblt-cli wrapper to retrieve the credentials to connect to the given clu
 
 ## Inputs
 
-| Name                    | Required | Description                                       |
-|-------------------------|----------|-------------------------------------------------- |
-| `cluster-name `         | `true`   | The cluster name                                  |
-| `cluster-info-file `    | `true`   | The cluster info file (absolute path)             |
-| `github-token`          | `true`   | The GitHub token with permissions fetch releases. |
+| Name                    | Required | Description                                       | Default |
+|-------------------------|----------|-------------------------------------------------- |---------|
+| `cluster-name `         | `false`  | The cluster name                                  | -       |
+| `cluster-info-file `    | `false`  | The cluster info file (absolute path)             | -       |
+| `github-token`          | `true`   | The GitHub token with permissions fetch releases. | -       |
 
 ## Exported Environment Variables
 
