@@ -10,7 +10,7 @@ on:
         type: boolean
   push:
     paths:
-      - '.github/workflows/test-oblt-cli-create-serverless.yml'
+      - '.github/workflows/test-oblt-cli-cluster-create-serverless.yml'
       - 'oblt-cli/cluster-create-serverless/**'
 
 permissions:
