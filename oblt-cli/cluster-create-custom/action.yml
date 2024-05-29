@@ -40,6 +40,7 @@ runs:
   using: "composite"
   steps:
     - name: Configure oblt-cli flags for gitops - issues
+      id: gitops
       if: ${{ !github.event.issue.pull_request && contains(inputs.gitops, 'true') }}
       run: |
         {
@@ -49,11 +50,12 @@ runs:
           [ -n '${{ github.event.issue.number }}' ] && echo -n ',"GitHubIssue":"${{ github.event.issue.number }}"'
           echo -n '}'
         } > .gitops
-        echo "GITOPS=$(cat .gitops)" >> $GITHUB_ENV
+        echo "GITOPS=$(cat .gitops)" >> $GITHUB_OUTPUT
         rm .gitops
       shell: bash
 
     - name: Configure oblt-cli flags for gitops - pull-request
+      id: gitops-pr
       if: github.event.issue.pull_request && contains(inputs.gitops, 'true')
       run: |
         {
@@ -64,11 +66,12 @@ runs:
           echo -n '"GitHubPullRequest":"${{ github.event.issue.number }}"'
           echo -n '}'
         } > .gitops
-        echo "GITOPS=$(cat .gitops)" >> $GITHUB_ENV
+        echo "GITOPS=$(cat .gitops)" >> $GITHUB_OUTPUT
         rm .gitops
       shell: bash
 
     - name: Configure oblt-cli flags
+      id: flags
       run: |
         {
           echo -n '--template=${{ inputs.template }} '
@@ -81,11 +84,11 @@ runs:
           [ '${{ inputs.skip-random-name }}' == 'true' ] \
             && echo -n '--skip-random-name '
         } > .flags
-        echo "COMMAND=$(cat .flags)" >> $GITHUB_ENV
+        echo "COMMAND=$(cat .flags)" >> $GITHUB_OUTPUT
         rm .flags
         # Merge GITOPS with the PARAMETERS
-        MERGED=$(echo '${{ inputs.parameters }} ${{ env.GITOPS }} {"EphemeralCluster":"true"}' | jq -c -s add)
-        echo "PARAMETERS=${MERGED}" >> $GITHUB_ENV
+        MERGED=$(echo '${{ inputs.parameters }} ${{ steps.gitops.outputs.GITOPS || steps.gitops-pr.outputs.GITOPS }} {"EphemeralCluster":"true"}' | jq -c -s add)
+        echo "PARAMETERS=${MERGED}" >> $GITHUB_OUTPUT
       shell: bash
 
     - uses: elastic/oblt-actions/oblt-cli/setup@v1.2.0
@@ -93,6 +96,8 @@ runs:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
         username: ${{ inputs.username }}
-    #
-    - run: oblt-cli cluster create custom ${{ env.COMMAND }} --parameters='${{ env.PARAMETERS }}'
+    # safe to use ${{ env.XYZ }} because it's not untrusted user input
+    - run: oblt-cli cluster create custom ${{ steps.flags.outputs.COMMAND }} --parameters='${{ steps.flags.outputs.PARAMETERS }}'
       shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
