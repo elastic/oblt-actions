@@ -1,0 +1,31 @@
+name: 'Oblt-cli wrapper'
+description: 'Run the oblt-cli wrapper.'
+inputs:
+  command:
+    description: 'The oblt-cli command to run'
+    required: true
+  github-token:
+    description: 'The GitHub access token.'
+    required: true
+  slack-channel:
+    description: 'The slack channel to notify the status.'
+    default: '#observablt-bots'
+    required: false
+  username:
+    description: 'Username to show in the deployments with oblt-cli, format: [a-z0-9]'
+    default: 'obltmachine'
+    required: false
+runs:
+  using: "composite"
+  steps:
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.2.0
+      with:
+        github-token: ${{ inputs.github-token }}
+        slack-channel: ${{ inputs.slack-channel }}
+        username: ${{ inputs.username }}
+    - name: run oblt-cli
+      run: oblt-cli ${COMMAND} --verbose --disable-banner
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        COMMAND: ${{ inputs.command }}
