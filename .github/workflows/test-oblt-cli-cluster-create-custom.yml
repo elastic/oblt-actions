@@ -19,6 +19,7 @@ permissions:
 
 jobs:
   test:
+    name: test
     strategy:
       matrix:
         include:
