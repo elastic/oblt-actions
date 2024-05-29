@@ -1,8 +1,8 @@
-## About
+# oblt-cli/cluster-create-serverless
 
 GitHub Action to run the oblt-cli wrapper to create a Serverless cluster
 
-# Inputs
+## Inputs
 
 Following inputs can be used as `step.with` keys
 
