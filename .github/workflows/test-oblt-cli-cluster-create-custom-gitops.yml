@@ -1,4 +1,4 @@
-name: test-oblt-cli-cluster-create-custom
+name: test-oblt-cli-cluster-create-custom-gitops
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ on:
         type: boolean
   push:
     paths:
-      - '.github/workflows/test-oblt-cli-cluster-create-custom.yml'
+      - '.github/workflows/test-oblt-cli-cluster-create-custom-gitops.yml'
       - 'oblt-cli/cluster-create-custom/**'
 
 permissions:
