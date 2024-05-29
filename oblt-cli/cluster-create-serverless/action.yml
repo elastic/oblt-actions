@@ -84,13 +84,14 @@ runs:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
         username: ${{ inputs.username }}
+    # safe to use ${{ env.XYZ }} because it's not untrusted user input
     - run: |
         oblt-cli cluster create custom \
           --template serverless \
-          $DRY_RUN \
-          $CLUSTER_NAME_PREFIX \
-          $CLUSTER_NAME_SUFFIX \
-          ${{ env.PARAMETERS }} # safe because it's not untrusted user input
+          ${{ env.DRY_RUN }} \
+          ${{ env. CLUSTER_NAME_PREFIX }} \
+          ${{ env.CLUSTER_NAME_SUFFIX }} \
+          ${{ env.PARAMETERS }}
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
