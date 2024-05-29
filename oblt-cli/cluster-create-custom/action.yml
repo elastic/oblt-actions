@@ -93,6 +93,6 @@ runs:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
         username: ${{ inputs.username }}
-
-    - run: cluster create custom ${{ env.COMMAND }} --parameters='${{ env.PARAMETERS }}'
+    #
+    - run: oblt-cli cluster create custom ${{ env.COMMAND }} --parameters='${{ env.PARAMETERS }}'
       shell: bash
