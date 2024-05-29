@@ -39,18 +39,19 @@ runs:
   steps:
     - name: Configure oblt-cli flags
       uses: actions/github-script@v7
+      id: flags
       with:
         script: |
           console.log(`Parsing flags`)
           const { cluster_name_prefix, cluster_name_suffix, dry_run, gitops, target, project_type  } = process.env
           if (cluster_name_prefix != '') {
-            core.exportVariable('CLUSTER_NAME_PREFIX', `--cluster-name-prefix=${cluster_name_prefix}`)
+            core.setOutput('CLUSTER_NAME_PREFIX', `--cluster-name-prefix=${cluster_name_prefix}`)
           }
           if (cluster_name_suffix != '') {
-            core.exportVariable('CLUSTER_NAME_SUFFIX', `--cluster-name-suffix=${cluster_name_suffix}`)
+            core.setOutput('CLUSTER_NAME_SUFFIX', `--cluster-name-suffix=${cluster_name_suffix}`)
           }
           if (dry_run != 'false') {
-            core.exportVariable('DRY_RUN', `--dry-run`)
+            core.setOutput('DRY_RUN', `--dry-run`)
           }
           var parameters = {}
           parameters.ProjectType = project_type
@@ -70,7 +71,7 @@ runs:
           }
           parameters.EphemeralCluster = "true"
           console.log(`Create PARAMETERS env variable`)
-          core.exportVariable('PARAMETERS', `--parameters='${JSON.stringify(parameters)}'`)
+          core.setOutput('PARAMETERS', `--parameters='${JSON.stringify(parameters)}'`)
       env:
         cluster_name_prefix: ${{ inputs.cluster-name-prefix }}
         cluster_name_suffix: ${{ inputs.cluster-name-suffix }}
@@ -88,10 +89,10 @@ runs:
     - run: |
         oblt-cli cluster create custom \
           --template serverless \
-          ${{ env.DRY_RUN }} \
-          ${{ env. CLUSTER_NAME_PREFIX }} \
-          ${{ env.CLUSTER_NAME_SUFFIX }} \
-          ${{ env.PARAMETERS }}
+          ${{ steps.flags.output.DRY_RUN }} \
+          ${{ steps.flags.output.CLUSTER_NAME_PREFIX }} \
+          ${{ steps.flags.output.CLUSTER_NAME_SUFFIX }} \
+          ${{ steps.flags.output.PARAMETERS }}
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
