@@ -25,6 +25,9 @@ jobs:
   create-serverless:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - uses: elastic/oblt-actions/google/auth@v1
+      - uses: elastic/oblt-actions/git/setup@v1
       - uses: elastic/oblt-actions/oblt-cli/create-serverless@v1
         with:
           target: 'staging'
