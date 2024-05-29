@@ -15,7 +15,7 @@ inputs:
     required: false
   message:
     description: 'The BK build message to be shown in the UI.'
-    default: "Triggered automatically - ${{ github.repository }}@${{ github.ref_name }} ${{ github.event_name }}/${{ github.workflow }}"
+    default: "Triggered automatically - ${{ github.workflow_ref }} (${{ github.event_name }})"
     required: false
   org:
     description: 'Buildkite org to interact with.'
