@@ -2,23 +2,6 @@
 name: buildkite/run
 description: A GitHub Action for triggering a build on a Buildkite pipeline.
 inputs:
-  org:
-    description: 'Buildkite org to interact with.'
-    default: elastic
-    required: false
-  token:
-    description: 'Buildkite token.'
-    required: true
-  pipeline:
-    description: 'Buildkite pipeline to interact with.'
-    required: true
-  wait-for:
-    description: 'Whether to wait for the build to finish.'
-    default: false
-    required: false
-  env-vars:
-    description: 'Additional environment variables to set on the build.'
-    required: false
   branch:
     description: 'Branch the commit belongs to. This allows you to take advantage of your pipeline and step-level branch filtering rules.'
     default: main
@@ -27,14 +10,31 @@ inputs:
     description: 'Ref, SHA or tag to be built.'
     default: HEAD
     required: false
+  env-vars:
+    description: 'Additional environment variables to set on the build.'
+    required: false
   message:
     description: 'The BK build message to be shown in the UI.'
-    default: Triggered automatically with GH actions
+    default: "Triggered automatically - ${{ github.repository }}@${{ github.ref_name }} ${{ github.event_name }}/${{ github.workflow }}"
+    required: false
+  org:
+    description: 'Buildkite org to interact with.'
+    default: elastic
+    required: false
+  pipeline:
+    description: 'Buildkite pipeline to interact with.'
+    required: true
+  token:
+    description: 'Buildkite token.'
+    required: true
+  wait-for:
+    description: 'Whether to wait for the build to finish.'
+    default: false
     required: false
 
 outputs:
   build:
-    description: "The Buildkite build url"
+    description: "The Buildkite web build url"
     value: ${{ steps.trigger-buildkite.outputs.build }}
   number:
     description: "The Buildkite build number"
@@ -42,26 +42,47 @@ outputs:
   state:
     description: "The Buildkite build state"
     value: ${{ steps.trigger-buildkite.outputs.state }}
+  url:
+    description: "The Buildkite build url"
+    value: ${{ steps.trigger-buildkite.outputs.url }}
 
 runs:
   using: "composite"
   steps:
-    - id: trigger-buildkite
-      name: Trigger Buildkite pipeline
+    - name: Trigger Buildkite pipeline
+      id: trigger-buildkite
       run: |
         ${{ github.action_path }}/run.sh \
-          '${{ inputs.org }}' \
-          '${{ inputs.pipeline }}' \
-          '${{ inputs.env-vars }}' \
-          '${{ inputs.wait-for }}' \
-          '${{ inputs.token }}' \
-          '${{ inputs.message }}' \
-          '${{ inputs.commit }}' \
-          '${{ inputs.branch }}'
+          '${{ env.ORG }}' \
+          '${{ env.PIPELINE }}' \
+          '${{ env.ENV_VARS }}' \
+          '${{ env.BK_TOKEN }}' \
+          '${{ env.MESSAGE }}' \
+          '${{ env.COMMIT }}' \
+          '${{ env.BRANCH }}'
+      env:
+        BK_TOKEN: ${{ inputs.token }}
+        ENV_VARS: ${{ inputs.env-vars }}
+        BRANCH: ${{ inputs.branch }}
+        COMMIT: ${{ inputs.commit }}
+        MESSAGE: ${{ inputs.message }}
+        ORG: ${{ inputs.org }}
+        PIPELINE: ${{ inputs.pipeline }}
+      shell: bash
+
+    - if: ${{ inputs.wait-for == 'true' }}
+      name: Wait for
+      run: |
+        ${{ github.action_path }}/wait-for.sh \
+          '${{ steps.trigger-buildkite.outputs.url }}' \
+          '${{ steps.trigger-buildkite.outputs.build }}' \
+          '${{ env.BK_TOKEN }}'
+      env:
+        BK_TOKEN: ${{ inputs.token }}
       shell: bash
 
     - name: Cancel Buildkite pipeline
-      if: cancelled() && inputs.wait-for && steps.trigger-buildkite.outputs.build_number
+      if: cancelled() && inputs.wait-for == 'true' && steps.trigger-buildkite.outputs.number
       run: |
         curl \
           --no-progress-meter \
@@ -72,5 +93,5 @@ runs:
         BK_TOKEN: ${{ inputs.token }}
         ORG: ${{ inputs.org }}
         PIPELINE: ${{ inputs.pipeline }}
-        NUMBER: ${{ steps.trigger-buildkite.outputs.build_number }}
+        NUMBER: ${{ steps.trigger-buildkite.outputs.number }}
       shell: bash

@@ -1,0 +1,22 @@
+name: test-buildkite-run
+
+on:
+  workflow_dispatch: ~
+  push:
+    paths:
+      - '.github/workflows/test-buildkite-run.yml'
+      - 'buildkite/run/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./buildkite/run
+        with:
+          pipeline: 'apm-agent-microbenchmark'
+          token: ${{ secrets.BUILDKITE_TOKEN }}
+          wait-for: false

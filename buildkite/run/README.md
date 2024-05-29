@@ -9,34 +9,35 @@ GitHub Action to run the buildkite
 
 Following inputs can be used as `step.with` keys
 
-| Name                        | Type    | Default                                             | Description                                                                                                       |
-|-----------------------------|---------|-----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
-| `org`                       | String  | `elastic`                                           | The Buildkite org.                                                                                                |
-| `pipeline`                  | String  |                                                     | The Buildkite pipeline to interact with.                                                                          |
-| `branch`            | String  | `main`                                              | Branch the commit belongs to. This allows you to take advantage of your pipeline and step-level branch filtering rules. |
-| `commit`            | String  | `HEAD`                                              | Ref, SHA or tag to be built.                                                                                      |
-| `message`            | String  | `Triggered automatically with GH actions`           | The Buildkite build message to be shown in the UI.                                                                |
-| `wait-for`                   | boolean | `false`                                             | Whether to wait for the build to finish.                                                                          |
-| `env-vars`              | String  |                                                     | Additional environment variables to set on the build, in KEY=VALUE format. No double quoting or extra `=`         |
+| Name         | Type    | Default                                             | Description                                                                                                       |
+|--------------|---------|-----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| `org`        | String  | `elastic`                                           | The Buildkite org.                                                                                                |
+| `pipeline`   | String  |                                                     | The Buildkite pipeline to interact with.                                                                          |
+| `branch`     | String  | `main`                                              | Branch the commit belongs to. This allows you to take advantage of your pipeline and step-level branch filtering rules. |
+| `commit`     | String  | `HEAD`                                              | Ref, SHA or tag to be built.                                                                                      |
+| `message`    | String  | `"Triggered automatically - ${{ github.repository }}@${{ github.ref_name }} ${{ github.event_name }}/${{ github.workflow }}"`| The Buildkite build message to be shown in the UI.  |
+| `wait-for`   | boolean | `false`                                             | Whether to wait for the build to finish.                                                                          |
+| `env-vars`   | String  |                                                     | Additional environment variables to set on the build, in KEY=VALUE format. No double quoting or extra `=`         |
 
 ### outputs
 
-| Name              | Type    | Description               |
-|-------------------|---------| --------------------------|
-| `build`           | String  |  The Buildkite build URL. |
-| `build_number`    | String  |  The Buildkite build URL. |
-| `build_state`     | String  |  The Buildkite build URL. |
+| Name              | Type    | Description                   |
+|-------------------|---------| ------------------------------|
+| `build`           | String  |  The Buildkite web Build URL. |
+| `url`             | String  |  The Buildkite build URL.     |
+| `number`          | String  |  The Buildkite build number.  |
+| `state`           | String  |  The Buildkite build state if `wait-for=true`. |
 
 
 ## Usage
 
 ```yaml
 jobs:
-  run-oblt-cli:
+  run-buildkite:
     runs-on: ubuntu-latest
     steps:
-      - uses: elastic/oblt-actions/oblt-cli/run@v1
+      - uses: elastic/oblt-actions/buildkite/run@v1
         with:
-          command: 'cluster create ccs --remote-cluster=dev-oblt --cluster-name-prefix mycustomcluster'
-          token: ${{ secrets.PAT_TOKEN }}
+          token: ${{ secrets.BUILDKITE_TOKEN }}
+          pipeline: 'my-super-pipeline'
 ```
