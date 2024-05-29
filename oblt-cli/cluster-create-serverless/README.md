@@ -21,7 +21,6 @@ Following inputs can be used as `step.with` keys
 ## Usage
 
 ```yaml
-
 jobs:
   create-serverless:
     runs-on: ubuntu-latest
