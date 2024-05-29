@@ -3,13 +3,13 @@
 # Given some parameters it will trigger a build in Buidkite
 #
 # Parameters:
-#  $1 -> the BK org. Mandatory.
-#  $2 -> the BK pipeline. Mandatory.
-#  $3 -> the build env vars in json format. Mandatory. "" if empty
-#  $4 -> the BK token. Mandatory.
+#  $1 -> the BK token. Mandatory.
+#  $2 -> the BK org. Mandatory.
+#  $3 -> the BK pipeline. Mandatory.
+#  $4 -> the build env vars in json format. Mandatory. "" if empty
 #  $5 -> the BK build message. Mandatory.
 #  $6 -> the Pipeline version. Mandatory.
-#  $6 -> the Pipeline branch. Mandatory.
+#  $7 -> the Pipeline branch. Mandatory.
 #
 # NOTE:
 #  ignore_pipeline_branch_filters: By default Buildkite works only on master. As we want
@@ -18,19 +18,19 @@
 set -euo pipefail
 
 MSG="parameter missing."
-ORG=${1:?$MSG}
-PIPELINE=${2:?$MSG}
-BUILD_VARS=${3:-''}
-BK_TOKEN=${4:?$MSG}
+BK_TOKEN=${1:?$MSG}
+ORG=${2:?$MSG}
+PIPELINE=${3:?$MSG}
+BUILD_VARS=${4:-''}
 MESSAGE=${5:-"Triggered automatically with GH actions"}
 PIPELINE_VERSION=${6:-"HEAD"}
 PIPELINE_BRANCH=${7:-"main"}
 
 JSON=$(
 jq -c -n \
-  --arg COMMIT "$PIPELINE_VERSION" \
+  --arg COMMIT "${PIPELINE_VERSION}" \
   --arg BRANCH "${PIPELINE_BRANCH}" \
-  --arg MESSAGE "$MESSAGE" \
+  --arg MESSAGE "${MESSAGE}" \
   '{
     "commit": $COMMIT,
     "branch": $BRANCH,

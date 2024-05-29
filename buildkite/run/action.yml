@@ -53,10 +53,10 @@ runs:
       id: trigger-buildkite
       run: |
         ${{ github.action_path }}/run.sh \
+          '${{ env.BK_TOKEN }}' \
           '${{ env.ORG }}' \
           '${{ env.PIPELINE }}' \
           '${{ env.ENV_VARS }}' \
-          '${{ env.BK_TOKEN }}' \
           '${{ env.MESSAGE }}' \
           '${{ env.COMMIT }}' \
           '${{ env.BRANCH }}'
