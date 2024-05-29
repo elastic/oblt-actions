@@ -19,6 +19,11 @@ permissions:
 
 jobs:
   test:
+    strategy:
+      matrix:
+        include:
+          - gitops: true
+          - gitops: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,6 +35,6 @@ jobs:
           github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
           template: 'deploy-kibana'
           cluster-name-prefix: 'testgithubaction'
-          gitops: false
+          gitops: ${{ matrix.gitops }}
           dry-run: ${{ github.event.inputs.dry-run || false }}
           parameters: '{"RemoteClusterName":"release-oblt","StackVersion":"8.7.0","KibanaDockerImage":"foo"}'
