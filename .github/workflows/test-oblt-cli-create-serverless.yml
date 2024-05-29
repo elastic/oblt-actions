@@ -1,0 +1,32 @@
+name: test-oblt-cli-cluster-create-serverless
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Dry run'
+        required: true
+        default: false
+        type: boolean
+  push:
+    paths:
+      - '.github/workflows/test-oblt-cli-create-serverless.yml'
+      - 'oblt-cli/cluster-create-serverless/**'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: elastic/oblt-actions/google/auth@v1
+      - uses: elastic/oblt-actions/git/setup@v1
+      - uses: ./oblt-cli/cluster-create-serverless
+        with:
+          github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
+          target: 'qa'
+          dry-run: ${{ github.event.inputs.dry-run || false }}
+          cluster-name-prefix: 'foo'
