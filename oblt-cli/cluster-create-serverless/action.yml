@@ -84,6 +84,12 @@ runs:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
         username: ${{ inputs.username }}
+    # The JSON in the $PARAMTERS env is escaped or interpreted in way
+    # that the oblt-cli does not understand, which lead to the error:
+    #
+    # invalid character '\'' looking for beginning of value
+    #
+    # With $(echo -n $PARAMETERS | xargs) it was possible to pass the parameters arg to the oblt-cli
     - run: |
         oblt-cli cluster create custom \
           --template serverless \
