@@ -96,7 +96,7 @@ runs:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
         username: ${{ inputs.username }}
-    # safe to use ${{ env.XYZ }} because it's not untrusted user input
+
     - run: oblt-cli cluster create custom ${{ steps.flags.outputs.COMMAND }} --parameters='${{ steps.flags.outputs.PARAMETERS }}'
       shell: bash
       env:
