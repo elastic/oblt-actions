@@ -89,10 +89,10 @@ runs:
     - run: |
         oblt-cli cluster create custom \
           --template serverless \
-          ${{ steps.flags.output.DRY_RUN }} \
-          ${{ steps.flags.output.CLUSTER_NAME_PREFIX }} \
-          ${{ steps.flags.output.CLUSTER_NAME_SUFFIX }} \
-          ${{ steps.flags.output.PARAMETERS }}
+          ${{ steps.flags.outputs.DRY_RUN }} \
+          ${{ steps.flags.outputs.CLUSTER_NAME_PREFIX }} \
+          ${{ steps.flags.outputs.CLUSTER_NAME_SUFFIX }} \
+          ${{ steps.flags.outputs.PARAMETERS }}
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
