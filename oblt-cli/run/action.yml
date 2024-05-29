@@ -24,7 +24,7 @@ runs:
         slack-channel: ${{ inputs.slack-channel }}
         username: ${{ inputs.username }}
     - name: run oblt-cli
-      run: oblt-cli ${{ inputs.command }} --verbose --disable-banner
+      run: oblt-cli ${COMMAND} --verbose --disable-banner
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
