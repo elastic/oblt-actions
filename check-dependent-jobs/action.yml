@@ -15,11 +15,11 @@ outputs:
 runs:
   using: composite
   steps:
+    - if: ${{ runner.debug }}
+      run: echo "${{ inputs.needs }}"
+      shell: bash
     - id: test
       run: |
-        echo "##[debug] needs: ${{ inputs.needs }}"
-        echo "##[debug] needs: ${{ needs }}"
-
         RESULT=$(echo '${{ inputs.needs }}' | jq -s 'map(.[].result) | all(.=="success")')
         echo "is-success=${RESULT}" >> $GITHUB_OUTPUT
         if [[ $RESULT == true ]]; then
