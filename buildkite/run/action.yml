@@ -1,0 +1,97 @@
+---
+name: buildkite/run
+description: A GitHub Action for triggering a build on a Buildkite pipeline.
+inputs:
+  branch:
+    description: 'Branch the commit belongs to. This allows you to take advantage of your pipeline and step-level branch filtering rules.'
+    default: main
+    required: false
+  commit:
+    description: 'Ref, SHA or tag to be built.'
+    default: HEAD
+    required: false
+  env-vars:
+    description: 'Additional environment variables to set on the build.'
+    required: false
+  message:
+    description: 'The BK build message to be shown in the UI.'
+    default: "Triggered automatically - ${{ github.workflow_ref }} (${{ github.event_name }})"
+    required: false
+  org:
+    description: 'Buildkite org to interact with.'
+    default: elastic
+    required: false
+  pipeline:
+    description: 'Buildkite pipeline to interact with.'
+    required: true
+  token:
+    description: 'Buildkite token.'
+    required: true
+  wait-for:
+    description: 'Whether to wait for the build to finish.'
+    default: false
+    required: false
+
+outputs:
+  build:
+    description: "The Buildkite web build url"
+    value: ${{ steps.trigger-buildkite.outputs.build }}
+  number:
+    description: "The Buildkite build number"
+    value: ${{ steps.trigger-buildkite.outputs.number }}
+  state:
+    description: "The Buildkite build state"
+    value: ${{ steps.trigger-buildkite.outputs.state }}
+  url:
+    description: "The Buildkite build url"
+    value: ${{ steps.trigger-buildkite.outputs.url }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Trigger Buildkite pipeline
+      id: trigger-buildkite
+      run: |
+        ${{ github.action_path }}/run.sh \
+          "${BK_TOKEN}" \
+          "${ORG}" \
+          "${PIPELINE}" \
+          "${ENV_VARS}" \
+          "${MESSAGE}" \
+          "${COMMIT}" \
+          "${BRANCH}"
+      env:
+        BK_TOKEN: ${{ inputs.token }}
+        ENV_VARS: ${{ inputs.env-vars }}
+        BRANCH: ${{ inputs.branch }}
+        COMMIT: ${{ inputs.commit }}
+        MESSAGE: ${{ inputs.message }}
+        ORG: ${{ inputs.org }}
+        PIPELINE: ${{ inputs.pipeline }}
+      shell: bash
+
+    - if: ${{ inputs.wait-for == 'true' }}
+      name: Wait for
+      run: |
+        ${{ github.action_path }}/wait-for.sh \
+          '${{ steps.trigger-buildkite.outputs.url }}' \
+          '${{ steps.trigger-buildkite.outputs.build }}' \
+          "${BK_TOKEN}"
+      env:
+        BK_TOKEN: ${{ inputs.token }}
+      shell: bash
+
+    - name: Cancel Buildkite pipeline
+      if: cancelled() && inputs.wait-for == 'true' && steps.trigger-buildkite.outputs.number
+      run: |
+        curl \
+          --no-progress-meter \
+          -H "Authorization: Bearer $BK_TOKEN" \
+          -X "PUT" \
+          "https://api.buildkite.com/v2/organizations/$ORG/pipelines/$PIPELINE/builds/$NUMBER/cancel"
+      env:
+        BK_TOKEN: ${{ inputs.token }}
+        ORG: ${{ inputs.org }}
+        PIPELINE: ${{ inputs.pipeline }}
+        NUMBER: ${{ steps.trigger-buildkite.outputs.number }}
+      shell: bash
