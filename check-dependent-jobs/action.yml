@@ -17,6 +17,8 @@ runs:
   steps:
     - id: test
       run: |
+        echo "##[debug] needs: ${{ inputs.needs }}"
+
         RESULT=$(echo '${{ inputs.needs }}' | jq -s 'map(.[].result) | all(.=="success")')
         echo "is-success=${RESULT}" >> $GITHUB_OUTPUT
         if [[ $RESULT == true ]]; then
