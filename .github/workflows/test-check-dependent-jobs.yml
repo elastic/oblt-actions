@@ -25,12 +25,12 @@ jobs:
       - uses: ./check-dependent-jobs
         id: check
         with:
-          needs: '{ "job-a": { result: "success" }, "job-b": { result: "success" } }'
+          needs: '{ "job-a": { "result": "success" }, "job-b": { "result": "success" } }'
       - name: assert
         run: test "${{ steps.check.outputs.is-success }}" = "true"
       - uses: ./check-dependent-jobs
         id: check-2
         with:
-          needs: '{ "job-a": { result: "success" }, "job-b": { result: "failure" } }'
+          needs: '{ "job-a": { "result": "success" }, "job-b": { "result": "failure" } }'
       - name: assert
         run: test "${{ steps.check-2.outputs.is-success }}" = "false"
