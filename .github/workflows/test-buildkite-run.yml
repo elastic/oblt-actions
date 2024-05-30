@@ -17,6 +17,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./buildkite/run
         with:
-          pipeline: 'apm-agent-microbenchmark'
+          pipeline: 'oblt-hello-world'
           token: ${{ secrets.BUILDKITE_TOKEN }}
           wait-for: false
