@@ -15,9 +15,6 @@ outputs:
 runs:
   using: composite
   steps:
-    - if: ${{ runner.debug }}
-      run: echo "${{ inputs.needs }}"
-      shell: bash
     - id: test
       run: |
         RESULT=$(echo '${{ inputs.needs }}' | jq -s 'map(.[].result) | all(.=="success")')
