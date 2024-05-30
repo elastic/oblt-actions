@@ -53,13 +53,13 @@ runs:
       id: trigger-buildkite
       run: |
         ${{ github.action_path }}/run.sh \
-          '${{ env.BK_TOKEN }}' \
-          '${{ env.ORG }}' \
-          '${{ env.PIPELINE }}' \
-          '${{ env.ENV_VARS }}' \
-          '${{ env.MESSAGE }}' \
-          '${{ env.COMMIT }}' \
-          '${{ env.BRANCH }}'
+          "${BK_TOKEN}" \
+          "${ORG}" \
+          "${PIPELINE}" \
+          "${ENV_VARS}" \
+          "${MESSAGE}" \
+          "${COMMIT}" \
+          "${BRANCH}"
       env:
         BK_TOKEN: ${{ inputs.token }}
         ENV_VARS: ${{ inputs.env-vars }}
@@ -76,7 +76,7 @@ runs:
         ${{ github.action_path }}/wait-for.sh \
           '${{ steps.trigger-buildkite.outputs.url }}' \
           '${{ steps.trigger-buildkite.outputs.build }}' \
-          '${{ env.BK_TOKEN }}'
+          "${BK_TOKEN}"
       env:
         BK_TOKEN: ${{ inputs.token }}
       shell: bash
