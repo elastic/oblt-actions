@@ -34,3 +34,9 @@ jobs:
           needs: '{ "job-a": { "result": "success" }, "job-b": { "result": "failure" } }'
       - name: assert
         run: test "${{ steps.check-2.outputs.is-success }}" = "false"
+      - uses: ./check-dependent-jobs
+        id: check-3
+        with:
+          needs: '{ "job-a": { "result": "failure" }, "job-b": { "result": "failure" } }'
+      - name: assert
+        run: test "${{ steps.check-3.outputs.is-success }}" = "false"
