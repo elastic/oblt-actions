@@ -6,13 +6,13 @@ on:
       - main
     paths:
       - '.github/workflows/test-check-dependent-jobs.yml'
-      - 'oblt-cli/check-dependent-jobs/**'
+      - 'check-dependent-jobs/**'
   push:
     branches:
       - main
     paths:
       - '.github/workflows/test-check-dependent-jobs.yml'
-      - 'oblt-cli/check-dependent-jobs/**'
+      - 'check-dependent-jobs/**'
 
 permissions:
   contents: read
