@@ -18,25 +18,19 @@ permissions:
   contents: read
 
 jobs:
-  test-a:
-    runs-on: ubuntu-latest
-    steps:
-      - run: exit 0
-  test-b:
-    runs-on: ubuntu-latest
-    steps:
-      - run: exit 0
   test:
-    if: always()
     runs-on: ubuntu-latest
-    needs:
-      - test-a
-      - test-b
     steps:
       - uses: actions/checkout@v4
       - uses: ./check-dependent-jobs
         id: check
         with:
-          needs: ${{ toJSON(needs) }}
+          needs: '{ "job-a": { result: "success" }, "job-b": { result: "success" } }'
       - name: assert
-        run: ${{ steps.check.outputs.is-success }}
+        run: test "${{ steps.check.outputs.is-success }}" = "true"
+      - uses: ./check-dependent-jobs
+        id: check-2
+        with:
+          needs: '{ "job-a": { result: "success" }, "job-b": { result: "failure" } }'
+      - name: assert
+        run: test "${{ steps.check-2.outputs.is-success }}" = "false"
