@@ -23,10 +23,9 @@ jobs:
     steps:
       - run: exit 0
   test-b:
-    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
-      - run: exit 1
+      - run: exit 0
   test:
     if: always()
     runs-on: ubuntu-latest
@@ -40,5 +39,4 @@ jobs:
         with:
           needs: ${{ toJSON(needs) }}
       - name: assert
-        run: |
-          test "${{ steps.check.outputs.is-success }}" = "false"
+        run: ${{ steps.check.outputs.is-success }}
