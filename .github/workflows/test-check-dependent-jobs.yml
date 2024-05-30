@@ -34,7 +34,7 @@ jobs:
       - test-b
     steps:
       - uses: actions/checkout@v4
-      - uses: ./test-check-dependent-jobs
+      - uses: ./check-dependent-jobs
         id: check
         with:
           needs: ${{ toJSON(needs) }}
