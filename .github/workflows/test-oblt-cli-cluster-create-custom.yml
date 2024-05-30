@@ -32,4 +32,4 @@ jobs:
           cluster-name-prefix: 'testgithubaction'
           gitops: false
           dry-run: ${{ github.event.inputs.dry-run || false }}
-          parameters: '{"RemoteClusterName":"release-oblt","StackVersion":"8.7.0","KibanaDockerImage":"foo"}'
+          parameters: '{"RemoteClusterName":"release-oblt","StackVersion":"8.7.0","KibanaDockerImage":"docker.elastic.co/observability-ci/kibana-cloud:8.7.0-SNAPSHOT"}'
