@@ -32,7 +32,7 @@ jobs:
 
       - name: Assert signed-artifacts/ exists
         run: test -d signed-artifacts
-  
+
       - name: Assert signed-artifacts/ contains any files
         run: test -n "$(ls signed-artifacts/**)"
 
