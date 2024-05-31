@@ -15,7 +15,7 @@ inputs:
   pipeline:
     description: 'Buildkite pipeline to interact with.'
     required: true
-  build:
+  build-number:
     description: 'Buildkite pipeline build to interact with.'
     required: true
 
@@ -28,7 +28,7 @@ runs:
         python ${{ github.action_path }}/download_artifacts.py
       env:
         ARTIFACT_PATH: ${{ inputs.artifact-path }}
-        BUILD_NUMBER: ${{ inputs.build }}
+        BUILD_NUMBER: ${{ inputs.build-number }}
         ORG: ${{ inputs.org }}
         PIPELINE: ${{ inputs.pipeline }}
         BUILDKITE_API_ACCESS_TOKEN: ${{ inputs.token }}
