@@ -26,7 +26,7 @@ jobs:
       - uses: ./buildkite/download
         with:
           artifact-path: "signed-artifacts/**"
-          build: ${{ steps.buildkite-run.outputs.build }}
+          build-number: ${{ steps.buildkite-run.outputs.build }}
           pipeline: 'oblt-hello-world'
           token: ${{ secrets.BUILDKITE_TOKEN }}
 
