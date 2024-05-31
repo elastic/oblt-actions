@@ -34,7 +34,7 @@ jobs:
         run: test -d signed-artifacts
   
       - name: Assert signed-artifacts/ contains any files
-        run: test -n "$(signed-artifacts/**)"
+        run: test -n "$(ls signed-artifacts/**)"
 
       - uses: ./buildkite/download
         with:
