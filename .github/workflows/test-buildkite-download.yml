@@ -25,16 +25,6 @@ jobs:
 
       - uses: ./buildkite/download
         with:
-          artifact-path: "artifacts.zip"
-          build-number: ${{ steps.buildkite-run.outputs.number }}
-          pipeline: 'oblt-hello-world'
-          token: ${{ secrets.BUILDKITE_TOKEN }}
-
-      - name: Assert artifacts.zip exists
-        run: test -e artifacts.zip
-
-      - uses: ./buildkite/download
-        with:
           artifact-path: "signed-artifacts/**"
           build: ${{ steps.buildkite-run.outputs.build }}
           pipeline: 'oblt-hello-world'
@@ -45,3 +35,13 @@ jobs:
   
       - name: Assert signed-artifacts/ contains any files
         run: test -n "$(signed-artifacts/**)"
+
+      - uses: ./buildkite/download
+        with:
+          artifact-path: "artifacts.zip"
+          build-number: ${{ steps.buildkite-run.outputs.number }}
+          pipeline: 'oblt-hello-world'
+          token: ${{ secrets.BUILDKITE_TOKEN }}
+
+      - name: Assert artifacts.zip exists
+        run: test -e artifacts.zip
