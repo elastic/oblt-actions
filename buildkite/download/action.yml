@@ -33,4 +33,3 @@ runs:
         PIPELINE: ${{ inputs.pipeline }}
         BUILDKITE_API_ACCESS_TOKEN: ${{ inputs.token }}
       shell: bash
-      
