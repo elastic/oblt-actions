@@ -1,0 +1,47 @@
+name: test-buildkite-download
+
+on:
+  workflow_dispatch: ~
+  push:
+    paths:
+      - '.github/workflows/test-buildkite-download.yml'
+      - 'buildkite/download/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: buildkite-run
+        uses: ./buildkite/run
+        with:
+          pipeline: 'oblt-hello-world'
+          token: ${{ secrets.BUILDKITE_TOKEN }}
+          wait-for: true
+
+      - uses: ./buildkite/download
+        with:
+          artifact-path: "artifacts.zip"
+          build: ${{ steps.buildkite-run.outputs.build }}
+          pipeline: 'oblt-hello-world'
+          token: ${{ secrets.BUILDKITE_TOKEN }}
+
+      - name: Assert artifacts.zip exists
+        run: test -e artifacts.zip
+
+      - uses: ./buildkite/download
+        with:
+          artifact-path: "signed-artifacts/**"
+          build: ${{ steps.buildkite-run.outputs.build }}
+          pipeline: 'oblt-hello-world'
+          token: ${{ secrets.BUILDKITE_TOKEN }}
+
+      - name: Assert signed-artifacts/ exists
+        run: test -d signed-artifacts
+  
+      - name: Assert signed-artifacts/ contains any files
+        run: test -n "$(signed-artifacts/**)"
