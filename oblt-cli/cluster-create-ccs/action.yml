@@ -81,7 +81,7 @@ runs:
       uses: actions/github-script@v7
       id: flags
       env:
-        remote-cluster: ${{ inputs.remote-cluster }}
+        remote_cluster: ${{ inputs.remote-cluster }}
         cluster_name_prefix: ${{ inputs.cluster-name-prefix }}
         cluster_name_suffix: ${{ inputs.cluster-name-suffix }}
         elasticsearch_docker_image: ${{ inputs.elasticsearch-docker-image }}
@@ -90,6 +90,7 @@ runs:
       with:
         script: |
           const {
+            remote_cluster,
             cluster_name_prefix,
             cluster_name_suffix,
             elasticsearch_docker_image,
