@@ -25,18 +25,18 @@ jobs:
       - uses: ./check-dependent-jobs
         id: check
         with:
-          needs: '{ "job-a": { "result": "success" }, "job-b": { "result": "success" } }'
+          jobs: '{ "job-a": { "result": "success" }, "job-b": { "result": "success" } }'
       - name: assert outputs.is-success==true
         run: test "${{ steps.check.outputs.is-success }}" = "true"
       - uses: ./check-dependent-jobs
         id: check-2
         with:
-          needs: '{ "job-a": { "result": "success" }, "job-b": { "result": "failure" } }'
+          jobs: '{ "job-a": { "result": "success" }, "job-b": { "result": "failure" } }'
       - name: assert outputs.is-success==false
         run: test "${{ steps.check-2.outputs.is-success }}" = "false"
       - uses: ./check-dependent-jobs
         id: check-3
         with:
-          needs: '{ "job-a": { "result": "failure" }, "job-b": { "result": "failure" } }'
+          jobs: '{ "job-a": { "result": "failure" }, "job-b": { "result": "failure" } }'
       - name: assert outputs.is-success==true
         run: test "${{ steps.check-3.outputs.is-success }}" = "false"

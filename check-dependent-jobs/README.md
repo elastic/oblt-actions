@@ -10,9 +10,9 @@ in combination with the `notify-built-status` action.
 
 Following inputs can be used as `step.with` keys
 
-| Name         | Type    | Default                     | Description                      |
-|--------------|---------|-----------------------------|----------------------------------|
-| `needs`      | String  |                             | JSON string of the needs context |
+| Name   | Type    | Default                     | Description                      |
+|--------|---------|-----------------------------|----------------------------------|
+| `jobs` | String  |                             | JSON string of the needs context |
 
 ## Outputs
 
@@ -44,6 +44,6 @@ jobs:
       - id: check
         uses: elastic/oblt-actions/check-dependent-jobs@v1
         with:
-          needs: ${{ toJSON(needs) }}
+          jobs: ${{ toJSON(needs) }}
       - run: ${{ steps.check.outputs.is-success }} # should exit with 1 or 0.
 ```
