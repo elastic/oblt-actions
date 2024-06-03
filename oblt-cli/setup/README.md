@@ -1,4 +1,4 @@
-# <!--name-->Setup oblt-cli<!--/name-->
+# <!--name-->oblt-cli/setup<!--/name-->
 
 <!--description-->
 Setup oblt-cli for use in GitHub Actions workflows.

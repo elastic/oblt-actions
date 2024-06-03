@@ -1,4 +1,4 @@
-# <!--name-->Configure git CLI<!--/name-->
+# <!--name-->git/setup<!--/name-->
 
 <!--description-->
 Setup the git usename, email, and authentication with git CLI.

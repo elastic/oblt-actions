@@ -1,4 +1,4 @@
-# <!--name-->Oblt-cli create custom<!--/name-->
+# <!--name-->oblt-cli/cluster-create-custom<!--/name-->
 
 <!--description-->
 Run the oblt-cli wrapper to create a custom cluster.
