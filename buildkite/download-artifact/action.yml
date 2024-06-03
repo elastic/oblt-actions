@@ -1,0 +1,35 @@
+---
+name: buildkite/download-artifact
+description: A GitHub Action for downloading artifacts from a Buildkite build.
+inputs:
+  token:
+    description: 'Buildkite token.'
+    required: true
+  org:
+    description: 'Buildkite org to interact with.'
+    default: elastic
+    required: false
+  path:
+    description: A file, directory or wildcard pattern that describes what to upload
+    required: true
+  pipeline:
+    description: 'Buildkite pipeline to interact with.'
+    required: true
+  build-number:
+    description: 'Buildkite pipeline build to interact with.'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Download artifacts
+      run: |
+        pip install globber==0.2.1
+        python ${{ github.action_path }}/download_artifacts.py
+      env:
+        ARTIFACT_PATH: ${{ inputs.path }}
+        BUILD_NUMBER: ${{ inputs.build-number }}
+        ORG: ${{ inputs.org }}
+        PIPELINE: ${{ inputs.pipeline }}
+        BUILDKITE_API_ACCESS_TOKEN: ${{ inputs.token }}
+      shell: bash
