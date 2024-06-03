@@ -40,58 +40,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Configure oblt-cli flags for gitops - issues
-      id: gitops
-      if: ${{ !github.event.issue.pull_request && contains(inputs.gitops, 'true') }}
-      run: |
-        {
-          echo -n '{'
-          echo -n '"GitOps":"true",'
-          echo -n '"GitHubRepository":"${{ github.repository }}"'
-          [ -n '${{ github.event.issue.number }}' ] && echo -n ',"GitHubIssue":"${{ github.event.issue.number }}"'
-          echo -n '}'
-        } > .gitops
-        echo "GITOPS=$(cat .gitops)" >> $GITHUB_OUTPUT
-        rm .gitops
-      shell: bash
-
-    - name: Configure oblt-cli flags for gitops - pull-request
-      id: gitops-pr
-      if: github.event.issue.pull_request && contains(inputs.gitops, 'true')
-      run: |
-        {
-          echo -n '{'
-          echo -n '"GitOps":"true",'
-          echo -n '"GitHubRepository":"${{ github.repository }}",'
-          echo -n '"GitHubCommit":"${{ github.event.comment.id }}",'
-          echo -n '"GitHubPullRequest":"${{ github.event.issue.number }}"'
-          echo -n '}'
-        } > .gitops
-        echo "GITOPS=$(cat .gitops)" >> $GITHUB_OUTPUT
-        rm .gitops
-      shell: bash
-
-    - name: Configure oblt-cli flags
-      id: flags
-      run: |
-        {
-          echo -n '--template=${{ inputs.template }} '
-          [ -n '${{ inputs.cluster-name-prefix }}' ] \
-            && echo -n '--cluster-name-prefix=${{ inputs.cluster-name-prefix }} '
-          [ -n '${{ inputs.cluster-name-suffix }}' ] \
-            && echo -n '--cluster-name-suffix=${{ inputs.cluster-name-suffix }} '
-          [ '${{ inputs.dry-run }}' == 'true' ] \
-            && echo -n '--dry-run '
-          [ '${{ inputs.skip-random-name }}' == 'true' ] \
-            && echo -n '--skip-random-name '
-        } > .flags
-        echo "COMMAND=$(cat .flags)" >> $GITHUB_OUTPUT
-        rm .flags
-        # Merge GITOPS with the PARAMETERS
-        MERGED=$(echo '${{ inputs.parameters }} ${{ steps.gitops.outputs.GITOPS || steps.gitops-pr.outputs.GITOPS }} {"EphemeralCluster":"true"}' | jq -c -s add)
-        echo "PARAMETERS=${MERGED}" >> $GITHUB_OUTPUT
-      shell: bash
-
     - name: Configure oblt-cli flags
       id: new-flags
       uses: actions/github-script@v7
