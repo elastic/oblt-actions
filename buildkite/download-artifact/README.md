@@ -32,6 +32,6 @@ jobs:
         with:
           build: ${{ steps.buildkite-run.outputs.build }}
           path: "artifacts.tar"
-          pipeline: "my-super-pipeline"
+          pipeline: ${{ steps.buildkite-run.outputs.pipeline }}
           token: ${{ secrets.BUILDKITE_TOKEN }}
 ```

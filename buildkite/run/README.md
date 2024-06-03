@@ -25,9 +25,10 @@ Following inputs can be used as `step.with` keys
 | Name              | Type    | Description                   |
 |-------------------|---------| ------------------------------|
 | `build`           | String  |  The Buildkite web Build URL. |
-| `url`             | String  |  The Buildkite build URL.     |
 | `number`          | String  |  The Buildkite build number.  |
+| `pipeline`        | String  |  The Buildkite pipeline. |
 | `state`           | String  |  The Buildkite build state if `wait-for=true`. |
+| `url`             | String  |  The Buildkite build URL.     |
 
 
 ## Usage
