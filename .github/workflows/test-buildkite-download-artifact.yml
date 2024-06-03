@@ -27,7 +27,7 @@ jobs:
         with:
           path: "signed-artifacts/**"
           build-number: ${{ steps.buildkite-run.outputs.number }}
-          pipeline: 'oblt-hello-world'
+          pipeline: ${{ steps.buildkite-run.outputs.pipeline }}
           token: ${{ secrets.BUILDKITE_TOKEN }}
 
       - name: Assert signed-artifacts/ exists
@@ -40,7 +40,7 @@ jobs:
         with:
           path: "artifacts.zip"
           build-number: ${{ steps.buildkite-run.outputs.number }}
-          pipeline: 'oblt-hello-world'
+          pipeline: ${{ steps.buildkite-run.outputs.pipeline }}
           token: ${{ secrets.BUILDKITE_TOKEN }}
 
       - name: Assert artifacts.zip exists
