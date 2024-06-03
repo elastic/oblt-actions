@@ -1,23 +1,26 @@
-## About
+# <!--name-->oblt-cli/cluster-name-validation<!--/name-->
 
-GitHub Action to gather the cluster-name and run some validation based on the different inputs.
-This is likely to be used within other GitHub actions.
+<!--description-->
+Get the cluster name based on the parameters
+<!--/description-->
 
 ## Inputs
-
-| name                | description                           | required | Default |
+<!--inputs-->
+| Name                | Description                           | Required | Default |
 |---------------------|---------------------------------------|----------|---------|
-| `cluster-name`      | The cluster name                      | `false`  | -       |
-| `cluster-info-file` | The cluster info file (absolute path) | `false`  | -       |
+| `cluster-name`      | The cluster name                      | `false`  | ` `     |
+| `cluster-info-file` | The cluster info file (absolute path) | `false`  | ` `     |
+<!--/inputs-->
 
 ## Outputs
-
-| Name           | Type    | Description      |
-|----------------|---------|------------------|
-| `cluster-name` | String  | The cluster name |
+<!--outputs-->
+| Name           | Description      |
+|----------------|------------------|
+| `cluster-name` | The cluster name |
+<!--/outputs-->
 
 ## Usage
-
+<!--usage action="elastic/oblt-actions/oblt-cli/cluster-name-validation" version="env:VERSION"-->
 ```yaml
 jobs:
   get-cluster-name:
@@ -45,3 +48,4 @@ jobs:
           cluster-info-file: ${{ github.workspace }}/cluster-info.json
       - run: echo "${{ steps.cluster.outputs.cluster-name }}
 ```
+<!--/usage-->

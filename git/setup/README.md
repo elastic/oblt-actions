@@ -1,15 +1,21 @@
-# git/setup
+# <!--name-->Configure git CLI<!--/name-->
 
-GitHub Action that setups the git username, email, and authentication with git CLI
+<!--description-->
+Setup the git usename, email, and authentication with git CLI.
+After this action you can use https URL repos in git commands.
+The GITHUB_TOKEN (not needed here) will be used to authenticate with the git CLI,
+after this action.
+<!--/description-->
 
 ## Inputs
-
-| name           | description             | required | default                                |
-|----------------|-------------------------|----------|----------------------------------------|
-| `username`     | <p>Git username</p>     | `false`  | `obltmachine`                          |
-| `email`        | <p>Git email</p>        | `false`  | `obltmachine@users.noreply.github.com` |
-| `trace`        | <p>Enable git trace</p> | `false`  | `false`                                |
-| `github-token` | <p>GitHub token</p>     | `false`  | `${{ github.token }}`                  |
+<!--inputs-->
+| Name           | Description      | Required | Default                                |
+|----------------|------------------|----------|----------------------------------------|
+| `username`     | Git username     | `false`  | `obltmachine`                          |
+| `email`        | Git email        | `false`  | `obltmachine@users.noreply.github.com` |
+| `trace`        | Enable git trace | `false`  | `false`                                |
+| `github-token` | GitHub token     | `false`  | `${{ github.token }}`                  |
+<!--/inputs-->
 
 ## Exported Environment Variables
 
@@ -20,6 +26,7 @@ GitHub Action that setups the git username, email, and authentication with git C
 
 ## Usage
 
+<!--usage action="elastic/oblt-actions/git/setup" version="env:VERSION"-->
 ```yaml
 ---
 name: deploy
@@ -36,3 +43,4 @@ jobs:
           github-token: ${{ secrets.MY_GITHUB_PAT }}
       # ...
 ```
+<!--/usage-->

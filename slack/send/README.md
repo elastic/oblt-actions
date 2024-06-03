@@ -1,23 +1,17 @@
-# slack/send
-
-* [Inputs](#inputs)
-* [Usage](#usage)
-  * [Workflow](#workflow)
+# <!--name-->slack/send<!--/name-->
 
 ## Inputs
-
-| name         | description                                         | required | default  |
-|--------------|-----------------------------------------------------|----------|----------|
-| `bot-token`  | <p>The slack bot token</p>                          | `true`   |          |
-| `channel-id` | <p>The slack channel ID</p>                         | `true`   |          |
-| `message`    | <p>The slack message to be sent in MD format</p>    | `true`   |          |
+<!--inputs-->
+| Name         | Description                                       | Required | Default |
+|--------------|---------------------------------------------------|----------|---------|
+| `channel-id` |                                                   | `true`   | ` `     |
+| `bot-token`  | Specify the slack bot token.                      | `true`   | ` `     |
+| `message`    | Specify the message to be sent (markdown format). | `true`   | ` `     |
+<!--/inputs-->
 
 ## Usage
 
-Send a Slack message for GitHub Action
-
-### Workflow
-
+<!--usage action="elastic/oblt-actions/slack/send" version="env:VERSION"-->
 ```yaml
 name: slack
 
@@ -31,3 +25,4 @@ jobs:
           channel-id: "#my-channel"
           message: "Run something"
 ```
+<!--/usage-->

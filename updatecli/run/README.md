@@ -1,21 +1,12 @@
-# updatecli/run
-
-* [Inputs](#inputs)
-* [Usage](#usage)
-  * [Workflow](#workflow)
+# <!--name-->updatecli/run<!--/name-->
 
 ## Inputs
 
-| name               | description                                               | required | default  |
-|--------------------|-----------------------------------------------------------|----------|----------|
-| `command`          | <p>The updatecli command to run</p>                       | `true`   |          |
+<!--inputs-->
 
 ## Usage
 
-Install Updatecli for GitHub Action
-
-### Workflow
-
+<!--usage action="elastic/oblt-actions/updatecli/run" version="env:VERSION"-->
 ```yaml
 name: updatecli
 
@@ -31,3 +22,4 @@ jobs:
         with:
           command: apply --config updatecli/updatecli.d
 ```
+<!--/usage-->
