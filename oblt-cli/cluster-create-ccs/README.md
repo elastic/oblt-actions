@@ -1,13 +1,14 @@
 # oblt-cli/cluster-create-ccs
-
-GitHub Action to run the oblt-cli wrapper to create a CCS cluster
+<!--description-->
+Run the oblt-cli wrapper to create a CCS cluster.
+<!--/description-->
 
 ## Inputs
 <!--inputs-->
 | Name                         | Description                                                         | Required | Default            |
 |------------------------------|---------------------------------------------------------------------|----------|--------------------|
 | `remote-cluster`             | The Oblt cluster to use                                             | `true`   | ` `                |
-| `token`                      | The GitHub access token.                                            | `true`   | ` `                |
+| `github-token`               | The GitHub access token.                                            | `true`   | ` `                |
 | `cluster-name-prefix`        | Prefix to be prepended to the randomised cluster name               | `false`  | ` `                |
 | `cluster-name-suffix`        | Suffix to be appended to the randomised cluster name                | `false`  | ` `                |
 | `elasticsearch-docker-image` | Force to use a Docker image for the Elasticserach Deployment        | `false`  | ` `                |
