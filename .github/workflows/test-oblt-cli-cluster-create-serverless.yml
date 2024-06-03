@@ -29,5 +29,5 @@ jobs:
         with:
           github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
           target: 'qa'
-          dry-run: ${{ github.event.inputs.dry-run || false }}
+          dry-run: ${{ github.event.inputs.dry-run != '' && github.event.inputs.dry-run || true }}
           cluster-name-prefix: 'foo'
