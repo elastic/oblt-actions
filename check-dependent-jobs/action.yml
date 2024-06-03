@@ -16,13 +16,12 @@ runs:
   using: composite
   steps:
     - id: test
-      run: |
-        RESULT=$(echo '${{ inputs.jobs }}' | jq -s 'map(.[].result) | all(.=="success")')
-        echo "is-success=${RESULT}" >> $GITHUB_OUTPUT
-        if [[ $RESULT == true ]]; then
-          STATUS=success
-        else
-          STATUS=failure
-        fi
-        echo "status=${STATUS}" >> $GITHUB_OUTPUT
-      shell: bash
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const jobs = JSON.parse(process.env.JOBS)
+          const isSuccess = Object.values(jobs).every(job => job.result === 'success')
+          core.setOutput('is-success', isSuccess)
+          core.setOutput('status', isSuccess ? 'success' : 'failure')
+      env:
+        JOBS: ${{ inputs.jobs }}
