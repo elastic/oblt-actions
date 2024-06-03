@@ -1,0 +1,162 @@
+name: 'Oblt-cli create ccs'
+description: 'Run the oblt-cli wrapper to create a CCS cluster.'
+inputs:
+  remote-cluster:
+    description: 'The Oblt cluster to use'
+    required: true
+  github-token:
+    description: 'The GitHub access token.'
+    required: true
+  cluster-name-prefix:
+    description: 'Prefix to be prepended to the randomised cluster name'
+    required: false
+  cluster-name-suffix:
+    description: 'Suffix to be appended to the randomised cluster name'
+    required: false
+  elasticsearch-docker-image:
+    description: 'Force to use a Docker image for the Elasticserach Deployment'
+    required: false
+  slack-channel:
+    description: 'The slack channel to notify the status.'
+    default: '#observablt-bots'
+    required: false
+  username:
+    description: 'Username to show in the deployments with oblt-cli, format: [a-z0-9]'
+    default: 'apmmachine'
+    required: false
+  gitops:
+    description: 'Whether to provide the GitOps metadata to the oblt-cli'
+    default: false
+    required: false
+  dry-run:
+    description: 'Whether to dryRun'
+    default: false
+    required: false
+runs:
+  using: "composite"
+  steps:
+
+    - name: Configure oblt-cli flags
+      run: |
+        {
+          echo -n '--remote-cluster=${{ inputs.remote-cluster }} '
+          [ -n '${{ inputs.cluster-name-prefix }}' ] \
+            && echo -n '--cluster-name-prefix=${{ inputs.cluster-name-prefix }} '
+          [ -n '${{ inputs.cluster-name-suffix }}' ] \
+            && echo -n '--cluster-name-suffix=${{ inputs.cluster-name-suffix }} '
+          [ -n '${{ inputs.elasticsearch-docker-image }}' ] \
+            && echo -n '--elasticsearch-docker-image=${{ inputs.elasticsearch-docker-image }} '
+          [ '${{ inputs.dry-run }}' == 'true' ] \
+            && echo -n '--dry-run '
+        } > .flags
+        echo "COMMAND=$(cat .flags)" >> $GITHUB_ENV
+        rm .flags
+      shell: bash
+
+    - name: Configure oblt-cli flags for gitops - issues
+      if: ${{ !github.event.issue.pull_request && contains(inputs.gitops, 'true') }}
+      run: |
+        {
+          echo -n '--repo="${{ github.repository }}" '
+          [ -n '${{ github.event.issue.number }}' ] \
+            && echo -n '--issue="${{ github.event.issue.number }}" '
+        } > .gitops
+        echo "GITOPS=$(cat .gitops)" >> $GITHUB_ENV
+        rm .gitops
+      shell: bash
+
+    - name: Configure oblt-cli flags for gitops - pull-request
+      if: github.event.issue.pull_request && contains(inputs.gitops, 'true')
+      run: |
+        {
+          echo -n '--repo="${{ github.repository }}" '
+          echo -n '--comment-id="${{ github.event.comment.id }}" '
+          echo -n '--pull-request="${{ github.event.issue.number }}" '
+        } > .gitops
+        echo "GITOPS=$(cat .gitops)" >> $GITHUB_ENV
+        rm .gitops
+      shell: bash
+
+    - name: Configure oblt-cli flags
+      uses: actions/github-script@v7
+      id: flags
+      env:
+        remote-cluster: ${{ inputs.remote-cluster }}
+        cluster_name_prefix: ${{ inputs.cluster-name-prefix }}
+        cluster_name_suffix: ${{ inputs.cluster-name-suffix }}
+        elasticsearch_docker_image: ${{ inputs.elasticsearch-docker-image }}
+        dry_run: ${{ inputs.dry-run }}
+        gitops: ${{ inputs.gitops }}
+      with:
+        script: |
+          const {
+            cluster_name_prefix,
+            cluster_name_suffix,
+            elasticsearch_docker_image,
+            dry_run,
+            gitops
+          } = process.env
+
+          if (remote_cluster) {
+            core.setOutput('REMOTE_CLUSTER', `--remote-cluster=${remote_cluster}`)
+          }
+
+          if (cluster_name_prefix) {
+            core.setOutput('CLUSTER_NAME_PREFIX', `--cluster-name-prefix=${cluster_name_prefix}`)
+          }
+
+          if (cluster_name_suffix) {
+            core.setOutput('CLUSTER_NAME_SUFFIX', `--cluster-name-suffix=${cluster_name_suffix}`)
+          }
+
+          if (elasticsearch_docker_image) {
+            core.setOutput('ELASTICSEARCH_DOCKER_IMAGE', `--elasticsearch-docker-image=${elasticsearch_docker_image}`)
+          }
+
+          if (dry_run) {
+            core.setOutput('DRY_RUN', `--dry-run`)
+          }
+
+          gitOpsFlags = []
+
+          if (gitops === 'true') {
+            gitOpsFlags.push(`--repo=${context.repo.owner}/${context.repo.repo}`)
+            if (context.eventName === 'pull_request') {
+              gitOpsFlags.push(`--pull-request=${context.issue.number}`)
+              gitOpsFlags.push(`--comment-id=${context.payload.comment.id}`)
+            } else {
+              if (context.issue.number) {
+                gitOpsFlags.push(`--issue=${context.issue.number}`)
+              }}
+          }
+
+          if (gitOpsFlags.length > 0) {
+              core.setOutput('GITOPS', gitOpsFlags.join(' '))
+          }
+
+
+    - uses: elastic/apm-pipeline-library/.github/actions/oblt-cli@current
+      with:
+        command:
+        slack-channel: ${{ inputs.slack-channel }}
+        github-token: ${{ inputs.github-token }}
+        username: ${{ inputs.username }}
+
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.2.0
+      with:
+        github-token: ${{ inputs.github-token }}
+        slack-channel: ${{ inputs.slack-channel }}
+        username: ${{ inputs.username }}
+
+    - run: |
+        oblt-cli cluster create ccs \
+          ${{ steps.flags.outputs.REMOTE_CLUSTER }} \
+          ${{ steps.flags.outputs.CLUSTER_NAME_PREFIX }} \
+          ${{ steps.flags.outputs.CLUSTER_NAME_SUFFIX }} \
+          ${{ steps.flags.outputs.ELASTICSEARCH_DOCKER_IMAGE }} \
+          ${{ steps.flags.outputs.DRY_RUN }} \
+          ${{ steps.flags.outputs.GITOPS }}
+
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
