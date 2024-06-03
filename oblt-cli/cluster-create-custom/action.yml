@@ -96,6 +96,7 @@ runs:
       id: new-flags
       uses: actions/github-script@v7
       env:
+        template: ${{ inputs.template }}
         cluster_name_prefix: ${{ inputs.cluster-name-prefix }}
         cluster_name_suffix: ${{ inputs.cluster-name-suffix }}
         dry_run: ${{ inputs.dry-run }}
@@ -105,6 +106,7 @@ runs:
       with:
         script: |
           const {
+            template,
             cluster_name_prefix,
             cluster_name_suffix,
             dry_run,
@@ -125,6 +127,11 @@ runs:
           parameters.EphemeralCluster = 'true'
           parameters = { ...parameters, ...JSON.parse(input_parameters) }
           core.setOutput('PARAMETERS', `--parameters='${JSON.stringify(parameters)}'`)
+
+
+          if (template) {
+            core.setOutput('TEMPLATE', `--template=${template}`)
+          }
 
           if (cluster_name_prefix) {
             core.setOutput('CLUSTER_NAME_PREFIX', `--cluster-name-prefix=${cluster_name_prefix}`)
@@ -151,6 +158,7 @@ runs:
 
     - run: |
         oblt-cli cluster create custom \
+            ${{ steps.new-flags.outputs.TEMPLATE }} \
             ${{ steps.new-flags.outputs.DRY_RUN }} \
             ${{ steps.new-flags.outputs.CLUSTER_NAME_PREFIX }} \
             ${{ steps.new-flags.outputs.CLUSTER_NAME_SUFFIX }} \
