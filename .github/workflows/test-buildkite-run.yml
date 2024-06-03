@@ -1,0 +1,36 @@
+name: test-buildkite-run
+
+on:
+  workflow_dispatch: ~
+  push:
+    paths:
+      - '.github/workflows/test-buildkite-run.yml'
+      - 'buildkite/run/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test-no-wait-for:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./buildkite/run
+        with:
+          pipeline: 'oblt-hello-world'
+          token: ${{ secrets.BUILDKITE_TOKEN }}
+          wait-for: false
+
+  test-wait-for:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: buildkite
+        uses: ./buildkite/run
+        with:
+          pipeline: 'oblt-hello-world'
+          token: ${{ secrets.BUILDKITE_TOKEN }}
+          wait-for: true
+
+      - name: Assert is oblt-hello-world
+        run: test "${{ steps.buildkite.outputs.pipeline }}" = "oblt-hello-world"
