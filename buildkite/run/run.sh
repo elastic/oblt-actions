@@ -78,6 +78,7 @@ BUILD_NUMBER=$(echo "$RESP" | jq -r ".number")
 # shellcheck disable=SC2086
 {
   echo "build=$WEB_URL"
-  echo "url=$URL"
   echo "number=$BUILD_NUMBER"
+  echo "pipeline=$PIPELINE"
+  echo "url=$URL"
 } >> "$GITHUB_OUTPUT"
