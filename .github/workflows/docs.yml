@@ -23,6 +23,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install gh-action-readme
         run: gh extension install reakaleek/gh-action-readme
+        env:
+          GH_TOKEN: ${{ github.token }}
       - run: |
           find . -name "action.yml" \
             -exec bash -c 'echo "$(dirname {})/README.md" && gh action-readme update \
