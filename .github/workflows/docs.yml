@@ -30,5 +30,7 @@ jobs:
             -exec bash -c 'echo "$(dirname {})/README.md" && gh action-readme update \
               --action="$(dirname {})/action.yml" \
               --readme="$(dirname {})/README.md"' \;
+        env:
+          VERSION: v1
       - name: Check for changes
         run: git diff --exit-code
