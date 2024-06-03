@@ -1,11 +1,11 @@
-name: test-buildkite-download
+name: test-buildkite-download-artifacts
 
 on:
   workflow_dispatch: ~
   push:
     paths:
-      - '.github/workflows/test-buildkite-download.yml'
-      - 'buildkite/download/**'
+      - '.github/workflows/test-buildkite-download-artifacts.yml'
+      - 'buildkite/download-artifacts/**'
 
 permissions:
   contents: read
@@ -23,9 +23,9 @@ jobs:
           token: ${{ secrets.BUILDKITE_TOKEN }}
           wait-for: true
 
-      - uses: ./buildkite/download
+      - uses: ./buildkite/download-artifact
         with:
-          artifact-path: "signed-artifacts/**"
+          path: "signed-artifacts/**"
           build-number: ${{ steps.buildkite-run.outputs.number }}
           pipeline: 'oblt-hello-world'
           token: ${{ secrets.BUILDKITE_TOKEN }}
@@ -36,9 +36,9 @@ jobs:
       - name: Assert signed-artifacts/ contains any files
         run: test -n "$(ls signed-artifacts/**)"
 
-      - uses: ./buildkite/download
+      - uses: ./buildkite/download-artifact
         with:
-          artifact-path: "artifacts.zip"
+          path: "artifacts.zip"
           build-number: ${{ steps.buildkite-run.outputs.number }}
           pipeline: 'oblt-hello-world'
           token: ${{ secrets.BUILDKITE_TOKEN }}

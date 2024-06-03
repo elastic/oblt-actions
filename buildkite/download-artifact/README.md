@@ -1,4 +1,4 @@
-# buildkite/download
+# buildkite/download-artifact
 
 GitHub Action to download the artifacts for a given Buildkite build.
 
@@ -6,11 +6,11 @@ GitHub Action to download the artifacts for a given Buildkite build.
 
 Following inputs can be used as `step.with` keys
 
-| Name            | Type    | Default          | Description                                                          |
+| Name            | Type    | Default        | Description                                                            |
 |-----------------|---------|----------------|------------------------------------------------------------------------|
-| `artifact-path` | String  |                | A file, directory or wildcard pattern that describes what to download  |
 | `build`         | String  |                | The Buildkite pipeline build.                                          |
 | `org`           | String  | `elastic`      | The Buildkite org.                                                     |
+| `path`          | String  |                | A file, directory or wildcard pattern that describes what to download  |
 | `pipeline`      | String  |                | The Buildkite pipeline to interact with.                               |
 | `token`         | String  |                | The Buildkite API Token.                                               |
 
@@ -28,10 +28,10 @@ jobs:
           pipeline: "my-super-pipeline"
           wait-for: true
 
-      - uses: elastic/oblt-actions/buildkite/download@v1
+      - uses: elastic/oblt-actions/buildkite/download-artifact@v1
         with:
-          artifact-path: "artifacts.tar"
           build: ${{ steps.buildkite-run.outputs.build }}
+          path: "artifacts.tar"
           pipeline: "my-super-pipeline"
           token: ${{ secrets.BUILDKITE_TOKEN }}
 ```
