@@ -1,4 +1,4 @@
-## About
+# check-dependent-jobs
 
 Evaluates the combined the status results of the provided needs context.
 This is useful for creating a single status check.
