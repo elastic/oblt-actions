@@ -38,5 +38,5 @@ jobs:
         id: check-3
         with:
           jobs: '{ "job-a": { "result": "failure" }, "job-b": { "result": "failure" } }'
-      - name: assert outputs.is-success==true
+      - name: assert outputs.is-success==false
         run: test "${{ steps.check-3.outputs.is-success }}" = "false"
