@@ -1,0 +1,32 @@
+---
+# Check if the README.md file is up-to-date with the action.yml file
+name: docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/action.ya?ml'
+  pull_request:
+    paths:
+      - '**/action.ya?ml'
+
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install gh-action-readme
+        run: gh extension install reakaleek/gh-action-readme
+      - run: |
+          find . -name "action.yml" \
+            -exec bash -c 'echo "$(dirname {})/README.md" && gh action-readme update \
+              --action="$(dirname {})/action.yml" \
+              --readme="$(dirname {})/README.md"' \;
+      - name: Check for changes
+        run: git diff --exit-code
