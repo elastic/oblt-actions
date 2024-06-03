@@ -1,10 +1,7 @@
 # oblt-cli/cluster-create-ccs
-<!--description-->
 Run the oblt-cli wrapper to create a CCS cluster.
-<!--/description-->
 
 ## Inputs
-<!--inputs-->
 | Name                         | Description                                                         | Required | Default            |
 |------------------------------|---------------------------------------------------------------------|----------|--------------------|
 | `remote-cluster`             | The Oblt cluster to use                                             | `true`   | ` `                |
@@ -16,7 +13,6 @@ Run the oblt-cli wrapper to create a CCS cluster.
 | `username`                   | Username to show in the deployments with oblt-cli, format: [a-z0-9] | `false`  | `apmmachine`       |
 | `gitops`                     | Whether to provide the GitOps metadata to the oblt-cli              | `false`  | `false`            |
 | `dry-run`                    | Whether to dryRun                                                   | `false`  | `false`            |
-<!--/inputs-->
 
 ## Usage
 
