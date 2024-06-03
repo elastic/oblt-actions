@@ -2,7 +2,7 @@
 
 GitHub Action to run the oblt-cli wrapper to create a custom cluster
 
-### inputs
+## Inputs
 
 Following inputs can be used as `step.with` keys
 
