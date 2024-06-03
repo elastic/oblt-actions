@@ -1,11 +1,11 @@
-name: test-buildkite-download-artifacts
+name: test-buildkite-download-artifact
 
 on:
   workflow_dispatch: ~
   push:
     paths:
-      - '.github/workflows/test-buildkite-download-artifacts.yml'
-      - 'buildkite/download-artifacts/**'
+      - '.github/workflows/test-buildkite-download-artifact.yml'
+      - 'buildkite/download-artifact/**'
 
 permissions:
   contents: read
