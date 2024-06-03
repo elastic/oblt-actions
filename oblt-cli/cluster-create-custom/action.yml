@@ -41,7 +41,7 @@ runs:
   using: "composite"
   steps:
     - name: Configure oblt-cli flags
-      id: new-flags
+      id: flags
       uses: actions/github-script@v7
       env:
         template: ${{ inputs.template }}
@@ -106,12 +106,12 @@ runs:
 
     - run: |
         oblt-cli cluster create custom \
-            ${{ steps.new-flags.outputs.TEMPLATE }} \
-            ${{ steps.new-flags.outputs.DRY_RUN }} \
-            ${{ steps.new-flags.outputs.CLUSTER_NAME_PREFIX }} \
-            ${{ steps.new-flags.outputs.CLUSTER_NAME_SUFFIX }} \
-            ${{ steps.new-flags.outputs.PARAMETERS }} \
-            ${{ steps.new-flags.outputs.SKIP_RANDOM_NAME }}
+            ${{ steps.flags.outputs.TEMPLATE }} \
+            ${{ steps.flags.outputs.DRY_RUN }} \
+            ${{ steps.flags.outputs.CLUSTER_NAME_PREFIX }} \
+            ${{ steps.flags.outputs.CLUSTER_NAME_SUFFIX }} \
+            ${{ steps.flags.outputs.PARAMETERS }} \
+            ${{ steps.flags.outputs.SKIP_RANDOM_NAME }}
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
