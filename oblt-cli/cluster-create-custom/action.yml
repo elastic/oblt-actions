@@ -123,7 +123,7 @@ runs:
             }
           }
           parameters.EphemeralCluster = 'true'
-          parameters = { ...parameters, ...JSON.parse(inputs_parameters) }
+          parameters = { ...parameters, ...JSON.parse(input_parameters) }
           core.setOutput('PARAMETERS', `--parameters='${JSON.stringify(parameters)}'`)
 
           if (cluster_name_prefix) {
