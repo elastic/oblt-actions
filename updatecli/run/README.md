@@ -3,6 +3,10 @@
 ## Inputs
 
 <!--inputs-->
+| Name      | Description                                   | Required | Default |
+|-----------|-----------------------------------------------|----------|---------|
+| `command` | Specify the updatecli command to be executed. | `true`   | ` `     |
+<!--/inputs-->
 
 ## Usage
 
