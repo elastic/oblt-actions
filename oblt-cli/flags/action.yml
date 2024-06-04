@@ -34,8 +34,8 @@ runs:
         result-encoding: string
         script: |
           const flags = ['--okay']
-          if (process.env.DRY_RUN === true) {
-              core.setOutput('DRY_RUN', '--dry-run')
+          if (process.env.DRY_RUN === 'true') {
+              flags.push('DRY_RUN', '--dry-run')
           }
           if (process.env.CLUSTER_NAME_PREFIX) {
               flags.push(`--cluster-name-prefix='${process.env.CLUSTER_NAME_PREFIX}'`)
