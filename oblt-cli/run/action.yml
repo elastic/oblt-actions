@@ -1,4 +1,4 @@
-name: 'Oblt-cli wrapper'
+name: 'oblt-cli/run'
 description: 'Run the oblt-cli wrapper.'
 inputs:
   command:
