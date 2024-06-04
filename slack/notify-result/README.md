@@ -1,4 +1,4 @@
-# <!--name-->slack/build-result<!--/name-->
+# <!--name-->slack/notify-result<!--/name-->
 
 ## Inputs
 <!--inputs-->
@@ -11,7 +11,7 @@
 
 ## Usage
 
-<!--usage action="elastic/oblt-actions/slack/build-result" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/slack/notify-result" version="env:VERSION"-->
 ```yaml
 name: slack
 

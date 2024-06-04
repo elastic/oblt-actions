@@ -1,4 +1,4 @@
-name: slack/build-result
+name: slack/notify-result
 
 description: |
   This is an opinionated GitHub Action to send a message in slack with the build result.
