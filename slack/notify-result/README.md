@@ -19,7 +19,7 @@ jobs:
   slack:
     runs-on: ubuntu-latest
     steps:
-      - uses: elastic/oblt-actions/slack/buld-result@v1
+      - uses: elastic/oblt-actions/slack/notify-result@v1
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#my-channel"
