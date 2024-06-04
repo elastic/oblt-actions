@@ -32,9 +32,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: elastic/oblt-actions/slack/send@v1
+        id: slack
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#my-channel"
           message: "Run something"
+      - uses: elastic/oblt-actions/slack/send@v1
+        with:
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#my-channel"
+          message: "Run soemthing else"
+          thread-timestamp: ${{ steps.slack.outputs.thread-timestamp || '' }}
 ```
 <!--/usage-->
