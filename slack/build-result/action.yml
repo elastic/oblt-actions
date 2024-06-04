@@ -24,7 +24,7 @@ runs:
             "attachments": [
               {
                 "pretext": "Workflow <${{ env.REPO_URL }}/actions/runs/${{ github.run_id }}|${{ github.workflow }}> triggered (`${{ github.event_name }}`)",
-                "color": '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
+                "color": '${{ job.status == 'success' ? 'good' : job.status == 'failure' ? 'danger' : 'warning' }},
                 "text": "${{ env.SLACK_MESSAGE }}",
                 "fields": [
                   {
