@@ -1,29 +1,28 @@
-# check-dependent-jobs
+# <!--name-->check-dependent-jobs<!--/name-->
 
+<!--description-->
 Evaluates the combined the status results of the provided needs context.
-This is useful for creating a single status check.
-
-That status check can then be set as required status check, or it can be used
-in combination with the `notify-built-status` action.
+<!--/description-->
 
 ## Inputs
-
-Following inputs can be used as `step.with` keys
-
-| Name   | Type    | Default                     | Description                      |
-|--------|---------|-----------------------------|----------------------------------|
-| `jobs` | String  |                             | JSON string of the needs context |
+<!--inputs-->
+| Name   | Description                  | Required | Default |
+|--------|------------------------------|----------|---------|
+| `jobs` | needs context as JSON string | `true`   | ` `     |
+<!--/inputs-->
 
 ## Outputs
 
-| Name         | Type    | Description                        |
-|--------------|---------|------------------------------------|
-| `is-success` | Boolean | If all jobs are successful or not. |
-| `status`     | String  | `success` or `failure`             |
-
+<!--outputs-->
+| Name         | Description                                                     |
+|--------------|-----------------------------------------------------------------|
+| `is-success` | The evaluated result of all provided jobs in the needs context. |
+| `status`     | One of success or failure.                                      |
+<!--/outputs-->
 
 ## Usage
 
+<!--usage action="elastic/oblt-actions/check-dependent-jobs" version="env:VERSION"-->
 ```yaml
 jobs:
   job-a:
@@ -47,3 +46,4 @@ jobs:
           jobs: ${{ toJSON(needs) }}
       - run: ${{ steps.check.outputs.is-success }} # should exit with 1 or 0.
 ```
+<!--/usage-->
