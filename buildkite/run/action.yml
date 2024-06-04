@@ -39,6 +39,9 @@ outputs:
   number:
     description: "The Buildkite build number"
     value: ${{ steps.trigger-buildkite.outputs.number }}
+  pipeline:
+    description: "The Buildkite pipeline"
+    value: ${{ steps.trigger-buildkite.outputs.pipeline }}
   state:
     description: "The Buildkite build state"
     value: ${{ steps.trigger-buildkite.outputs.state }}

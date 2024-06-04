@@ -1,4 +1,4 @@
-name: 'Oblt-cli cluster name validation'
+name: 'oblt-cli/cluster-name-validation'
 description: 'Get the cluster name based on the parameters'
 inputs:
   cluster-name:

@@ -1,14 +1,17 @@
-# oblt-cli/cluster-credentials
+# <!--name-->oblt-cli/cluster-credentials<!--/name-->
 
-Run the oblt-cli wrapper to retrieve the credentials to connect to the given cluster.
+<!--description-->
+Run the oblt-cli wrapper to retrieve the credentials to connect to the given cluster
+<!--/description-->
 
 ## Inputs
-
-| Name                    | Required | Description                                       | Default |
-|-------------------------|----------|-------------------------------------------------- |---------|
-| `cluster-name `         | `false`  | The cluster name                                  | -       |
-| `cluster-info-file `    | `false`  | The cluster info file (absolute path)             | -       |
-| `github-token`          | `true`   | The GitHub token with permissions fetch releases. | -       |
+<!--inputs-->
+| Name                | Description                           | Required | Default |
+|---------------------|---------------------------------------|----------|---------|
+| `cluster-name`      | The cluster name                      | `false`  | ` `     |
+| `cluster-info-file` | The cluster info file (absolute path) | `false`  | ` `     |
+| `github-token`      | The GitHub access token.              | `true`   | ` `     |
+<!--/inputs-->
 
 ## Exported Environment Variables
 
@@ -38,6 +41,7 @@ Masked environment variables that are available:
 
 ## Usage
 
+<!--usage action="elastic/oblt-actions/oblt-cli/cluster-credentials" version="env:VERSION"-->
 ```yaml
 jobs:
   cat-indices:
@@ -49,3 +53,4 @@ jobs:
           github-token: ${{ secrets.PAT_TOKEN }}
       - run: curl -X GET ${ELASTICSEARCH_HOST}/_cat/indices?v -u ${ELASTICSEARCH_USERNAME}:${ELASTICSEARCH_PASSWORD}
 ```
+<!--/usage-->
