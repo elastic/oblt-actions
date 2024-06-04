@@ -2,11 +2,12 @@
 
 ## Inputs
 <!--inputs-->
-| Name         | Description                                 | Required | Default |
-|--------------|---------------------------------------------|----------|---------|
-| `channel-id` |                                             | `true`   | ` `     |
-| `bot-token`  | Specify the slack bot token.                | `true`   | ` `     |
-| `message`    | Add additional message to the notification. | `false`  | ` `     |
+| Name         | Description                                                              | Required | Default |
+|--------------|--------------------------------------------------------------------------|----------|---------|
+| `channel-id` |                                                                          | `true`   | ` `     |
+| `bot-token`  | Specify the slack bot token.                                             | `true`   | ` `     |
+| `message`    | Add additional message to the notification.                              | `false`  | ` `     |
+| `status`     | Explicitly set status. One of good, danger, warning, auto. Default: auto | `false`  | `auto`  |
 <!--/inputs-->
 
 ## Usage

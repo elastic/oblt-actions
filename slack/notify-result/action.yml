@@ -13,6 +13,10 @@ inputs:
   message:
     description: 'Add additional message to the notification.'
     required: false
+  status:
+    description: "Explicitly set status. One of good, danger, warning, auto. Default: auto"
+    required: false
+    default: auto
 runs:
   using: composite
   steps:
@@ -20,7 +24,10 @@ runs:
       id: prepare
       with:
         script: |
-          const color = '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning'
+          let color = '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning'
+          if '${{ inputs.status }}' !== 'auto' {
+            color = '${{ inputs.status }}'
+          }
           core.setOutput('slack-color', color)
 
     - uses: slackapi/slack-github-action@70cd7be8e40a46e8b0eced40b0de447bdb42f68e # v1.26.0
