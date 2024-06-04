@@ -14,7 +14,7 @@ inputs:
     description: 'Add additional message to the notification.'
     required: false
   status:
-    description: "Explicitly set status. One of good, danger, warning, auto. Default: auto"
+    description: "Explicitly set status. One of success, failure, cancelled, auto. Default: auto"
     required: false
     default: auto
 runs:
@@ -26,7 +26,7 @@ runs:
         script: |
           let color = '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning'
           if '${{ inputs.status }}' !== 'auto' {
-            color = '${{ inputs.status }}'
+            color = '${{ inputs.status }}' === 'success' ? 'good' : '${{ inputs.status }}' === 'failure' ? 'danger' : 'warning'
           }
           core.setOutput('slack-color', color)
 
