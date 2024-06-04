@@ -33,7 +33,7 @@ runs:
       with:
         result-encoding: string
         script: |
-          const flags = ['--okay']
+          const flags = []
           if (process.env.DRY_RUN === 'true') {
               flags.push('--dry-run')
           }
