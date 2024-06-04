@@ -38,10 +38,3 @@ of the variable will be passed.
 
 <!--/usage-->
 
-* [Customizing](#customizing)
-  * [inputs](#inputs)
-
-## Customizing
-
-
-### Usage
