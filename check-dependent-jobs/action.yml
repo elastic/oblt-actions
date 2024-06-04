@@ -1,0 +1,27 @@
+name: check-dependent-jobs
+description: |
+  Evaluates the combined the status results of the provided needs context.
+inputs:
+  jobs:
+    required: true
+    description: needs context as JSON string
+outputs:
+  is-success:
+    description: The evaluated result of all provided jobs in the needs context.
+    value: ${{ steps.test.outputs.is-success }}
+  status:
+    description: One of success or failure.
+    value: ${{ steps.test.outputs.status }}
+runs:
+  using: composite
+  steps:
+    - id: test
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const jobs = JSON.parse(process.env.JOBS)
+          const isSuccess = Object.values(jobs).every(job => job.result === 'success')
+          core.setOutput('is-success', isSuccess)
+          core.setOutput('status', isSuccess ? 'success' : 'failure')
+      env:
+        JOBS: ${{ inputs.jobs }}

@@ -8,6 +8,7 @@ on:
       - '**'
       - '!.github/workflows/test-*'
       - '!buildkite/run/**'
+      - '!check-dependent-jobs/**'
       - '!git/setup/**'
       - '!google/auth/**'
       - '!updatecli/run/**'
