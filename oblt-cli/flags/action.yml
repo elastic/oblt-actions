@@ -35,7 +35,7 @@ runs:
         script: |
           const flags = ['--okay']
           if (process.env.DRY_RUN === 'true') {
-              flags.push('DRY_RUN', '--dry-run')
+              flags.push('--dry-run')
           }
           if (process.env.CLUSTER_NAME_PREFIX) {
               flags.push(`--cluster-name-prefix='${process.env.CLUSTER_NAME_PREFIX}'`)
