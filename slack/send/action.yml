@@ -4,34 +4,83 @@ description: |
   This is an opinionated GitHub Action to send a message in slack.
 
 inputs:
-  channel-id:
-    channel-id: 'Specify the slack channel-id.'
-    required: true
   bot-token:
     description: 'Specify the slack bot token.'
     required: true
-  message:
-    description: 'Specify the message to be sent (markdown format).'
+  channel-id:
+    channel-id: 'Specify the slack channel-id.'
     required: true
+  message:
+    description: |
+      Slack message on Markdown format. Multiline messages must be escaped using URL encoding.
+      https://github.com/orgs/community/discussions/26288
+
+      This is an example how to escape a multiline message in Python:
+      ```Python
+      from urllib.parse import quote
+
+      message = quote("""
+      Hello!!!
+      This is a multiline message
+      """) # Multiline message
+      ```
+    required: true
+outputs:
+  thread-timestamp:
+    description: 'The timestamp on the message that was posted into Slack when using bot token'
+    value: ${{ steps.slack_message.outputs.thread_ts }}
 runs:
   using: composite
   steps:
-    - uses: slackapi/slack-github-action@70cd7be8e40a46e8b0eced40b0de447bdb42f68e # v1.26.0
-      with:
-        channel-id: ${{ inputs.channel-id }}
-        payload: |
-          {
-            "text": "${{ env.SLACK_MESSAGE }}",
+    - name: prepare message
+      shell: python
+      id: prepare
+      env:
+        MESSAGE: ${{ inputs.message }}
+        THREAD_TIMESTAMP: ${{ inputs.thread-timestamp }}
+      run: |
+        # Prepare Slack API payload.
+        # Documentation about the payload format.
+        # https://api.slack.com/reference/messaging/payload
+        # https://app.slack.com/block-kit-builder
+        # https://api.slack.com/reference/surfaces/formatting
+        # https://api.slack.com/reference/surfaces/formatting#escaping
+        import json
+        import os
+        from urllib.parse import unquote
+
+        if os.environ["MESSAGE"]:
+          message = os.environ.get('MESSAGE', 'No message')
+          message = unquote(message)
+          message = '\n'.join(line.strip() for line in message.splitlines())
+          json_data = {
+            "text": message,
             "blocks": [
               {
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": "${{ env.SLACK_MESSAGE }}"
+                  "text": message
                 }
               }
             ]
           }
+        else:
+          raise Exception("message must be set.")
+
+        if os.environ["THREAD_TIMESTAMP"]:
+          json_data['thread_ts'] = os.environ["THREAD_TIMESTAMP"]
+
+        with open(os.environ.get('GITHUB_OUTPUT'), "a") as f:
+          f.write("payload={}".format(json.dumps(json_data)))
+        print("::add-mask::{}".format(json.dumps(json_data)))
+
+    - uses: slackapi/slack-github-action@70cd7be8e40a46e8b0eced40b0de447bdb42f68e # v1.26.0
+      id: slack_message
+      with:
+        channel-id: ${{ inputs.channel-id }}
+        payload: |
+          ${{ steps.prepare.outputs.payload }}
       env:
         SLACK_BOT_TOKEN: ${{ inputs.bot-token }}
         SLACK_MESSAGE: ${{ inputs.message }}

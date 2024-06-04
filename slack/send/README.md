@@ -2,11 +2,23 @@
 
 ## Inputs
 <!--inputs-->
-| Name         | Description                                       | Required | Default |
-|--------------|---------------------------------------------------|----------|---------|
-| `channel-id` |                                                   | `true`   | ` `     |
-| `bot-token`  | Specify the slack bot token.                      | `true`   | ` `     |
-| `message`    | Specify the message to be sent (markdown format). | `true`   | ` `     |
+| Name         | Description                                                                                                                                                                                                                                                                                                                                    | Required | Default |
+|--------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|---------|
+| `bot-token`  | Specify the slack bot token.                                                                                                                                                                                                                                                                                                                   | `true`   | ` `     |
+| `channel-id` |                                                                                                                                                                                                                                                                                                                                                | `true`   | ` `     |
+| `message`    | Slack message on Markdown format. Multiline messages must be escaped using URL encoding.
+https://github.com/orgs/community/discussions/26288
+
+This is an example how to escape a multiline message in Python:
+```Python
+from urllib.parse import quote
+
+message = quote("""
+Hello!!!
+This is a multiline message
+""") # Multiline message
+```
+ | `true`   | ` `     |
 <!--/inputs-->
 
 ## Usage
