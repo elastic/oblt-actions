@@ -2,11 +2,11 @@
 
 ## Inputs
 <!--inputs-->
-| Name         | Description                                       | Required | Default |
-|--------------|---------------------------------------------------|----------|---------|
-| `channel-id` |                                                   | `true`   | ` `     |
-| `bot-token`  | Specify the slack bot token.                      | `true`   | ` `     |
-| `message`    | Specify the message to be sent (markdown format). | `true`   | ` `     |
+| Name         | Description                                 | Required | Default |
+|--------------|---------------------------------------------|----------|---------|
+| `channel-id` |                                             | `true`   | ` `     |
+| `bot-token`  | Specify the slack bot token.                | `true`   | ` `     |
+| `message`    | Add additional message to the notification. | `false`  | ` `     |
 <!--/inputs-->
 
 ## Usage

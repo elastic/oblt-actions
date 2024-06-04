@@ -11,8 +11,8 @@ inputs:
     description: 'Specify the slack bot token.'
     required: true
   message:
-    description: 'Specify the message to be sent (markdown format).'
-    required: true
+    description: 'Add additional message to the notification.'
+    required: false
 runs:
   using: composite
   steps:
@@ -20,8 +20,8 @@ runs:
       id: prepare
       with:
         script: |
-          const color = '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-          core.setOutput('color', `${color}`)
+          const color = '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning'
+          core.setOutput('slack-color', color)
 
     - uses: slackapi/slack-github-action@70cd7be8e40a46e8b0eced40b0de447bdb42f68e # v1.26.0
       with:
@@ -31,7 +31,7 @@ runs:
             "attachments": [
               {
                 "pretext": "Workflow <${{ env.REPO_URL }}/actions/runs/${{ github.run_id }}|${{ github.workflow }}> triggered (`${{ github.event_name }}`)",
-                "color": "${{ steps.prepare.outputs.color }}",
+                "color": "${{ steps.prepare.outputs.slack-color }}",
                 "text": "${{ env.SLACK_MESSAGE }}",
                 "fields": [
                   {
