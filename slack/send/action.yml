@@ -25,6 +25,9 @@ inputs:
       """) # Multiline message
       ```
     required: true
+  thread-timestamp:
+    description: If you want to post a message as a threaded reply
+    required: false
 outputs:
   thread-timestamp:
     description: 'The timestamp on the message that was posted into Slack when using bot token'

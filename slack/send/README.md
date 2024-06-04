@@ -2,11 +2,11 @@
 
 ## Inputs
 <!--inputs-->
-| Name         | Description                                                                                                                                                                                                                                                                                                                                    | Required | Default |
-|--------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|---------|
-| `bot-token`  | Specify the slack bot token.                                                                                                                                                                                                                                                                                                                   | `true`   | ` `     |
-| `channel-id` |                                                                                                                                                                                                                                                                                                                                                | `true`   | ` `     |
-| `message`    | Slack message on Markdown format. Multiline messages must be escaped using URL encoding.
+| Name               | Description                                                                                                                                                                                                                                                                                                                                    | Required | Default |
+|--------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|---------|
+| `bot-token`        | Specify the slack bot token.                                                                                                                                                                                                                                                                                                                   | `true`   | ` `     |
+| `channel-id`       |                                                                                                                                                                                                                                                                                                                                                | `true`   | ` `     |
+| `message`          | Slack message on Markdown format. Multiline messages must be escaped using URL encoding.
 https://github.com/orgs/community/discussions/26288
 
 This is an example how to escape a multiline message in Python:
@@ -19,6 +19,7 @@ This is a multiline message
 """) # Multiline message
 ```
  | `true`   | ` `     |
+| `thread-timestamp` | If you want to post a message as a threaded reply                                                                                                                                                                                                                                                                                              | `false`  | ` `     |
 <!--/inputs-->
 
 ## Usage
