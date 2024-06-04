@@ -1,0 +1,52 @@
+name: test-slack-notify-result
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/slack-notify-result.yml'
+      - 'slack/notify-result/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/slack-notify-result.yml'
+      - 'slack/notify-result/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    needs:
+      - test-auto
+      - test-status
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  test-auto:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./slack/notify-result
+        with:
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#observablt-bots"
+          message: "GitHub action in oblt-actions for testing the slack/notify-result action."
+
+  test-status:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./slack/notify-result
+        with:
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#observablt-bots"
+          message: "GitHub action in oblt-actions for testing the slack/notify-result action using warning status."
+          status: "cancelled"
