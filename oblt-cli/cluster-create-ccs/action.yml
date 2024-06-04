@@ -108,7 +108,6 @@ runs:
           ${{ steps.flags.outputs.ELASTICSEARCH_DOCKER_IMAGE }} \
           ${{ steps.flags.outputs.DRY_RUN }} \
           ${{ steps.flags.outputs.GITOPS }}
-
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
