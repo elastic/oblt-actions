@@ -1,21 +1,23 @@
-# buildkite/download-artifact
+# <!--name-->buildkite/download-artifact<!--/name-->
 
-GitHub Action to download the artifacts for a given Buildkite build.
-
+<!--description-->
+A GitHub Action for downloading artifacts from a Buildkite build.
+<!--/description-->
 ## Inputs
 
-Following inputs can be used as `step.with` keys
-
-| Name            | Type    | Default        | Description                                                            |
-|-----------------|---------|----------------|------------------------------------------------------------------------|
-| `build`         | String  |                | The Buildkite pipeline build.                                          |
-| `org`           | String  | `elastic`      | The Buildkite org.                                                     |
-| `path`          | String  |                | A file, directory or wildcard pattern that describes what to download  |
-| `pipeline`      | String  |                | The Buildkite pipeline to interact with.                               |
-| `token`         | String  |                | The Buildkite API Token.                                               |
+<!--inputs-->
+| Name           | Description                                                         | Required | Default   |
+|----------------|---------------------------------------------------------------------|----------|-----------|
+| `token`        | Buildkite token.                                                    | `true`   | ` `       |
+| `org`          | Buildkite org to interact with.                                     | `false`  | `elastic` |
+| `path`         | A file, directory or wildcard pattern that describes what to upload | `true`   | ` `       |
+| `pipeline`     | Buildkite pipeline to interact with.                                | `true`   | ` `       |
+| `build-number` | Buildkite pipeline build to interact with.                          | `true`   | ` `       |
+<!--/inputs-->
 
 ## Usage
 
+<!--usage action="elastic/oblt-actions/buildkite/download-artifact" version="env:VERSION"-->
 ```yaml
 jobs:
   run-buildkite:
@@ -35,3 +37,4 @@ jobs:
           pipeline: ${{ steps.buildkite-run.outputs.pipeline }}
           token: ${{ secrets.BUILDKITE_TOKEN }}
 ```
+<!--/usage-->

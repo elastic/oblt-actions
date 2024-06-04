@@ -1,4 +1,4 @@
-name: updatecli/run-notify
+name: updatecli/run-and-notify
 description: |
   This is an opinionated GitHub Action to run the updatecli with some slack
   notifications.

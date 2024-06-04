@@ -1,4 +1,4 @@
-name: 'Configure git CLI'
+name: 'git/setup'
 
 description: |
   Setup the git usename, email, and authentication with git CLI.

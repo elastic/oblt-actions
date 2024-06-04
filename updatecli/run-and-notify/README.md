@@ -1,25 +1,27 @@
-# updatecli/run-and-notify
+# <!--name-->updatecli/run-and-notify<!--/name-->
 
-* [Inputs](#inputs)
-* [Usage](#usage)
-  * [Workflow](#workflow)
+> [!WARNING]
+> *Deprecated* Will be removed in a future release.
+> Please use the [updatecli/run](../run/README.md) action with the [slack/send](../../slack/send/README.md) action instead.
+
+<!--description-->
+This is an opinionated GitHub Action to run the updatecli with some slack
+notifications.
+<!--/description-->
 
 ## Inputs
-
-| name               | description                                               | required | default  |
-|--------------------|-----------------------------------------------------------|----------|----------|
-| `command`          | <p>The updatecli command to run</p>                       | `true`   |          |
-| `slack-bot-token`  | <p>The slack bot token</p>                                | `true`   |          |
-| `slack-channel-id` | <p>The slack channel ID</p>                               | `true`   |          |
-| `slack-message`    | <p>The slack message to be sent in MD format</p>          | `true`   |          |
-| `slack-send-when`  | <p>When to send the message (always, success, failure)</p>| `false`  | `failure` |
+<!--inputs-->
+| Name               | Description                                         | Required | Default   |
+|--------------------|-----------------------------------------------------|----------|-----------|
+| `command`          | Specify the updatecli command to be executed.       | `true`   | ` `       |
+| `slack-channel-id` |                                                     | `true`   | ` `       |
+| `slack-bot-token`  | Specify the slack bot token.                        | `true`   | ` `       |
+| `slack-message`    | Specify the message to be sent (markdown format).   | `true`   | ` `       |
+| `slack-send-when`  | When to send the message, always, failure, success. | `false`  | `failure` |
+<!--/inputs-->
 
 ## Usage
-
-Run Updatecli with Slack notifications for GitHub Action
-
-### Workflow
-
+<!--usage action="elastic/oblt-actions/updatecli/run-and-notify" version="env:VERSION"-->
 ```yaml
 jobs:
   updatecli:
@@ -35,3 +37,4 @@ jobs:
           slack-message: "Automation failed"
           slack-send-when: 'failure'
 ```
+<--/usage-->
