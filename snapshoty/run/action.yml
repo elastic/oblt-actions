@@ -1,0 +1,24 @@
+name: 'snapshoty/run'
+description: 'The best way to handle snapshot lifecycle.'
+inputs:
+  config:
+    description: 'Path to configuration file'
+    required: true
+  bucket-name:
+    description: 'Name of the bucket to use'
+    required: true
+  gcs-client-email:
+    description: 'Google Cloud email of the service account'
+    required: true
+  gcs-private-key:
+    description: 'Google Cloud private key of the service account'
+    required: true
+  gcs-private-key-id:
+    description: 'Google Cloud private key id of the service account'
+    required: true
+  gcs-project:
+    description: 'Google Cloud project id of the service account'
+    required: true
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
