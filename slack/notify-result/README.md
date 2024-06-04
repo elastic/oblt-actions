@@ -1,5 +1,7 @@
 # <!--name-->slack/notify-result<!--/name-->
 <!--description-->
+This is an opinionated GitHub Action to send a message in slack with the build result.
+<!--/description-->
 ## Inputs
 <!--inputs-->
 | Name         | Description                                                                    | Required | Default |
@@ -9,6 +11,7 @@
 | `message`    | Add additional message to the notification.                                    | `false`  | ` `     |
 | `status`     | Explicitly set status. One of success, failure, cancelled, auto. Default: auto | `false`  | `auto`  |
 <!--/inputs-->
+
 
 ## Usage
 
