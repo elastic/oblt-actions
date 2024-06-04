@@ -1,4 +1,4 @@
-name: test-oblt-cli-cluster-name-validation-failures
+name: test-oblt-cli-cluster-name-validation
 
 on:
   pull_request:
@@ -19,6 +19,30 @@ permissions:
 
 jobs:
   test:
+    needs:
+      - cluster-name
+      - cluster-info-file
+      - failures
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  cluster-name:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./oblt-cli/cluster-name-validation
+        id: validation
+        with:
+          cluster-name: 'foo'
+      - name: Assert is foo
+        run: test "${{steps.validation.outputs.cluster-name}}" = "foo"
+
+  failures:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -62,3 +86,15 @@ jobs:
 
       - name: Assert is failure
         run: test "${{steps.validation3.outcome}}" = "failure"
+
+  cluster-info-file:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "{\"ClusterName\":\"bar\"}" | tee ${{ github.workspace }}/cluster-info.json
+      - uses: ./oblt-cli/cluster-name-validation
+        id: validation
+        with:
+          cluster-info-file: ${{ github.workspace }}/cluster-info.json
+      - name: Assert is bar
+        run: test "${{steps.validation.outputs.cluster-name}}" = "bar"

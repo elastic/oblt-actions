@@ -11,6 +11,18 @@ permissions:
   contents: read
 
 jobs:
+  test:
+    needs:
+      - test-no-wait-for
+      - test-wait-for
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
   test-no-wait-for:
     runs-on: ubuntu-latest
     steps:
