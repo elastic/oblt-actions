@@ -27,4 +27,4 @@ jobs:
         with:
           dry-run: true
       - name: assert
-        run: test "${{ steps.flags.outputs.results }}" = "--dry-run"
+        run: test "${{ steps.flags.outputs.result }}" = "--dry-run"
