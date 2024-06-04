@@ -30,7 +30,7 @@ runs:
           {
             "attachments": [
               {
-                "pretext": "Workflow <${{ env.REPO_URL }}/actions/runs/${{ github.run_id }}|${{ github.workflow }}> triggered (`${{ github.event_name }}`)",
+                "pretext": "Workflow <${{ env.RUN_URL }}|${{ github.workflow }}> triggered (`${{ github.event_name }}`)",
                 "color": "${{ steps.prepare.outputs.slack-color }}",
                 "text": "${{ env.SLACK_MESSAGE }}",
                 "fields": [
@@ -41,16 +41,15 @@ runs:
                   },
                   {
                     "title": "Workflow",
-                    "short": false,
+                    "short": true,
                     "value": "<${{ env.RUN_URL }}|${{ github.workflow }} #${{ github.run_number }}>"
                   }
                 ],
-                "footer": "<${{ env.REPO_URL }}|${{ github.repository }}>",
+                "footer": "<${{ github.server_url }}/${{ github.repository }}|${{ github.repository }}>",
                 "footer_icon": "https://slack-imgs.com/?c=1&o1=wi32.he32.si&url=https%3A%2F%2Fslack.github.com%2Fstatic%2Fimg%2Ffavicon-neutral.png"
               }
             ]
           }
       env:
         SLACK_BOT_TOKEN: ${{ inputs.bot-token }}
-        REPO_URL: "${{ github.server_url }}/${{ github.repository }}"
-        RUN_URL: "actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
+        RUN_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
