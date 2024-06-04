@@ -1,0 +1,29 @@
+name: test-slack-build-result
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/slack-build-result.yml'
+      - 'slack/build-result/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/slack-build-result.yml'
+      - 'slack/build-result/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./slack/build-result
+        with:
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#observablt-bots"
+          message: "GitHub action in oblt-actions for testing the slack/build-result action."

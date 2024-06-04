@@ -1,0 +1,49 @@
+name: slack/build-result
+
+description: |
+  This is an opinionated GitHub Action to send a message in slack with the build result.
+
+inputs:
+  channel-id:
+    channel-id: 'Specify the slack channel-id.'
+    required: true
+  bot-token:
+    description: 'Specify the slack bot token.'
+    required: true
+  message:
+    description: 'Specify the message to be sent (markdown format).'
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: slackapi/slack-github-action@70cd7be8e40a46e8b0eced40b0de447bdb42f68e # v1.26.0
+      with:
+        channel-id: ${{ inputs.channel-id }}
+        payload: |
+          {
+            "attachments": [
+              {
+                "pretext": "Workflow <${{ env.REPO_URL }}/actions/runs/${{ github.run_id }}|${{ github.workflow }}> triggered (`${{ github.event_name }}`)",
+                "color": '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
+                "text": "${{ env.SLACK_MESSAGE }}",
+                "fields": [
+                  {
+                    "title": "Ref",
+                    "short": true,
+                    "value": "`${{ github.ref_name }}`"
+                  },
+                  {
+                    "title": "Workflow",
+                    "short": false,
+                    "value": "<${{ env.RUN_URL }}|${{ github.workflow }} #${{ github.run_number }}>"
+                  }
+                ],
+                "footer": "<${{ env.REPO_URL }}|${{ github.repository }}>",
+                "footer_icon": "https://slack-imgs.com/?c=1&o1=wi32.he32.si&url=https%3A%2F%2Fslack.github.com%2Fstatic%2Fimg%2Ffavicon-neutral.png"
+              }
+            ]
+          }
+      env:
+        SLACK_BOT_TOKEN: ${{ inputs.bot-token }}
+        REPO_URL: "${{ github.server_url }}/${{ github.repository }}"
+        RUN_URL: "actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
