@@ -14,7 +14,7 @@ inputs:
     description: 'Suffix to be appended to the randomised cluster name'
     required: false
   elasticsearch-docker-image:
-    description: 'Force to use a Docker image for the Elasticserach Deployment'
+    description: 'Force to use a Docker image for the Elasticsearch Deployment'
     required: false
   slack-channel:
     description: 'The slack channel to notify the status.'
