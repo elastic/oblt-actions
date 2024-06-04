@@ -19,6 +19,18 @@ permissions:
 
 jobs:
   test:
+    needs:
+      - no-gitops
+      - gitops
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  no-gitops:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,5 +43,21 @@ jobs:
           template: 'deploy-kibana'
           cluster-name-prefix: 'testgithubaction'
           gitops: false
+          dry-run: ${{ github.event.inputs.dry-run != '' && github.event.inputs.dry-run || true }}
+          parameters: '{"RemoteClusterName":"release-oblt","StackVersion":"8.7.0","KibanaDockerImage":"docker.elastic.co/observability-ci/kibana-cloud:8.7.0-SNAPSHOT"}'
+
+  gitops:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - if: github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run == 'true'
+        uses: elastic/oblt-actions/google/auth@v1
+      - uses: elastic/oblt-actions/git/setup@v1
+      - uses: ./oblt-cli/cluster-create-custom
+        with:
+          github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
+          template: 'deploy-kibana'
+          cluster-name-prefix: 'testgithubaction'
+          gitops: true
           dry-run: ${{ github.event.inputs.dry-run != '' && github.event.inputs.dry-run || true }}
           parameters: '{"RemoteClusterName":"release-oblt","StackVersion":"8.7.0","KibanaDockerImage":"docker.elastic.co/observability-ci/kibana-cloud:8.7.0-SNAPSHOT"}'
