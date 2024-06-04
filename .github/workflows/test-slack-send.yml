@@ -28,9 +28,17 @@ jobs:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#observablt-bots"
           message: "Run something"
+
+      - name: validate thread-timestamp
+        run: test -n "${{ steps.slack-send.outputs.thread-timestamp }}"
+
       - uses: ./slack/send
+        id: slack-reply
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#observablt-bots"
           message: "Run soemthing else"
           thread-timestamp: ${{ steps.slack-send.outputs.thread-timestamp || '' }}
+
+      - name: validate thread-timestamp
+        run: test -n "${{ steps.slack-reply.outputs.thread-timestamp }}"
