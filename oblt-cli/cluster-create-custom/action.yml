@@ -1,4 +1,4 @@
-name: 'Oblt-cli create custom'
+name: 'oblt-cli/cluster-create-custom'
 description: 'Run the oblt-cli wrapper to create a custom cluster.'
 inputs:
   template:

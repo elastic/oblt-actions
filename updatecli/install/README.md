@@ -1,14 +1,12 @@
-# updatecli/install
+# <!--name-->updatecli/install<!--/name-->
 
-* [Usage](#usage)
-  * [Workflow](#workflow)
+<!--description-->
+This is an opinionated GitHub Action to install the updatecli
+<!--/description-->
 
 ## Usage
 
-Install Updatecli for GitHub Action
-
-### Workflow
-
+<!--usage action="elastic/oblt-actions/updatecli/install" version="env:VERSION"-->
 ```yaml
 name: updatecli
 
@@ -22,3 +20,4 @@ jobs:
       - name: Install Updatecli in the runner
         uses: elastic/oblt-actions/updatecli/install@v1
 ```
+<!--/usage-->
