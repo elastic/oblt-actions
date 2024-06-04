@@ -33,6 +33,6 @@ jobs:
         with:
           cluster-name-prefix: 'prefix'
           cluster-name-suffix: 'suffix'
-          dry-run: false
+          dry-run: true
       - name: assert
         run: test "${{ steps.all-flags.outputs.result }}" = "--dry-run --cluster-name-prefix='prefix' --cluster-name-suffix='suffix'"
