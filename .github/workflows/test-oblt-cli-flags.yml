@@ -28,3 +28,11 @@ jobs:
           dry-run: true
       - name: assert
         run: test "${{ steps.flags.outputs.result }}" = "--dry-run"
+      - uses: ./oblt-cli/flags
+        id: all-flags
+        with:
+          cluster-name-prefix: 'prefix'
+          cluster-name-suffix: 'suffix'
+          dry-run: false
+      - name: assert
+        run: test "${{ steps.all-flags.outputs.result }}" = "--dry-run --cluster-name-prefix='prefix' --cluster-name-suffix='suffix'"
