@@ -24,7 +24,7 @@ runs:
       id: prepare
       with:
         script: |
-          let color = '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning'
+          var color = '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning'
           if '${{ inputs.status }}' !== 'auto' {
             color = '${{ inputs.status }}' === 'success' ? 'good' : '${{ inputs.status }}' === 'failure' ? 'danger' : 'warning'
           }
