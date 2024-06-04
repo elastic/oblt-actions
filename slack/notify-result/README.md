@@ -1,5 +1,5 @@
 # <!--name-->slack/notify-result<!--/name-->
-
+<!--description-->
 ## Inputs
 <!--inputs-->
 | Name         | Description                                                                    | Required | Default |
