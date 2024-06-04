@@ -15,5 +15,5 @@ function find_dirs_with_action_yml_and_readme_md() {
 }
 
 for dir in $(find_dirs_with_action_yml_and_readme_md); do
-  gh action-readme update --action="$dir/action.yml" --readme="$dir/README.md"
+  VERSION=v1 gh action-readme update --action="$dir/action.yml" --readme="$dir/README.md"
 done
