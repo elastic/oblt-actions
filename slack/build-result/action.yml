@@ -16,6 +16,13 @@ inputs:
 runs:
   using: composite
   steps:
+    - uses: actions/github-script@v7
+      id: prepare
+      with:
+        script: |
+          const color = '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
+          core.setOutput('color', `${color}`)
+
     - uses: slackapi/slack-github-action@70cd7be8e40a46e8b0eced40b0de447bdb42f68e # v1.26.0
       with:
         channel-id: ${{ inputs.channel-id }}
@@ -24,7 +31,7 @@ runs:
             "attachments": [
               {
                 "pretext": "Workflow <${{ env.REPO_URL }}/actions/runs/${{ github.run_id }}|${{ github.workflow }}> triggered (`${{ github.event_name }}`)",
-                "color": '${{ job.status == 'success' ? 'good' : job.status == 'failure' ? 'danger' : 'warning' }},
+                "color": "${{ steps.prepare.outputs.color }}",
                 "text": "${{ env.SLACK_MESSAGE }}",
                 "fields": [
                   {
