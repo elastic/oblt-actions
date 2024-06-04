@@ -22,7 +22,7 @@ runs:
     - uses: elastic/oblt-actions/oblt-cli/setup@v1.1.0
       with:
         github-token: ${{ inputs.github-token }}
-        version: '7.1.3'
+        version: '7.1.13'
 
     - name: run oblt-cli
       run: |
