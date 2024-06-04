@@ -13,6 +13,7 @@ repos:
     hooks:
       - id: action-readme
         name: action-readme
-        entry: scripts/action-readme.sh
+        entry: .ci/scripts/action-readme.sh
         language: script
-        files: docs/
+        pass_filenames: false
+        files: (action.ya?ml|README.md)$
