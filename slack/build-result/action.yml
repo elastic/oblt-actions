@@ -35,14 +35,14 @@ runs:
                 "text": "${{ env.SLACK_MESSAGE }}",
                 "fields": [
                   {
-                    "title": "Ref",
-                    "short": true,
-                    "value": "`${{ github.ref_name }}`"
-                  },
-                  {
                     "title": "Workflow",
                     "short": true,
                     "value": "<${{ env.RUN_URL }}|${{ github.workflow }} #${{ github.run_number }}>"
+                  },
+                  {
+                    "title": "Ref",
+                    "short": true,
+                    "value": "`${{ github.ref_name }}`"
                   }
                 ],
                 "footer": "<${{ github.server_url }}/${{ github.repository }}|${{ github.repository }}>",
@@ -52,4 +52,5 @@ runs:
           }
       env:
         SLACK_BOT_TOKEN: ${{ inputs.bot-token }}
+        SLACK_MESSAGE: ${{ inputs.message }}
         RUN_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
