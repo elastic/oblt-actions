@@ -42,6 +42,7 @@ and replace `<action-path>` with the path to the action directory.
 ## Outputs
 <!--outputs-->
 
+## Usage
 <--usage action="elastic/oblt-actions/<action-path>" version="env:VERSION"-->
 ```yaml
 steps:
