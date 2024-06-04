@@ -1,4 +1,4 @@
-name: 'Oblt-cli create ccs'
+name: oblt-cli/cluster-create-ccs
 description: 'Run the oblt-cli wrapper to create a CCS cluster.'
 inputs:
   remote-cluster:
