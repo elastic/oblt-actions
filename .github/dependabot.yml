@@ -2,33 +2,33 @@ version: 2
 updates:
   - package-ecosystem: github-actions
     directories:
-      - /
-      - /buildkite/download-artifact
-      - /buildkite/run
-      - /check-dependent-jobs
-      - /git/setup
-      - /google/auth
-      - /oblt-cli/cluster-create-ccs
-      - /oblt-cli/cluster-create-custom
-      - /oblt-cli/cluster-create-serverless
-      - /oblt-cli/cluster-credentials
-      - /oblt-cli/cluster-name-validation
-      - /oblt-cli/run
-      - /oblt-cli/setup
-      - /slack/notify-result
-      - /slack/send
-      - /snapshoty/run
-      - /updatecli/install
-      - /updatecli/run
-      - /updatecli/run-and-notify
+      - '/'
+      - '/buildkite/download-artifact'
+      - '/buildkite/run'
+      - '/check-dependent-jobs'
+      - '/git/setup'
+      - '/google/auth'
+      - '/oblt-cli/cluster-create-ccs'
+      - '/oblt-cli/cluster-create-custom'
+      - '/oblt-cli/cluster-create-serverless'
+      - '/oblt-cli/cluster-credentials'
+      - '/oblt-cli/cluster-name-validation'
+      - '/oblt-cli/run'
+      - '/oblt-cli/setup'
+      - '/slack/notify-result'
+      - '/slack/send'
+      - '/snapshoty/run'
+      - '/updatecli/install'
+      - '/updatecli/run'
+      - '/updatecli/run-and-notify'
     schedule:
-      interval: daily
-      day: sunday
-      time: 22:00
+      interval: 'daily'
+      day: 'sunday'
+      time: '22:00'
     reviewers:
-      - elastic/observablt-ci
+      - 'elastic/observablt-ci'
     labels:
-      - changelog:dependencies
+      - 'changelog:dependencies'
     groups:
       github-actions:
         patterns:
