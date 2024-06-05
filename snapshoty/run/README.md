@@ -1,5 +1,6 @@
 # <!--name-->snapshoty/run<!--/name-->
 
+
 <!--description-->
 The best way to handle snapshot lifecycle.
 <!--/description-->
@@ -37,4 +38,3 @@ of the variable will be passed.
 ```
 
 <!--/usage-->
-
