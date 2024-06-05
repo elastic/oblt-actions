@@ -1,4 +1,7 @@
 # <!--name-->oblt-cli/cluster-create-ccs<!--/name-->
+
+[![test-oblt-cli-cluster-create-ccs](https://github.com/elastic/oblt-actions/actions/workflows/test-oblt-cli-cluster-create-ccs.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-oblt-cli-cluster-create-ccs.yml)
+
 <!--description-->
 Run the oblt-cli wrapper to create a CCS cluster.
 <!--/description-->

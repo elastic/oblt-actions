@@ -1,5 +1,7 @@
 # <!--name-->oblt-cli/cluster-name-validation<!--/name-->
 
+[![test-oblt-cli-cluster-name-validation](https://github.com/elastic/oblt-actions/actions/workflows/test-oblt-cli-cluster-name-validation.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-oblt-cli-cluster-name-validation.yml)
+
 <!--description-->
 Get the cluster name based on the parameters
 <!--/description-->

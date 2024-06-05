@@ -1,5 +1,8 @@
 # <!--name-->google/auth<!--/name-->
 
+[![test-google-auth](https://github.com/elastic/oblt-actions/actions/workflows/test-google-auth.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-google-auth.yml)
+
+
 <!--description-->
 This is an opinionated GitHub Action to authenticate with GCP.
 It generates a Workload Identity Pool Provider ID based on the repository name, which is compatible with the

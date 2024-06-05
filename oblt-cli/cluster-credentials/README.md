@@ -1,5 +1,7 @@
 # <!--name-->oblt-cli/cluster-credentials<!--/name-->
 
+[![test-oblt-cli-cluster-credentials](https://github.com/elastic/oblt-actions/actions/workflows/test-oblt-cli-cluster-credentials.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-oblt-cli-cluster-credentials.yml)
+
 <!--description-->
 Run the oblt-cli wrapper to retrieve the credentials to connect to the given cluster
 <!--/description-->

@@ -1,5 +1,7 @@
 # <!--name-->oblt-cli/cluster-create-serverless<!--/name-->
 
+[![test-oblt-cli-cluster-create-serverless](https://github.com/elastic/oblt-actions/actions/workflows/test-oblt-cli-cluster-create-serverless.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-oblt-cli-cluster-create-serverless.yml)
+
 <!--description-->
 Run the oblt-cli wrapper to create a serverless cluster.
 <!--/description-->

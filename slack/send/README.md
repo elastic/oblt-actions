@@ -1,5 +1,6 @@
 # <!--name-->slack/send<!--/name-->
 
+[![test-slack-send](https://github.com/elastic/oblt-actions/actions/workflows/test-slack-send.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-slack-send.yml)
 
 ## Inputs
 <!--inputs-->

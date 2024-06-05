@@ -1,5 +1,7 @@
 # <!--name-->oblt-cli/cluster-create-custom<!--/name-->
 
+[![test-oblt-cli-cluster-create-custom](https://github.com/elastic/oblt-actions/actions/workflows/test-oblt-cli-cluster-create-custom.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-oblt-cli-cluster-create-custom.yml)
+
 <!--description-->
 Run the oblt-cli wrapper to create a custom cluster.
 <!--/description-->

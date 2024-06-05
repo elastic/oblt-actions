@@ -1,5 +1,7 @@
 # <!--name-->git/setup<!--/name-->
 
+[![test-git-setup](https://github.com/elastic/oblt-actions/actions/workflows/test-git-setup.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-git-setup.yml)
+
 <!--description-->
 Setup the git usename, email, and authentication with git CLI.
 After this action you can use https URL repos in git commands.
