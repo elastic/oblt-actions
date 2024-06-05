@@ -1,0 +1,44 @@
+name: test-slack-send
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-slack-send.yml'
+      - 'slack/send/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-slack-send.yml'
+      - 'slack/send/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./slack/send
+        id: slack-send
+        with:
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#observablt-bots"
+          message: "Run something"
+
+      - name: validate thread-timestamp
+        run: test -n "${{ steps.slack-send.outputs.thread-timestamp }}"
+
+      - uses: ./slack/send
+        id: slack-reply
+        with:
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#observablt-bots"
+          message: "Run soemthing else"
+          thread-timestamp: ${{ steps.slack-send.outputs.thread-timestamp || '' }}
+
+      - name: validate thread-timestamp
+        run: test -n "${{ steps.slack-reply.outputs.thread-timestamp }}"
