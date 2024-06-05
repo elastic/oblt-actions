@@ -13,24 +13,13 @@ After installing pre-commit, run the following command to install the pre-commit
 pre-commit install
 ```
 
-### GitHub CLI
-
-This repository uses the [gh-action-readme](https://github.com/reakaleek/gh-action-readme) GitHub CLI extension to generate and update the `README.md` files for the actions.
-To install the GitHub CLI follow the instructions [here](https://github.com/cli/cli#installation).
-
-After installing the GitHub CLI, run the following command to install the `gh-action-readme` extension:
-
-```bash
-gh extension install reakaleek/gh-action-readme
-```
-
 ## Action Documentation
 Every action should have a `README.md` file in its directory.
-The `README.md` file is generated and updated by the [gh-action-readme](https://github.com/reakaleek/gh-action-readme)
-GitHub CLI extension.
+The `README.md` file is generated and updated with the `action-readme`
+pre-commit hook provided by [gh-action-readme](https://github.com/reakaleek/gh-action-readme).
 
 If you are adding a new action, you can use the following template to create the `README.md` file
-and replace `<action-path>` with the path to the action directory.
+and replace `<action-path>` with the path to the action directory or remove sections that are not applicable:
 
 ````markdown
 # <!--name--><!--/name-->
