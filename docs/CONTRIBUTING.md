@@ -45,7 +45,7 @@ oblt-actions/
 
 ## Action Testing
 Every action should have a test workflow in the `.github/workflows` directory.
-If the action name `my/new-action`, the test workflow should be named `test-my-new-action.yml`.
+If the action name is `my/new-action`, then the test workflow should be named `test-my-new-action.yml.`
 
 The workflow must have a job named `test` because the `test` status check is a required check for the `main` branch.
 
