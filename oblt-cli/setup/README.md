@@ -1,5 +1,7 @@
 # <!--name-->oblt-cli/setup<!--/name-->
 
+[![test-oblt-cli-setup](https://github.com/elastic/oblt-actions/actions/workflows/test-oblt-cli-setup.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-oblt-cli-setup.yml)
+
 <!--description-->
 Setup oblt-cli for use in GitHub Actions workflows.
 <!--/description-->

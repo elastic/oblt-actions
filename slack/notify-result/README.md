@@ -1,4 +1,7 @@
 # <!--name-->slack/notify-result<!--/name-->
+
+[![test-slack-notify-result](https://github.com/elastic/oblt-actions/actions/workflows/test-slack-notify-result.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-slack-notify-result.yml)
+
 <!--description-->
 This is an opinionated GitHub Action to send a message in slack with the build result.
 <!--/description-->

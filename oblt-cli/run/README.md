@@ -1,5 +1,7 @@
 # <!--name-->oblt-cli/run<!--/name-->
 
+[![test-oblt-cli-run](https://github.com/elastic/oblt-actions/actions/workflows/test-oblt-cli-run.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-oblt-cli-run.yml)
+
 <!--description-->
 Run the oblt-cli wrapper.
 <!--/description-->

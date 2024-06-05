@@ -1,5 +1,7 @@
 # <!--name-->check-dependent-jobs<!--/name-->
 
+[![test-check-dependent-jobs](https://github.com/elastic/oblt-actions/actions/workflows/test-check-dependent-jobs.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-check-dependent-jobs.yml)
+
 <!--description-->
 Evaluates the combined the status results of the provided needs context.
 <!--/description-->

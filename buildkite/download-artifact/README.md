@@ -1,5 +1,7 @@
 # <!--name-->buildkite/download-artifact<!--/name-->
 
+[![test-buildkite-download-artifact](https://github.com/elastic/oblt-actions/actions/workflows/test-buildkite-download-artifact.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-buildkite-download-artifact.yml)
+
 <!--description-->
 A GitHub Action for downloading artifacts from a Buildkite build.
 <!--/description-->

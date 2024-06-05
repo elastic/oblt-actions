@@ -1,5 +1,7 @@
 # <!--name-->buildkite/run<!--/name-->
 
+[![test-buildkite-run](https://github.com/elastic/oblt-actions/actions/workflows/test-buildkite-run.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-buildkite-run.yml)
+
 <!--description-->
 A GitHub Action for triggering a build on a Buildkite pipeline.
 <!--/description-->
