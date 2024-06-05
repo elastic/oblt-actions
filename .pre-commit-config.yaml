@@ -13,6 +13,5 @@ repos:
     rev: v0.3.0
     hooks:
       - id: action-readme
-        verbose: true
         args:
           - --env=VERSION=v1
