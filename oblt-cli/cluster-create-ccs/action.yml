@@ -72,7 +72,7 @@ runs:
             core.setOutput('ELASTICSEARCH_DOCKER_IMAGE', `--elasticsearch-docker-image=${elasticsearch_docker_image}`)
           }
 
-          if (dry_run) {
+          if (dry_run !== 'false') {
             core.setOutput('DRY_RUN', `--dry-run`)
           }
 
