@@ -9,11 +9,10 @@ repos:
       - id: end-of-file-fixer
       - id: mixed-line-ending
       - id: trailing-whitespace
-  - repo: local
+  - repo: https://github.com/reakaleek/gh-action-readme
+    rev: v0.3.0
     hooks:
       - id: action-readme
-        name: action-readme
-        entry: .ci/scripts/action-readme.sh
-        language: script
-        pass_filenames: false
-        files: (action.ya?ml|README.md)$
+        verbose: true
+        args:
+          - --env=VERSION=v1
