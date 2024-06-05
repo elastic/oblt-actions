@@ -1,25 +1,14 @@
 # <!--name-->slack/send<!--/name-->
 
+
 ## Inputs
 <!--inputs-->
-| Name               | Description                                                                                                                                                                                                                                                                                                                                    | Required | Default |
-|--------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|---------|
-| `bot-token`        | Specify the slack bot token.                                                                                                                                                                                                                                                                                                                   | `true`   | ` `     |
-| `channel-id`       |                                                                                                                                                                                                                                                                                                                                                | `true`   | ` `     |
-| `message`          | Slack message on Markdown format. Multiline messages must be escaped using URL encoding.
-https://github.com/orgs/community/discussions/26288
-
-This is an example how to escape a multiline message in Python:
-```Python
-from urllib.parse import quote
-
-message = quote("""
-Hello!!!
-This is a multiline message
-""") # Multiline message
-```
- | `true`   | ` `     |
-| `thread-timestamp` | If you want to post a message as a threaded reply                                                                                                                                                                                                                                                                                              | `false`  | ` `     |
+| Name               | Description                                                                                                                                                                                                                                                                                                                                                                        | Required | Default |
+|--------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|---------|
+| `bot-token`        | Specify the slack bot token.                                                                                                                                                                                                                                                                                                                                                       | `true`   | ` `     |
+| `channel-id`       |                                                                                                                                                                                                                                                                                                                                                                                    | `true`   | ` `     |
+| `message`          | Slack message on Markdown format. Multiline messages must be escaped using URL encoding.<br>https://github.com/orgs/community/discussions/26288<br><br>This is an example how to escape a multiline message in Python:<br>```Python<br>from urllib.parse import quote<br><br>message = quote("""<br>Hello!!!<br>This is a multiline message<br>""") # Multiline message<br>```<br> | `true`   | ` `     |
+| `thread-timestamp` | If you want to post a message as a threaded reply                                                                                                                                                                                                                                                                                                                                  | `false`  | ` `     |
 <!--/inputs-->
 
 ## Usage
