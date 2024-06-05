@@ -11,19 +11,17 @@ inputs:
     channel-id: 'Specify the slack channel-id.'
     required: true
   message:
-    description: |
+    description: |-
       Slack message on Markdown format. Multiline messages must be escaped using URL encoding.
       https://github.com/orgs/community/discussions/26288
 
       This is an example how to escape a multiline message in Python:
-      ```Python
-      from urllib.parse import quote
+      <pre>from urllib.parse import quote
 
       message = quote("""
       Hello!!!
       This is a multiline message
-      """) # Multiline message
-      ```
+      """) # Multiline message</pre>
     required: true
   thread-timestamp:
     description: If you want to post a message as a threaded reply
