@@ -1,0 +1,254 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: buildkite/download-artifact
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: buildkite/run
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: check-dependent-jobs
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: git/setup
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: google/auth
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: oblt-cli/cluster-create-ccs
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: oblt-cli/cluster-create-custom
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: oblt-cli/cluster-create-serverless
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: oblt-cli/cluster-credentials
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: oblt-cli/cluster-name-validation
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: oblt-cli/run
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: oblt-cli/setup
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: slack/notify-result
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: slack/send
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: snapshoty/run
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: updatecli/install
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: updatecli/run
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: updatecli/run-and-notify
+    schedule:
+      interval: daily
+      day: sunday
+      time: 22:00
+    reviewers:
+      - elastic/observablt-ci
+    labels:
+      - changelog:dependencies
+    groups:
+      github-actions:
+        patterns:
+          - '*'
