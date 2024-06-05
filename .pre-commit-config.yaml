@@ -11,11 +11,9 @@ repos:
       - id: mixed-line-ending
       - id: trailing-whitespace
         exclude: dist/index.js
-  - repo: local
+  - repo: https://github.com/reakaleek/gh-action-readme
+    rev: v0.3.1
     hooks:
       - id: action-readme
-        name: action-readme
-        entry: .ci/scripts/action-readme.sh
-        language: script
-        pass_filenames: false
-        files: (action.ya?ml|README.md)$
+        args:
+          - --env=VERSION=v1
