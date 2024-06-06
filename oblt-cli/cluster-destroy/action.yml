@@ -1,4 +1,4 @@
-name: 'Oblt-cli destroy cluster'
+name: oblt/cli/cluster-destroy
 description: 'Run the oblt-cli wrapper to destroy the given cluster'
 inputs:
   cluster-name:
@@ -10,6 +10,10 @@ inputs:
   github-token:
     description: 'The GitHub access token.'
     required: true
+  username:
+    description: 'Username to show in the deployments with oblt-cli, format: [a-z0-9]'
+    default: 'obltmachine'
+    required: false
 runs:
   using: "composite"
   steps:
@@ -22,7 +26,6 @@ runs:
     - uses: elastic/oblt-actions/oblt-cli/setup@v1.2.0
       with:
         github-token: ${{ inputs.github-token }}
-        slack-channel: ${{ inputs.slack-channel }}
         username: ${{ inputs.username }}
     - run: |
         oblt-cli cluster destroy --cluster-name "${{ steps.validation.outputs.cluster-name }}" --force
