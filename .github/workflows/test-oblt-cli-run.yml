@@ -25,4 +25,4 @@ jobs:
       - uses: ./oblt-cli/run
         with:
           github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
-          command: cluster --help
+          command: cluster create serverless --target qa --cluster-name-prefix testgithubaction --gitops --dry-run
