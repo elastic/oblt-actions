@@ -23,6 +23,7 @@ jobs:
     needs:
       - no-gitops
       - gitops
+      - multiline
     runs-on: ubuntu-latest
     steps:
       - id: check
@@ -35,8 +36,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - if: github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run == 'true'
-        uses: elastic/oblt-actions/google/auth@v1
       - uses: elastic/oblt-actions/git/setup@v1
       - uses: ./oblt-cli/cluster-create-custom
         with:
@@ -51,8 +50,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - if: github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run == 'true'
-        uses: elastic/oblt-actions/google/auth@v1
       - uses: elastic/oblt-actions/git/setup@v1
       - uses: ./oblt-cli/cluster-create-custom
         with:
@@ -67,8 +64,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - if: github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run == 'true'
-        uses: elastic/oblt-actions/google/auth@v1
       - uses: elastic/oblt-actions/git/setup@v1
       - uses: ./oblt-cli/cluster-create-custom
         with:
