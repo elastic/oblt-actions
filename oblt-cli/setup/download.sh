@@ -31,6 +31,7 @@ fi
 
 # Downloads the latest release if OBLT_CLI_VERSION is not set
 gh release download "${OBLT_CLI_VERSION}" \
+  --skip-existing \
   --repo elastic/observability-test-environments \
   -p "${PATTERN}" \
   --output - | tar -xz -C "${BIN_DIR}"

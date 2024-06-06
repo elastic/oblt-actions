@@ -25,4 +25,7 @@ jobs:
       - uses: ./oblt-cli/setup
         with:
           github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
+      - uses: ./oblt-cli/setup
+        with:
+          github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
       - run: oblt-cli version
