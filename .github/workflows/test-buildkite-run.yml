@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   test:
+    if: always()
     needs:
       - test-no-wait-for
       - test-wait-for

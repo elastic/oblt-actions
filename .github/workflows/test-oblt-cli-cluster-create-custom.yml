@@ -19,6 +19,7 @@ permissions:
 
 jobs:
   test:
+    if: always()
     needs:
       - no-gitops
       - gitops
