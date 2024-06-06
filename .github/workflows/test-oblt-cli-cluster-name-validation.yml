@@ -19,6 +19,7 @@ permissions:
 
 jobs:
   test:
+    if: always()
     needs:
       - cluster-name
       - cluster-info-file
