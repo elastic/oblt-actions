@@ -22,7 +22,7 @@ Run the oblt-cli wrapper to create a CCS cluster.
 <!--/inputs-->
 
 ## Usage
-<!--usage action="elastic/oblt-actions/oblt-cli/cluster-create-ccs" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 jobs:
   run-oblt-cli:
@@ -30,7 +30,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: elastic/oblt-actions/git/setup@v1
-      - uses: elastic/oblt-actions/google/auth@v1
       - uses: elastic/oblt-actions/oblt-cli/cluster-create-ccs@v1
         with:
           remote-cluster: 'dev-oblt'

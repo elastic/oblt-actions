@@ -17,7 +17,7 @@ Setup oblt-cli for use in GitHub Actions workflows.
 <!--/inputs-->
 
 ## Usage
-<!--usage action="elastic/oblt-actions/oblt-cli/setup" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 jobs:
   run-oblt-cli:

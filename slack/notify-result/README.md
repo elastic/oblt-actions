@@ -18,7 +18,7 @@ This is an opinionated GitHub Action to send a message in slack with the build r
 
 ## Usage
 
-<!--usage action="elastic/oblt-actions/slack/notify-result" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 name: slack
 

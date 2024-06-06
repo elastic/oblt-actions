@@ -23,14 +23,13 @@ Run the oblt-cli wrapper to create a serverless cluster.
 
 ## Usage
 
-<!--usage action="elastic/oblt-actions/oblt-cli/create-serverless" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 jobs:
   create-serverless:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: elastic/oblt-actions/google/auth@v1
       - uses: elastic/oblt-actions/git/setup@v1
       - uses: elastic/oblt-actions/oblt-cli/create-serverless@v1
         with:

@@ -21,7 +21,7 @@ notifications.
 <!--/inputs-->
 
 ## Usage
-<!--usage action="elastic/oblt-actions/updatecli/run-and-notify" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 jobs:
   updatecli:
@@ -37,4 +37,4 @@ jobs:
           slack-message: "Automation failed"
           slack-send-when: 'failure'
 ```
-<--/usage-->
+<!--/usage-->
