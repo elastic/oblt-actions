@@ -1,0 +1,31 @@
+name: 'Oblt-cli destroy cluster'
+description: 'Run the oblt-cli wrapper to destroy the given cluster'
+inputs:
+  cluster-name:
+    description: 'The cluster name'
+    required: false
+  cluster-info-file:
+    description: 'The cluster info file (absolute path)'
+    required: false
+  github-token:
+    description: 'The GitHub access token.'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: elastic/oblt-actions/oblt-cli/cluster-name-validation@v1.8.1
+      id: validation
+      with:
+        cluster-name: ${{ inputs.cluster-name }}
+        cluster-info-file: ${{ inputs.cluster-info-file }}
+
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.2.0
+      with:
+        github-token: ${{ inputs.github-token }}
+        slack-channel: ${{ inputs.slack-channel }}
+        username: ${{ inputs.username }}
+    - run: |
+        oblt-cli cluster destroy --cluster-name "${{ steps.validation.outputs.cluster-name }}" --force
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
