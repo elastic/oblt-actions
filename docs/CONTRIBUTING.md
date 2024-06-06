@@ -71,7 +71,7 @@ and replace `<action-path>` with the path to the action directory or remove sect
 <!--outputs-->
 
 ## Usage
-<--usage action="elastic/oblt-actions/<action-path>" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/<action-path>" version="env:VERSION"-->
 ```yaml
 steps:
   - uses: elastic/oblt-actions/<action-path>@v1
