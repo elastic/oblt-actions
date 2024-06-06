@@ -22,7 +22,7 @@ Get the cluster name based on the parameters
 <!--/outputs-->
 
 ## Usage
-<!--usage action="elastic/oblt-actions/oblt-cli/cluster-name-validation" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 jobs:
   get-cluster-name:

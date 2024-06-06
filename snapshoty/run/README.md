@@ -22,7 +22,7 @@ of the variable will be passed.
 
 ## Usage
 
-<!--usage action="elastic/oblt-actions/snapshoty/run" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
     steps:
       - uses: elastic/oblt-actions/snapshoty/run@v1

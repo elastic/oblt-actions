@@ -23,7 +23,7 @@ Run the oblt-cli wrapper to create a custom cluster.
 <!--/inputs-->
 
 ## Usage
-<!--usage action="elastic/oblt-actions/oblt-cli/cluster-create-custom" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 ---
 name: Create custom cluster using the oblt-cli

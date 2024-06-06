@@ -34,7 +34,7 @@ A GitHub Action for triggering a build on a Buildkite pipeline.
 <!--/outputs-->
 
 ## Usage
-<!--usage action="elastic/oblt-actions/buildkite/run" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 jobs:
   run-buildkite:

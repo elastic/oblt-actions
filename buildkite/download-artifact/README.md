@@ -19,7 +19,7 @@ A GitHub Action for downloading artifacts from a Buildkite build.
 
 ## Usage
 
-<!--usage action="elastic/oblt-actions/buildkite/download-artifact" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 jobs:
   run-buildkite:
