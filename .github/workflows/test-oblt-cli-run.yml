@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: elastic/oblt-actions/git/setup@v1
       - uses: ./oblt-cli/run
         with:
           github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
