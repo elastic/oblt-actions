@@ -22,6 +22,7 @@ jobs:
     needs:
       - no-gitops
       - gitops
+      - multiline
     runs-on: ubuntu-latest
     steps:
       - id: check
@@ -57,3 +58,22 @@ jobs:
           gitops: true
           dry-run: ${{ github.event.inputs.dry-run != '' && github.event.inputs.dry-run || true }}
           parameters: '{"RemoteClusterName":"release-oblt","StackVersion":"8.7.0","KibanaDockerImage":"docker.elastic.co/observability-ci/kibana-cloud:8.7.0-SNAPSHOT"}'
+
+  multiline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: elastic/oblt-actions/git/setup@v1
+      - uses: ./oblt-cli/cluster-create-custom
+        with:
+          github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
+          template: 'deploy-kibana'
+          cluster-name-prefix: 'testgithubaction'
+          gitops: true
+          dry-run: true
+          parameters: |
+            {
+              "RemoteClusterName": "release-oblt",
+              "StackVersion": "8.7.0",
+              "KibanaDockerImage": "docker.elastic.co/observability-ci/kibana-cloud:8.7.0-SNAPSHOT"
+            }
