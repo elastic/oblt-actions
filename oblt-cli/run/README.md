@@ -17,7 +17,7 @@ Run the oblt-cli wrapper.
 <!--/inputs-->
 
 ## Usage
-<!--usage action="elastic/oblt-actions/oblt-cli/run" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 jobs:
   run-oblt-cli:

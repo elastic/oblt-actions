@@ -10,7 +10,7 @@
 
 ## Usage
 
-<!--usage action="elastic/oblt-actions/updatecli/run" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 name: updatecli
 

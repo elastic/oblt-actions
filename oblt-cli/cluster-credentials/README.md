@@ -43,7 +43,7 @@ Masked environment variables that are available:
 
 ## Usage
 
-<!--usage action="elastic/oblt-actions/oblt-cli/cluster-credentials" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 jobs:
   cat-indices:

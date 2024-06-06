@@ -6,7 +6,7 @@ This is an opinionated GitHub Action to install the updatecli
 
 ## Usage
 
-<!--usage action="elastic/oblt-actions/updatecli/install" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 name: updatecli
 

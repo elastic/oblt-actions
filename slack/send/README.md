@@ -14,7 +14,7 @@
 
 ## Usage
 
-<!--usage action="elastic/oblt-actions/slack/send" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 name: slack
 
