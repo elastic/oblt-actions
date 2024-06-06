@@ -23,7 +23,7 @@ Run the oblt-cli wrapper to create a serverless cluster.
 
 ## Usage
 
-<!--usage action="elastic/oblt-actions/oblt-cli/create-serverless" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 jobs:
   create-serverless:

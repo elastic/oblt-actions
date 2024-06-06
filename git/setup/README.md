@@ -28,7 +28,7 @@ after this action.
 
 ## Usage
 
-<!--usage action="elastic/oblt-actions/git/setup" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 ---
 name: deploy

@@ -26,7 +26,7 @@ GCP Workload Identity Pool Provider ID we use for Elastic Observability reposito
 
 ## Usage
 
-<!--usage action="elastic/oblt-actions/google/auth" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 jobs:
   job_id:
@@ -37,4 +37,4 @@ jobs:
       - uses: 'actions/checkout@v4' # Checkout needs to happen before using this action
       - uses: 'elastic/oblt-actions/google/auth@v1'
 ```
-<--/usage-->
+<!--/usage-->

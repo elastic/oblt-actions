@@ -24,7 +24,7 @@ Evaluates the combined the status results of the provided needs context.
 
 ## Usage
 
-<!--usage action="elastic/oblt-actions/check-dependent-jobs" version="env:VERSION"-->
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 jobs:
   job-a:
