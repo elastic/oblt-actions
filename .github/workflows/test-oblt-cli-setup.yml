@@ -1,15 +1,8 @@
 name: test-oblt-cli-setup
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/test-oblt-cli-setup.yml'
-      - 'oblt-cli/setup/**'
+  workflow_dispatch: ~
   push:
-    branches:
-      - main
     paths:
       - '.github/workflows/test-oblt-cli-setup.yml'
       - 'oblt-cli/setup/**'
