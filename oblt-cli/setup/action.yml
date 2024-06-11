@@ -17,7 +17,7 @@ inputs:
     required: false
   version:
     description: "Install a specific version of oblt-cli"
-    default: ""
+    default: "7.2.2"
     required: false
 
 runs:
