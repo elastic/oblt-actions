@@ -34,7 +34,7 @@ jobs:
 
       - uses: elastic/oblt-actions/buildkite/download-artifact@v1
         with:
-          build: ${{ steps.buildkite-run.outputs.build }}
+          build-number: ${{ steps.buildkite-run.outputs.number }}
           path: "artifacts.tar"
           pipeline: ${{ steps.buildkite-run.outputs.pipeline }}
           token: ${{ secrets.BUILDKITE_TOKEN }}
