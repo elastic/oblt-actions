@@ -12,6 +12,7 @@ updates:
       - '/oblt-cli/cluster-create-custom'
       - '/oblt-cli/cluster-create-serverless'
       - '/oblt-cli/cluster-credentials'
+      - '/oblt-cli/cluster-destroy'
       - '/oblt-cli/cluster-name-validation'
       - '/oblt-cli/run'
       - '/oblt-cli/setup'
