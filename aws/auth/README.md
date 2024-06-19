@@ -25,8 +25,10 @@ AWS role ARN we use for Elastic Observability repositories.
 ## Usage
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
-on: push
 steps:
   - uses: elastic/oblt-actions/aws/auth@v1
+    with:
+      aws-region: 'us-east-1'
+  - run: aws s3 ls
 ```
 <!--/usage-->
