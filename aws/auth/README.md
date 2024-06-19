@@ -4,7 +4,7 @@
 <!--description-->
 This is an opinionated GitHub Action to authenticate with AWS.
 
-It generates a role ARN based on the repository name, which is compatible with the
+It generates a role ARN based on the repository name and the workflow filename, which is compatible with the
 AWS role ARN we use for Elastic Observability repositories.
 <!--/description-->
 
