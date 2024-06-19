@@ -1,0 +1,47 @@
+name: aws/auth
+description: |
+  This is an opinionated GitHub Action to authenticate with AWS.
+
+  It generates a role ARN based on the repository name, which is compatible with the
+  AWS role ARN we use for Elastic Observability repositories.
+
+inputs:
+  aws-region:
+    description: 'The AWS region, e.g. us-east-1'
+    required: true
+
+outputs:
+  role-arn:
+    description: 'The generated role ARN'
+    value: ${{ steps.generate-role-arn.outputs.role-arn }}
+
+runs:
+  using: composite
+  steps:
+    - name: Generate role ARN
+      id: generate-role-arn
+      shell: python
+      env:
+        REPOSITORY: ${{ github.repository }}
+        WORKFLOW_REF: ${{ github.workflow_ref }} # e.g. octocat/hello-world/.github/workflows/my-workflow.yml@refs/heads/my_branch
+      run: |
+        import hashlib
+        import os
+
+        repository = os.environ['REPOSITORY']
+        workflow_ref = os.environ['WORKFLOW_REF']
+        worflow_filename = workflow_ref.split('/')[4].split('@')[0]
+
+        m = hashlib.sha256()
+        m.update(f"{repository}/{worflow_filename}".encode('utf-8'))
+        hash = m.hexdigest()[:55]
+        role_name = f"gha-{hash}-role"
+        role_arn = f"arn:aws:iam::697149045717:role/{role_name}"
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+            f.write(f"role-arn={role_arn}")
+
+    - name: Configure AWS Credentials for China region audience
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ inputs.aws-region }}
+        role-to-assume: ${{ steps.generate-role-arn.outputs.role-arn }}
