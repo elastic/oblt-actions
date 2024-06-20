@@ -6,6 +6,10 @@ description: |
   AWS role ARN we use for Elastic Observability repositories.
 
 inputs:
+  aws-account-id:
+    description: 'The AWS account ID'
+    default: "697149045717" # observability-ci account
+    required: false
   aws-region:
     description: 'The AWS region, e.g. us-east-1'
     required: false
@@ -25,24 +29,26 @@ runs:
       env:
         REPOSITORY: ${{ github.repository }}
         WORKFLOW_REF: ${{ github.workflow_ref }} # e.g. octocat/hello-world/.github/workflows/my-workflow.yml@refs/heads/my_branch
+        AWS_ACCOUNT_ID: ${{ inputs.aws-account-id }}
       run: |
         import hashlib
         import os
 
         repository = os.environ['REPOSITORY']
         workflow_ref = os.environ['WORKFLOW_REF']
+        aws_account_id = os.environ['AWS_ACCOUNT_ID']
         worflow_filename = workflow_ref.split('/')[4].split('@')[0]
 
         m = hashlib.sha256()
         m.update(f"{repository}/{worflow_filename}".encode('utf-8'))
         hash = m.hexdigest()[:55]
         role_name = f"gha-{hash}-role"
-        role_arn = f"arn:aws:iam::697149045717:role/{role_name}"
+        role_arn = f"arn:aws:iam::{aws_account_id}:role/{role_name}"
         with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
             f.write(f"role-arn={role_arn}")
 
     - name: Configure AWS Credentials for China region audience
-      uses: aws-actions/configure-aws-credentials@v4
+      uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
       with:
         aws-region: ${{ inputs.aws-region }}
         role-to-assume: ${{ steps.generate-role-arn.outputs.role-arn }}
