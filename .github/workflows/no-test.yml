@@ -7,6 +7,7 @@ on:
     paths:
       - '**'
       - '!.github/workflows/test-*'
+      - '!aws/auth/**'
       - '!buildkite/run/**'
       - '!check-dependent-jobs/**'
       - '!git/setup/**'

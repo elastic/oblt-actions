@@ -1,0 +1,54 @@
+name: aws/auth
+description: |
+  This is an opinionated GitHub Action to authenticate with AWS.
+
+  It generates a role ARN based on the repository name and the workflow filename, which is compatible with the
+  AWS role ARN we use for Elastic Observability repositories.
+
+inputs:
+  aws-account-id:
+    description: 'The AWS account ID'
+    default: "697149045717" # observability-ci account
+    required: false
+  aws-region:
+    description: 'The AWS region, e.g. us-east-1'
+    required: false
+    default: 'us-east-1'
+
+outputs:
+  role-arn:
+    description: 'The generated role ARN'
+    value: ${{ steps.generate-role-arn.outputs.role-arn }}
+
+runs:
+  using: composite
+  steps:
+    - name: Generate role ARN
+      id: generate-role-arn
+      shell: python
+      env:
+        REPOSITORY: ${{ github.repository }}
+        WORKFLOW_REF: ${{ github.workflow_ref }} # e.g. octocat/hello-world/.github/workflows/my-workflow.yml@refs/heads/my_branch
+        AWS_ACCOUNT_ID: ${{ inputs.aws-account-id }}
+      run: |
+        import hashlib
+        import os
+
+        repository = os.environ['REPOSITORY']
+        workflow_ref = os.environ['WORKFLOW_REF']
+        aws_account_id = os.environ['AWS_ACCOUNT_ID']
+        worflow_filename = workflow_ref.split('/')[4].split('@')[0]
+
+        m = hashlib.sha256()
+        m.update(f"{repository}/{worflow_filename}".encode('utf-8'))
+        hash = m.hexdigest()[:55]
+        role_name = f"gha-{hash}-role"
+        role_arn = f"arn:aws:iam::{aws_account_id}:role/{role_name}"
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+            f.write(f"role-arn={role_arn}")
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+      with:
+        aws-region: ${{ inputs.aws-region }}
+        role-to-assume: ${{ steps.generate-role-arn.outputs.role-arn }}
