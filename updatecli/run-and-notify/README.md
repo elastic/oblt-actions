@@ -1,5 +1,7 @@
 # <!--name-->updatecli/run-and-notify<!--/name-->
 
+[![usages](https://img.shields.io/badge/usages-white?logo=githubactions&logoColor=blue)](https://github.com/search?q=elastic%2Foblt-actions%2Fupdatecli%2Frun-and-notify+%28path%3A.github%2Fworkflows+OR+path%3A**%2Faction.yml+OR+path%3A**%2Faction.yaml%29&type=code)
+
 > [!WARNING]
 > *Deprecated* Will be removed in a future release.
 > Please use the [updatecli/run](../run/README.md) action with the [slack/send](../../slack/send/README.md) action instead.

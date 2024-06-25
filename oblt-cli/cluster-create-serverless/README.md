@@ -1,5 +1,6 @@
 # <!--name-->oblt-cli/cluster-create-serverless<!--/name-->
 
+[![usages](https://img.shields.io/badge/usages-white?logo=githubactions&logoColor=blue)](https://github.com/search?q=elastic%2Foblt-actions%2Foblt-cli%2Fcluster-create-serverless+%28path%3A.github%2Fworkflows+OR+path%3A**%2Faction.yml+OR+path%3A**%2Faction.yaml%29&type=code)
 [![test-oblt-cli-cluster-create-serverless](https://github.com/elastic/oblt-actions/actions/workflows/test-oblt-cli-cluster-create-serverless.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-oblt-cli-cluster-create-serverless.yml)
 
 <!--description-->

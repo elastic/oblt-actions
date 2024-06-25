@@ -1,4 +1,7 @@
 # <!--name-->oblt/cli/cluster-destroy<!--/name-->
+
+[![usages](https://img.shields.io/badge/usages-white?logo=githubactions&logoColor=blue)](https://github.com/search?q=elastic%2Foblt-actions%2Foblt-cli%2Fcluster-destroy+%28path%3A.github%2Fworkflows+OR+path%3A**%2Faction.yml+OR+path%3A**%2Faction.yaml%29&type=code)
+
 <!--description-->
 Run the oblt-cli wrapper to destroy the given cluster
 <!--/description-->

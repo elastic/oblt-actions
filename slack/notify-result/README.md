@@ -1,5 +1,6 @@
 # <!--name-->slack/notify-result<!--/name-->
 
+[![usages](https://img.shields.io/badge/usages-white?logo=githubactions&logoColor=blue)](https://github.com/search?q=elastic%2Foblt-actions%2Fslack%2Fnotify-result+%28path%3A.github%2Fworkflows+OR+path%3A**%2Faction.yml+OR+path%3A**%2Faction.yaml%29&type=code)
 [![test-slack-notify-result](https://github.com/elastic/oblt-actions/actions/workflows/test-slack-notify-result.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-slack-notify-result.yml)
 
 <!--description-->
