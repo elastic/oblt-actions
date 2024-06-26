@@ -34,7 +34,7 @@ OBLT_CLI_VERSION_FILE=${OBLT_CLI_VERSION_FILE:-}
 if [[ -n "${OBLT_CLI_VERSION_FILE}" ]]; then
   if [[ -f "${OBLT_CLI_VERSION_FILE}" ]]; then
     if [[ "$(basename "$OBLT_CLI_VERSION_FILE")" == ".tool-versions" ]]; then
-      OBLT_CLI_VERSION=$(grep "oblt-cli" "${OBLT_CLI_VERSION_FILE}" | awk '{ print $2 }')
+      OBLT_CLI_VERSION=$(grep "^oblt-cli" "${OBLT_CLI_VERSION_FILE}" | awk '{ print $2 }')
     else
       OBLT_CLI_VERSION=$(< "${OBLT_CLI_VERSION_FILE}" tr -d '[:space:]')
     fi

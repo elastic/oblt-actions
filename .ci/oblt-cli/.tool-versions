@@ -1,3 +1,4 @@
-oblt-cli 7.2.5
+oblt-cli 7.2.5 # This is a comment that contains oblt-cli
+# This is another comment that contains oblt-cli
 ruby 2.5.3
 nodejs 10.15.0
