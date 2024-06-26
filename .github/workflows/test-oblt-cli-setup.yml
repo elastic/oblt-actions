@@ -39,10 +39,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Setup version file
+        run: |
+          echo "7.2.5" > .oblt-cli-version
       - uses: ./oblt-cli/setup
         with:
           github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
-          version-file: .ci/oblt-cli/.oblt-cli-version
+          version-file: .oblt-cli-version
       - run: |
           version=$(oblt-cli version 2>&1)
           [[ "$version" == *"version 7.2.5"* ]]
@@ -60,10 +63,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Setup version file
+        run: |
+          cat <<EOF > .tool-versions
+          oblt-cli 7.2.5 # This is a comment that contains oblt-cli
+          # This is another comment that contains oblt-cli
+          ruby 2.5.3
+          nodejs 10.15.0
+          EOF
       - uses: ./oblt-cli/setup
         with:
           github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
-          version-file: .ci/oblt-cli/.tool-versions
+          version-file: .tool-versions
       - run: |
           version=$(oblt-cli version 2>&1)
           [[ "$version" == *"version 7.2.5"* ]]
