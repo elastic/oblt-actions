@@ -107,7 +107,14 @@ runs:
           ${{ steps.flags.outputs.CLUSTER_NAME_SUFFIX }} \
           ${{ steps.flags.outputs.ELASTICSEARCH_DOCKER_IMAGE }} \
           ${{ steps.flags.outputs.DRY_RUN }} \
-          ${{ steps.flags.outputs.GITOPS }}
+          ${{ steps.flags.outputs.GITOPS }} \
+          --output-file="${GITHUB_WORKSPACE}/cluster-info.json"
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
+    - name: summary
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const summary = require('${{ github.action_path }}/summary.js')
+          await summary({github, context, core})
