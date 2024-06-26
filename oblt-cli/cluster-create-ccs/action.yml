@@ -116,5 +116,5 @@ runs:
       run: |
         cluster_name=$(jq -r '.ClusterName' "${GITHUB_WORKSPACE}/cluster-info.json")
         echo "### oblt-cli :rocket:
-        echo "https://github.com/elastic/observability-test-environments/pulls?q=is%3Apr+${CLUSTER_NAME}" >> $GITHUB_STEP_SUMMARY
+        echo "https://github.com/elastic/observability-test-environments/pulls?q=is%3Apr+${cluster_name}" >> $GITHUB_STEP_SUMMARY
       shell: bash
