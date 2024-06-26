@@ -113,12 +113,8 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
     - name: summary
-      run: |
-        cluster_name=$(jq -r '.ClusterName' "${GITHUB_WORKSPACE}/cluster-info.json")
-        {
-          echo "### oblt-cli cluster info"
-          echo "| Cluster Name | Status |"
-          echo "|--------------|--------|"
-          echo "| <code>${cluster_name}</code> | https://github.com/elastic/observability-test-environments/pulls?q=is%3Apr+${cluster_name} |"
-        } >> $GITHUB_STEP_SUMMARY
-      shell: bash
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const summary = require('${{ github.workspace }}/summary.js')
+          await summary({github, context, core})
