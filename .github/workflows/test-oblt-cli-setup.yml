@@ -12,13 +12,46 @@ permissions:
 
 jobs:
   test:
+    needs:
+      - version
+      - version-file
+      - default-version
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./oblt-cli/setup
+        with:
+          version: 7.2.2
+          github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
+      - run: |
+          version=$(oblt-cli version 2>&1)
+          [[ "$version" == *"version 7.2.2"* ]]
+  version-file:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: ./oblt-cli/setup
         with:
           github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
+          version-file: .oblt-cli-version
+      - run: |
+          version=$(oblt-cli version 2>&1)
+          [[ "$version" == *"version 7.2.5"* ]]
+  default-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - uses: ./oblt-cli/setup
         with:
           github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
-      - run: oblt-cli version
+      - run: |
+          oblt-cli version

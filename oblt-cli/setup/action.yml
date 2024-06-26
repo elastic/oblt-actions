@@ -19,6 +19,9 @@ inputs:
     description: "Install a specific version of oblt-cli"
     default: "7.2.2"
     required: false
+  version-file:
+    description: "The file to read the version from. E.g. .oblt-cli-version"
+    required: false
 
 runs:
   using: composite
@@ -28,6 +31,7 @@ runs:
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         OBLT_CLI_VERSION: ${{ inputs.version }}
+        OBLT_CLI_VERSION_FILE: ${{ inputs.version-file }}
       shell: bash
     - name: Configure oblt-cli
       run: >

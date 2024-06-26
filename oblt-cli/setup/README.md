@@ -15,6 +15,7 @@ Setup oblt-cli for use in GitHub Actions workflows.
 | `slack-channel` | The slack channel to notify the status.                             | `false`  | `#observablt-bots` |
 | `username`      | Username to show in the deployments with oblt-cli, format: [a-z0-9] | `false`  | `obltmachine`      |
 | `version`       | Install a specific version of oblt-cli                              | `false`  | `7.2.2`            |
+| `version-file`  | The file to read the version from. E.g. .oblt-cli-version           | `false`  | ` `                |
 <!--/inputs-->
 
 ## Usage
