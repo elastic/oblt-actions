@@ -32,7 +32,8 @@ jobs:
         with:
           version: 7.2.2
           github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
-      - run: |
+      - name: Verify oblt-cli version
+        run: |
           version=$(oblt-cli version 2>&1)
           [[ "$version" == *"version 7.2.2"* ]]
   version-file:
@@ -46,7 +47,8 @@ jobs:
         with:
           github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
           version-file: .oblt-cli-version
-      - run: |
+      - name: Verify oblt-cli version
+        run: |
           version=$(oblt-cli version 2>&1)
           [[ "$version" == *"version 7.2.5"* ]]
   default-version:
@@ -56,7 +58,8 @@ jobs:
       - uses: ./oblt-cli/setup
         with:
           github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
-      - run: |
+      - name: Verify oblt-cli version
+        run: |
           oblt-cli version
 
   tools-versions:
@@ -75,6 +78,7 @@ jobs:
         with:
           github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
           version-file: .tool-versions
-      - run: |
+      - name: Verify oblt-cli version
+        run: |
           version=$(oblt-cli version 2>&1)
           [[ "$version" == *"version 7.2.5"* ]]
