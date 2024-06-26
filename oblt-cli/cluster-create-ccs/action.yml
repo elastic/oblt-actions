@@ -107,7 +107,7 @@ runs:
           ${{ steps.flags.outputs.CLUSTER_NAME_SUFFIX }} \
           ${{ steps.flags.outputs.ELASTICSEARCH_DOCKER_IMAGE }} \
           ${{ steps.flags.outputs.DRY_RUN }} \
-          ${{ steps.flags.outputs.GITOPS }}
+          ${{ steps.flags.outputs.GITOPS }} \
           --output-file="${GITHUB_WORKSPACE}/cluster-info.json"
       shell: bash
       env:
