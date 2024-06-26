@@ -20,7 +20,7 @@ inputs:
     default: "7.2.2"
     required: false
   version-file:
-    description: "The file to read the version from. E.g. `.oblt-cli-version`</pre>` or `.tool-versions`. This option takes precedence over `version`."
+    description: "The file to read the version from. E.g. `.oblt-cli-version` or `.tool-versions`. This option takes precedence over `version`."
     required: false
 
 runs:
