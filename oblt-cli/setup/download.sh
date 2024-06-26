@@ -29,6 +29,21 @@ else
   exit 1
 fi
 
+OBLT_CLI_VERSION_FILE=${OBLT_CLI_VERSION_FILE:-}
+
+if [[ -n "${OBLT_CLI_VERSION_FILE}" ]]; then
+  if [[ -f "${OBLT_CLI_VERSION_FILE}" ]]; then
+    if [[ "$(basename "$OBLT_CLI_VERSION_FILE")" == ".tool-versions" ]]; then
+      OBLT_CLI_VERSION=$(grep "^oblt-cli" "${OBLT_CLI_VERSION_FILE}" | awk '{ print $2 }')
+    else
+      OBLT_CLI_VERSION=$(< "${OBLT_CLI_VERSION_FILE}" tr -d '[:space:]')
+    fi
+  else
+    echo "[ERROR] ${OBLT_CLI_VERSION_FILE} file not found."
+    exit 1
+  fi
+fi
+
 # Downloads the latest release if OBLT_CLI_VERSION is not set
 gh release download "${OBLT_CLI_VERSION}" \
   --skip-existing \
