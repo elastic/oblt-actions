@@ -117,6 +117,8 @@ runs:
         cluster_name=$(jq -r '.ClusterName' "${GITHUB_WORKSPACE}/cluster-info.json")
         {
           echo "### oblt-cli"
-          echo "Cluster name: [${cluster_name}](https://github.com/elastic/observability-test-environments/pulls?q=is%3Apr+${cluster_name})"
+          echo "| Cluster Name | Status |"
+          echo "|--------------|--------|"
+          echo "| `${cluster_name}` | https://github.com/elastic/observability-test-environments/pulls?q=is%3Apr+${cluster_name} |"
         } >> $GITHUB_STEP_SUMMARY
       shell: bash
