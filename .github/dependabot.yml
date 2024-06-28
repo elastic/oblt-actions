@@ -3,6 +3,7 @@ updates:
   - package-ecosystem: github-actions
     directories:
       - '/'
+      - '/aws/auth'
       - '/buildkite/download-artifact'
       - '/buildkite/run'
       - '/check-dependent-jobs'
@@ -20,10 +21,10 @@ updates:
       - '/slack/send'
       - '/snapshoty/run'
       - '/updatecli/install'
-      - '/updatecli/run'
       - '/updatecli/run-and-notify'
+      - '/updatecli/run'
     schedule:
-      interval: 'daily'
+      interval: 'weekly'
       day: 'sunday'
       time: '22:00'
     reviewers:
