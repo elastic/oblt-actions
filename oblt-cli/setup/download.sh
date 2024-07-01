@@ -33,7 +33,7 @@ input_version="${OBLT_CLI_VERSION:-}"
 version_file="${OBLT_CLI_VERSION_FILE:-"${GITHUB_ACTION_PATH}/.default-oblt-cli-version"}"
 
 if [[ -n "${version_file}" && -n "${input_version}" ]]; then
-  echo "::notice title=elastic/oblt-actions/oblt-cli/setup::Both version and version-file are provided. Using version: ${input_version}."
+  echo "::warning title=elastic/oblt-actions/oblt-cli/setup::Both version and version-file are provided. Using version: ${input_version}."
 fi
 
 if [[ -n "${input_version}" ]]; then
@@ -59,5 +59,5 @@ gh release download "${version}" \
   --repo elastic/observability-test-environments \
   -p "${PATTERN}" \
   --output - | tar -xz -C "${BIN_DIR}"
-
+echo "::notice title=elastic/oblt-actions/oblt-cli/setup::Downloaded oblt-cli version: ${version}"
 echo "${BIN_DIR}" >> "${GITHUB_PATH}"
