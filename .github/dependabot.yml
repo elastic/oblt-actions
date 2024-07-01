@@ -4,7 +4,7 @@ updates:
     directories:
       - '**/*'
     schedule:
-      interval: 'daily'
+      interval: 'weekly'
       day: 'sunday'
       time: '22:00'
     reviewers:
