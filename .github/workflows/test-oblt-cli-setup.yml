@@ -16,6 +16,9 @@ jobs:
       - version
       - version-file
       - default-version
+      - tools-versions
+      - non-existing-file
+      - both-version-and-version-file
     runs-on: ubuntu-latest
     steps:
       - id: check
@@ -36,6 +39,7 @@ jobs:
         run: |
           version=$(oblt-cli version 2>&1)
           [[ "$version" == *"version 7.2.2"* ]]
+
   version-file:
     runs-on: ubuntu-latest
     steps:
@@ -51,6 +55,7 @@ jobs:
         run: |
           version=$(oblt-cli version 2>&1)
           [[ "$version" == *"version 7.2.5"* ]]
+
   default-version:
     runs-on: ubuntu-latest
     steps:
@@ -60,7 +65,9 @@ jobs:
           github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
       - name: Verify oblt-cli version
         run: |
-          oblt-cli version
+          version=$(oblt-cli version 2>&1)
+          default_version=$(cat ./oblt-cli/setup/.default-oblt-cli-version)
+          [[ "$version" == *"version ${default_version}"* ]]
 
   tools-versions:
     runs-on: ubuntu-latest
@@ -82,3 +89,32 @@ jobs:
         run: |
           version=$(oblt-cli version 2>&1)
           [[ "$version" == *"version 7.2.5"* ]]
+
+  non-existing-file:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./oblt-cli/setup
+        id: oblt-cli-setup
+        continue-on-error: true
+        with:
+          github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
+          version-file: non-existing-file
+      - name: Verify step failed
+        if: steps.oblt-cli-setup.outcome != 'failure'
+        run: exit 1
+
+  both-version-and-version-file:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./oblt-cli/setup
+        id: oblt-cli-setup
+        with:
+          github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
+          version: 7.3.0
+          version-file: non-existing-file
+      - name: Verify oblt-cli version
+        run: |
+          version=$(oblt-cli version 2>&1)
+          [[ "$version" == *"version 7.3.0"* ]]
