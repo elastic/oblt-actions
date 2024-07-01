@@ -16,10 +16,10 @@ inputs:
     default: "obltmachine"
     required: false
   version:
-    description: "Install a specific version of oblt-cli"
+    description: "Install a specific version of oblt-cli. If both `version` and `version-file` are provided, `version` will be used."
     required: false
   version-file:
-    description: "The file to read the version from. E.g. `.oblt-cli-version` or `.tool-versions`. This option takes precedence over `version`."
+    description: "The file to read the version from. E.g. `.oblt-cli-version` or `.tool-versions` (asdf-vm)."
     required: false
 
 runs:
