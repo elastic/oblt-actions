@@ -29,23 +29,32 @@ else
   exit 1
 fi
 
-OBLT_CLI_VERSION_FILE=${OBLT_CLI_VERSION_FILE:-}
+input_version="${OBLT_CLI_VERSION:-}"
+version_file="${OBLT_CLI_VERSION_FILE:-"${GITHUB_ACTION_PATH}/.default-oblt-cli-version"}"
 
-if [[ -n "${OBLT_CLI_VERSION_FILE}" ]]; then
-  if [[ -f "${OBLT_CLI_VERSION_FILE}" ]]; then
-    if [[ "$(basename "$OBLT_CLI_VERSION_FILE")" == ".tool-versions" ]]; then
-      OBLT_CLI_VERSION=$(grep "^oblt-cli" "${OBLT_CLI_VERSION_FILE}" | awk '{ print $2 }')
-    else
-      OBLT_CLI_VERSION=$(< "${OBLT_CLI_VERSION_FILE}" tr -d '[:space:]')
-    fi
+if [[ -n "${version_file}" && -n "${input_version}" ]]; then
+  echo "::notice title=elastic/oblt-actions/oblt-cli/setup::Both version and version-file are provided. Using version: ${input_version}."
+fi
+
+if [[ -n "${input_version}" ]]; then
+  version="${OBLT_CLI_VERSION}"
+else
+  if [[ -f "${version_file}" ]]; then
+    case $(basename "$version_file") in
+    ".tool-versions")
+      version=$(grep "^oblt-cli" "${version_file}" | awk '{ printf $2 }')
+      ;;
+    *)
+      version=$(tr -d '[:space:]' <"${version_file}")
+      ;;
+    esac
   else
-    echo "[ERROR] ${OBLT_CLI_VERSION_FILE} file not found."
+    echo "::error title=elastic/oblt-actions/oblt-cli/setup::version-file not found: ${version_file}"
     exit 1
   fi
 fi
 
-# Downloads the latest release if OBLT_CLI_VERSION is not set
-gh release download "${OBLT_CLI_VERSION}" \
+gh release download "${version}" \
   --skip-existing \
   --repo elastic/observability-test-environments \
   -p "${PATTERN}" \
