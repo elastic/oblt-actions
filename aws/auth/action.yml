@@ -14,6 +14,10 @@ inputs:
     description: 'The AWS region, e.g. us-east-1'
     required: false
     default: 'us-east-1'
+  role-duration-seconds:
+    description: 'The assumed role duration in seconds, if assuming a role. Defaults to 1 hour, but cannot exceed the maximum defined by the role.'
+    required: false
+    default: '3600'
 
 outputs:
   role-arn:
@@ -52,3 +56,4 @@ runs:
       with:
         aws-region: ${{ inputs.aws-region }}
         role-to-assume: ${{ steps.generate-role-arn.outputs.role-arn }}
+        role-duration-seconds: ${{ inputs.role-duration-seconds }}
