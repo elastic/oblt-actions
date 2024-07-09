@@ -1,0 +1,8 @@
+# Config file for `updatecli compose ...`.
+# https://www.updatecli.io/docs/core/compose/
+policies:
+  - name: Handle default oblt-cli version
+    policy: ghcr.io/elastic/oblt-updatecli-policies/oblt-cli/version:0.0.2@sha256:dd79537aa64a28c57da351182a70a2a798e9b6c5eb55c243fdbd4f5bffe5133d
+    values:
+      - .ci/updatecli/values.d/scm.yml
+      - .ci/updatecli/values.d/oblt-cli.yml
