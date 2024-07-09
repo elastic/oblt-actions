@@ -2,6 +2,6 @@ scm:
   enabled: true
   owner: elastic
   repository: oblt-actions
-branch: main
+  branch: main
 
 signedcommit: true
