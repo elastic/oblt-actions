@@ -65,7 +65,7 @@ jobs:
           github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
       - name: Verify oblt-cli version
         run: |
-          version=$(oblt-cli version 2>&1)
+          version=$(oblt-cli version)
           default_version=$(cat ./oblt-cli/setup/.default-oblt-cli-version)
           [[ "$version" == *"version ${default_version}"* ]]
 
