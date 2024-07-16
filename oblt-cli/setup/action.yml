@@ -25,6 +25,12 @@ inputs:
 runs:
   using: composite
   steps:
+    - run: echo "$CI"
+      shell: bash
+    - run: echo "$CI"
+      shell: bash
+    - run: echo "$CI"
+      shell: bash
     - name: Download oblt-cli and append to PATH
       run: ${{ github.action_path }}/download.sh
       env:
