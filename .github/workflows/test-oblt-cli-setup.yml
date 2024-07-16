@@ -121,3 +121,15 @@ jobs:
         run: |
           version=$(oblt-cli version 2>&1)
           [[ "$version" == *"version 7.3.0"* ]]
+
+  test-test-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: elastic/oblt-actions/git/setup@v1
+      - uses: ./oblt-cli/setup
+        with:
+          github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
+      - name: Verify oblt-cli version
+        run: |
+          oblt-cli version
