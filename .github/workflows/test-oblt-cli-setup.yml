@@ -87,6 +87,8 @@ jobs:
           github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
           version-file: .tool-versions
       - name: Verify oblt-cli version
+        env:
+          GITHUB_TOKEN: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
         run: |
           version=$(oblt-cli version 2>&1)
           [[ "$version" == *"version 7.2.5"* ]]
