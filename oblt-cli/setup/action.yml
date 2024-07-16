@@ -39,10 +39,14 @@ runs:
         OBLT_CLI_VERSION_FILE: ${{ inputs.version-file }}
       shell: bash
     - name: Configure oblt-cli
-      run: >
-        oblt-cli configure
-        --git-http-mode
-        --username="${OBLT_CLI_USERNAME}"
+      run: |
+        echo "${CI}"
+        echo "${CI}"
+        echo "${CI}"
+        echo "${CI}"
+        oblt-cli configure \
+        --git-http-mode \
+        --username="${OBLT_CLI_USERNAME}" \
         --slack-channel="${OBLT_CLI_SLACK_CHANNEL}"
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
