@@ -44,6 +44,11 @@ jobs:
     needs: [filter]
     strategy:
       matrix: ${{ fromJson(needs.filter.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: "${{ matrix.branch }}"
+
 
       # ...
 ```
