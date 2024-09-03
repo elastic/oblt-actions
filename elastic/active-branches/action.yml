@@ -1,0 +1,28 @@
+name: elastic/active-branches
+description: |
+  Fetch the current list of active branches in Elastic (the ones based on the Unified Release process)
+inputs:
+  exclude-branches:
+    description: "Exclude branches comma separated"
+    required: false
+    type: string
+    default: ''
+outputs:
+  matrix:
+    description: "Processed matrix with the branches (using the include format)"
+    value: ${{ steps.generator.outputs.matrix }}
+  branches:
+    description: "Processed list of branches"
+    value: ${{ steps.generator.outputs.branches }}
+runs:
+  using: composite
+  steps:
+    - id: generator
+      shell: bash
+      run: python ${{ github.action_path }}/script.py
+      env:
+        EXCLUDE_BRANCHES: ${{ inputs.exclude-branches }}
+    - id: debug
+      shell: bash
+      run: |
+        echo 'Matrix: ${{ steps.generator.outputs.matrix }}'

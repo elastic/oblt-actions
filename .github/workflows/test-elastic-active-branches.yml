@@ -1,0 +1,54 @@
+name: test-elastic-active-branches
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-elastic-active-branches.yml'
+      - 'elastic/active-branches/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-elastic-active-branches.yml'
+      - 'elastic/active-branches/**'
+
+permissions:
+  contents: read
+
+jobs:
+
+  test:
+    needs:
+      - main
+      - exclude-main
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./elastic/active-branches
+        id: active-branches
+      - name: Verify main is in the active branches
+        if: ${{ !contains(fromJSON(steps.active-branches.outputs.branches), 'main') }}
+        run: echo "Main branch could not be found"
+
+  exclude-main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./elastic/active-branches
+        id: active-branches
+        with:
+          exclude-branches: main
+      - name: Verify main is not in the active branches
+        if: contains(fromJSON(steps.active-branches.outputs.branches), 'main')
+        run: echo "Main branch could be found but should be excluded"
