@@ -1,5 +1,5 @@
 ---
-name: 'Test report'
+name: 'test-report'
 description: |
   Shows test results in GitHub UI: .NET (xUnit, NUnit, MSTest), Dart, Flutter, Java (JUnit), JavaScript (JEST, Mocha)
 inputs:
