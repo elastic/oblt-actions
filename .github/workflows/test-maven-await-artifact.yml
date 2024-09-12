@@ -18,12 +18,10 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 1
     steps:
       - uses: actions/checkout@v4
       - uses: ./maven/await-artifact
-        id: aws-auth
-        continue-on-error: true
+        timeout-minutes: 1
         with:
           artifact-id: "elastic-apm-agent"
           group-id: "co.elastic.apm"

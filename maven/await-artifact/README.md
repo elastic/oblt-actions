@@ -7,6 +7,9 @@
 Waits for an artifact to be available on maven central
 <!--/description-->
 
+NOTE: this action does not timeout, hence you need to configure your GitHub workflow accordingly.
+      See https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes
+
 ## Inputs
 <!--inputs-->
 | Name          | Description                         | Required | Default |
@@ -29,17 +32,17 @@ on:
         description: 'The version to release (e.g. 1.2.3). This workflow will automatically perform the required version bumps'
         required: true
 jobs:
+
   deploy:
     runs-on: ubuntu-latest
     steps:
       # ...
-
       - uses: elastic/oblt-actions/maven/await-artifact@v1
+        timeout-minutes: 10
         with:
           group-id: "co.elastic.apm"
           artifact-id: "apm-agent-java"
           version: "${{ inputs.version }}"
-
       # ...
 ```
 <!--/usage-->
