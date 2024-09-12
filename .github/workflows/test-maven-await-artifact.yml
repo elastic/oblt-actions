@@ -1,4 +1,4 @@
-name: test-aws-auth
+name: test-maven-await-artifact
 
 on:
   pull_request:
@@ -18,12 +18,13 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 1
     steps:
       - uses: actions/checkout@v4
       - uses: ./maven/await-artifact
         id: aws-auth
         continue-on-error: true
         with:
-          artifact-id: "apm-agent-java"
+          artifact-id: "elastic-apm-agent"
           group-id: "co.elastic.apm"
           version: "1.50.0"
