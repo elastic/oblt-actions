@@ -1,0 +1,29 @@
+name: test-aws-auth
+
+on:
+  pull_request:
+    paths:
+      - 'maven/await-artifact/**'
+      - '.github/workflows/test-maven-await-artifact.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'maven/await-artifact/**'
+      - '.github/workflows/test-maven-await-artifact.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./maven/await-artifact
+        id: aws-auth
+        continue-on-error: true
+        with:
+          artifact-id: "apm-agent-java"
+          group-id: "co.elastic.apm"
+          version: "1.50.0"
