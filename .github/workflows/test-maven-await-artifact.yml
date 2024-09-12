@@ -1,0 +1,28 @@
+name: test-maven-await-artifact
+
+on:
+  pull_request:
+    paths:
+      - 'maven/await-artifact/**'
+      - '.github/workflows/test-maven-await-artifact.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'maven/await-artifact/**'
+      - '.github/workflows/test-maven-await-artifact.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./maven/await-artifact
+        timeout-minutes: 1
+        with:
+          artifact-id: "elastic-apm-agent"
+          group-id: "co.elastic.apm"
+          version: "1.50.0"
