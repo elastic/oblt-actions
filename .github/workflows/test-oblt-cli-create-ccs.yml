@@ -23,9 +23,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: elastic/oblt-actions/git/setup@v1
+      - name: Get token
+        id: get_token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+        with:
+          app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permissions: >-
+            {
+              "contents": "write"
+            }
+          repositories: >-
+            ["observability-test-environments"]
       - uses: ./oblt-cli/cluster-create-ccs
         with:
-          github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
+          github-token: ${{ steps.get_token.outputs.token }}
           remote-cluster: 'release-oblt'
           cluster-name-prefix: 'testgithubaction'
           gitops: true
