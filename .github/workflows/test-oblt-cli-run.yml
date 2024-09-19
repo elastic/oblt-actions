@@ -30,7 +30,7 @@ jobs:
           private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
           permissions: >-
             {
-              "contents": "READ"
+              "contents": "read"
             }
           repositories: >-
             ["observability-test-environments"]
