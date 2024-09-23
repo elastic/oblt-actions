@@ -4,7 +4,7 @@
 [![test-maven-await-artifact](https://github.com/elastic/oblt-actions/actions/workflows/test-elastic-active-branches.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-maven-await-artifact.yml)
 
 <!--description-->
-Waits for an artifact to be available on maven central
+Waits for an artifact to be available on maven central or the sonatype proxy maven central.
 <!--/description-->
 
 NOTE: this action does not timeout, hence you need to configure your GitHub workflow accordingly.
@@ -12,12 +12,13 @@ NOTE: this action does not timeout, hence you need to configure your GitHub work
 
 ## Inputs
 <!--inputs-->
-| Name                     | Description                                                                       | Required | Default |
-|--------------------------|-----------------------------------------------------------------------------------|----------|---------|
-| `artifact-id`            | Maven artifact-ID of the artifact                                                 | `true`   | ` `     |
-| `group-id`               | Maven group-ID of the artifact                                                    | `true`   | ` `     |
-| `version`                | Version of the artifact to wait for                                               | `true`   | ` `     |
-| `wait-for-maven-central` | Whether to wait for the artifact to be available in the maven central repository. | `false`  | `false` |
+| Name                        | Description                                                                          | Required | Default |
+|-----------------------------|--------------------------------------------------------------------------------------|----------|---------|
+| `artifact-id`               | Maven artifact-ID of the artifact                                                    | `true`   | ` `     |
+| `group-id`                  | Maven group-ID of the artifact                                                       | `true`   | ` `     |
+| `version`                   | Version of the artifact to wait for                                                  | `true`   | ` `     |
+| `wait-for-sonatype-central` | Whether to wait for the artifact to be available in the sonatype central repository. | `false`  | `true`  |
+| `wait-for-maven-central`    | Whether to wait for the artifact to be available in the maven central repository.    | `false`  | `false` |
 <!--/inputs-->
 
 

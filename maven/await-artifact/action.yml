@@ -1,6 +1,6 @@
 name: maven/await-artifact
 description: |
-  Waits for an artifact to be available on maven central
+  Waits for an artifact to be available on maven central or the sonatype proxy maven central.
 inputs:
   artifact-id:
     description: 'Maven artifact-ID of the artifact'
@@ -11,6 +11,10 @@ inputs:
   version:
     description: 'Version of the artifact to wait for'
     required: true
+  wait-for-sonatype-central:
+    description: 'Whether to wait for the artifact to be available in the sonatype central repository.'
+    default: true
+    required: false
   wait-for-maven-central:
     description: 'Whether to wait for the artifact to be available in the maven central repository.'
     default: false
@@ -18,7 +22,8 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Wait for artifact to be available on proxy maven central
+    - name: Wait for artifact to be available on proxy sonatype maven central
+      if: ${{ inputs.wait-for-sonatype-central == 'true' }}
       shell: bash
       run: |
         TIME=30
