@@ -1,0 +1,38 @@
+name: 'github/is-member-of'
+
+description: Check whether the given GitHub user is member of the given GitHub organization
+
+inputs:
+  github-user:
+    description: 'The GitHub user'
+    required: true
+  github-org:
+    description: 'The GitHub org'
+    required: true
+  github-token:
+    description: 'The GitHub access token.'
+    required: true
+
+outputs:
+  result:
+    description: 'The result in either true or false'
+    value: ${{ steps.gh-api-is-member.outputs.result }}
+
+runs:
+  using: "composite"
+  steps:
+    - id: gh-api-is-member
+      name: Check if user is member of the given org
+      run: |
+        if gh api \
+          -H "Accept: application/vnd.github+json" \
+          /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} ; then
+          echo "result=true" >> $GITHUB_OUTPUT
+        else
+          echo "result=false" >> $GITHUB_OUTPUT
+        fi
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        GH_USER: ${{ inputs.github-user }}
+        GH_ORG: ${{ inputs.github-org }}
+      shell: bash
