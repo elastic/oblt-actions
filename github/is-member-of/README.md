@@ -15,13 +15,6 @@ Check whether the given GitHub user is member of the given GitHub organization
 | `github-token` | The GitHub access token. | `true`   | ` `     |
 <!--/inputs-->
 
-## Exported Environment Variables
-
-| name       | description             |
-|------------|-------------------------|
-| `GIT_USER` | <p>Git username</p>     |
-| `GIT_EMAIL`| <p>Git email</p>        |
-
 ## Usage
 
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
