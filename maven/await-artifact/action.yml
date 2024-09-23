@@ -38,7 +38,7 @@ runs:
       shell: bash
       run: |
         TIME=30
-        GROUP_FOLDER="${GROUP_ID//./\/}"
+        GROUP_FOLDER="${GROUP_ID//.//}"
         full_url="https://repo.maven.apache.org/maven2/${GROUP_FOLDER}/${ARTIFACT_ID}/${VERSION}"
         until curl -fs -I -L "${full_url}" > /dev/null
         do
