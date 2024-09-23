@@ -11,17 +11,39 @@ inputs:
   version:
     description: 'Version of the artifact to wait for'
     required: true
+  wait-for-maven-central:
+    description: 'Whether to wait for the artifact to be available in the maven central repository.'
+    default: false
+    required: false
 runs:
   using: "composite"
   steps:
-    - name: Wait for artifact to be available on maven central
+    - name: Wait for artifact to be available on proxy maven central
       shell: bash
       run: |
+        TIME=30
         full_url="https://oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=${GROUP_ID}&a=${ARTIFACT_ID}&v=${VERSION}"
         until curl -fs -I -L "${full_url}" > /dev/null
         do
-          echo "Artifact ${GROUP_ID}:${ARTIFACT_ID}:${VERSION} not found on maven central. Sleeping 30 seconds, retrying afterwards"
-          sleep 30s
+          echo "Artifact ${GROUP_ID}:${ARTIFACT_ID}:${VERSION} not found on proxy maven central. Sleeping ${WAIT_SECONDS} seconds, retrying afterwards"
+          sleep ${WAIT_SECONDS}s
+        done
+      env:
+        ARTIFACT_ID: ${{ inputs.artifact-id }}
+        GROUP_ID: ${{ inputs.group-id }}
+        VERSION: ${{ inputs.version }}
+
+    - name: Wait for artifact to be available on maven central
+      if: ${{ inputs.wait-for-maven-central == 'true' }}
+      shell: bash
+      run: |
+        TIME=30
+        GROUP_FOLDER="${GROUP_ID//./\/}"
+        full_url="https://repo.maven.apache.org/maven2/${GROUP_FOLDER}/${ARTIFACT_ID}/${VERSION}"
+        until curl -fs -I -L "${full_url}" > /dev/null
+        do
+          echo "Artifact ${GROUP_ID}:${ARTIFACT_ID}:${VERSION} not found on maven central. Sleeping ${WAIT_SECONDS} seconds, retrying afterwards"
+          sleep ${WAIT_SECONDS}s
         done
       env:
         ARTIFACT_ID: ${{ inputs.artifact-id }}

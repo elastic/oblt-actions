@@ -12,11 +12,12 @@ NOTE: this action does not timeout, hence you need to configure your GitHub work
 
 ## Inputs
 <!--inputs-->
-| Name          | Description                         | Required | Default |
-|---------------|-------------------------------------|----------|---------|
-| `artifact-id` | Maven artifact-ID of the artifact   | `true`   | ` `     |
-| `group-id`    | Maven group-ID of the artifact      | `true`   | ` `     |
-| `version`     | Version of the artifact to wait for | `true`   | ` `     |
+| Name                     | Description                                                                       | Required | Default |
+|--------------------------|-----------------------------------------------------------------------------------|----------|---------|
+| `artifact-id`            | Maven artifact-ID of the artifact                                                 | `true`   | ` `     |
+| `group-id`               | Maven group-ID of the artifact                                                    | `true`   | ` `     |
+| `version`                | Version of the artifact to wait for                                               | `true`   | ` `     |
+| `wait-for-maven-central` | Whether to wait for the artifact to be available in the maven central repository. | `false`  | `false` |
 <!--/inputs-->
 
 
