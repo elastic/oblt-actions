@@ -78,5 +78,5 @@ jobs:
           github-user: "v1v"
           github-org: "github"
 
-      - name: Assert is member
+      - name: Assert is not member
         run: test "${{steps.validation.outputs.result}}" = "false"
