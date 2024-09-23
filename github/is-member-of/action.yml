@@ -32,7 +32,7 @@ runs:
           echo "result=false" >> $GITHUB_OUTPUT
         fi
       env:
-        GH_TOKEN: ${{ inputs.token }}
+        GH_TOKEN: ${{ inputs.github-token }}
         GH_USER: ${{ inputs.github-user }}
         GH_ORG: ${{ inputs.github-org }}
       shell: bash
