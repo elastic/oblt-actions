@@ -13,11 +13,11 @@ inputs:
   version:
     description: 'Version of the artifact to wait for'
     required: true
-  wait-for-sonatype-central:
+  sonatype-central:
     description: 'Whether to wait for the artifact to be available in the sonatype central repository.'
     default: true
     required: false
-  wait-for-maven-central:
+  maven-central:
     description: 'Whether to wait for the artifact to be available in the maven central repository.'
     default: false
     required: false
@@ -25,7 +25,7 @@ runs:
   using: "composite"
   steps:
     - name: Wait for artifact to be available on proxy sonatype maven central
-      if: ${{ inputs.wait-for-sonatype-central == 'true' }}
+      if: ${{ inputs.sonatype-central == 'true' }}
       shell: bash
       run: |
         TIME=30
@@ -41,7 +41,7 @@ runs:
         VERSION: ${{ inputs.version }}
 
     - name: Wait for artifact to be available on maven central
-      if: ${{ inputs.wait-for-maven-central == 'true' }}
+      if: ${{ inputs.maven-central == 'true' }}
       shell: bash
       run: |
         TIME=30
