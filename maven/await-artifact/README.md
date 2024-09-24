@@ -12,13 +12,14 @@ With `true`, we wait for the artifact to be published in maven central, this sho
 NOTE: this action does not timeout, hence you need to configure your GitHub workflow accordingly.
       See https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes
 
+
 ## Inputs
 <!--inputs-->
-| Name                        | Description                                                                          | Required | Default |
-|-----------------------------|--------------------------------------------------------------------------------------|----------|---------|
-| `artifact-id`               | Maven artifact-ID of the artifact                                                    | `true`   | ` `     |
-| `group-id`                  | Maven group-ID of the artifact                                                       | `true`   | ` `     |
-| `version`                   | Version of the artifact to wait for                                                  | `true`   | ` `     |
+| Name               | Description                                                                          | Required | Default |
+|--------------------|--------------------------------------------------------------------------------------|----------|---------|
+| `artifact-id`      | Maven artifact-ID of the artifact                                                    | `true`   | ` `     |
+| `group-id`         | Maven group-ID of the artifact                                                       | `true`   | ` `     |
+| `version`          | Version of the artifact to wait for                                                  | `true`   | ` `     |
 | `sonatype-central` | Whether to wait for the artifact to be available in the sonatype central repository. | `false`  | `true`  |
 | `maven-central`    | Whether to wait for the artifact to be available in the maven central repository.    | `false`  | `false` |
 <!--/inputs-->
