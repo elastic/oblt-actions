@@ -18,27 +18,52 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  undeploy-my-kibana:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get token
-        id: get_token
-        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
-        with:
-          app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
-          private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          permissions: >-
-            {
-              "contents": "read",
-              "issues": "write"
-            }
-          repositories: >-
-            ["observability-test-environments"]
-
       - uses: ./oblt-cli/undeploy-my-kibana
         with:
-          github-token: ${{ steps.get_token.outputs.token }}
+          github-app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          github-app-private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
           pull-request: '187489'
           repository: 'elastic/kibana'
+
+  no-parameters:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./oblt-cli/undeploy-my-kibana
+        id: validation
+        continue-on-error: true
+      - name: Assert is failure if no parameters
+        run: test "${{steps.validation.outcome}}" = "failure"
+
+  all-parameters:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./oblt-cli/undeploy-my-kibana
+        id: validation
+        continue-on-error: true
+        with:
+          github-app-id: "app"
+          github-app-private-key: "key"
+          github-token: "foo"
+      - name: Assert is failure if all parameters
+        run: test "${{steps.validation.outcome}}" = "failure"
+
+  test:
+    if: always()
+    needs:
+      - undeploy-my-kibana
+      - no-parameters
+      - all-parameters
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
