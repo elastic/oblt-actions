@@ -31,6 +31,7 @@ jobs:
           private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
           permissions: >-
             {
+              "contents": "read",
               "issues": "write"
             }
           repositories: >-
