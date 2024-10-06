@@ -39,4 +39,5 @@ jobs:
       - uses: ./oblt-cli/undeploy-my-kibana
         with:
           github-token: ${{ steps.get_token.outputs.token }}
-          pull-request: 1
+          pull-request: '187489'
+          repository: 'elastic/kibana'
