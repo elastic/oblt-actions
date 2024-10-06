@@ -28,15 +28,7 @@ runs:
         GH_TOKEN: ${{ inputs.github-token }}
       shell: bash
 
-    - uses: elastic/oblt-actions/github/is-member-of@v1
-      id: is_elastic_member
-      with:
-        github-user: ${{ steps.gh_api_pr_author.outputs.result }}
-        github-org: "elastic"
-        github-token: ${{ inputs.github-token }}
-
-    - if: contains(steps.is_elastic_member.outputs.result, 'true')
-      name: Create GitHub issue body
+    - name: Create GitHub issue body
       id: undeploy-my-kibana
       run: |-
         cat <<EOT >> .body-content

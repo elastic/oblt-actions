@@ -37,6 +37,7 @@ permissions:
 
 jobs:
   undeploy-my-kibana:
+    if: contains(github.event.pull_request.labels.*.name, 'ci:deploy-observability')
     runs-on: ubuntu-latest
     steps:
       - uses: elastic/oblt-actions/oblt-cli/undeploy-my-kibana@v1
