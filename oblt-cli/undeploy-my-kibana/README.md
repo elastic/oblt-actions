@@ -9,11 +9,13 @@ Undeploy my kibana given the Pull Request
 
 ## Inputs
 <!--inputs-->
-| Name           | Description                | Required | Default                                   |
-|----------------|----------------------------|----------|-------------------------------------------|
-| `pull-request` | The GitHub Pull Request ID | `false`  | `${{ github.event.pull_request.number }}` |
-| `repository`   | The GitHub repository      | `false`  | `${{ github.repository }}`                |
-| `github-token` | The GitHub access token.   | `true`   | ` `                                       |
+| Name                     | Description                                                 | Required | Default                                   |
+|--------------------------|-------------------------------------------------------------|----------|-------------------------------------------|
+| `pull-request`           | The GitHub Pull Request ID                                  | `false`  | `${{ github.event.pull_request.number }}` |
+| `repository`             | The GitHub repository                                       | `false`  | `${{ github.repository }}`                |
+| `github-token`           | The GitHub Personal Access Token.                           | `false`  | ` `                                       |
+| `github-app-id`          | The GitHub App ID to generate the ephemeral token.          | `false`  | ` `                                       |
+| `github-app-private-key` | The GitHub App Private Key to generate the ephemeral token. | `false`  | ` `                                       |
 <!--/inputs-->
 
 ## Outputs
