@@ -1,0 +1,42 @@
+name: test-undeploy-my-kibana
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-undeploy-my-kibana.yml'
+      - 'oblt-cli/undeploy-my-kibana/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-undeploy-my-kibana.yml'
+      - 'oblt-cli/undeploy-my-kibana/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get token
+        id: get_token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+        with:
+          app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permissions: >-
+            {
+              "issues": "write"
+            }
+          repositories: >-
+            ["observability-test-environments"]
+
+      - uses: ./oblt-cli/undeploy-my-kibana
+        with:
+          github-token: ${{ steps.get_token.outputs.token }}
+          pull-request: 1
