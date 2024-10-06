@@ -1,0 +1,66 @@
+name: 'oblt-cli/undeploy-my-kibana'
+description: 'Undeploy my kibana given the Pull Request'
+inputs:
+  pull-request:
+    description: 'The GitHub Pull Request ID'
+    default: ${{ github.event.pull_request.number }}
+  repository:
+    description: 'The GitHub repository'
+    default: ${{ github.repository }}
+  github-token:
+    description: 'The GitHub access token.'
+    required: true
+
+outputs:
+  issue:
+    description: 'The GitHub issue that has been created to destroy the cluster'
+    value: ${{ steps.undeploy-my-kibana.outputs.issue }}
+
+runs:
+  using: "composite"
+  steps:
+    - id: gh_api_pr_author
+      name: Gather PR Owner
+      run: |-
+        PR_AUTHOR=$(gh pr view ${{ inputs.pull-request }} --repo ${{ inputs.repository }} --json author --jq .author.login)
+        echo "result=${PR_AUTHOR}" >> $GITHUB_OUTPUT
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+      shell: bash
+
+    - uses: elastic/oblt-actions/github/is-member-of@v1
+      id: is_elastic_member
+      with:
+        github-user: ${{ steps.gh_api_pr_author.outputs.result }}
+        github-org: "elastic"
+        github-token: ${{ inputs.github-token }}
+
+    - if: steps.is_elastic_member.outputs.result == true
+      name: Create GitHub issue body
+      id: undeploy-my-kibana
+      run: |-
+        cat <<EOT >> .body-content
+        ### Kibana pull request
+
+        ${{ env.PR }}
+
+        ### Further details
+
+        Caused by @${{ env.USER }} in https://github.com/${{ env.REPO }}/pull/${{ env.PR }}
+        EOT
+
+        gh issue \
+          create \
+          --label 'destroy-custom-kibana-serverless' \
+          --title "[Undeploy Kibana] ${{ env.REPO }}@pr-${{ env.PR }}" \
+          --body-file .body-content \
+          --repo elastic/observability-test-environments | tee .issue
+        echo "issue=$(cat .issue)" >> "$GITHUB_OUTPUT"
+
+        rm .issue .body-content || true
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR: ${{ inputs.pull-request }}
+        REPO: ${{ inputs.repository }}
+        USER: ${{ steps.gh_api_pr_author.outputs.result }}
+      shell: bash
