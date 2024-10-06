@@ -35,7 +35,7 @@ runs:
         github-org: "elastic"
         github-token: ${{ inputs.github-token }}
 
-    - if: steps.is_elastic_member.outputs.result == true
+    - if: contains(steps.is_elastic_member.outputs.result, 'true')
       name: Create GitHub issue body
       id: undeploy-my-kibana
       run: |-
