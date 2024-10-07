@@ -12,7 +12,7 @@ React to the given comment with an emoji (default +1).
 |----------------|--------------------------------------------------------------------------------------------------------|----------|----------------------------------|
 | `comment-id`   | The GitHub commentId                                                                                   | `false`  | `${{ github.event.comment.id }}` |
 | `emoji`        | The GitHub emoji (see https://docs.github.com/en/rest/reactions?apiVersion=2022-11-28#about-reactions) | `false`  | `+1`                             |
-| `github-token` | The GitHub access token.                                                                               | `true`   | ` `                              |
+| `github-token` | The GitHub access token.                                                                               | `false`  | `${{ github.token }}`            |
 | `repository`   | The GitHub repository (format: ORG/REPO)                                                               | `false`  | `${{ github.repository }}`       |
 <!--/inputs-->
 
@@ -29,10 +29,11 @@ jobs:
   react:
     runs-on: ubuntu-latest
     if: ${{ github.event.issue.pull_request
+    permission:
+      issues: write
     steps:
       - uses: elastic/oblt-actions/github/comment-reaction@v1
         with:
-          github-token: ${{ secrets.PAT_TOKEN }}
           emoji: '-1'
       # ...
 ```
