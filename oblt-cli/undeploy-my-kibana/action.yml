@@ -1,0 +1,90 @@
+name: 'oblt-cli/undeploy-my-kibana'
+description: 'Undeploy my kibana given the Pull Request'
+inputs:
+  pull-request:
+    description: 'The GitHub Pull Request ID'
+    default: ${{ github.event.pull_request.number }}
+  repository:
+    description: 'The GitHub repository'
+    default: ${{ github.repository }}
+  github-token:
+    description: 'The GitHub Personal Access Token.'
+    required: false
+  github-app-id:
+    description: 'The GitHub App ID to generate the ephemeral token.'
+    required: false
+  github-app-private-key:
+    description: 'The GitHub App Private Key to generate the ephemeral token.'
+    required: false
+
+outputs:
+  issue:
+    description: 'The GitHub issue that has been created to destroy the cluster'
+    value: ${{ steps.undeploy-my-kibana.outputs.issue }}
+
+runs:
+  using: "composite"
+  steps:
+
+    - if: ${{ (inputs.github-token == '' && inputs.github-app-id == '' && inputs.github-app-private-key == '') || (inputs.github-token != '' && inputs.github-app-id != '' && inputs.github-app-private-key != '') }}
+      name: Validate input parameters
+      run: echo "use either github-token or github-app-id and github-app-private-key" && exit 1
+      shell: bash
+
+    - name: Get token
+      if: ${{ inputs.github-token == '' }}
+      id: get_token
+      uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+      with:
+        app_id: ${{ inputs.github-app-id }}
+        private_key: ${{ inputs.github-app-private-key }}
+        permissions: >-
+          {
+            "contents": "read",
+            "issues": "write"
+          }
+        repositories: >-
+          ["observability-test-environments"]
+
+    - if: ${{ inputs.github-token == '' }}
+      name: If ephemeral GitHub token app generated
+      run: echo "GH_TOKEN=${{ steps.get_token.outputs.token }}" >> "$GITHUB_ENV"
+      shell: bash
+
+    - if: ${{ inputs.github-token != '' }}
+      name: If GitHub token provided
+      run: echo "GH_TOKEN=${{ inputs.github-token }}" >> "$GITHUB_ENV"
+      shell: bash
+
+    - name: Gather PR Owner
+      run: |-
+        PR_AUTHOR=$(gh pr view ${{ inputs.pull-request }} --repo ${{ inputs.repository }} --json author --jq .author.login)
+        echo "PR_AUTHOR=${PR_AUTHOR}" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Create GitHub issue body
+      id: undeploy-my-kibana
+      run: |-
+        cat <<EOT >> .body-content
+        ### Kibana pull request
+
+        ${{ env.PR }}
+
+        ### Further details
+
+        Caused by @${{ env.PR_AUTHOR }} in https://github.com/${{ env.REPO }}/pull/${{ env.PR }} via this [GitHub workflow build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }})
+        EOT
+
+        gh issue \
+          create \
+          --label 'destroy-custom-kibana-serverless' \
+          --title "[Undeploy Kibana] ${{ env.REPO }}@pr-${{ env.PR }}" \
+          --body-file .body-content \
+          --repo elastic/observability-test-environments | tee .issue
+        echo "issue=$(cat .issue)" >> "$GITHUB_OUTPUT"
+
+        rm .issue .body-content || true
+      env:
+        PR: ${{ inputs.pull-request }}
+        REPO: ${{ inputs.repository }}
+      shell: bash
