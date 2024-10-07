@@ -30,7 +30,7 @@ jobs:
           github-app-private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
           comment-url: https://github.com/elastic/oblt-actions/pull/59#issuecomment-2213186823
           comment-id: 2213186823
-          issue-url: https://api.github.com/repos/elastic/oblt-actions/issues/195219
+          issue-url: https://api.github.com/repos/elastic/oblt-actions/issues/59
           repository: 'elastic/oblt-actions'
 
   no-parameters:
