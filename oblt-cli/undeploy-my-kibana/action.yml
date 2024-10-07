@@ -72,7 +72,7 @@ runs:
 
         ### Further details
 
-        Caused by @${{ env.PR_AUTHOR }} in https://github.com/${{ env.REPO }}/pull/${{ env.PR }}
+        Caused by @${{ env.PR_AUTHOR }} in https://github.com/${{ env.REPO }}/pull/${{ env.PR }} via this [GitHub workflow build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }})
         EOT
 
         gh issue \
