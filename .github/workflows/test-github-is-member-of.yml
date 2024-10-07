@@ -1,0 +1,82 @@
+name: test-github-is-member-of
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Dry run'
+        required: true
+        default: false
+        type: boolean
+  push:
+    paths:
+      - '.github/workflows/test-github-is-member-of.yml'
+      - 'github/is-member-of/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: always()
+    needs:
+      - is-member
+      - is-not-member
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  is-member:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: elastic/oblt-actions/git/setup@v1
+      - name: Get token
+        id: get_token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+        with:
+          app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permissions: >-
+            {
+              "members": "read"
+            }
+      - uses: ./github/is-member-of
+        id: validation
+        with:
+          github-token: ${{ steps.get_token.outputs.token }}
+          github-user: "v1v"
+          github-org: "elastic"
+
+      - name: Assert is member
+        run: test "${{steps.validation.outputs.result}}" = "true"
+
+
+  is-not-member:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: elastic/oblt-actions/git/setup@v1
+      - name: Get token
+        id: get_token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+        with:
+          app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permissions: >-
+            {
+              "members": "read"
+            }
+      - uses: ./github/is-member-of
+        id: validation
+        with:
+          github-token: ${{ steps.get_token.outputs.token }}
+          github-user: "v1v"
+          github-org: "github"
+
+      - name: Assert is not member
+        run: test "${{steps.validation.outputs.result}}" = "false"

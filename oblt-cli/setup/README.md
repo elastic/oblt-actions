@@ -7,15 +7,20 @@
 Setup oblt-cli for use in GitHub Actions workflows.
 <!--/description-->
 
+> [!NOTE]
+> This action does not provide a way to automatically download the latest version of `oblt-cli` to ensure that the used version is stable and the action is reproducible.
+> If you don't provide both the `version` or `version-file` input, then the default version defined in [.default-oblt-cli-version](.default-oblt-cli-version) will be used.
+> The default version will be updated by updatecli when a new version of `oblt-cli` is available. Only maintainers will decide to merge the PR created by updatecli to update the version.
+
 ## Inputs
 <!--inputs-->
-| Name            | Description                                                                                                                   | Required | Default            |
-|-----------------|-------------------------------------------------------------------------------------------------------------------------------|----------|--------------------|
-| `github-token`  | The GitHub access token.                                                                                                      | `true`   | ` `                |
-| `slack-channel` | The slack channel to notify the status.                                                                                       | `false`  | `#observablt-bots` |
-| `username`      | Username to show in the deployments with oblt-cli, format: [a-z0-9]                                                           | `false`  | `obltmachine`      |
-| `version`       | Install a specific version of oblt-cli                                                                                        | `false`  | `7.2.2`            |
-| `version-file`  | The file to read the version from. E.g. `.oblt-cli-version` or `.tool-versions`. This option takes precedence over `version`. | `false`  | ` `                |
+| Name            | Description                                                                                                        | Required | Default            |
+|-----------------|--------------------------------------------------------------------------------------------------------------------|----------|--------------------|
+| `github-token`  | The GitHub access token.                                                                                           | `true`   | ` `                |
+| `slack-channel` | The slack channel to notify the status.                                                                            | `false`  | `#observablt-bots` |
+| `username`      | Username to show in the deployments with oblt-cli, format: [a-z0-9]                                                | `false`  | `obltmachine`      |
+| `version`       | Install a specific version of oblt-cli. If both `version` and `version-file` are provided, `version` will be used. | `false`  | ` `                |
+| `version-file`  | The file to read the version from. E.g. `.oblt-cli-version` or `.tool-versions` (asdf-vm).                         | `false`  | ` `                |
 <!--/inputs-->
 
 ## Usage

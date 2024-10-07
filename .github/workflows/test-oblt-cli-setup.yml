@@ -16,6 +16,9 @@ jobs:
       - version
       - version-file
       - default-version
+      - tools-versions
+      - non-existing-file
+      - both-version-and-version-file
     runs-on: ubuntu-latest
     steps:
       - id: check
@@ -28,44 +31,96 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Get token
+        id: get_token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+        with:
+          app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permissions: >-
+            {
+              "contents": "read"
+            }
+          repositories: >-
+            ["observability-test-environments"]
       - uses: ./oblt-cli/setup
         with:
           version: 7.2.2
-          github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
+          github-token: ${{ steps.get_token.outputs.token }}
       - name: Verify oblt-cli version
         run: |
           version=$(oblt-cli version 2>&1)
           [[ "$version" == *"version 7.2.2"* ]]
+
   version-file:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Get token
+        id: get_token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+        with:
+          app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permissions: >-
+            {
+              "contents": "read"
+            }
+          repositories: >-
+            ["observability-test-environments"]
       - name: Setup version file
         run: |
           echo "7.2.5" > .oblt-cli-version
       - uses: ./oblt-cli/setup
         with:
-          github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
+          github-token: ${{ steps.get_token.outputs.token }}
           version-file: .oblt-cli-version
       - name: Verify oblt-cli version
         run: |
           version=$(oblt-cli version 2>&1)
           [[ "$version" == *"version 7.2.5"* ]]
+
   default-version:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Get token
+        id: get_token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+        with:
+          app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permissions: >-
+            {
+              "contents": "read"
+            }
+          repositories: >-
+            ["observability-test-environments"]
       - uses: ./oblt-cli/setup
         with:
-          github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
+          github-token: ${{ steps.get_token.outputs.token }}
       - name: Verify oblt-cli version
         run: |
-          oblt-cli version
+          version=$(oblt-cli version 2>&1)
+          default_version=$(cat ./oblt-cli/setup/.default-oblt-cli-version)
+          [[ "$version" == *"version ${default_version}"* ]]
 
   tools-versions:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Get token
+        id: get_token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+        with:
+          app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permissions: >-
+            {
+              "contents": "read"
+            }
+          repositories: >-
+            ["observability-test-environments"]
       - name: Setup version file
         run: |
           cat <<EOF > .tool-versions
@@ -76,9 +131,62 @@ jobs:
           EOF
       - uses: ./oblt-cli/setup
         with:
-          github-token: ${{ secrets.OBLT_CLI_GITHUB_TOKEN }}
+          github-token: ${{ steps.get_token.outputs.token }}
           version-file: .tool-versions
       - name: Verify oblt-cli version
         run: |
           version=$(oblt-cli version 2>&1)
           [[ "$version" == *"version 7.2.5"* ]]
+
+  non-existing-file:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get token
+        id: get_token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+        with:
+          app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permissions: >-
+            {
+              "contents": "read"
+            }
+          repositories: >-
+            ["observability-test-environments"]
+      - uses: ./oblt-cli/setup
+        id: oblt-cli-setup
+        continue-on-error: true
+        with:
+          github-token: ${{ steps.get_token.outputs.token }}
+          version-file: non-existing-file
+      - name: Verify step failed
+        if: steps.oblt-cli-setup.outcome != 'failure'
+        run: exit 1
+
+  both-version-and-version-file:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get token
+        id: get_token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+        with:
+          app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permissions: >-
+            {
+              "contents": "read"
+            }
+          repositories: >-
+            ["observability-test-environments"]
+      - uses: ./oblt-cli/setup
+        id: oblt-cli-setup
+        with:
+          github-token: ${{ steps.get_token.outputs.token }}
+          version: 7.3.0
+          version-file: non-existing-file
+      - name: Verify oblt-cli version
+        run: |
+          version=$(oblt-cli version 2>&1)
+          [[ "$version" == *"version 7.3.0"* ]]

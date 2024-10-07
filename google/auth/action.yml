@@ -9,6 +9,15 @@ inputs:
   project-number:
     description: 'The GCP project number'
     default: '8560181848'
+  project-id:
+    description: 'The GCP project ID'
+    default: 'elastic-observability'
+    deprecationMessage: |
+      The project-id is actually not relevant and is not used
+      by the internal google-github-actions/auth action if
+      the `workload_identity_provider` input is provided.
+      This option may be removed in a future release.
+
   repository:
     description: 'The repository name'
     default: ${{ github.repository }}
@@ -42,7 +51,8 @@ runs:
       env:
         GH_REPOSITORY: ${{ inputs.repository }}
         PROJECT_NUMBER: ${{ inputs.project-number }}
-    - uses: google-github-actions/auth@71fee32a0bb7e97b4d33d548e7d957010649d8fa # v2.1.3
+    - uses: google-github-actions/auth@8254fb75a33b976a221574d287e93919e6a36f70 # v2.1.6
       with:
+        project_id: ${{ inputs.project-id }}
         workload_identity_provider: ${{ steps.generate-workload-identity-pool-provider-id.outputs.workload_identity_provider_id }}
-        request_reason: ${{ github.workflow_ref	}}
+        request_reason: ${{ github.workflow_ref }}

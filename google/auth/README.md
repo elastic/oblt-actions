@@ -15,6 +15,7 @@ GCP Workload Identity Pool Provider ID we use for Elastic Observability reposito
 | Name             | Description            | Required | Default                    |
 |------------------|------------------------|----------|----------------------------|
 | `project-number` | The GCP project number | `false`  | `8560181848`               |
+| `project-id`     | The GCP project ID     | `false`  | `elastic-observability`    |
 | `repository`     | The repository name    | `false`  | `${{ github.repository }}` |
 <!--/inputs-->
 

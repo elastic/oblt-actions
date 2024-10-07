@@ -1,0 +1,4 @@
+path: oblt-cli/setup/.default-oblt-cli-version
+pull_request:
+  labels:
+    - 'changelog:dependencies'
