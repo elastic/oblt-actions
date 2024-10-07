@@ -1,0 +1,22 @@
+name: test-github-comment-reaction
+
+on:
+  push:
+    paths:
+      - '.github/workflows/test-github-comment-reaction.yml'
+      - 'github/comment-reaction/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./github/comment-reaction
+        id: validation
+        with:
+          comment-id: "2178560535"
+          emoji: "+1"
