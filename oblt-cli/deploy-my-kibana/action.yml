@@ -52,6 +52,7 @@ runs:
       with:
         app_id: ${{ inputs.github-app-id }}
         private_key: ${{ inputs.github-app-private-key }}
+        installation_retrieval_mode: id
         permissions: >-
           {
             "contents": "read",
