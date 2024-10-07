@@ -38,6 +38,11 @@ on:
 jobs:
   deploy-my-kibana:
     runs-on: ubuntu-latest
+    permissions:
+      # if you listen for PRs, use this to use some comment reactions
+      pull-requests: write
+      # if you listen for issues, use this to use some comment reactions
+      issues: write
     steps:
       - uses: elastic/oblt-actions/oblt-cli/deploy-my-kibana@v1
         with:

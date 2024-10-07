@@ -34,12 +34,11 @@ outputs:
 runs:
   using: "composite"
   steps:
-    # TODO: need to be implemented
-    # - uses: elastic/oblt-actions/github/comment-reaction@v1
-    #   with:
-    #     repository: ${{ inputs.repository }}
-    #     comment-id: ${{ inputs.comment-id }}
-    #     github-token: ${{ inputs.github-token }}
+    - uses: elastic/oblt-actions/github/comment-reaction@v1
+      with:
+        repository: ${{ inputs.repository }}
+        comment-id: ${{ inputs.comment-id }}
+        github-token: ${{ github.token }}
 
     - if: ${{ (inputs.github-token == '' && inputs.github-app-id == '' && inputs.github-app-private-key == '') || (inputs.github-token != '' && inputs.github-app-id != '' && inputs.github-app-private-key != '') }}
       name: Validate input parameters
@@ -56,7 +55,7 @@ runs:
         permissions: >-
           {
             "contents": "read",
-            "issues": "write",
+            "pull_requests": "write",
             "members": "read"
           }
         # As long as we use members: read we cannot use the repositories input.
@@ -129,12 +128,11 @@ runs:
         echo "issue=$(cat .issue)" >> "$GITHUB_OUTPUT"
       shell: bash
 
-    # TODO: need to be implemented
-    # - name: Notify with a reaction if a non-elastician comment
-    #   uses: elastic/oblt-actions/github/comment-reaction@v1
-    #   if: contains(steps.is_elastic_member.outputs.result, 'false')
-    #   with:
-    #     repository: ${{ inputs.repository }}
-    #     comment-id: ${{ inputs.comment-id }}
-    #     emoji: '-1'
-    #     github-token: ${{ inputs.github-token }}
+    - name: Notify with a reaction if a non-elastician comment
+      uses: elastic/oblt-actions/github/comment-reaction@v1
+      if: contains(steps.is_elastic_member.outputs.result, 'false')
+      with:
+        repository: ${{ inputs.repository }}
+        comment-id: ${{ inputs.comment-id }}
+        emoji: '-1'
+        github-token: ${{ github.token }}
