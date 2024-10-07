@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.issue.pull_request
     permission:
-      issues: write
+      pull-requests: write
     steps:
       - uses: elastic/oblt-actions/github/comment-reaction@v1
         with:
