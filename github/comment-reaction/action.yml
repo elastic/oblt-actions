@@ -24,8 +24,11 @@ runs:
         gh api \
           --method POST \
           -H "Accept: application/vnd.github+json" \
-          /repos/${{ inputs.repository }}/issues/comments/${{ inputs.commentId }}/reactions \
-          -f content='${{ inputs.emoji }}'
+          /repos/${{ env.REPO }}/issues/comments/${{ env.COMMENT_ID }}/reactions \
+          -f content='${{ env.EMOJI }}'
       env:
+        COMMENT_ID: ${{ inputs.comment-id }}
+        EMOJI: ${{ inputs.emoji }}
         GH_TOKEN: ${{ inputs.github-token }}
+        REPO: ${{ inputs.repository }}
       shell: bash
