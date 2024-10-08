@@ -1,40 +1,43 @@
-name: test-undeploy-my-kibana
+name: test-deploy-my-kibana
 
 on:
   pull_request:
     branches:
       - main
     paths:
-      - '.github/workflows/test-undeploy-my-kibana.yml'
-      - 'oblt-cli/undeploy-my-kibana/**'
+      - '.github/workflows/test-deploy-my-kibana.yml'
+      - 'oblt-cli/deploy-my-kibana/**'
   push:
     branches:
       - main
     paths:
-      - '.github/workflows/test-undeploy-my-kibana.yml'
-      - 'oblt-cli/undeploy-my-kibana/**'
+      - '.github/workflows/test-deploy-my-kibana.yml'
+      - 'oblt-cli/deploy-my-kibana/**'
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
-  undeploy-my-kibana:
+  deploy-my-kibana:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ./oblt-cli/undeploy-my-kibana
+      - uses: ./oblt-cli/deploy-my-kibana
         with:
           github-app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
           github-app-private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          pull-request: '195219'
-          repository: 'elastic/kibana'
+          comment-url: https://github.com/elastic/oblt-actions/pull/59#issuecomment-2213186823
+          comment-id: 2213186823
+          issue-url: https://api.github.com/repos/elastic/oblt-actions/issues/59
+          repository: 'elastic/oblt-actions'
 
   no-parameters:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./oblt-cli/undeploy-my-kibana
+      - uses: ./oblt-cli/deploy-my-kibana
         id: validation
         continue-on-error: true
       - name: Assert is failure if no parameters
@@ -44,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./oblt-cli/undeploy-my-kibana
+      - uses: ./oblt-cli/deploy-my-kibana
         id: validation
         continue-on-error: true
         with:
@@ -57,7 +60,7 @@ jobs:
   test:
     if: always()
     needs:
-      - undeploy-my-kibana
+      - deploy-my-kibana
       - no-parameters
       - all-parameters
     runs-on: ubuntu-latest

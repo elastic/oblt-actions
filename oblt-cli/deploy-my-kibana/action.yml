@@ -1,0 +1,140 @@
+name: 'oblt-cli/deploy-my-kibana'
+description: 'Run the deploy my Kibana PR.'
+inputs:
+  comment-url:
+    description: 'The GitHub Comment URL'
+    default: ${{ github.event.comment.html_url }}
+  comment-id:
+    description: 'The GitHub Comment ID'
+    default: ${{ github.event.comment.id }}
+  issue-url:
+    description: 'The GitHub Issue URL'
+    default: ${{ github.event.comment.issue_url }}
+  repository:
+    description: 'The GitHub repository'
+    default: ${{ github.repository }}
+  user:
+    description: 'The GitHub user that triggered the workflow'
+    default: ${{ github.triggering_actor }}
+  github-token:
+    description: 'The GitHub Personal Access Token.'
+    required: false
+  github-app-id:
+    description: 'The GitHub App ID to generate the ephemeral token.'
+    required: false
+  github-app-private-key:
+    description: 'The GitHub App Private Key to generate the ephemeral token.'
+    required: false
+
+outputs:
+  issue:
+    description: 'The GitHub issue that has been created to destroy the cluster'
+    value: ${{ steps.deploy-my-kibana.outputs.issue }}
+
+runs:
+  using: "composite"
+  steps:
+    - uses: elastic/oblt-actions/github/comment-reaction@v1
+      with:
+        repository: ${{ inputs.repository }}
+        comment-id: ${{ inputs.comment-id }}
+        github-token: ${{ github.token }}
+
+    - if: ${{ (inputs.github-token == '' && inputs.github-app-id == '' && inputs.github-app-private-key == '') || (inputs.github-token != '' && inputs.github-app-id != '' && inputs.github-app-private-key != '') }}
+      name: Validate input parameters
+      run: echo "use either github-token or github-app-id and github-app-private-key" && exit 1
+      shell: bash
+
+    - name: Get token
+      if: ${{ inputs.github-token == '' }}
+      id: get_token
+      uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+      with:
+        app_id: ${{ inputs.github-app-id }}
+        private_key: ${{ inputs.github-app-private-key }}
+        installation_retrieval_mode: organization
+        installation_retrieval_payload: elastic
+        permissions: >-
+          {
+            "contents": "read",
+            "issues": "write",
+            "members": "read"
+          }
+        # As long as we use members: read we cannot use the repositories input.
+
+    - if: ${{ inputs.github-token == '' }}
+      name: If ephemeral GitHub token app generated
+      run: echo "GH_TOKEN=${{ steps.get_token.outputs.token }}" >> "$GITHUB_ENV"
+      shell: bash
+
+    - if: ${{ inputs.github-token != '' }}
+      name: If GitHub token provided
+      run: echo "GH_TOKEN=${{ inputs.github-token }}" >> "$GITHUB_ENV"
+      shell: bash
+
+    - uses: elastic/oblt-actions/github/is-member-of@v1
+      id: is_elastic_member
+      with:
+        github-user: ${{ inputs.user }}
+        github-org: "elastic"
+        github-token: ${{ env.GH_TOKEN }}
+
+    - name: Get cluster given the target branch (either edge-lite or release)
+      if: contains(steps.is_elastic_member.outputs.result, 'true')
+      run: |-
+        PR=$(basename ${{ inputs.issue-url }})
+        echo "PR=${PR}" >> $GITHUB_ENV
+
+        # issue_comment does not contain any references to github.base_ref
+        TARGET_BRANCH=$(gh pr view ${PR} --repo ${{ inputs.repository }} --json baseRefName --jq .baseRefName)
+
+        if [ "${TARGET_BRANCH}" == 'main' ] ; then
+          echo "CLUSTER=edge-lite-oblt" >> $GITHUB_ENV
+        else
+          echo "CLUSTER=release-oblt" >> $GITHUB_ENV
+        fi
+      shell: bash
+
+    - name: Create GitHub issue
+      if: contains(steps.is_elastic_member.outputs.result, 'true')
+      id: deploy-my-kibana
+      run: |-
+        cat <<EOT >> .body-content
+        ### From cluster
+
+        ${{ env.CLUSTER }}
+
+        ### Kibana branch
+
+        pr/${{ env.PR }}
+
+        ### Custom prefix (Optional)
+
+        _No response_
+
+        ### Oblt-cli user (Optional)
+
+        deploykibana
+
+        ### Further details
+
+        Caused by @${{ inputs.user }} in ${{ inputs.comment-url }} via this [GitHub workflow build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }})
+        EOT
+        gh issue \
+          create \
+          --label 'deploy-custom-kibana' \
+          --title "[Deploy Kibana] for user ${{ inputs.user }} with PR kibana@pr-${{ env.PR }} on cluster ${{ env.CLUSTER }}" \
+          --assignee ${{ inputs.user }} \
+          --body-file .body-content \
+          --repo elastic/observability-test-environments | tee .issue
+        echo "issue=$(cat .issue)" >> "$GITHUB_OUTPUT"
+      shell: bash
+
+    - name: Notify with a reaction if a non-elastician comment
+      uses: elastic/oblt-actions/github/comment-reaction@v1
+      if: contains(steps.is_elastic_member.outputs.result, 'false')
+      with:
+        repository: ${{ inputs.repository }}
+        comment-id: ${{ inputs.comment-id }}
+        emoji: '-1'
+        github-token: ${{ github.token }}
