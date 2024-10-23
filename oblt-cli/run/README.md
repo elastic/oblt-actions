@@ -27,6 +27,6 @@ jobs:
       - uses: elastic/oblt-actions/oblt-cli/run@v1
         with:
           command: 'cluster create ccs --remote-cluster=dev-oblt --cluster-name-prefix mycustomcluster'
-          token: ${{ secrets.PAT_TOKEN }}
+          github-token: ${{ secrets.PAT_TOKEN }}
 ```
 <!--/usage-->
