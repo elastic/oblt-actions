@@ -44,7 +44,7 @@ jobs:
       - id: want
         run: echo "matrix={\"include\":[{\"version\":\"ruby:3.1\",\"framework\":\"rails-7.0\"},{\"version\":\"ruby:3.1\",\"framework\":\"rails-6.1\"},{\"version\":\"ruby:2.4\",\"framework\":\"rails-6.1\"}]}" >> $GITHUB_OUTPUT
       - name: Assert is valid
-        run: test "${{steps.validation.outputs.matrix}}" = "${{steps.want.outputs.matrix}}"
+        run: test "${{toJSON(steps.validation.outputs.matrix)}}" = "${{toJSON(steps.want.outputs.matrix)}}"
 
   valid-no-excluded:
     runs-on: ubuntu-latest
@@ -58,7 +58,7 @@ jobs:
       - id: want
         run: echo "matrix={\"include\":[{\"version\":\"ruby:3.1\",\"framework\":\"rails-7.0\"},{\"version\":\"ruby:3.1\",\"framework\":\"rails-6.1\"},{\"version\":\"ruby:2.4\",\"framework\":\"rails-7.0\"},{\"version\":\"ruby:2.4\",\"framework\":\"rails-6.1\"}]}" >> $GITHUB_OUTPUT
       - name: Assert is valid
-        run: test "${{steps.validation.outputs.matrix}}" = "${{steps.want.outputs.matrix}}"
+        run: test "${{toJSON(steps.validation.outputs.matrix)}}" = "${{toJSON(steps.want.outputs.matrix)}}"
 
   invalid:
     runs-on: ubuntu-latest
