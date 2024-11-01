@@ -1,0 +1,56 @@
+name: test-version-framework
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Dry run'
+        required: true
+        default: false
+        type: boolean
+  push:
+    paths:
+      - '.github/workflows/test-version-framework.yml'
+      - 'version-framework/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: always()
+    needs:
+      - valid
+      - invalid
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  valid:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./version-framework
+        id: validation
+        with:
+          versions-file: version-framework/test-data/versions.yml
+          frameworks-file: version-framework/test-data/frameworks.yml
+          excluded-file: version-framework/test-data/excluded.yml
+
+      - name: Assert is valid
+        run: test "${{steps.validation.outputs.result}}" = "true"
+
+  invalid:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./version-framework
+        id: validation
+        with:
+          versions-file: version-framework/test-data/versions.yml
+          frameworks-file: version-framework/test-data/frameworks.yml
+          excluded-file: version-framework/test-data/invalid.yml
