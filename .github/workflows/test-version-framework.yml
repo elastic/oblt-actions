@@ -41,9 +41,10 @@ jobs:
           versions-file: version-framework/test-data/versions.yml
           frameworks-file: version-framework/test-data/frameworks.yml
           excluded-file: version-framework/test-data/excluded.yml
-
+      - id: want
+        run: echo "matrix={\"include\":[{\"version\":\"ruby:3.1\",\"framework\":\"rails-7.0\"},{\"version\":\"ruby:3.1\",\"framework\":\"rails-6.1\"},{\"version\":\"ruby:2.4\",\"framework\":\"rails-6.1\"}]}" >> $GITHUB_OUTPUT
       - name: Assert is valid
-        run: test "${{steps.validation.outputs.result}}" = "true"
+        run: test "${{steps.validation.outputs.matrix}}" = "${{steps.want.outputs.matrix}}"
 
   valid-no-excluded:
     runs-on: ubuntu-latest
@@ -54,6 +55,10 @@ jobs:
         with:
           versions-file: version-framework/test-data/versions.yml
           frameworks-file: version-framework/test-data/frameworks.yml
+      - id: want
+        run: echo "matrix={\"include\":[{\"version\":\"ruby:3.1\",\"framework\":\"rails-7.0\"},{\"version\":\"ruby:3.1\",\"framework\":\"rails-6.1\"},{\"version\":\"ruby:2.4\",\"framework\":\"rails-7.0\"},{\"version\":\"ruby:2.4\",\"framework\":\"rails-6.1\"}]}" >> $GITHUB_OUTPUT
+      - name: Assert is valid
+        run: test "${{steps.validation.outputs.matrix}}" = "${{steps.want.outputs.matrix}}"
 
   invalid:
     runs-on: ubuntu-latest
@@ -61,6 +66,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./version-framework
         id: validation
+        continue-on-error: true
         with:
           versions-file: invalid.yml
           frameworks-file: invalid.yml
+
+      - name: Verify step failed
+        if: steps.validation.outcome != 'failure'
+        run: exit 1
