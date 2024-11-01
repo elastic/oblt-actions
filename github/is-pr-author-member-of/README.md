@@ -28,7 +28,7 @@ jobs:
   run-action-if-pr-member-of-elastic-org:
     runs-on: ubuntu-latest
     steps:
-      - uses: elastic/oblt-actions/github/is-member-of@v1
+      - uses: elastic/oblt-actions/github/is-pr-author-member-of@v1
         id: is_elastic_pr_author
         with:
           pull-request: ${{ steps.issue-parser.outputs.issueparser_kibana_pullrequest }}
