@@ -1,0 +1,46 @@
+name: 'github/is-pr-author-member-of'
+
+description: Check whether the given GitHub Pull Request author is member of the given GitHub organization
+
+inputs:
+  pull-request:
+    description: 'The GitHub Pull Request ID'
+    required: true
+  repository:
+    description: 'The GitHub repository'
+    required: true
+  github-org:
+    description: 'The GitHub org'
+    required: true
+  github-token:
+    description: 'The GitHub access token.'
+    required: true
+
+outputs:
+  result:
+    description: 'The result in either true or false'
+    value: ${{ steps.is_org_pr_author.outputs.result }}
+  author:
+    description: 'The Pull Request author'
+    value: ${{ steps.gh_api_pr_author.outputs.result }}
+
+runs:
+  using: "composite"
+  steps:
+    - id: gh_api_pr_author
+      name: Gather PR Owner
+      run: |-
+        PR_AUTHOR=$(gh pr view ${{ env.PULL_REQUEST }} --repo ${{ env.REPOSITORY }} --json author --jq .author.login)
+        echo "result=${PR_AUTHOR}" >> $GITHUB_OUTPUT
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        REPOSITORY: ${{ inputs.github-org }}/${{ inputs.repository }}
+        PULL_REQUEST: ${{ inputs.pull-request }}
+      shell: bash
+
+    - id: is_org_pr_author
+      uses: elastic/oblt-actions/github/is-member-of@v1
+      with:
+        github-user: ${{ steps.gh_api_pr_author.outputs.result }}
+        github-org: ${{ inputs.github-org }}
+        github-token: ${{ inputs.github-token }}
