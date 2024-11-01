@@ -45,9 +45,9 @@ jobs:
         run: echo "matrix={\"include\":[{\"version\":\"ruby:3.1\",\"framework\":\"rails-7.0\"},{\"version\":\"ruby:3.1\",\"framework\":\"rails-6.1\"},{\"version\":\"ruby:2.4\",\"framework\":\"rails-6.1\"}]}" >> $GITHUB_OUTPUT
       - name: Assert is valid
         run: |
-          echo '${{ steps.validation.outputs.matrix }}' > validation.json
-          echo '${{ steps.want.outputs.matrix }}' > want.json
-          jq --argfile a validation.json --argfile b want.json -n '($a == $b) or (halt_error(1))
+          echo '${{ steps.validation.outputs.matrix }}' | jq . > validation.json
+          echo '${{ steps.want.outputs.matrix }}' | jq . > want.json
+          diff validation.json want.json
 
   valid-no-excluded:
     runs-on: ubuntu-latest
@@ -62,9 +62,9 @@ jobs:
         run: echo "matrix={\"include\":[{\"version\":\"ruby:3.1\",\"framework\":\"rails-7.0\"},{\"version\":\"ruby:3.1\",\"framework\":\"rails-6.1\"},{\"version\":\"ruby:2.4\",\"framework\":\"rails-7.0\"},{\"version\":\"ruby:2.4\",\"framework\":\"rails-6.1\"}]}" >> $GITHUB_OUTPUT
       - name: Assert is valid
         run: |
-          echo '${{ steps.validation.outputs.matrix}}' > validation.json
-          echo '${{ steps.want.outputs.matrix }}' > want.json
-          jq --argfile a validation.json --argfile b want.json -n '($a == $b) or (halt_error(1))
+          echo '${{ steps.validation.outputs.matrix }}' | jq . > validation.json
+          echo '${{ steps.want.outputs.matrix }}' | jq . > want.json
+          diff validation.json want.json
 
   invalid:
     runs-on: ubuntu-latest
