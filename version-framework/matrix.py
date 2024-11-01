@@ -5,8 +5,8 @@ from pathlib import Path
 
 
 def run() -> None:
-    excluded_file = os.environ["EXCLUDED_FILE"]
-    framework_file = os.environ["FRAMEWORK_FILE"]
+    excluded_file = os.getenv("EXCLUDED_FILE", "")
+    framework_file = os.environ["FRAMEWORKS_FILE"]
     versions_file = os.environ["VERSIONS_FILE"]
 
     excludes = {'exclude': []}

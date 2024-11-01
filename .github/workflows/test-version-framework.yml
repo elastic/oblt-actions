@@ -20,7 +20,8 @@ jobs:
   test:
     if: always()
     needs:
-      - valid
+      - valid-all
+      - valid-no-excluded
       - invalid
     runs-on: ubuntu-latest
     steps:
@@ -30,7 +31,7 @@ jobs:
           jobs: ${{ toJSON(needs) }}
       - run: ${{ steps.check.outputs.is-success }}
 
-  valid:
+  valid-all:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -44,7 +45,7 @@ jobs:
       - name: Assert is valid
         run: test "${{steps.validation.outputs.result}}" = "true"
 
-  invalid:
+  valid-no-excluded:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -53,4 +54,13 @@ jobs:
         with:
           versions-file: version-framework/test-data/versions.yml
           frameworks-file: version-framework/test-data/frameworks.yml
-          excluded-file: version-framework/test-data/invalid.yml
+
+  invalid:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./version-framework
+        id: validation
+        with:
+          versions-file: invalid.yml
+          frameworks-file: invalid.yml
