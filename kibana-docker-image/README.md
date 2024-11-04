@@ -45,12 +45,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: 'elastic/oblt-actions/google/kibana-docker-image@v1'
+      - name: Log in to the Elastic Container registry
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        with:
+          registry: ${{ secrets.ELASTIC_DOCKER_REGISTRY }}
+          username: ${{ secrets.ELASTIC_DOCKER_USERNAME }}
+          password: ${{ secrets.ELASTIC_DOCKER_PASSWORD }}
+
+      - uses: 'elastic/oblt-actions/kibana-docker-image@v1'
         id: kibana-docker-image
         with:
           git-ref: main # git ref of elastic/kibana
           serverless: true # Default: false
-      - run: |
+
+      - name: docker pull
+        run: |
           echo "${DOCKER_IMAGE:?}"
           docker pull "${DOCKER_IMAGE}"
         env:
