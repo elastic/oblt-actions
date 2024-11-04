@@ -45,7 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      uses: 'elastic/oblt-actions/google/kibana-docker-image@v1'
+      - uses: 'elastic/oblt-actions/google/kibana-docker-image@v1'
         id: kibana-docker-image
         with:
           git-ref: main # git ref of elastic/kibana
