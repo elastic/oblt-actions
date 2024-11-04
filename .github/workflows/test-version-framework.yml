@@ -1,0 +1,82 @@
+name: test-version-framework
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Dry run'
+        required: true
+        default: false
+        type: boolean
+  push:
+    paths:
+      - '.github/workflows/test-version-framework.yml'
+      - 'version-framework/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: always()
+    needs:
+      - valid-all
+      - valid-no-excluded
+      - invalid
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  valid-all:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./version-framework
+        id: validation
+        with:
+          versions-file: version-framework/test-data/versions.yml
+          frameworks-file: version-framework/test-data/frameworks.yml
+          excluded-file: version-framework/test-data/excluded.yml
+      - id: want
+        run: echo "matrix={\"include\":[{\"version\":\"ruby:3.1\",\"framework\":\"rails-7.0\"},{\"version\":\"ruby:3.1\",\"framework\":\"rails-6.1\"},{\"version\":\"ruby:2.4\",\"framework\":\"rails-6.1\"}]}" >> $GITHUB_OUTPUT
+      - name: Assert is valid
+        run: |
+          echo '${{ steps.validation.outputs.matrix }}' | jq . > validation.json
+          echo '${{ steps.want.outputs.matrix }}' | jq . > want.json
+          diff validation.json want.json
+
+  valid-no-excluded:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./version-framework
+        id: validation
+        with:
+          versions-file: version-framework/test-data/versions.yml
+          frameworks-file: version-framework/test-data/frameworks.yml
+      - id: want
+        run: echo "matrix={\"include\":[{\"version\":\"ruby:3.1\",\"framework\":\"rails-7.0\"},{\"version\":\"ruby:3.1\",\"framework\":\"rails-6.1\"},{\"version\":\"ruby:2.4\",\"framework\":\"rails-7.0\"},{\"version\":\"ruby:2.4\",\"framework\":\"rails-6.1\"}]}" >> $GITHUB_OUTPUT
+      - name: Assert is valid
+        run: |
+          echo '${{ steps.validation.outputs.matrix }}' | jq . > validation.json
+          echo '${{ steps.want.outputs.matrix }}' | jq . > want.json
+          diff validation.json want.json
+
+  invalid:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./version-framework
+        id: validation
+        continue-on-error: true
+        with:
+          versions-file: invalid.yml
+          frameworks-file: invalid.yml
+
+      - name: Verify step failed
+        if: steps.validation.outcome != 'failure'
+        run: exit 1
