@@ -12,6 +12,7 @@ on:
     paths:
       - '.github/workflows/test-oblt-cli-cluster-create-ccs.yml'
       - 'oblt-cli/cluster-create-ccs/**'
+  merge_group:
 
 permissions:
   contents: read

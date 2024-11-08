@@ -1,17 +1,12 @@
 name: test-version-framework
 
 on:
-  workflow_dispatch:
-    inputs:
-      dry-run:
-        description: 'Dry run'
-        required: true
-        default: false
-        type: boolean
+  workflow_dispatch: ~
   push:
     paths:
       - '.github/workflows/test-version-framework.yml'
       - 'version-framework/**'
+  merge_group:
 
 permissions:
   contents: read

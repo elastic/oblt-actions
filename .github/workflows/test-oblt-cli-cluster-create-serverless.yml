@@ -12,6 +12,7 @@ on:
     paths:
       - '.github/workflows/test-oblt-cli-cluster-create-serverless.yml'
       - 'oblt-cli/cluster-create-serverless/**'
+  merge_group:
 
 permissions:
   contents: read

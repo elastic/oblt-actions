@@ -1,18 +1,12 @@
 name: test-check-dependent-jobs
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/test-check-dependent-jobs.yml'
-      - 'check-dependent-jobs/**'
+  workflow_dispatch: ~
   push:
-    branches:
-      - main
     paths:
       - '.github/workflows/test-check-dependent-jobs.yml'
       - 'check-dependent-jobs/**'
+  merge_group:
 
 permissions:
   contents: read

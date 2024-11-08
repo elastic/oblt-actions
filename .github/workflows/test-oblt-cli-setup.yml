@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/test-oblt-cli-setup.yml'
       - 'oblt-cli/setup/**'
+  merge_group:
 
 permissions:
   contents: read

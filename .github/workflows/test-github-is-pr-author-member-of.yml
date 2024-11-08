@@ -12,6 +12,7 @@ on:
     paths:
       - '.github/workflows/test-github-is-pr-author-member-of.yml'
       - 'github/is-pr-author-member-of/**'
+  merge_group:
 
 permissions:
   contents: read

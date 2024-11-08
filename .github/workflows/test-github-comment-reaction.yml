@@ -1,10 +1,12 @@
 name: test-github-comment-reaction
 
 on:
+  workflow_dispatch: ~
   push:
     paths:
       - '.github/workflows/test-github-comment-reaction.yml'
       - 'github/comment-reaction/**'
+  merge_group:
 
 permissions:
   contents: read

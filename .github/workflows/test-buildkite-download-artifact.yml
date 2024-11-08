@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/test-buildkite-download-artifact.yml'
       - 'buildkite/download-artifact/**'
+  merge_group:
 
 permissions:
   contents: read

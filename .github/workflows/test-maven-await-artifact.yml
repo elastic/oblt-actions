@@ -1,16 +1,12 @@
 name: test-maven-await-artifact
 
 on:
-  pull_request:
-    paths:
-      - 'maven/await-artifact/**'
-      - '.github/workflows/test-maven-await-artifact.yml'
+  workflow_dispatch: ~
   push:
-    branches:
-      - main
     paths:
       - 'maven/await-artifact/**'
       - '.github/workflows/test-maven-await-artifact.yml'
+  merge_group:
 
 permissions:
   contents: read

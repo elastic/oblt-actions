@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/test-buildkite-run.yml'
       - 'buildkite/run/**'
+  merge_group:
 
 permissions:
   contents: read

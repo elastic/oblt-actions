@@ -12,6 +12,7 @@ on:
     paths:
       - '.github/workflows/test-oblt-cli-cluster-create-custom.yml'
       - 'oblt-cli/cluster-create-custom/**'
+  merge_group:
 
 permissions:
   contents: read

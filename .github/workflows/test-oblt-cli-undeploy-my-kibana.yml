@@ -1,18 +1,12 @@
 name: test-undeploy-my-kibana
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/test-undeploy-my-kibana.yml'
-      - 'oblt-cli/undeploy-my-kibana/**'
+  workflow_dispatch: ~
   push:
-    branches:
-      - main
     paths:
       - '.github/workflows/test-undeploy-my-kibana.yml'
       - 'oblt-cli/undeploy-my-kibana/**'
+  merge_group:
 
 permissions:
   contents: read

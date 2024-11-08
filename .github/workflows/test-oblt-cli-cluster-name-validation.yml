@@ -1,18 +1,12 @@
 name: test-oblt-cli-cluster-name-validation
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/test-oblt-cli-cluster-name-validation.yml'
-      - 'oblt-cli/cluster-name-validation/**'
+  workflow_dispatch: ~
   push:
-    branches:
-      - main
     paths:
       - '.github/workflows/test-oblt-cli-cluster-name-validation.yml'
       - 'oblt-cli/cluster-name-validation/**'
+  merge_group:
 
 permissions:
   contents: read

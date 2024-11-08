@@ -1,16 +1,12 @@
 name: test-aws-auth
 
 on:
-  pull_request:
-    paths:
-      - 'aws-auth/**'
-      - '.github/workflows/test-aws-auth.yml'
+  workflow_dispatch: ~
   push:
-    branches:
-      - main
     paths:
       - 'aws-auth/**'
       - '.github/workflows/test-aws-auth.yml'
+  merge_group:
 
 permissions:
   contents: read

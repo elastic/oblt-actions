@@ -1,18 +1,12 @@
 name: test-git-setup
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/test-git-setup.yml'
-      - 'git/setup/**'
+  workflow_dispatch: ~
   push:
-    branches:
-      - main
     paths:
       - '.github/workflows/test-git-setup.yml'
       - 'git/setup/**'
+  merge_group:
 
 permissions:
   contents: read
