@@ -1,6 +1,8 @@
 name: test-oblt-cli-cluster-name-validation
 
 on:
+  merge_group: ~
+  workflow_dispatch: ~
   pull_request:
     branches:
       - main

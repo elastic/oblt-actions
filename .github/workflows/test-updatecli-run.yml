@@ -1,6 +1,8 @@
 name: test-updatecli-run
 
 on:
+  merge_group: ~
+  workflow_dispatch: ~
   pull_request:
     branches:
       - main

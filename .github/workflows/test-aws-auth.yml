@@ -1,6 +1,8 @@
 name: test-aws-auth
 
 on:
+  merge_group: ~
+  workflow_dispatch: ~
   pull_request:
     paths:
       - 'aws-auth/**'

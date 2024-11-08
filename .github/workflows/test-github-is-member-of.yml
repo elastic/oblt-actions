@@ -1,6 +1,7 @@
 name: test-github-is-member-of
 
 on:
+  merge_group: ~
   workflow_dispatch:
     inputs:
       dry-run:
