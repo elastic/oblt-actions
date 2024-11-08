@@ -1,6 +1,8 @@
 name: required-labels
 
 on:
+  merge_group: ~
+  workflow_dispatch: ~
   pull_request_target:
     types:
       - opened

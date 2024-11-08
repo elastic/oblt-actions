@@ -1,6 +1,8 @@
 name: test-github-comment-reaction
 
 on:
+  merge_group: ~
+  workflow_dispatch: ~
   push:
     paths:
       - '.github/workflows/test-github-comment-reaction.yml'

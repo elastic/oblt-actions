@@ -1,6 +1,7 @@
 name: test-kibana-docker-image
 
 on:
+  merge_group: ~
   workflow_dispatch: ~
   push:
     paths:

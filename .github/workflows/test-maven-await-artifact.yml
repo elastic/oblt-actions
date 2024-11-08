@@ -1,6 +1,8 @@
 name: test-maven-await-artifact
 
 on:
+  merge_group: ~
+  workflow_dispatch: ~
   pull_request:
     paths:
       - 'maven/await-artifact/**'

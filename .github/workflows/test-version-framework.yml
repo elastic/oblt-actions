@@ -1,6 +1,7 @@
 name: test-version-framework
 
 on:
+  merge_group: ~
   workflow_dispatch:
     inputs:
       dry-run:
