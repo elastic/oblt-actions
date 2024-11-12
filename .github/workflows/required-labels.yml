@@ -26,7 +26,7 @@ jobs:
           labels=$(yq '[.categories[].labels] + .exclude-labels | flatten | unique | sort | @tsv' .github/release-drafter.yml | tr '\t' ',')
           echo "labels=$labels" >> "${GITHUB_OUTPUT}"
       - id: check-labels
-        uses: mheap/github-action-required-labels@d25134c992b943fb6ad00c25ea00eb5988c0a9dd # v5.4.2
+        uses: v1v/github-action-required-labels@feature/merge-queue-support
         with:
           mode: exactly
           count: 1
