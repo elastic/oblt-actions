@@ -28,7 +28,7 @@ runs:
       if: ${{ inputs.sonatype-central == 'true' }}
       shell: bash
       run: |
-        TIME=30
+        WAIT_SECONDS=30
         full_url="https://oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=${GROUP_ID}&a=${ARTIFACT_ID}&v=${VERSION}"
         until curl -fs -I -L "${full_url}" > /dev/null
         do
@@ -44,7 +44,7 @@ runs:
       if: ${{ inputs.maven-central == 'true' }}
       shell: bash
       run: |
-        TIME=30
+        WAIT_SECONDS=30
         GROUP_FOLDER="${GROUP_ID//.//}"
         full_url="https://repo.maven.apache.org/maven2/${GROUP_FOLDER}/${ARTIFACT_ID}/${VERSION}"
         until curl -fs -I -L "${full_url}" > /dev/null
