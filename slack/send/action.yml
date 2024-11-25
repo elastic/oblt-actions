@@ -64,9 +64,9 @@ runs:
         method: chat.postMessage
         token: ${{ inputs.bot-token }}
         payload: |
-          channel: ${{ inputs.channel-id }}
           unfurl_links: false
           unfurl_media: false
+          channel: "${{ inputs.channel-id }}"
           thread_ts: ${{ inputs.thread-timestamp }}
           text: ${{ steps.prepare.outputs.message }}
           blocks:
