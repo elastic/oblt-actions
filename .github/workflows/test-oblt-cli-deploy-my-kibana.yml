@@ -7,7 +7,7 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/test-deploy-my-kibana.yml'
+      - '.github/workflows/test-oblt-cli-deploy-my-kibana.yml'
       - 'oblt-cli/deploy-my-kibana/**'
 
 permissions:
