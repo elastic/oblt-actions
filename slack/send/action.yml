@@ -29,7 +29,7 @@ inputs:
 outputs:
   thread-timestamp:
     description: 'The timestamp on the message that was posted into Slack when using bot token'
-    value: ${{ steps.slack_message.outputs.thread_ts }}
+    value: ${{ steps.slack_message.outputs.ts }}
 runs:
   using: composite
   steps:
@@ -38,7 +38,6 @@ runs:
       id: prepare
       env:
         MESSAGE: ${{ inputs.message }}
-        THREAD_TIMESTAMP: ${{ inputs.thread-timestamp }}
       run: |
         # Prepare Slack API payload.
         # Documentation about the payload format.
@@ -46,7 +45,6 @@ runs:
         # https://app.slack.com/block-kit-builder
         # https://api.slack.com/reference/surfaces/formatting
         # https://api.slack.com/reference/surfaces/formatting#escaping
-        import json
         import os
         from urllib.parse import unquote
 
@@ -54,34 +52,25 @@ runs:
           message = os.environ.get('MESSAGE', 'No message')
           message = unquote(message)
           message = '\n'.join(line.strip() for line in message.splitlines())
-          json_data = {
-            "text": message,
-            "blocks": [
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": message
-                }
-              }
-            ]
-          }
         else:
           raise Exception("message must be set.")
 
-        if os.environ["THREAD_TIMESTAMP"]:
-          json_data['thread_ts'] = os.environ["THREAD_TIMESTAMP"]
-
         with open(os.environ.get('GITHUB_OUTPUT'), "a") as f:
-          f.write("payload={}".format(json.dumps(json_data)))
-        print("::add-mask::{}".format(json.dumps(json_data)))
+          f.write("message={}".format(message))
 
-    - uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0 # v1.27.0
+    - uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d # v2.0.0
       id: slack_message
       with:
-        channel-id: ${{ inputs.channel-id }}
+        method: chat.postMessage
+        token: ${{ inputs.bot-token }}
         payload: |
-          ${{ steps.prepare.outputs.payload }}
-      env:
-        SLACK_BOT_TOKEN: ${{ inputs.bot-token }}
-        SLACK_MESSAGE: ${{ inputs.message }}
+          unfurl_links: false
+          unfurl_media: false
+          channel: "${{ inputs.channel-id }}"
+          thread_ts: "${{ inputs.thread-timestamp }}"
+          text: ${{ steps.prepare.outputs.message }}
+          blocks:
+            - type: "section"
+              text:
+                type: mrkdwn
+                text: ${{ steps.prepare.outputs.message }}

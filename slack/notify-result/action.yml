@@ -30,11 +30,16 @@ runs:
           }
           core.setOutput('slack-color', color)
 
-    - uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0 # v1.27.0
+    - uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d # v2.0.0
       with:
-        channel-id: ${{ inputs.channel-id }}
+        method: chat.postMessage
+        token: ${{ inputs.bot-token }}
         payload: |
           {
+            "channel":  "${{ inputs.channel-id }}",
+            "unfurl_links": false,
+            "unfurl_media": false,
+            "text": "${{ env.SLACK_MESSAGE }}",
             "attachments": [
               {
                 "pretext": "Workflow <${{ env.RUN_URL }}|${{ github.workflow }}> triggered (`${{ github.event_name }}`)",
@@ -58,6 +63,5 @@ runs:
             ]
           }
       env:
-        SLACK_BOT_TOKEN: ${{ inputs.bot-token }}
         SLACK_MESSAGE: ${{ inputs.message }}
         RUN_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
