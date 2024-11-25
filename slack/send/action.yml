@@ -68,7 +68,7 @@ runs:
           unfurl_links: false
           unfurl_media: false
           thread_ts: ${{ inputs.thread-timestamp }}
-          text: ${{ steps.prepare.outputs.payload }}
+          text: ${{ steps.prepare.outputs.message }}
           blocks:
             - type: "section"
               text:
