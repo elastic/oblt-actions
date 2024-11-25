@@ -39,6 +39,7 @@ runs:
             "channel":  "${{ inputs.channel-id }}",
             "unfurl_links": false,
             "unfurl_media": false,
+            "text": "${{ env.SLACK_MESSAGE }}",
             "attachments": [
               {
                 "pretext": "Workflow <${{ env.RUN_URL }}|${{ github.workflow }}> triggered (`${{ github.event_name }}`)",
