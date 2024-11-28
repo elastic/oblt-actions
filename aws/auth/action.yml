@@ -23,6 +23,18 @@ outputs:
   role-arn:
     description: 'The generated role ARN'
     value: ${{ steps.generate-role-arn.outputs.role-arn }}
+  aws-account-id:
+    description: 'The AWS account ID'
+    value: ${{ inputs.aws-account-id }}
+  aws-access-key-id:
+    description: 'The AWS access key ID'
+    value: ${{ steps.configure-aws-credentials.outputs.aws-access-key-id }}
+  aws-secret-access-key:
+    description: 'The AWS secret access key'
+    value: ${{ steps.configure-aws-credentials.outputs.aws-secret-access-key }}
+  aws-session-token:
+    description: 'The AWS session token'
+    value: ${{ steps.configure-aws-credentials.outputs.aws-session-token }}
 
 runs:
   using: composite
@@ -52,8 +64,10 @@ runs:
             f.write(f"role-arn={role_arn}")
 
     - name: Configure AWS Credentials
+      id: configure-aws-credentials
       uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
       with:
         aws-region: ${{ inputs.aws-region }}
         role-to-assume: ${{ steps.generate-role-arn.outputs.role-arn }}
         role-duration-seconds: ${{ inputs.role-duration-seconds }}
+        output-credentials: true
