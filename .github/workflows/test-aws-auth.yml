@@ -23,14 +23,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./aws/auth
-        id: aws-auth
-        continue-on-error: true
-        with:
-          aws-region: 'us-west-2'
-      - name: assert generated role arn
-        run: |
-          workflow_filename=$(echo "${GITHUB_WORKFLOW_REF}" | awk -F'/' '{ print $5 }' | awk -F'@' '{ print $1 }')
-          hash=$(echo -n "${GITHUB_REPOSITORY}/${workflow_filename}" | sha256sum | awk '{print $1}' | cut -c -55)
-          arn="arn:aws:iam::697149045717:role/gha-${hash}-role"
-
-          test "${arn}" = "${{ steps.aws-auth.outputs.role-arn }}"
+      - run: aws sts get-caller-identity
