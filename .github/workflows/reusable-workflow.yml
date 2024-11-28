@@ -1,27 +1,9 @@
-name: test-aws-auth
+name: test-my-workflow-call
 
 on:
-  merge_group: ~
-  workflow_dispatch: ~
-  pull_request:
-    paths:
-      - 'aws-auth/**'
-      - '.github/workflows/test-aws-auth.yml'
-  push:
-    branches:
-      - main
-    paths:
-      - 'aws-auth/**'
-      - '.github/workflows/test-aws-auth.yml'
-
-permissions:
-  contents: read
+  workflow_call:
 
 jobs:
-
-  reuable_workflow:
-    uses: ./.github/workflows/reusable-workflow.yml
-
   test:
     runs-on: ubuntu-latest
     steps:
