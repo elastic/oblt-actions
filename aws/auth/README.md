@@ -17,7 +17,6 @@ AWS role ARN we use for Elastic Observability repositories.
 | `aws-account-id`        | The AWS account ID                                                                                                               | `false`  | `697149045717` |
 | `aws-region`            | The AWS region, e.g. us-east-1                                                                                                   | `false`  | `us-east-1`    |
 | `role-duration-seconds` | The assumed role duration in seconds, if assuming a role. Defaults to 1 hour, but cannot exceed the maximum defined by the role. | `false`  | `3600`         |
-| `output-credentials`    | Whether to output the AWS credentials                                                                                            | `false`  | `false`        |
 <!--/inputs-->
 
 ## Outputs

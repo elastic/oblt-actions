@@ -30,8 +30,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./aws/auth
         id: auth
-        with:
-          output-credentials: true
       - run: aws sts get-caller-identity
 
   test:
