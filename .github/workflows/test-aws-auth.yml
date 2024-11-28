@@ -44,5 +44,5 @@ jobs:
           role-to-assume: ${{ needs.create-credentials.outputs.role-arn }}
           aws-access-key-id: ${{ needs.create-credentials.outputs.aws-access-key-id }}
           aws-secret-access-key: ${{ needs.create-credentials.outputs.aws-secret-access-key }}
-          aws-session-token: ${{ needs.create-credentials.outputs.aws-session-token }}
+#          aws-session-token: ${{ needs.create-credentials.outputs.aws-session-token }}
       - run: aws sts get-caller-identity
