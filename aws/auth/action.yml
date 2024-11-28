@@ -23,6 +23,9 @@ outputs:
   role-arn:
     description: 'The generated role ARN'
     value: ${{ steps.generate-role-arn.outputs.role-arn }}
+  aws-account-id:
+    description: 'The AWS account ID'
+    value: ${{ inputs.aws-account-id }}
   aws-access-key-id:
     description: 'The AWS access key ID'
     value: ${{ steps.configure-aws-credentials.outputs.aws-access-key-id }}

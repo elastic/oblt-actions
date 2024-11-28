@@ -24,6 +24,7 @@ AWS role ARN we use for Elastic Observability repositories.
 | Name                    | Description               |
 |-------------------------|---------------------------|
 | `role-arn`              | The generated role ARN    |
+| `aws-account-id`        | The AWS account ID        |
 | `aws-access-key-id`     | The AWS access key ID     |
 | `aws-secret-access-key` | The AWS secret access key |
 | `aws-session-token`     | The AWS session token     |
