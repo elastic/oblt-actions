@@ -23,6 +23,7 @@ jobs:
     outputs:
       aws-access-key-id: ${{ steps.auth.outputs.aws-access-key-id }}
       aws-secret-access-key: ${{ steps.auth.outputs.aws-secret-access-key }}
+      aws-session-token: ${{ steps.auth.outputs.aws-session-token }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,4 +40,5 @@ jobs:
           aws-region: us-east-1
           aws-access-key-id: ${{ needs.create-credentials.outputs.aws-access-key-id }}
           aws-secret-access-key: ${{ needs.create-credentials.outputs.aws-secret-access-key }}
+          aws-session-token: ${{ needs.create-credentials.outputs.aws-session-token }}
       - run: aws sts get-caller-identity
