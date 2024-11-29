@@ -9,18 +9,18 @@ actions:
             mergemethod: squash
             usetitleforautomerge: true
             labels:
-                - dependencies
+                - changelog:dependencies
         scmid: default
 scms:
     default:
         kind: github
         spec:
-            owner: elastic
-            repository: oblt-actions
-            branch: main
+            owner: '{{ .scm.owner }}'
+            repository: '{{ .scm.repository }}'
+            branch: '{{ .scm.branch }}'
+            username: '{{ requiredEnv "GITHUB_ACTOR" }}'
+            token: '{{ requiredEnv "GITHUB_TOKEN" }}'
             commitusingapi: true
-            token: '{{requiredEnv "GITHUB_TOKEN"}}'
-            username: obltmachine
         disabled: false
 sources:
     updatecli:
