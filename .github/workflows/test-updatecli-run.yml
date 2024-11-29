@@ -21,9 +21,43 @@ permissions:
 
 jobs:
   test:
+    needs:
+      - version
+      - version-file
+      - default
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  default:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: ./updatecli/run
         with:
           command: help
+
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./updatecli/run
+        with:
+          command: help
+          version: v0.86.0
+
+  version-file:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup version file
+        run: |
+          echo "v0.87.0" > .tools-version
+      - uses: ./updatecli/run
+        with:
+          command: help
+          version-file: .tools-version

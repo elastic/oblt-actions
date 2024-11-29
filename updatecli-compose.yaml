@@ -11,3 +11,8 @@ policies:
     values:
       - .ci/updatecli/values.d/scm.yml
       - .ci/updatecli/values.d/update-compose.yml
+  - name: Local Updatecli Policies
+    config:
+      - .ci/updatecli/
+    values:
+      - .ci/updatecli/values.d/scm.yml

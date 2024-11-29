@@ -2,8 +2,40 @@ name: updatecli/install
 
 description: |
   This is an opinionated GitHub Action to install the updatecli
+
+inputs:
+  version:
+    description: "Install a specific version of updatecli. If both `version` and `version-file` are provided, `version` will be used."
+    required: false
+  version-file:
+    description: "The file to read the version from. E.g. `.updatecli-version` or `.tool-versions` (asdf-vm)."
+    required: false
+
 runs:
   using: composite
   steps:
+    - name: Check inputs and set version
+      id: set-version
+      run: |
+        if [[ -z "${VERSION}" && -z "${VERSION_FILE}" ]]; then
+          if [[ -f "${{ github.action_path }}/.default-updatecli-version" ]]; then
+            newversion=$(cat "${{ github.action_path }}/.default-updatecli-version")
+            echo "version=${newversion}" >> $GITHUB_OUTPUT
+          else
+            echo "::error title=updatecli/install::Default version file not found."
+            exit 1
+          fi
+        else
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "version_file=${VERSION_FILE}" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
+        VERSION_FILE: ${{ inputs.version-file }}
+
     - name: Install Updatecli in the runner
-      uses: updatecli/updatecli-action@92a13b95c2cd9f1c6742c965509203c6a5635ed7 # v2.68.0
+      uses: updatecli/updatecli-action@cb631ef5547ed05db3db64bb2ad42a6cc36e3097 # v2.71.0
+      with:
+        version: "${{ steps.set-version.outputs.version }}"
+        version-file: "${{ steps.set-version.outputs.version_file }}"
