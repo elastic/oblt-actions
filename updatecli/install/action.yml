@@ -22,8 +22,8 @@ runs:
           const fs = require('fs')
           const path = require('path')
 
-          const version = core.getInput('version', { required: true })
-          const versionFile = core.getInput('version-file', { required: true })
+          const version = core.getInput('version', { required: false })
+          const versionFile = core.getInput('version-file', { required: false })
           const defaultVersionPath = path.join(process.env.GITHUB_ACTION_PATH, '.default-updatecli-version')
 
           if (!version && !versionFile) {
