@@ -42,35 +42,38 @@ jobs:
         run: |
           want=$(cat updatecli/install/.default-updatecli-version | cut -dv -f2)
           got=$(updatecli version 2>&1)
+          echo "${got} == ${want}"
           [[ "${got}" == *"${want}"* ]]
 
   version:
     runs-on: ubuntu-latest
     env:
-      VERSION: "0.86.0"
+      want: "0.86.0"
     steps:
       - uses: actions/checkout@v4
       - uses: ./updatecli/install
         with:
-          version: "v${{ env.VERSION }}"
+          version: "v${{ env.want }}"
       - name: Verify updatecli version
         run: |
           got=$(updatecli version 2>&1)
-          [[ "${got}" == *"${VERSION}"* ]]
+          echo "${got} == ${want}"
+          [[ "${got}" == *"${want}"* ]]
 
   version-file:
     runs-on: ubuntu-latest
     env:
-      VERSION: "0.87.0"
+      want: "0.87.0"
     steps:
       - uses: actions/checkout@v4
       - name: Setup version file
         run: |
-          echo "v${VERSION}" > .tools-version
+          echo "v${want}" > .tools-version
       - uses: ./updatecli/install
         with:
           version-file: .tools-version
       - name: Verify updatecli version
         run: |
           got=$(updatecli version 2>&1)
-          [[ "${got}" == *"${VERSION}"* ]]
+          echo "${got} == ${want}"
+          [[ "${got}" == *"${want}"* ]]
