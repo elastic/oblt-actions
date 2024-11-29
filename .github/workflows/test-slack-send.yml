@@ -39,8 +39,22 @@ jobs:
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#observablt-bots"
-          message: "Run soemthing else"
+          message: "Run something else"
           thread-timestamp: ${{ steps.slack-send.outputs.thread-timestamp || '' }}
 
       - name: validate thread-timestamp
         run: test -n "${{ steps.slack-reply.outputs.thread-timestamp }}"
+
+      - uses: ./slack/send
+        id: slack-multi
+        with:
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#observablt-bots"
+          thread-timestamp: ${{ steps.slack-send.outputs.thread-timestamp || '' }}
+          message: |
+            :warning: I couldn't find a person for `foo` in the <${{ github.event.repository.html_url }}/blob/master/.github/config.json|config.json file>.
+            Make sure to update the `config.json` file or the schedule for `bar`!
+
+            Test some characters: & and * and < > \n \r
+
+            Failed to assign <${{ github.event.repository.html_url }}|SDH #my-issue>.

@@ -55,6 +55,9 @@ runs:
         else:
           raise Exception("message must be set.")
 
+        # Escape special characters for GitHub Actions output
+        message = message.replace('\n', '\\n').replace('\r', '\\r')
+
         with open(os.environ.get('GITHUB_OUTPUT'), "a") as f:
           f.write("message={}".format(message))
 
@@ -68,9 +71,9 @@ runs:
           unfurl_media: false
           channel: "${{ inputs.channel-id }}"
           thread_ts: "${{ inputs.thread-timestamp }}"
-          text: ${{ steps.prepare.outputs.message }}
+          text: "${{ steps.prepare.outputs.message }}"
           blocks:
             - type: "section"
               text:
                 type: mrkdwn
-                text: ${{ steps.prepare.outputs.message }}
+                text: "${{ steps.prepare.outputs.message }}"
