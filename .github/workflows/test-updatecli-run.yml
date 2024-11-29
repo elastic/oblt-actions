@@ -49,10 +49,6 @@ jobs:
         with:
           command: help
           version: v0.86.0
-      - name: Verify updatecli version
-        run: |
-          version=$(updatecli version 2>&1)
-          [[ "$(updatecli version 2>&1)" == *"0.86.0"* ]]
 
   version-file:
     runs-on: ubuntu-latest
@@ -65,7 +61,3 @@ jobs:
         with:
           command: help
           version-file: .tools-version
-      - name: Verify updatecli version
-        run: |
-          version=$(updatecli version 2>&1)
-          [[ "$(updatecli version 2>&1)" == *"0.87.0"* ]]

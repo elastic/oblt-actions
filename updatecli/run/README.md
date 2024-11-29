@@ -5,11 +5,9 @@
 ## Inputs
 
 <!--inputs-->
-| Name           | Description                                                                                                         | Required | Default |
-|----------------|---------------------------------------------------------------------------------------------------------------------|----------|---------|
-| `command`      | Specify the updatecli command to be executed.                                                                       | `true`   | ` `     |
-| `version`      | Install a specific version of updatecli. If both `version` and `version-file` are provided, `version` will be used. | `false`  | ` `     |
-| `version-file` | The file to read the version from. E.g. `.updatecli-version` or `.tool-versions` (asdf-vm).                         | `false`  | ` `     |
+| Name      | Description                                   | Required | Default |
+|-----------|-----------------------------------------------|----------|---------|
+| `command` | Specify the updatecli command to be executed. | `true`   | ` `     |
 <!--/inputs-->
 
 ## Usage

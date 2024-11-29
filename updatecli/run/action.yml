@@ -5,19 +5,10 @@ inputs:
   command:
     description: 'Specify the updatecli command to be executed.'
     required: true
-  version:
-    description: "Install a specific version of updatecli. If both `version` and `version-file` are provided, `version` will be used."
-    required: false
-  version-file:
-    description: "The file to read the version from. E.g. `.updatecli-version` or `.tool-versions` (asdf-vm)."
-    required: false
 runs:
   using: composite
   steps:
     - uses: elastic/oblt-actions/updatecli/install@v1
-      with:
-        version: ${{ inputs.version }}
-        version-file: ${{ inputs.version-file }}
 
     - run: updatecli ${{ env.COMMAND }}
       env:
