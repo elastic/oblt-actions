@@ -25,6 +25,7 @@ jobs:
       - default
       - version
       - version-file
+      - version-file-updatecli
     runs-on: ubuntu-latest
     steps:
       - id: check
@@ -69,6 +70,24 @@ jobs:
       - name: Setup version file
         run: |
           echo "v${want}" > .tools-version
+      - uses: ./updatecli/install
+        with:
+          version-file: .tools-version
+      - name: Verify updatecli version
+        run: |
+          got=$(updatecli version 2>&1)
+          echo "${got} == ${want}"
+          [[ "${got}" == *"${want}"* ]]
+
+  version-file-updatecli:
+    runs-on: ubuntu-latest
+    env:
+      want: "0.84.0"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup version file
+        run: |
+          echo "updatecli v${want}" > .tools-version
       - uses: ./updatecli/install
         with:
           version-file: .tools-version
