@@ -22,8 +22,8 @@ runs:
           const fs = require('fs')
           const path = require('path')
 
-          const version = process.env.VERSION
-          const versionFile = process.env.VERSION_FILE
+          const version = core.getInput('version')
+          const versionFile = core.getInput('version-file')
           const defaultVersionPath = path.join(process.env.GITHUB_ACTION_PATH, '.default-updatecli-version')
 
           if (!version && !versionFile) {
@@ -37,9 +37,6 @@ runs:
             core.setOutput('version', version)
             core.setOutput('version_file', versionFile)
           }
-        env:
-          VERSION: ${{ inputs.version }}
-          VERSION_FILE: ${{ inputs.version-file }}
 
     - name: Install Updatecli in the runner
       uses: updatecli/updatecli-action@cb631ef5547ed05db3db64bb2ad42a6cc36e3097 # v2.71.0
