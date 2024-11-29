@@ -22,7 +22,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: aws-actions/configure-aws-credentials@v4
+      - uses: ./aws/auth
         with:
           aws-region: us-east-1
       - run: aws sts get-caller-identity
