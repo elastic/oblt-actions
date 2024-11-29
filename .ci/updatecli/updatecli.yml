@@ -1,0 +1,40 @@
+name: "deps: Bump updatecli version"
+pipelineid: updatecli
+actions:
+    default:
+        title: Bump updatecli version to {{ source "updatecli" }}
+        kind: github/pullrequest
+        spec:
+            automerge: true
+            mergemethod: squash
+            usetitleforautomerge: true
+            labels:
+                - dependencies
+        scmid: default
+scms:
+    default:
+        kind: github
+        spec:
+            owner: elastic
+            repository: oblt-actions
+            branch: main
+            commitusingapi: true
+            token: '{{requiredEnv "GITHUB_TOKEN"}}'
+            username: obltmachine
+        disabled: false
+sources:
+    updatecli:
+        name: Get latest updatecli version
+        kind: githubrelease
+        spec:
+            owner: updatecli
+            repository: updatecli
+            token: '{{requiredEnv "GITHUB_TOKEN"}}'
+targets:
+    src-main:
+        name: Bump updatecli version
+        kind: file
+        spec:
+            file: updatecli/install/.default-updatecli-version
+        scmid: default
+        sourceid: updatecli
