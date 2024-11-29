@@ -55,4 +55,6 @@ jobs:
             :warning: I couldn't find a person for `foo` in the <${{ github.event.repository.html_url }}/blob/master/.github/config.json|config.json file>.
             Make sure to update the `config.json` file or the schedule for `bar`!
 
+            Test some characters: & and * and < > \n \r
+
             Failed to assign <${{ github.event.repository.html_url }}|SDH #my-issue>.

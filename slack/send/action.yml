@@ -56,7 +56,7 @@ runs:
           raise Exception("message must be set.")
 
         # Escape special characters for GitHub Actions output
-        message = message.replace('%', '%25').replace('\n', '%0A').replace('\r', '%0D')
+        message = message.replace('\n', '\\n').replace('\r', '\\r')
 
         with open(os.environ.get('GITHUB_OUTPUT'), "a") as f:
           f.write("message={}".format(message))
