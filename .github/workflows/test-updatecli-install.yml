@@ -40,8 +40,9 @@ jobs:
       - uses: ./updatecli/install
       - name: Verify updatecli version
         run: |
-          version=$(cat updatecli/install/.default-updatecli-version)
-          [[ "$(updatecli version 2>&1)" == *"${version}"* ]]
+          want=$(cat updatecli/install/.default-updatecli-version | cut -dv -f2)
+          got=$(updatecli version 2>&1)
+          [[ "${got}" == *"${want}"* ]]
 
   version:
     runs-on: ubuntu-latest
@@ -54,8 +55,8 @@ jobs:
           version: "v${{ env.VERSION }}"
       - name: Verify updatecli version
         run: |
-          currentVersion=$(updatecli version 2>&1)
-          [[ "${currentVersion}" == *"${VERSION}"* ]]
+          got=$(updatecli version 2>&1)
+          [[ "${got}" == *"${VERSION}"* ]]
 
   version-file:
     runs-on: ubuntu-latest
@@ -71,5 +72,5 @@ jobs:
           version-file: .tools-version
       - name: Verify updatecli version
         run: |
-          currentVersion=$(updatecli version 2>&1)
-          [[ "${currentVersion}" == *"${VERSION}"* ]]
+          got=$(updatecli version 2>&1)
+          [[ "${got}" == *"${VERSION}"* ]]
