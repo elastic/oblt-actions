@@ -19,27 +19,11 @@ permissions:
   id-token: write
 
 jobs:
-  create-credentials:
-    outputs:
-      aws-access-key-id: ${{ steps.auth.outputs.aws-access-key-id }}
-      aws-secret-access-key: ${{ steps.auth.outputs.aws-secret-access-key }}
-      aws-session-token: ${{ steps.auth.outputs.aws-session-token }}
-      role-arn: ${{ steps.auth.outputs.role-arn }}
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: ./aws/auth
-        id: auth
-      - run: aws sts get-caller-identity
-
-  test:
-    needs: create-credentials
-    runs-on: ubuntu-latest
-    steps:
-      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
-          role-to-assume: ${{ needs.create-credentials.outputs.role-arn }}
-          aws-access-key-id: ${{ needs.create-credentials.outputs.aws-access-key-id }}
-          aws-secret-access-key: ${{ needs.create-credentials.outputs.aws-secret-access-key }}
       - run: aws sts get-caller-identity
