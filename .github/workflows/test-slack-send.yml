@@ -48,7 +48,7 @@ jobs:
       - uses: ./slack/send
         id: slack-multi
         with:
-          bot-token: ${{ env.SLACK_BOT_TOKEN }}
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#observablt-bots"
           message: |
             :warning: I couldn't find a person for `foo` in the <${{ github.event.repository.html_url }}/blob/master/.github/config.json|config.json file>.
