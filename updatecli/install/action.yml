@@ -14,8 +14,28 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Check inputs and set version
+      id: set-version
+      run: |
+        if [[ -z "${VERSION}" && -z "${VERSION_FILE}" ]]; then
+          if [[ -f "${{ github.action_path }}/.default-updatecli-version" ]]; then
+            newversion=$(cat "${{ github.action_path }}/.default-updatecli-version")
+            echo "version=${newversion}" >> $GITHUB_ENV
+          else
+            echo "::error title=updatecli/install::Default version file not found."
+            exit 1
+          fi
+        else
+          echo "version=${VERSION}" >> $GITHUB_ENV
+          echo "version_file=${VERSION_FILE}" >> $GITHUB_ENV
+        fi
+      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
+        VERSION_FILE: ${{ inputs.version-file }}
+
     - name: Install Updatecli in the runner
       uses: updatecli/updatecli-action@cb631ef5547ed05db3db64bb2ad42a6cc36e3097 # v2.71.0
       with:
-        version: ${{ inputs.version }}
-        version-file: ${{ inputs.version-file }}
+        version: ${{ env.version }}
+        version-file: ${{ env.version_file }}

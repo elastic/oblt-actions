@@ -38,30 +38,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./updatecli/install
+      - name: Verify updatecli version
+        run: |
+          version=$(cat updatecli/install/.default-updatecli-version)
+          [[ "$(updatecli version 2>&1)" == *"${version}"* ]]
 
   version:
     runs-on: ubuntu-latest
+    env:
+      VERSION: "0.86.0"
     steps:
       - uses: actions/checkout@v4
       - uses: ./updatecli/install
         with:
-          version: v0.86.0
+          version: "v${{ env.VERSION }}"
       - name: Verify updatecli version
         run: |
-          version=$(updatecli version 2>&1)
-          [[ "$(updatecli version 2>&1)" == *"0.86.0"* ]]
+          currentVersion=$(updatecli version 2>&1)
+          [[ "${currentVersion}" == *"${VERSION}"* ]]
 
   version-file:
     runs-on: ubuntu-latest
+    env:
+      VERSION: "0.87.0"
     steps:
       - uses: actions/checkout@v4
       - name: Setup version file
         run: |
-          echo "v0.87.0" > .tools-version
+          echo "v${VERSION}" > .tools-version
       - uses: ./updatecli/install
         with:
           version-file: .tools-version
       - name: Verify updatecli version
         run: |
-          version=$(updatecli version 2>&1)
-          [[ "$(updatecli version 2>&1)" == *"0.87.0"* ]]
+          currentVersion=$(updatecli version 2>&1)
+          [[ "${currentVersion}" == *"${VERSION}"* ]]
