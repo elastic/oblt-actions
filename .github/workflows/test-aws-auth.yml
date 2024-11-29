@@ -22,6 +22,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: ./aws/auth
         with:
           aws-region: us-east-1
