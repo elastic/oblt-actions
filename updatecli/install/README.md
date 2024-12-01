@@ -1,6 +1,7 @@
 # <!--name-->updatecli/install<!--/name-->
 
 [![usages](https://img.shields.io/badge/usages-white?logo=githubactions&logoColor=blue)](https://github.com/search?q=elastic%2Foblt-actions%2Fupdatecli%2Finstall+%28path%3A.github%2Fworkflows+OR+path%3A**%2Faction.yml+OR+path%3A**%2Faction.yaml%29&type=code)
+[![test-updatecli-install](https://github.com/elastic/oblt-actions/actions/workflows/test-updatecli-install.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-updatecli-install.yml)
 
 <!--description-->
 This is an opinionated GitHub Action to install the updatecli
