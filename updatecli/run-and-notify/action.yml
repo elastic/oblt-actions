@@ -19,12 +19,20 @@ inputs:
     description: 'When to send the message, always, failure, success.'
     default: 'failure'
     required: false
+  version:
+    description: "Install a specific version of updatecli. If both `version` and `version-file` are provided, `version` will be used."
+    required: false
+  version-file:
+    description: "The file to read the version from. E.g. `.updatecli-version` or `.tool-versions` (asdf-vm)."
+    required: false
 runs:
   using: composite
   steps:
     - uses: elastic/oblt-actions/updatecli/run@v1
       with:
         command: ${{ inputs.command }}
+        version: "${{ inputs.version }}"
+        version-file: "${{ inputs.version-file }}"
 
     - if: ${{ always() && inputs.slack-send-when == 'always' }}
       uses: elastic/oblt-actions/slack/send@v1

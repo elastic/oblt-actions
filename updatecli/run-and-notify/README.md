@@ -13,13 +13,15 @@ notifications.
 
 ## Inputs
 <!--inputs-->
-| Name               | Description                                         | Required | Default   |
-|--------------------|-----------------------------------------------------|----------|-----------|
-| `command`          | Specify the updatecli command to be executed.       | `true`   | ` `       |
-| `slack-channel-id` |                                                     | `true`   | ` `       |
-| `slack-bot-token`  | Specify the slack bot token.                        | `true`   | ` `       |
-| `slack-message`    | Specify the message to be sent (markdown format).   | `true`   | ` `       |
-| `slack-send-when`  | When to send the message, always, failure, success. | `false`  | `failure` |
+| Name               | Description                                                                                                         | Required | Default   |
+|--------------------|---------------------------------------------------------------------------------------------------------------------|----------|-----------|
+| `command`          | Specify the updatecli command to be executed.                                                                       | `true`   | ` `       |
+| `slack-channel-id` |                                                                                                                     | `true`   | ` `       |
+| `slack-bot-token`  | Specify the slack bot token.                                                                                        | `true`   | ` `       |
+| `slack-message`    | Specify the message to be sent (markdown format).                                                                   | `true`   | ` `       |
+| `slack-send-when`  | When to send the message, always, failure, success.                                                                 | `false`  | `failure` |
+| `version`          | Install a specific version of updatecli. If both `version` and `version-file` are provided, `version` will be used. | `false`  | ` `       |
+| `version-file`     | The file to read the version from. E.g. `.updatecli-version` or `.tool-versions` (asdf-vm).                         | `false`  | ` `       |
 <!--/inputs-->
 
 ## Usage
