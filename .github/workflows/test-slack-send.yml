@@ -58,3 +58,13 @@ jobs:
             Test some characters: & and * and < > \n \r
 
             Failed to assign <${{ github.event.repository.html_url }}|SDH #my-issue>.
+
+      - uses: ./slack/send
+        id: slack-debug
+        with:
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#observablt-bots"
+          thread-timestamp: ${{ steps.slack-send.outputs.thread-timestamp || '' }}
+          message: |
+            :traffic_cone: `reusable-sdh-assignment` failed for `${{ github.repository }}@${{ github.ref_name }}`, @robots-ci please look what's going on <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>.
+            You can access the <https://github.com/elastic/app-obs-dev/blob/main/sdh-assignment/TROUBLESHOOTING.md|Runbook> for helping out with the troubleshooting.
