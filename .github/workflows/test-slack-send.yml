@@ -67,6 +67,6 @@ jobs:
           thread-timestamp: ${{ steps.slack-send.outputs.thread-timestamp || '' }}
           message: |
             :wave: !
-            I have assigned you the following SDH, as to my knowledge you are currently on duty for `area::observability-rac`:
+            I have assigned you the following SDH, as to my knowledge you are currently on duty for `area::observability`:
 
-            *`urgency:48h` <https://github.com/elastic/sdh-kibana/issues/5098|#5098 - Adding the field "system.filesystem.free" to the output of an alert>*
+            *`urgency:48h` <https://github.com/elastic/kibana/issues/5098|#5098 - Adding the field "system.filesystem.free" to the output of an alert>*
