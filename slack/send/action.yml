@@ -47,6 +47,7 @@ runs:
         # https://api.slack.com/reference/surfaces/formatting#escaping
         import os
         from urllib.parse import unquote
+        import json
 
         if os.environ["MESSAGE"]:
           message = os.environ.get('MESSAGE', 'No message')
@@ -55,11 +56,12 @@ runs:
         else:
           raise Exception("message must be set.")
 
-        # Escape special characters for GitHub Actions output
-        message = message.replace('\n', '\\n').replace('\r', '\\r')
+        print("message={}".format(message))
+        sanitizedMessage = json.dumps(message)
+        print("sanitized message={}".format(sanitizedMessage))
 
         with open(os.environ.get('GITHUB_OUTPUT'), "a") as f:
-          f.write("message={}".format(message))
+          f.write("message={}".format(sanitizedMessage))
 
     - uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d # v2.0.0
       id: slack_message
@@ -71,9 +73,9 @@ runs:
           unfurl_media: false
           channel: "${{ inputs.channel-id }}"
           thread_ts: "${{ inputs.thread-timestamp }}"
-          text: "${{ steps.prepare.outputs.message }}"
+          text: ${{ steps.prepare.outputs.message }}
           blocks:
             - type: "section"
               text:
                 type: mrkdwn
-                text: "${{ steps.prepare.outputs.message }}"
+                text: ${{ steps.prepare.outputs.message }}
