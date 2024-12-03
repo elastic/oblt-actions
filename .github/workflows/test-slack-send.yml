@@ -58,3 +58,15 @@ jobs:
             Test some characters: & and * and < > \n \r
 
             Failed to assign <${{ github.event.repository.html_url }}|SDH #my-issue>.
+
+      - uses: ./slack/send
+        id: slack-multi-with-double-quotes
+        with:
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#observablt-bots"
+          thread-timestamp: ${{ steps.slack-send.outputs.thread-timestamp || '' }}
+          message: |
+            :wave: <@U03HGTRTLD6>!
+            I have assigned you the following SDH, as to my knowledge you are currently on duty for `area::observability-rac`:
+
+            *`urgency:48h` <https://github.com/elastic/sdh-kibana/issues/5098|#5098 - Adding the field "system.filesystem.free" to the output of an alert>*
