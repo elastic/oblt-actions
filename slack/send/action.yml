@@ -59,9 +59,9 @@ runs:
         # Escape special characters for GitHub Actions output
         message = message.replace('\n', '\\n').replace('\r', '\\r')
 
-        echo "message is: ${message}"
+        println("message is: ${message}")
         sanitizedMessage = json.dumps(message)
-        echo "sanitized message is: ${sanitizedMessage}"
+        println("sanitized message is: ${sanitizedMessage}")
 
         with open(os.environ.get('GITHUB_OUTPUT'), "a") as f:
           f.write("message={}".format(sanitizedMessage))
