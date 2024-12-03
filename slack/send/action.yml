@@ -56,12 +56,9 @@ runs:
         else:
           raise Exception("message must be set.")
 
-        # Escape special characters for GitHub Actions output
-        message = message.replace('\n', '\\n').replace('\r', '\\r')
-
-        print("message is: ${message}")
+        print("message={}".format(message))
         sanitizedMessage = json.dumps(message)
-        print("sanitized message is: ${sanitizedMessage}")
+        print("sanitized message={}".format(sanitizedMessage))
 
         with open(os.environ.get('GITHUB_OUTPUT'), "a") as f:
           f.write("message={}".format(sanitizedMessage))

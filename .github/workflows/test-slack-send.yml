@@ -66,7 +66,7 @@ jobs:
           channel-id: "#observablt-bots"
           thread-timestamp: ${{ steps.slack-send.outputs.thread-timestamp || '' }}
           message: |
-            :wave: <@U03HGTRTLD6>!
+            :wave: !
             I have assigned you the following SDH, as to my knowledge you are currently on duty for `area::observability-rac`:
 
             *`urgency:48h` <https://github.com/elastic/sdh-kibana/issues/5098|#5098 - Adding the field "system.filesystem.free" to the output of an alert>*
