@@ -76,9 +76,9 @@ runs:
           unfurl_media: false
           channel: "${{ inputs.channel-id }}"
           thread_ts: "${{ inputs.thread-timestamp }}"
-          text: "${{ steps.prepare.outputs.message }}"
+          text: ${{ steps.prepare.outputs.message }}
           blocks:
             - type: "section"
               text:
                 type: mrkdwn
-                text: "${{ steps.prepare.outputs.message }}"
+                text: ${{ steps.prepare.outputs.message }}
