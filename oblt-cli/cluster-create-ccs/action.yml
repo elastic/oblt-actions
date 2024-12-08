@@ -94,7 +94,7 @@ runs:
           }
 
 
-    - uses: elastic/oblt-actions/oblt-cli/setup@v1.23.2
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.23.5
       with:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}

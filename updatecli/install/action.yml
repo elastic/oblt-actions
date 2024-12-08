@@ -35,7 +35,7 @@ runs:
         VERSION_FILE: ${{ inputs.version-file }}
 
     - name: Install Updatecli in the runner
-      uses: updatecli/updatecli-action@cb631ef5547ed05db3db64bb2ad42a6cc36e3097 # v2.71.0
+      uses: updatecli/updatecli-action@fb02bdc31c577a51bfed3df6d5c70bdc86fe8910 # v2.72.0
       with:
         version: "${{ steps.set-version.outputs.version }}"
         version-file: "${{ steps.set-version.outputs.version_file }}"
