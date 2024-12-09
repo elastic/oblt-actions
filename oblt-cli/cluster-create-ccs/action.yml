@@ -79,7 +79,7 @@ runs:
           gitOpsFlags = []
 
           if (gitops === 'true') {
-            gitOpsFlags.push(`--repo=${context.repo.owner}/${context.repo.repo}`)
+            gitOpsFlags.push(`--repository=${context.repo.owner}/${context.repo.repo}`)
             if (context.eventName === 'pull_request') {
               gitOpsFlags.push(`--pull-request=${context.issue.number}`)
               gitOpsFlags.push(`--comment-id=${context.payload.comment.id}`)
@@ -94,7 +94,7 @@ runs:
           }
 
 
-    - uses: elastic/oblt-actions/oblt-cli/setup@v1.23.2
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.23.5
       with:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
