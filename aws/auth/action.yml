@@ -18,6 +18,10 @@ inputs:
     description: 'The assumed role duration in seconds, if assuming a role. Defaults to 1 hour, but cannot exceed the maximum defined by the role.'
     required: false
     default: '3600'
+  unset-current-credentials:
+    description: 'Whether to unset the existing credentials in your runner. May be useful if you run this action multiple times in the same job.'
+    required: false
+    default: 'false'
 
 outputs:
   role-arn:
@@ -71,3 +75,4 @@ runs:
         role-to-assume: ${{ steps.generate-role-arn.outputs.role-arn }}
         role-duration-seconds: ${{ inputs.role-duration-seconds }}
         output-credentials: true
+        unset-current-credentials: ${{ inputs.unset-current-credentials }}
