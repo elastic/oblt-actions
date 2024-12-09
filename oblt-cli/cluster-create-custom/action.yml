@@ -97,7 +97,7 @@ runs:
             core.setOutput('SKIP_RANDOM_NAME', '--skip-random-name')
           }
 
-    - uses: elastic/oblt-actions/oblt-cli/setup@v1.23.5
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.23.6
       with:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
