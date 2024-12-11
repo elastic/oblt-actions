@@ -67,7 +67,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify main is in the active branches
         if: ${{ !contains(fromJSON(steps.active-branches.outputs.branches), 'main') }}
-        run: echo "Main branch could not be found"
+        run: echo "Main branch could not be found" && exit 1
       - name: Verify 8.x is not in the active branches
         if: ${{ contains(fromJSON(steps.active-branches.outputs.branches), '8.x') }}
         run: echo "Main branch could not be found" && exit 1
