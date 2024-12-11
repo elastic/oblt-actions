@@ -9,9 +9,11 @@ Fetch the current list of active branches in Elastic (the ones based on the Unif
 
 ## Inputs
 <!--inputs-->
-| Name               | Description                      | Required | Default |
-|--------------------|----------------------------------|----------|---------|
-| `exclude-branches` | Exclude branches comma separated | `false`  | ` `     |
+| Name               | Description                                                                     | Required | Default |
+|--------------------|---------------------------------------------------------------------------------|----------|---------|
+| `exclude-branches` | Exclude branches comma separated                                                | `false`  | ` `     |
+| `filter-branches`  | Whether to fitler those branches that only exist in the {{ github.repository }} | `false`  | `false` |
+| `github-token`     | The GitHub access token.                                                        | `false`  | ` `     |
 <!--/inputs-->
 
 ## Outputs
@@ -48,7 +50,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: "${{ matrix.branch }}"
-
 
       # ...
 ```
