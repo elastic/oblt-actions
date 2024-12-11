@@ -25,6 +25,7 @@ jobs:
     needs:
       - main
       - exclude-main
+      - filter
     runs-on: ubuntu-latest
     steps:
       - id: check
@@ -41,7 +42,7 @@ jobs:
         id: active-branches
       - name: Verify main is in the active branches
         if: ${{ !contains(fromJSON(steps.active-branches.outputs.branches), 'main') }}
-        run: echo "Main branch could not be found"
+        run: echo "Main branch could not be found" && exit 1
 
   exclude-main:
     runs-on: ubuntu-latest
@@ -53,4 +54,20 @@ jobs:
           exclude-branches: main
       - name: Verify main is not in the active branches
         if: contains(fromJSON(steps.active-branches.outputs.branches), 'main')
-        run: echo "Main branch could be found but should be excluded"
+        run: echo "Main branch could be found but should be excluded" && exit 1
+
+  filter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./elastic/active-branches
+        id: active-branches
+        with:
+          filter-branches: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify main is in the active branches
+        if: ${{ !contains(fromJSON(steps.active-branches.outputs.branches), 'main') }}
+        run: echo "Main branch could not be found" && exit 1
+      - name: Verify 8.x is not in the active branches
+        if: ${{ contains(fromJSON(steps.active-branches.outputs.branches), '8.x') }}
+        run: echo "Main branch could not be found" && exit 1
