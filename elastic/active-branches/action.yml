@@ -8,14 +8,20 @@ inputs:
     type: string
     default: ''
   filter-branches:
-    description: "Whether to fitler those branches that only exist in the {{ github.repository }}"
+    description: "Whether to filter those branches that only exist in the {{ github.repository }}"
     default: false
     type: boolean
   github-token:
     description: 'The GitHub access token.'
     required: false
     type: string
-    default: ''
+    default: ${{ github.token }}
+  github-repository:
+    description: 'The GitHub repository to search for active branches.'
+    required: false
+    type: string
+    default: ${{ github.repository }}
+
 outputs:
   matrix:
     description: "Processed matrix with the branches (using the include format)"

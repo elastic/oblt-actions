@@ -30,13 +30,14 @@ if exclude_branches:
 filter_str = os.environ.get('FILTER', 'false')
 filter = filter_str.lower() in ('true', '1', 't', 'y', 'yes')
 repository = os.environ.get('REPOSITORY', '')
-github_token = os.environ.get('GITHUB_TOKEN', '')
-if filter and repository and github_token:
+if filter and repository:
     # Check if branches exist in the GitHub repository
     headers = {
-        'Authorization': f'token {github_token}',
         'Accept': 'application/vnd.github.v3+json'
     }
+    github_token = os.environ.get('GITHUB_TOKEN', '')
+    if github_token:
+        headers['Authorization'] = f'token {github_token}'
 
     existing_branches = []
     for branch in branches:
