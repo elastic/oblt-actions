@@ -38,7 +38,7 @@ runs:
       env:
         EXCLUDE_BRANCHES: ${{ inputs.exclude-branches }}
         FILTER: ${{ inputs.filter-branches }}
-        REPOSITORY: ${{ github.repository }}
+        REPOSITORY: ${{ inputs.github-repository }}
         GITHUB_TOKEN: ${{ inputs.github-token }}
     - id: debug
       shell: bash
