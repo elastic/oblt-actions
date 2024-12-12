@@ -62,6 +62,8 @@ jobs:
   filter:
     runs-on: ubuntu-latest
     timeout-minutes: 1
+    permissions:
+      contents: read
     outputs:
       matrix: ${{ steps.generator.outputs.matrix }}
     steps:
