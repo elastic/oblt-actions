@@ -9,12 +9,12 @@ Fetch the current list of active branches in Elastic (the ones based on the Unif
 
 ## Inputs
 <!--inputs-->
-| Name                | Description                                                                     | Required | Default                    |
-|---------------------|---------------------------------------------------------------------------------|----------|----------------------------|
-| `exclude-branches`  | Exclude branches comma separated                                                | `false`  | ` `                        |
-| `filter-branches`   | Whether to filter those branches that only exist in the {{ github.repository }} | `false`  | `false`                    |
-| `github-token`      | The GitHub access token.                                                        | `false`  | `${{ github.token }}`      |
-| `github-repository` | The GitHub repository to search for active branches.                            | `false`  | `${{ github.repository }}` |
+| Name                | Description                                                               | Required | Default                    |
+|---------------------|---------------------------------------------------------------------------|----------|----------------------------|
+| `exclude-branches`  | Exclude branches comma separated                                          | `false`  | ` `                        |
+| `filter-branches`   | Whether to filter those branches that only exist in the github-repository | `false`  | `false`                    |
+| `github-token`      | The GitHub access token.                                                  | `false`  | `${{ github.token }}`      |
+| `github-repository` | The GitHub repository to search for active branches.                      | `false`  | `${{ github.repository }}` |
 <!--/inputs-->
 
 ## Outputs

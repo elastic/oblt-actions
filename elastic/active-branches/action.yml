@@ -8,7 +8,7 @@ inputs:
     type: string
     default: ''
   filter-branches:
-    description: "Whether to filter those branches that only exist in the {{ github.repository }}"
+    description: "Whether to filter those branches that only exist in the github-repository"
     default: false
     type: boolean
   github-token:
