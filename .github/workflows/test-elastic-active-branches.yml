@@ -58,13 +58,14 @@ jobs:
 
   filter:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: ./elastic/active-branches
         id: active-branches
         with:
           filter-branches: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify main is in the active branches
         if: ${{ !contains(fromJSON(steps.active-branches.outputs.branches), 'main') }}
         run: echo "Main branch could not be found" && exit 1

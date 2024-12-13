@@ -9,11 +9,12 @@ Fetch the current list of active branches in Elastic (the ones based on the Unif
 
 ## Inputs
 <!--inputs-->
-| Name               | Description                                                                     | Required | Default |
-|--------------------|---------------------------------------------------------------------------------|----------|---------|
-| `exclude-branches` | Exclude branches comma separated                                                | `false`  | ` `     |
-| `filter-branches`  | Whether to fitler those branches that only exist in the {{ github.repository }} | `false`  | `false` |
-| `github-token`     | The GitHub access token.                                                        | `false`  | ` `     |
+| Name                | Description                                                               | Required | Default                    |
+|---------------------|---------------------------------------------------------------------------|----------|----------------------------|
+| `exclude-branches`  | Exclude branches comma separated                                          | `false`  | ` `                        |
+| `filter-branches`   | Whether to filter those branches that only exist in the github-repository | `false`  | `false`                    |
+| `github-token`      | The GitHub access token.                                                  | `false`  | `${{ github.token }}`      |
+| `github-repository` | The GitHub repository to search for active branches.                      | `false`  | `${{ github.repository }}` |
 <!--/inputs-->
 
 ## Outputs
@@ -40,6 +41,36 @@ jobs:
         uses: elastic/oblt-actions/elastic/active-branches@v1
         with:
           exclude-branches: '7.17'
+
+  bump-elastic-stack:
+    runs-on: ubuntu-latest
+    needs: [filter]
+    strategy:
+      matrix: ${{ fromJson(needs.filter.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: "${{ matrix.branch }}"
+
+      # ...
+```
+
+
+<!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
+```yaml
+jobs:
+  filter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    permissions:
+      contents: read
+    outputs:
+      matrix: ${{ steps.generator.outputs.matrix }}
+    steps:
+      - id: generator
+        uses: elastic/oblt-actions/elastic/active-branches@v1
+        with:
+          filter-branches: true
 
   bump-elastic-stack:
     runs-on: ubuntu-latest
