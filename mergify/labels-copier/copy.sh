@@ -6,6 +6,10 @@
 #  EXCLUDED_LABEL
 #  DRY_RUN
 #
+# You can run this locally for testing purposes:
+#
+# $ REPOSITORY_URL=https://github.com/elastic/apm-server PR_URL=https://github.com/elastic/apm-server/pull/15035 EXCLUDED_LABEL=backport-* DRY_RUN=true sh mergify/labels-copier/copy.sh
+#
 
 set -eo pipefail
 
