@@ -1,4 +1,4 @@
-name: test-github-is-member-of
+name: test-mergify-labels-copier
 
 on:
   merge_group: ~
