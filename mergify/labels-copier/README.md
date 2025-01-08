@@ -32,7 +32,7 @@ jobs:
   react:
     runs-on: ubuntu-latest
     if: startsWith(github.head_ref, 'mergify/bp/')
-    permission:
+    permissions:
       pull-requests: write
     steps:
       - uses: elastic/oblt-actions/mergify/labels-copier@v1
