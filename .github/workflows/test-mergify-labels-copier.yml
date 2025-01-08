@@ -1,0 +1,37 @@
+name: test-github-is-member-of
+
+on:
+  merge_group: ~
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/test-mergify-labels-copier.yml'
+      - 'mergify/labels-copier/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: elastic/oblt-actions/git/setup@v1
+      - name: Get token
+        id: get_token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+        with:
+          app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permissions: >-
+            {
+              "pull_requests": "read"
+            }
+      - uses: ./mergify/labels-copier
+        id: validation
+        with:
+          github-token: ${{ steps.get_token.outputs.token }}
+          repository: "elastic/apm-server"
+          pull-request: "15035"
+        env:
+          DRY_RUN: true
