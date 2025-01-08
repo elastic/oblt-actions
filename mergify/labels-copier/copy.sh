@@ -14,6 +14,7 @@
 
 set -eo pipefail
 
+# Support debugging in GitHub actions when RUNNER_DEBUG is set.
 if [ -n "$RUNNER_DEBUG" ] ; then
   set -x
 fi
@@ -21,7 +22,7 @@ fi
 pr_number=$(gh pr view --json body -q ".body" "$PR_URL" | sed -n -e '/automatic backport of pull request/,/done/p' | cut -d"#" -f2 | cut -d" " -f1)
 gh pr view --json labels -q '.labels[]|.name' ${REPOSITORY_URL}/pull/$pr_number | while read label ; do
   if [[ -z "$labels" ]] || [[ ",$labels," =~ ",$label," ]]; then
-    if [[ $label =~ $EXCLUDED_LABEL ]]; then
+    if [[ -z "$EXCLUDED_LABEL" ]] && [[ $label =~ $EXCLUDED_LABEL ]]; then
       echo ">> $label is excluded and will not be added since matches '$EXCLUDED_LABEL'"
     else
       if [ "$DRY_RUN" == "true" ] ; then
