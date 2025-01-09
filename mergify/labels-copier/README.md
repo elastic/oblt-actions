@@ -17,6 +17,13 @@ copies pull request labels to backported PRs
 | `pull-request`          | The GitHub pull-request to use for API requests | `false`  | `${{ github.event.pull_request.number }}` |
 <!--/inputs-->
 
+## Outputs
+<!--outputs-->
+| Name     | Description             |
+|----------|-------------------------|
+| `labels` | The labels to be copied |
+<!--/outputs-->
+
 ## Usage
 
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
@@ -36,7 +43,7 @@ jobs:
     steps:
       - uses: elastic/oblt-actions/mergify/labels-copier@v1
         with:
-          excluded-labels-regex: "backport-*"
+          excluded-labels-regex: "^backport-*"
       # ...
 ```
 <!--/usage-->

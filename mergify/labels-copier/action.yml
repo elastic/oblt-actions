@@ -19,10 +19,15 @@ inputs:
     description: 'The GitHub pull-request to use for API requests'
     required: false
     default: ${{ github.event.pull_request.number }}
+outputs:
+  labels:
+    description: 'The labels to be copied'
+    value: ${{ steps.copy-labels.outputs.labels }}
 runs:
   using: "composite"
   steps:
     - name: Copying labels
+      id: copy-labels
       shell: bash
       env:
         REPOSITORY_URL: ${{ github.server_url }}/${{ inputs.repository }}

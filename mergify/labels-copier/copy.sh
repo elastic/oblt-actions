@@ -2,7 +2,6 @@
 # Environment variables:
 #  PR_URL
 #  REPOSITORY_URL
-#  ADDITIONAL_LABELS
 #  EXCLUDED_LABEL
 #  DRY_RUN
 #  RUNNER_DEBUG
@@ -24,7 +23,9 @@ pr_number=$(gh pr view --json body -q ".body" "$PR_URL" | sed -n -e '/automatic 
 
 # Get the labels from the PR and filter out the excluded labels.
 labels=$(gh pr view --json labels "${REPOSITORY_URL}/pull/$pr_number" | jq -r --arg regex "$EXCLUDED_LABEL" '.labels | map(select(.name | test($regex) | not)) | map(.name) | join(",")')
-
+if [ -n "$CI" ] ; then
+  echo "labels=$labels" >> "$GITHUB_OUTPUT"
+fi
 echo ">> $labels will be added"
 if [ "$DRY_RUN" == "true" ]; then
   echo ">> DRY_RUN is set, skipping the label addition"

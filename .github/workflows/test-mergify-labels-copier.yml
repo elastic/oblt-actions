@@ -33,6 +33,9 @@ jobs:
           github-token: ${{ steps.get_token.outputs.token }}
           repository: "elastic/apm-server"
           pull-request: "15035"
-          excluded-labels-regex: "backport-*"
+          excluded-labels-regex: "^backport-*"
         env:
           DRY_RUN: true
+
+      - name: assert labels are not empty
+        run: test -n "${{ steps.validation.outputs.labels }}"
