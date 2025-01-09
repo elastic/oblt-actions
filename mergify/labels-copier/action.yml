@@ -7,10 +7,6 @@ inputs:
     description: 'labels to be excluded in regex format'
     required: false
     default: ''
-  additional-labels:
-    description: 'Comma separated list of additional labels to add to the PR'
-    required: false
-    default: ''
   github-token:
     description: 'The GitHub token to use for API requests'
     required: false
@@ -32,6 +28,5 @@ runs:
         REPOSITORY_URL: ${{ github.server_url }}/${{ inputs.repository }}
         PR_URL: ${{ github.server_url }}/${{ inputs.repository }}/pull/${{ inputs.pull-request }}
         GH_TOKEN: ${{ inputs.github-token}}
-        ADDITIONAL_LABELS: ${{ inputs.additional-labels }}
         EXCLUDED_LABEL: ${{ inputs.excluded-labels-regex }}
       run: ${{ github.action_path }}/copy.sh

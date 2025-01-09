@@ -30,7 +30,6 @@ add_label() {
   fi
 }
 
-
 pr_number=$(gh pr view --json body -q ".body" "$PR_URL" | sed -n -e '/automatic backport of pull request/,/done/p' | cut -d"#" -f2 | cut -d" " -f1)
 gh pr view --json labels -q '.labels[]|.name' ${REPOSITORY_URL}/pull/$pr_number | while read label ; do
   if [[ -z "$labels" ]] || [[ ",$labels," =~ ",$label," ]]; then
@@ -40,7 +39,4 @@ gh pr view --json labels -q '.labels[]|.name' ${REPOSITORY_URL}/pull/$pr_number 
       add_label "$label" "$PR_URL"
     fi
   fi
-  for additional_label in $(echo $ADDITIONAL_LABELS | sed "s/,/ /g") ; do
-    add_label "$additional_label" "$PR_URL"
-  done
 done

@@ -12,7 +12,6 @@ copies pull request labels to backported PRs
 | Name                    | Description                                                | Required | Default                                   |
 |-------------------------|------------------------------------------------------------|----------|-------------------------------------------|
 | `excluded-labels-regex` | labels to be excluded in regex format                      | `false`  | ` `                                       |
-| `additional-labels`     | Comma separated list of additional labels to add to the PR | `false`  | ` `                                       |
 | `github-token`          | The GitHub token to use for API requests                   | `false`  | `${{ github.token }}`                     |
 | `repository`            | The GitHub repository to use for API requests              | `false`  | `${{ github.repository }}`                |
 | `pull-request`          | The GitHub pull-request to use for API requests            | `false`  | `${{ github.event.pull_request.number }}` |
@@ -38,7 +37,6 @@ jobs:
       - uses: elastic/oblt-actions/mergify/labels-copier@v1
         with:
           excluded-labels-regex: "backport-*"
-          additional-labels: "mergify-pr"
       # ...
 ```
 <!--/usage-->
