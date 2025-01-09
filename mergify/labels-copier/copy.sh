@@ -19,24 +19,15 @@ if [ -n "$RUNNER_DEBUG" ] ; then
   set -x
 fi
 
-add_label() {
-  local label=$1
-  local pr_url=$2
-
-  if [ "$DRY_RUN" == "true" ]; then
-    echo ">> [dry-run]: $label will be added"
-  else
-    gh pr edit --add-label "$label" "$pr_url"
-  fi
-}
-
+# Get the PR Number from the body since Mergify uses the PR number as the body.
 pr_number=$(gh pr view --json body -q ".body" "$PR_URL" | sed -n -e '/automatic backport of pull request/,/done/p' | cut -d"#" -f2 | cut -d" " -f1)
-gh pr view --json labels -q '.labels[]|.name' ${REPOSITORY_URL}/pull/$pr_number | while read label ; do
-  if [[ -z "$labels" ]] || [[ ",$labels," =~ ",$label," ]]; then
-    if [[ -n "$EXCLUDED_LABEL" ]] && [[ $label =~ $EXCLUDED_LABEL ]]; then
-      echo ">> $label is excluded and will not be added since matches '$EXCLUDED_LABEL'"
-    else
-      add_label "$label" "$PR_URL"
-    fi
-  fi
-done
+
+# Get the labels from the PR and filter out the excluded labels.
+labels=$(gh pr view --json labels "${REPOSITORY_URL}/pull/$pr_number" | jq -r --arg regex "$EXCLUDED_LABEL" '.labels | map(select(.name | test($regex) | not)) | map(.name) | join(",")')
+
+echo ">> $labels will be added"
+if [ "$DRY_RUN" == "true" ]; then
+  echo ">> DRY_RUN is set, skipping the label addition"
+else
+  gh pr edit --add-label "$labels" "$PR_URL"
+fi
