@@ -9,12 +9,12 @@ copies pull request labels to backported PRs
 
 ## Inputs
 <!--inputs-->
-| Name                    | Description                                                | Required | Default                                   |
-|-------------------------|------------------------------------------------------------|----------|-------------------------------------------|
-| `excluded-labels-regex` | labels to be excluded in regex format                      | `false`  | ` `                                       |
-| `github-token`          | The GitHub token to use for API requests                   | `false`  | `${{ github.token }}`                     |
-| `repository`            | The GitHub repository to use for API requests              | `false`  | `${{ github.repository }}`                |
-| `pull-request`          | The GitHub pull-request to use for API requests            | `false`  | `${{ github.event.pull_request.number }}` |
+| Name                    | Description                                     | Required | Default                                   |
+|-------------------------|-------------------------------------------------|----------|-------------------------------------------|
+| `excluded-labels-regex` | labels to be excluded in regex format           | `false`  | ` `                                       |
+| `github-token`          | The GitHub token to use for API requests        | `false`  | `${{ github.token }}`                     |
+| `repository`            | The GitHub repository to use for API requests   | `false`  | `${{ github.repository }}`                |
+| `pull-request`          | The GitHub pull-request to use for API requests | `false`  | `${{ github.event.pull_request.number }}` |
 <!--/inputs-->
 
 ## Usage
