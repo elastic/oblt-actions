@@ -1,0 +1,37 @@
+name: 'github/labels-copier'
+
+description: 'copies pull request labels to backported PRs'
+
+inputs:
+  excluded-labels-regex:
+    description: 'labels to be excluded in regex format'
+    required: false
+    default: ''
+  github-token:
+    description: 'The GitHub token to use for API requests'
+    required: false
+    default: ${{ github.token }}
+  repository:
+    description: 'The GitHub repository to use for API requests'
+    required: false
+    default: ${{ github.repository }}
+  pull-request:
+    description: 'The GitHub pull-request to use for API requests'
+    required: false
+    default: ${{ github.event.pull_request.number }}
+outputs:
+  labels:
+    description: 'The labels to be copied'
+    value: ${{ steps.copy-labels.outputs.labels }}
+runs:
+  using: "composite"
+  steps:
+    - name: Copying labels
+      id: copy-labels
+      shell: bash
+      env:
+        REPOSITORY_URL: ${{ github.server_url }}/${{ inputs.repository }}
+        PR_URL: ${{ github.server_url }}/${{ inputs.repository }}/pull/${{ inputs.pull-request }}
+        GH_TOKEN: ${{ inputs.github-token}}
+        EXCLUDED_LABEL: ${{ inputs.excluded-labels-regex }}
+      run: ${{ github.action_path }}/copy.sh
