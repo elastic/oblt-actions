@@ -31,7 +31,7 @@ copies pull request labels to backported PRs
 name: mergify backport labels copier
 
 on:
-  pull_request_target:
+  pull_request:
     types:
       - opened
 jobs:
@@ -39,7 +39,11 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.head_ref, 'mergify/bp/')
     permissions:
+      # Add GH labels
       pull-requests: write
+v1v marked this conversation as resolved.
+      # See https://github.com/cli/cli/issues/6274
+      repository-projects: read
     steps:
       - uses: elastic/oblt-actions/mergify/labels-copier@v1
         with:
