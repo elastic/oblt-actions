@@ -2,6 +2,32 @@
 
 set -euo pipefail
 
+## Functions
+############
+
+# Retry a given command the given number of retries.
+retry() {
+  local retries=$1
+  shift
+
+  local count=0
+  until "$@"; do
+    exit=$?
+    wait=$((2 ** count))
+    count=$((count + 1))
+    if [ $count -lt "$retries" ]; then
+      >&2 echo "Retry $count/$retries exited $exit, retrying in $wait seconds..."
+      sleep $wait
+    else
+      >&2 echo "Retry $count/$retries exited $exit, no more retries left."
+      return $exit
+    fi
+  done
+  return 0
+}
+
+## Main
+############
 BIN_DIR="$HOME/oblt-cli/bin"
 
 mkdir -p "${BIN_DIR}"
@@ -54,10 +80,11 @@ else
   fi
 fi
 
-gh release download "${version}" \
+retry 3 gh release download "${version}" \
   --skip-existing \
   --repo elastic/observability-test-environments \
   -p "${PATTERN}" \
   --output - | tar -xz -C "${BIN_DIR}"
+
 echo "::notice title=elastic/oblt-actions/oblt-cli/setup::Downloaded oblt-cli version: ${version}"
 echo "${BIN_DIR}" >> "${GITHUB_PATH}"
