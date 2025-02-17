@@ -6,6 +6,7 @@ template: |
 name-template: 'oblt-actions v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
 change-template: '- $TITLE by @$AUTHOR in #$NUMBER'
+category-template: '### $TITLE'
 categories:
   - title: '💥 Breaking Changes'
     labels:
