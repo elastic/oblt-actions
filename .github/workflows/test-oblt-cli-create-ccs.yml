@@ -21,6 +21,10 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        wait: [0, 15]
     steps:
       - uses: actions/checkout@v4
       - uses: elastic/oblt-actions/git/setup@v1
@@ -32,7 +36,8 @@ jobs:
           private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
           permissions: >-
             {
-              "contents": "write"
+              "contents": "write",
+              "pull_requests": "read"
             }
           repositories: >-
             ["observability-test-environments"]
@@ -43,3 +48,4 @@ jobs:
           cluster-name-prefix: 'testgithubaction'
           gitops: true
           dry-run: ${{ github.event.inputs.dry-run != '' && github.event.inputs.dry-run || true }}
+          wait: ${{ matrix.wait }}
