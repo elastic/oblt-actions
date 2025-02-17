@@ -33,7 +33,7 @@ inputs:
     default: false
     required: false
   wait:
-    description: 'it waits N minutes for the operation to finish. (default 0 if no wit time is provided)'
+    description: 'it waits N minutes for the operation to finish. (default 0 if no wait time is provided)'
     default: '0'
     required: false
 
