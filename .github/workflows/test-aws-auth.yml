@@ -5,13 +5,13 @@ on:
   workflow_dispatch: ~
   pull_request:
     paths:
-      - 'aws-auth/**'
+      - 'aws/auth/**'
       - '.github/workflows/test-aws-auth.yml'
   push:
     branches:
       - main
     paths:
-      - 'aws-auth/**'
+      - 'aws/auth/**'
       - '.github/workflows/test-aws-auth.yml'
 
 permissions:
