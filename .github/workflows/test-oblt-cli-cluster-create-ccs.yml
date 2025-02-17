@@ -57,8 +57,8 @@ jobs:
           cluster-name-prefix: 'testgithubaction'
           gitops: true
           dry-run: ${{ github.event.inputs.dry-run != '' && github.event.inputs.dry-run || true }}
-      - name: Assert is empty
-        run: test -z "${{steps.create.outputs.cluster-name}}"
+      - name: Assert is not empty
+        run: test -n "${{steps.create.outputs.cluster-name}}"
 
   wait:
     runs-on: ubuntu-latest
