@@ -56,7 +56,6 @@ runs:
         dry_run: ${{ inputs.dry-run }}
         gitops: ${{ inputs.gitops }}
         wait_time: ${{ inputs.wait }}
-        cluster_json: "${RUNNER_TEMP}/cluster.json"
       with:
         script: |
           const {
@@ -107,10 +106,12 @@ runs:
               core.setOutput('GITOPS', gitOpsFlags.join(' '))
           }
 
+          cluster_json_file = `${RUNNER_TEMP}/cluster.json`
+          core.setOutput('cluster-json-file', `${cluster_json_file}`)
           if (wait_time) {
             waitFlags = []
             waitFlags.push(`--wait=${wait_time}`)
-            waitFlags.push(`--output-file=${cluster_json}`)
+            waitFlags.push(`--output-file=${cluster_json_file}`)
             core.setOutput('WAIT', waitFlags.join(' '))
           }
 
@@ -142,4 +143,4 @@ runs:
       id: info
       shell: bash
       env:
-        cluster_json: "${RUNNER_TEMP}/cluster.json"
+        cluster_json: "${{ steps.flags.outputs.cluster-json-file }}"
