@@ -87,4 +87,9 @@ jobs:
           gitops: true
           wait: '15'
       - name: Assert is not empty
-        run: test -n "${{steps.create.outputs.cluster-name}}"
+        run: test -n "${{ steps.create.outputs.cluster-name }}"
+      - uses: elastic/oblt-actions/oblt-cli/cluster-destroy@v1
+        continue-on-error: true
+        with:
+          cluster-name: ${{ steps.create.outputs.cluster-name }}
+          github-token: ${{ steps.get_token.outputs.token }}
