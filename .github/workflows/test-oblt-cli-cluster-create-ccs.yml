@@ -88,6 +88,10 @@ jobs:
           wait: '15'
       - name: Assert is not empty
         run: test -n "${{ steps.create.outputs.cluster-name }}"
+      # NOTE: this is just to help with tearing down the infra as a best effort
+      #             Wait 60 seconds - that's the average time it takes PRs to get merged.
+      - name: Wait 60 seconds - PRs in oblt-cli need to be merged
+        run: sleep 60
       - uses: elastic/oblt-actions/oblt-cli/cluster-destroy@v1
         continue-on-error: true
         with:
