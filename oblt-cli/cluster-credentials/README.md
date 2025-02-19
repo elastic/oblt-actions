@@ -20,6 +20,7 @@ Run the oblt-cli wrapper to retrieve the credentials to connect to the given clu
 
 Masked environment variables that are available:
 
+* ELASTIC_AGENT_STANDALONE_API_KEY
 * ELASTIC_APM_SERVER_URL
 * ELASTIC_APM_JS_SERVER_URL
 * ELASTIC_APM_JS_BASE_SERVER_URL
@@ -36,11 +37,15 @@ Masked environment variables that are available:
 * FLEET_SERVER_POLICY_ID
 * FLEET_TOKEN_POLICY_NAME
 * FLEET_URL
+* INGEST_URL
 * KIBANA_HOST
 * KIBANA_HOSTS
 * KIBANA_FLEET_HOST
+* KIBANA_FLEET_USERNAME
+* KIBANA_FLEET_PASSWORD
 * KIBANA_USERNAME
 * KIBANA_PASSWORD
+* SYNTHETICS_API_KEY
 
 ## Usage
 
