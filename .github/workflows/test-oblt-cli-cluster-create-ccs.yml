@@ -74,7 +74,8 @@ jobs:
           permissions: >-
             {
               "contents": "write",
-              "pull_requests": "read"
+              "pull_requests": "read",
+              "checks": "read"
             }
           repositories: >-
             ["observability-test-environments"]
