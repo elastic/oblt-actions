@@ -20,7 +20,15 @@ Run the oblt-cli wrapper to create a serverless cluster.
 | `username`            | Username to show in the deployments with oblt-cli, format: [a-z0-9]          | `false`  | `obltmachine`      |
 | `gitops`              | Whether to provide the GitOps metadata to the oblt-cli                       | `false`  | `false`            |
 | `dry-run`             | Whether to dryRun                                                            | `false`  | `false`            |
+| `wait`                | it waits N minutes for the operation to finish. (default 0 if no wait time is provided) | `false`  | `0`                |
 <!--/inputs-->
+
+## Outputs
+<!--outputs-->
+| Name           | Description                            |
+|----------------|----------------------------------------|
+| `cluster-name` | The cluster name that has been created |
+<!--/outputs-->
 
 ## Usage
 
