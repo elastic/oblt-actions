@@ -19,6 +19,19 @@ permissions:
 
 jobs:
   test:
+    if: always()
+    needs:
+      - dry-run
+      - wait
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  dry-run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,3 +54,44 @@ jobs:
           target: 'qa'
           dry-run: ${{ github.event.inputs.dry-run != '' && github.event.inputs.dry-run || true }}
           cluster-name-prefix: 'foo'
+
+  wait:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: elastic/oblt-actions/git/setup@v1
+      - name: Get token
+        id: get_token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+        with:
+          app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permissions: >-
+            {
+              "contents": "write",
+              "pull_requests": "read",
+              "checks": "read"
+            }
+          repositories: >-
+            ["observability-test-environments"]
+
+      - uses: ./oblt-cli/cluster-create-serverless
+        id: create
+        with:
+          github-token: ${{ steps.get_token.outputs.token }}
+          target: 'qa'
+          cluster-name-prefix: 'foo'
+          wait: '15'
+
+      - name: Assert is not empty
+        run: test -n "${{ steps.create.outputs.cluster-name }}"
+
+      # NOTE: this is just to help with tearing down the infra as a best effort
+      #             Wait 60 seconds - that's the average time it takes PRs to get merged.
+      - name: Wait 60 seconds - PRs in oblt-cli need to be merged
+        run: sleep 60
+      - uses: elastic/oblt-actions/oblt-cli/cluster-destroy@v1
+        continue-on-error: true
+        with:
+          cluster-name: ${{ steps.create.outputs.cluster-name }}
+          github-token: ${{ steps.get_token.outputs.token }}
