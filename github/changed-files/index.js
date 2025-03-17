@@ -40,7 +40,7 @@ async function run() {
     core.setOutput("count-deleted", deleted.length);
   } catch(err){
     core.error(err);
-    core.setFailed(error.message);
+    core.setFailed(err.message);
   };
 }
 
