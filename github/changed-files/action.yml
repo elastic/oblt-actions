@@ -1,0 +1,35 @@
+---
+name: changed-files
+description: |
+  Check the files changed between two git references.
+  It uses the `git diff` command to get the files changed between two git references.
+  It can filter the files based on the file extension.
+  The code is based on the [git-changed-files](https://github.com/kandhavivekraj/git-changed-files) with minimal changes.
+inputs:
+  baseRef:
+    description: "The base ref to compare the changes. (default: github.sha^1)"
+    default: "${{ github.sha }}^1"
+  ref:
+    description: "The ref to compare the changes. (default: github.sha)"
+    default: "${{ github.sha }}"
+  filter:
+    description: "The JSON filter to apply to the changes. (default '[\"*.*\"]') '[\"*/*.yaml\",\"*.json\"]'"
+    default: '["*.*"]'
+outputs:
+  deleted:
+    description: "The JSON list of deleted files."
+  modified:
+    description: "The JSON list of modified files."
+  added:
+    description: "The JSON list of added files."
+  count:
+    description: "The count of files."
+  count-deleted:
+    description: "The count of deleted files."
+  count-modified:
+    description: "The count of modified files."
+  count-added:
+    description: "The count of added files."
+runs:
+  using: "node20"
+  main: "dist/index.js"
