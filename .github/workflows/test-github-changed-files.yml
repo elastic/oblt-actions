@@ -1,0 +1,97 @@
+name: test-github-changed-files
+
+on:
+  merge_group: ~
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Dry run'
+        required: true
+        default: false
+        type: boolean
+  push:
+    paths:
+      - '.github/workflows/test-github-changed-files.yml'
+      - 'github/changed-files/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: always()
+    needs:
+      - unit-tests
+      - simple-run
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          cd github/changed-files
+          npm install
+          npm test
+
+  simple-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./git/setup
+      - name: Add files
+        run: |
+          touch file.json
+          touch file.yaml
+          touch file.bak
+          git add file.json file.yaml file.bak
+          git commit -m "Add files"
+      - uses: ./github/changed-files
+        id: changed-files
+        with:
+          baseRef: "HEAD^1"
+          ref: "HEAD"
+          filter: '["*.yaml","*.json"]'
+      - name: test count
+        if: ${{ steps.changed-files.outputs.count != 2 }}
+        run: |
+          echo "::error ::Count is not 2"
+          exit 1
+      - name: test added files
+        if: ${{ steps.changed-files.outputs.count-added != 2 }}
+        run: |
+          echo "::error ::Added files are not correct"
+          exit 1
+      - name: Modify files
+        run: |
+          echo "test" > file.json
+          rm file.yaml
+          git add file.json file.yaml
+          git commit -m "Modify files"
+      - name: test count
+        if: ${{ steps.changed-files.outputs.count != 2 }}
+        run: |
+          echo "::error ::Count is not 2"
+          exit 1
+      - uses: ./github/changed-files
+        id: changed-files-1
+        with:
+          baseRef: "HEAD^1"
+          ref: "HEAD"
+          filter: '["*.yaml","*.json"]'
+      - name: test deleted files
+        if: ${{ steps.changed-files-1.outputs.count-deleted != 1 }}
+        run: |
+          echo "::error ::Deleted files are not correct"
+          exit 1
+      - name: test modified files
+        if: ${{ steps.changed-files-1.outputs.count-modified != 1 }}
+        run: |
+          echo "::error ::Modified files are not correct"
+          exit 1
