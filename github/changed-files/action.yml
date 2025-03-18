@@ -6,7 +6,7 @@ description: |
   It can filter the files based on the file extension.
   The code is based on the [git-changed-files](https://github.com/kandhavivekraj/git-changed-files) with minimal changes.
 inputs:
-  baseRef:
+  base-ref:
     description: "The base ref to compare the changes. (default: github.sha^1)"
     default: "${{ github.sha }}^1"
   ref:

@@ -11,11 +11,11 @@ The code is based on the [git-changed-files](https://github.com/kandhavivekraj/g
 
 ## Inputs
 <!--inputs-->
-| Name      | Description                                                                          | Required | Default               |
-|-----------|--------------------------------------------------------------------------------------|----------|-----------------------|
-| `baseRef` | The base ref to compare the changes. (default: github.sha^1)                         | `false`  | `${{ github.sha }}^1` |
-| `ref`     | The ref to compare the changes. (default: github.sha)                                | `false`  | `${{ github.sha }}`   |
-| `filter`  | The JSON filter to apply to the changes. (default '["*.*"]') '["*/*.yaml","*.json"]' | `false`  | `["*.*"]`             |
+| Name       | Description                                                                          | Required | Default               |
+|------------|--------------------------------------------------------------------------------------|----------|-----------------------|
+| `base-ref` | The base ref to compare the changes. (default: github.sha^1)                         | `false`  | `${{ github.sha }}^1` |
+| `ref`      | The ref to compare the changes. (default: github.sha)                                | `false`  | `${{ github.sha }}`   |
+| `filter`   | The JSON filter to apply to the changes. (default '["*.*"]') '["*/*.yaml","*.json"]' | `false`  | `["*.*"]`             |
 <!--/inputs-->
 
 ## Outputs
@@ -45,7 +45,7 @@ jobs:
       - uses: elastic/oblt-actions/github/changed-files
         id: changed-files
         with:
-          baseRef: "origin/main"
+          base-ref: "origin/main"
           ref: ${{ github.sha }}
           filter: '["*.yaml","*.json", "*folder/folder/*/file.json"]'
       - name: test count

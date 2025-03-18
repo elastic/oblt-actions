@@ -6,7 +6,7 @@ async function run() {
   added = [];
   modified = [];
   deleted = [];
-  baseBranch = core.getInput("baseRef") || "main";
+  baseBranch = core.getInput("base-ref") || "main";
   head = core.getInput("ref") || "HEAD";
   filter = JSON.parse(core.getInput("filter")||'["*.*"]');
   try {

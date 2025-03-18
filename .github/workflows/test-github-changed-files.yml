@@ -55,7 +55,7 @@ jobs:
       - uses: ./github/changed-files
         id: changed-files
         with:
-          baseRef: "HEAD^1"
+          base-ref: "HEAD^1"
           ref: "HEAD"
           filter: '["*.yaml","*.json"]'
       - name: test count
@@ -82,7 +82,7 @@ jobs:
       - uses: ./github/changed-files
         id: changed-files-1
         with:
-          baseRef: "HEAD^1"
+          base-ref: "HEAD^1"
           ref: "HEAD"
           filter: '["*.yaml","*.json"]'
       - name: test deleted files

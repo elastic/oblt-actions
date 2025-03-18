@@ -59,7 +59,7 @@ describe("run", () => {
     expect(core.setOutput).toHaveBeenCalledWith("count-deleted", 1);
   });
 
-  it("should use default values for baseRef, ref and filter if not provided", async () => {
+  it("should use default values for base-ref, ref and filter if not provided", async () => {
     const mockCommittedFiles = {
       committedFiles: [],
     };
