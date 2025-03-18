@@ -1,0 +1,37 @@
+{
+  "name": "git-changed-files",
+  "version": "1.0.0",
+  "description": "Get the change between any of your branch and current branch of a `git` repository",
+  "license": "MIT",
+  "repository": "https://github.com/kandhavivekraj/git-changed-files",
+  "author": {
+    "name": "Kandha Vivek Raj",
+    "email": "kandhavivekraj@gmail.com"
+  },
+  "engines": {
+    "node": ">=6"
+  },
+  "files": [
+    "index.js",
+    "src/fetchGitStatus.js",
+    "src/filterFiles.js",
+    "src/formatOutput.js"
+  ],
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "matcher": "^1.1.1"
+  },
+  "devDependencies": {
+    "eslint": "^5.9.0"
+  },
+  "keywords": [
+    "git-changed-files",
+    "git",
+    "git-diff",
+    "git-status",
+    "changed-files",
+    "staged",
+    "status",
+    "changed"
+  ]
+}

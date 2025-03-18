@@ -1,0 +1,20 @@
+{
+  "name": "changed-files",
+  "version": "1.0.0",
+  "description": "GitHub Action to detect changes in Git",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "bundle": "ncc build index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "matcher": "^1.1.1"
+  },
+  "devDependencies": {
+    "@actions/core": "^1.11.1",
+    "jest": "^29.7.0"
+  }
+}
