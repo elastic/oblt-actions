@@ -26,7 +26,6 @@ on:
 
 permissions:
   pull-requests: write
-  issues: write
   contents: read
 
 jobs:
@@ -34,10 +33,10 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - uses: owner/backport-action@v1
+      - uses: elastic/oblt-actions/github/backport-active@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          backports_url: "https://raw.githubusercontent.com/your-org/your-repo/main/config/branches.json"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          backports-url: "https://raw.githubusercontent.com/your-org/your-repo/main/config/branches.json"
 ```
 
 ### Configuration JSON Format
@@ -62,8 +61,8 @@ The action expects a JSON file containing the list of branches available for bac
 
 | Name | Description | Required | Default |
 |------|-------------|----------|---------|
-| `github_token` | GitHub token for API access | Yes | `${{ github.token }}` |
-| `backports_url` | URL to the JSON file with branch configurations | Yes | - |
+| `github-token` | GitHub token for API access | Yes | `${{ github.token }}` |
+| `backports-url` | URL to the JSON file with branch configurations | Yes | - |
 
 ## How it Works
 
