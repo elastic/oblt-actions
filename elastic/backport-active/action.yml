@@ -9,7 +9,7 @@ inputs:
   backports_url:
     description: 'URL to fetch the backport branches configuration JSON'
     required: true
-  
+
 runs:
   using: 'composite'
   steps:
@@ -17,13 +17,13 @@ runs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install requests
       shell: bash
-    
+
     - name: Run backport script
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}

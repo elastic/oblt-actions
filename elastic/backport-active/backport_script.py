@@ -67,13 +67,13 @@ def main():
     else:
         # Process 8.x and 9.x branches based on labels
         if 'backport-active-8' in labels:
-            branches8 = [branch for branch in target_branches if 
+            branches8 = [branch for branch in target_branches if
                         branch.startswith('8.') or branch == '8.x' or branch == '8']
             filtered_branches.extend(branches8)
             print(f"Found {len(branches8)} 8.x branches to backport")
 
         if 'backport-active-9' in labels:
-            branches9 = [branch for branch in target_branches if 
+            branches9 = [branch for branch in target_branches if
                         branch.startswith('9.') or branch == '9.x' or branch == '9']
             filtered_branches.extend(branches9)
             print(f"Found {len(branches9)} 9.x branches to backport")
