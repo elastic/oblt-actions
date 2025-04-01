@@ -1,10 +1,11 @@
 import os
+import re
 import json
 import requests
 
 def main():
-    # Check if we're in test mode
-    test_mode = os.environ.get('TEST_MODE', 'false').lower() == 'true'
+    # Check if we're in dry-run mode
+    dry_run = os.environ.get('DRY_RUN', 'false').lower() == 'true'
 
     # Get environment variables
     github_token = os.environ['GITHUB_TOKEN']
@@ -12,24 +13,30 @@ def main():
     repo_owner = os.environ['REPO_OWNER']
     repo_name = os.environ['REPO_NAME']
 
-    # Override GitHub API URL if set (for testing with mock server)
-    github_api_url = os.environ.get('GITHUB_API_URL', 'https://api.github.com')
-
     # Get the backports URL from the environment variable
     backports_url = os.environ['BACKPORTS_URL']
     print(f"Using backports URL: {backports_url}")
 
     # Parse PR labels
     labels_json = os.environ['PR_LABELS']
-    labels = [label['name'] for label in json.loads(labels_json)]
+
+    try:
+        # Handle multiple comma-separated labels in dry-run mode
+        if dry_run and ',' in labels_json and '"name"' not in labels_json:
+            labels = [label.strip() for label in labels_json.split(',')]
+        else:
+            labels_data = json.loads(labels_json)
+            labels = [label['name'] for label in labels_data]
+    except json.JSONDecodeError:
+        print(f"Error parsing PR labels JSON: {labels_json}")
+        labels = []
+
     print(f"PR Labels: {labels}")
 
-    # Log if in test mode
-    if test_mode:
-        print("***** RUNNING IN TEST MODE *****")
-        print(f"PR Number: {pr_number}")
-        print(f"Repository: {repo_owner}/{repo_name}")
-        print(f"Labels: {labels}")
+    if dry_run:
+        print("🧪 DRY RUN MODE: No comments will be created")
+        print(f"🧪 Using test PR #{pr_number} in repository {repo_owner}/{repo_name}")
+        print(f"🧪 Using labels: {labels}")
 
     # Define GitHub API headers
     headers = {
@@ -64,7 +71,7 @@ def main():
         elif isinstance(branches_data, list):
             # If branches is an array, use it directly
             target_branches = branches_data
-
+        
         print(f"Found branches in config: {target_branches}")
     else:
         print("No branches found in config or config not available")
@@ -84,7 +91,7 @@ def main():
                         branch.startswith('8.') or branch == '8.x' or branch == '8']
             filtered_branches.extend(branches8)
             print(f"Found {len(branches8)} 8.x branches to backport")
-        
+
         if 'backport-active-9' in labels:
             branches9 = [branch for branch in target_branches if 
                         branch.startswith('9.') or branch == '9.x' or branch == '9']
@@ -98,23 +105,26 @@ def main():
     print(f"Final branches for backporting: {filtered_branches}")
 
     # Add comment to the PR if we have branches to backport to
+    success = False
     if filtered_branches:
         comment = f"@mergifyio backport {' '.join(filtered_branches)}"
 
         # Create comment via GitHub API
-        comment_url = f"{github_api_url}/repos/{repo_owner}/{repo_name}/issues/{pr_number}/comments"
+        comment_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/issues/{pr_number}/comments"
         comment_data = {"body": comment}
 
-        # Comment will be posted as the GitHub Actions bot
-        print("Using GitHub token for authentication - comment will be posted as the GitHub Actions bot")
-
-        if test_mode:
-            print(f"TEST MODE: Would post comment to PR #{pr_number}: {comment}")
-            print(f"TEST MODE: API URL would be: {comment_url}")
+        if dry_run:
+            print("\n🧪 DRY RUN: Would add comment:")
+            print(f"🧪 PR: #{pr_number}")
+            print(f"🧪 Comment: {comment}")
+            print("🧪 No actual comment created - dry run mode")
             success = True
         else:
+            # Comment will be posted as the GitHub Actions bot
+            print("Using GitHub token for authentication - comment will be posted as the GitHub Actions bot")
+
             response = requests.post(comment_url, headers=headers, json=comment_data)
-            
+
             if response.status_code == 201:
                 print(f"Successfully added backport comment: {comment}")
                 success = True
@@ -122,12 +132,12 @@ def main():
                 print(f"Failed to add comment. Status code: {response.status_code}")
                 print(f"Response: {response.text}")
                 success = False
-
-        # Return success code for CI
-        return 0 if success else 1
     else:
         print("No branches to backport to after filtering")
-        return 0
+        success = True  # No branches to backport is not an error condition
+
+    # Return success code for CI
+    return 0 if success else 1
 
 if __name__ == "__main__":
     exit_code = main()
