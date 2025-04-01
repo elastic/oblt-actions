@@ -14,9 +14,10 @@ on:
       - '!check-dependent-jobs/**'
       - '!git/setup/**'
       - '!google/auth/**'
-      - '!updatecli/run/**'
       - '!oblt-cli/cluster-name-validation/**'
       - '!oblt-cli/run/**'
+      - '!pre-commit/**'
+      - '!updatecli/run/**'
 
 permissions:
   contents: read
