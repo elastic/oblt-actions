@@ -18,7 +18,18 @@ permissions:
   contents: read
 
 jobs:
-  test-backport-action:
+  test:
+    needs:
+      - backport-action
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  backport-action:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
