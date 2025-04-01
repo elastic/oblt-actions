@@ -37,6 +37,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Test with actual PR info if available
+      - name: Test with actual PR info
+        if: github.event_name == 'pull_request'
+        uses: ./github/backport-active
+        with:
+          backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
+          dry-run: ${{ github.event.inputs.dry-run }}
+          test-pr-number: ${{ github.event.pull_request.number }}
+          test-pr-labels: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+
       # Test the action with backport-active-8 label
       - name: Test with backport-active-8
         uses: ./github/backport-active
