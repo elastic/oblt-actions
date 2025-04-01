@@ -33,7 +33,6 @@ jobs:
 
       # Test with actual PR info if available
       - name: Test with PR 253
-        if: github.event_name == 'pull_request'
         uses: ./github/backport-active
         with:
           backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
