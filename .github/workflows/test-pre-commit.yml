@@ -34,9 +34,16 @@ jobs:
 
   default:
     runs-on: ubuntu-latest
+    env:
+      want: "3.11"
     steps:
       - uses: actions/checkout@v4
       - uses: ./pre-commit
+      - name: Verify python version
+        run: |
+          got=$(python --version 2>&1)
+          echo "${got} == ${want}"
+          [[ "${got}" == *"${want}"* ]]
 
   version:
     runs-on: ubuntu-latest
