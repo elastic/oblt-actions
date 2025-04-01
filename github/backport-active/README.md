@@ -15,6 +15,6 @@
 <!--usage action="elastic/oblt-actions/<action-path>" version="env:VERSION"-->
 ```yaml
 steps:
-  - uses: elastic/oblt-actions/<action-path>@v1
+  - uses: elastic/oblt-actions/github/backport-active@v1
 ```
 <!--/usage-->
