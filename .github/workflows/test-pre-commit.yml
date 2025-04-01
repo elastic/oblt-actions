@@ -47,7 +47,7 @@ jobs:
       - uses: ./pre-commit
         with:
           python-version: "v${{ env.want }}"
-      - name: Verify updatecli version
+      - name: Verify python version
         run: |
           got=$(python --version 2>&1)
           echo "${got} == ${want}"
