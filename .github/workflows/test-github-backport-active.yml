@@ -48,7 +48,7 @@ jobs:
         uses: ./github/backport-active
         with:
           backports-url: "https://raw.githubusercontent.com/example-org/example-repo/main/branches-config.json"
-          dry-run: ${{ github.event.inputs.dry-run }}
+          dry-run: 'true'
           test-pr-number: '10000'
           test-pr-labels: 'backport-active-all'
 
