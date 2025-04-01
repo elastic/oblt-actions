@@ -2,6 +2,8 @@ name: test-github-backport-active
 
 on:
   merge_group: ~
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
   workflow_dispatch:
     inputs:
       dry-run:
