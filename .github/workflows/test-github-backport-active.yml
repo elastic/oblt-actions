@@ -31,7 +31,7 @@ jobs:
         with:
           backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
           dry-run: ${{ github.event.inputs.dry-run }}
-          test-pr-number: '9998'
+          test-pr-number: 9998
           test-pr-labels: 'backport-active-8'
 
       # Test the action with backport-active-9 label
@@ -40,7 +40,7 @@ jobs:
         with:
           backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
           dry-run: ${{ github.event.inputs.dry-run }}
-          test-pr-number: '9999'
+          test-pr-number: 9999
           test-pr-labels: 'backport-active-9'
 
       # Test the action with backport-active-all label
@@ -49,7 +49,7 @@ jobs:
         with:
           backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
           dry-run: ${{ github.event.inputs.dry-run }}
-          test-pr-number: '10000'
+          test-pr-number: 10000
           test-pr-labels: 'backport-active-all'
 
       # Test with multiple labels
@@ -58,5 +58,5 @@ jobs:
         with:
           backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
           dry-run: ${{ github.event.inputs.dry-run }}
-          test-pr-number: '10001'
+          test-pr-number: 10001
           test-pr-labels: 'backport-active-8,backport-active-9'
