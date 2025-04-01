@@ -23,13 +23,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Test the action with backport-active-8 label
       - name: Test with backport-active-8
         uses: ./github/backport-active
         with:
-          backports-url: "https://raw.githubusercontent.com/example-org/example-repo/main/branches-config.json"
+          backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
           dry-run: ${{ github.event.inputs.dry-run }}
           test-pr-number: '9998'
           test-pr-labels: 'backport-active-8'
@@ -38,7 +38,7 @@ jobs:
       - name: Test with backport-active-9
         uses: ./github/backport-active
         with:
-          backports-url: "https://raw.githubusercontent.com/example-org/example-repo/main/branches-config.json"
+          backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
           dry-run: ${{ github.event.inputs.dry-run }}
           test-pr-number: '9999'
           test-pr-labels: 'backport-active-9'
@@ -47,7 +47,7 @@ jobs:
       - name: Test with backport-active-all
         uses: ./github/backport-active
         with:
-          backports-url: "https://raw.githubusercontent.com/example-org/example-repo/main/branches-config.json"
+          backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
           dry-run: ${{ github.event.inputs.dry-run }}
           test-pr-number: '10000'
           test-pr-labels: 'backport-active-all'
@@ -56,7 +56,7 @@ jobs:
       - name: Test with multiple labels
         uses: ./github/backport-active
         with:
-          backports-url: "https://raw.githubusercontent.com/example-org/example-repo/main/branches-config.json"
+          backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
           dry-run: ${{ github.event.inputs.dry-run }}
           test-pr-number: '10001'
           test-pr-labels: 'backport-active-8,backport-active-9'
