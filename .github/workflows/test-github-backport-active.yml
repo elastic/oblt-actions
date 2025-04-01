@@ -7,7 +7,7 @@ on:
       dry-run:
         description: 'Dry run'
         required: true
-        default: false
+        default: true
         type: boolean
   push:
     paths:
@@ -30,7 +30,7 @@ jobs:
         uses: ./github/backport-active
         with:
           backports-url: "https://raw.githubusercontent.com/example-org/example-repo/main/branches-config.json"
-          dry-run: 'true'
+          dry-run: ${{ github.event.inputs.dry-run }}
           test-pr-number: '9998'
           test-pr-labels: 'backport-active-8'
 
@@ -39,7 +39,7 @@ jobs:
         uses: ./github/backport-active
         with:
           backports-url: "https://raw.githubusercontent.com/example-org/example-repo/main/branches-config.json"
-          dry-run: 'true'
+          dry-run: ${{ github.event.inputs.dry-run }}
           test-pr-number: '9999'
           test-pr-labels: 'backport-active-9'
 
@@ -48,7 +48,7 @@ jobs:
         uses: ./github/backport-active
         with:
           backports-url: "https://raw.githubusercontent.com/example-org/example-repo/main/branches-config.json"
-          dry-run: 'true'
+          dry-run: ${{ github.event.inputs.dry-run }}
           test-pr-number: '10000'
           test-pr-labels: 'backport-active-all'
 
@@ -57,6 +57,6 @@ jobs:
         uses: ./github/backport-active
         with:
           backports-url: "https://raw.githubusercontent.com/example-org/example-repo/main/branches-config.json"
-          dry-run: 'true'
+          dry-run: ${{ github.event.inputs.dry-run }}
           test-pr-number: '10001'
           test-pr-labels: 'backport-active-8,backport-active-9'
