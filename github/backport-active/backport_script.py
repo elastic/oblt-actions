@@ -5,11 +5,17 @@ import requests
 
 def main():
     # Check if we're in dry-run mode
-    dry_run = os.environ.get('DRY_RUN', 'false').lower() == 'true'
+    dry_run = os.environ.get('DRY_RUN', '').lower() == 'true'
 
     # Get environment variables
     github_token = os.environ['GITHUB_TOKEN']
-    pr_number = int(os.environ['PR_NUMBER'])
+    try:
+        pr_number = int(os.environ['PR_NUMBER'])
+    except (ValueError, KeyError):
+        # If PR_NUMBER is empty or not provided, use a default value
+        print("Warning: PR_NUMBER is empty or invalid. Using default value 9999.")
+        pr_number = 9999
+
     repo_owner = os.environ['REPO_OWNER']
     repo_name = os.environ['REPO_NAME']
 
@@ -22,12 +28,12 @@ def main():
 
     try:
         # Handle multiple comma-separated labels in dry-run mode
-        if dry_run and ',' in labels_json and '"name"' not in labels_json:
+        if ',' in labels_json and '"name"' not in labels_json:
             labels = [label.strip() for label in labels_json.split(',')]
         else:
             labels_data = json.loads(labels_json)
             labels = [label['name'] for label in labels_data]
-    except json.JSONDecodeError:
+    except (json.JSONDecodeError, KeyError):
         print(f"Error parsing PR labels JSON: {labels_json}")
         labels = []
 
