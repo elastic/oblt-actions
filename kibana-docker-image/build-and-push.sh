@@ -44,6 +44,7 @@ if [ "${SERVERLESS}" == "false" ] ; then
         --skip-docker-contexts \
         --skip-docker-ubi \
         --skip-docker-wolfi \
+        --skip-docker-fips \
         --skip-generic-folders \
         --skip-platform-folders \
         --skip-docker-serverless
@@ -60,6 +61,8 @@ else
         --skip-cdn-assets \
         --skip-docker-contexts \
         --skip-docker-ubi \
+        --skip-docker-wolfi \
+        --skip-docker-fips \
         --skip-docker-ubuntu \
         --skip-docker-cloud
 fi
