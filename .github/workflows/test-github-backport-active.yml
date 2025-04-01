@@ -15,7 +15,6 @@ on:
       - 'github/backport-active/**'
 
 permissions:
-  pull-requests: write
   contents: read
 
 jobs:
