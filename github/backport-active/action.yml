@@ -13,14 +13,14 @@ inputs:
   dry-run:
     description: 'Run in dry-run mode without creating comments'
     default: false
-  test-pr-number:
-    description: 'PR number to use in dry-run mode'
-    required: false
-    default: '9999'
-  test-pr-labels:
-    description: 'PR labels to use in dry-run mode (comma-separated)'
-    required: false
-    default: 'backport-active-all'
+#  test-pr-number:
+#    description: 'PR number to use in dry-run mode'
+#    required: false
+#    default: '9999'
+#  test-pr-labels:
+#    description: 'PR labels to use in dry-run mode (comma-separated)'
+#    required: false
+#    default: 'backport-active-all'
 
 runs:
   using: 'composite'
@@ -39,10 +39,10 @@ runs:
     - name: Run backport script
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
-        PR_NUMBER: ${{ inputs.dry-run == 'true' && inputs.test-pr-number || github.event.pull_request.number }}
+        PR_NUMBER: ${{  github.event.pull_request.number }}
         REPO_OWNER: ${{ github.repository_owner }}
         REPO_NAME: ${{ github.event.repository.name }}
-        PR_LABELS: ${{ inputs.dry-run == 'true' && format('[{{"name":"{0}"}}]', inputs.test-pr-labels) || toJSON(github.event.pull_request.labels) }}
+        PR_LABELS: ${{ toJSON(github.event.pull_request.labels) }}
         BACKPORTS_URL: ${{ inputs.backports-url }}
         DRY_RUN: ${{ inputs.dry-run }}
       run: python ${{ github.action_path }}/backport_script.py
