@@ -12,6 +12,7 @@ inputs:
     default: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
   dry-run:
     description: 'Run in dry-run mode without creating comments'
+    required: true
     default: false
 #  test-pr-number:
 #    description: 'PR number to use in dry-run mode'

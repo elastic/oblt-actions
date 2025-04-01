@@ -5,7 +5,7 @@ import requests
 
 def main():
     # Check if we're in dry-run mode
-    dry_run = os.environ.get('DRY_RUN', '').lower() == 'true'
+    dry_run = os.environ['DRY_RUN']
 
     # Get environment variables
     github_token = os.environ['GITHUB_TOKEN']
