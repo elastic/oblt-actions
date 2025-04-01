@@ -71,7 +71,7 @@ def main():
         elif isinstance(branches_data, list):
             # If branches is an array, use it directly
             target_branches = branches_data
-        
+
         print(f"Found branches in config: {target_branches}")
     else:
         print("No branches found in config or config not available")
