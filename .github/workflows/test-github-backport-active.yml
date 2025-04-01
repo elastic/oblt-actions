@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v4
 
       # Test with actual PR info if available
-      - name: Test with actual PR info
+      - name: Test with PR 253
         if: github.event_name == 'pull_request'
         uses: ./github/backport-active
         with:
