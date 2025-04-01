@@ -5,12 +5,6 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
   workflow_dispatch:
-    inputs:
-      dry-run:
-        description: 'Dry run'
-        required: true
-        default: true
-        type: boolean
   push:
     paths:
       - '.github/workflows/test-github-backport-active.yml'
@@ -44,41 +38,4 @@ jobs:
         with:
           backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
           dry-run: 'true'
-          test-pr-number: ${{ github.event.pull_request.number }}
-          test-pr-labels: ${{ join(github.event.pull_request.labels.*.name, ',') }}
-
-      # Test the action with backport-active-8 label
-      - name: Test with backport-active-8
-        uses: ./github/backport-active
-        with:
-          backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
-          dry-run: ${{ github.event.inputs.dry-run }}
-          test-pr-number: 9998
-          test-pr-labels: 'backport-active-8'
-
-      # Test the action with backport-active-9 label
-      - name: Test with backport-active-9
-        uses: ./github/backport-active
-        with:
-          backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
-          dry-run: ${{ github.event.inputs.dry-run }}
-          test-pr-number: 9999
-          test-pr-labels: 'backport-active-9'
-
-      # Test the action with backport-active-all label
-      - name: Test with backport-active-all
-        uses: ./github/backport-active
-        with:
-          backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
-          dry-run: ${{ github.event.inputs.dry-run }}
-          test-pr-number: 10000
-          test-pr-labels: 'backport-active-all'
-
-      # Test with multiple labels
-      - name: Test with multiple labels
-        uses: ./github/backport-active
-        with:
-          backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
-          dry-run: ${{ github.event.inputs.dry-run }}
-          test-pr-number: 10001
-          test-pr-labels: 'backport-active-8,backport-active-9'
+          pr-number: 253
