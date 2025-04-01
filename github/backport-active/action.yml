@@ -13,7 +13,7 @@ inputs:
   dry-run:
     description: 'Run in dry-run mode without creating comments'
     required: true
-    default: false
+    default: 'false'
 #  test-pr-number:
 #    description: 'PR number to use in dry-run mode'
 #    required: false

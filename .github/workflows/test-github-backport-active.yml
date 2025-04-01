@@ -43,7 +43,7 @@ jobs:
         uses: ./github/backport-active
         with:
           backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
-          dry-run: true
+          dry-run: 'true'
           test-pr-number: ${{ github.event.pull_request.number }}
           test-pr-labels: ${{ join(github.event.pull_request.labels.*.name, ',') }}
 
