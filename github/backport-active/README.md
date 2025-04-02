@@ -4,9 +4,11 @@
 [![test-github-backport-active](https://github.com/elastic/oblt-actions/actions/workflows/test-github-backport-active.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-github-backport-active.yml)
 
 <!--description-->
+<!--/description-->
 
 ## Inputs
 <!--inputs-->
+<!--/inputs-->
 
 ## Usage
 <!--usage action="elastic/oblt-actions/github/backport-active" version="env:VERSION"-->
