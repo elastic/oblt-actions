@@ -44,7 +44,7 @@ jobs:
         with:
           backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
 ```
-<!--usage-->
+<!--/usage-->
 
 ## Labels
 
