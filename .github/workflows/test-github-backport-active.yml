@@ -4,6 +4,11 @@ on:
   merge_group: ~
   pull_request:
     types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-github-backport-active.yml'
+      - 'github/backport-active/**'
   workflow_dispatch:
   push:
     paths:
