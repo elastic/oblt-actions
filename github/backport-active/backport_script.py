@@ -16,13 +16,11 @@ def main():
         print("Warning: PR_NUMBER is empty or invalid.")
 
     repo_owner = os.environ['REPO_OWNER']
-    repo_name = os.environ['REPO_NAME']
+    repo_name = os.environ['REPOSITORY']
 
-    # Get the backports URL from the environment variable
     backports_url = os.environ['BACKPORTS_URL']
     print(f"Using backports URL: {backports_url}")
 
-    # Parse PR labels
     labels_json = os.environ['PR_LABELS']
 
     try:
@@ -59,7 +57,6 @@ def main():
     # Always fetch from the backports URL
     config = get_config_from_url(backports_url)
 
-    # Initialize target branches list
     target_branches = []
 
     # Extract branches from config if available
@@ -80,9 +77,7 @@ def main():
     # Filter branches based on the labels
     filtered_branches = []
 
-    # Check if backport-active-all is present (takes precedence)
     if 'backport-active-all' in labels:
-        # Use all branches from the JSON, but exclude 'main'
         filtered_branches = [branch for branch in target_branches if branch != 'main']
         print('Using all branches from JSON (excluding main) due to backport-active-all label')
     else:
@@ -121,8 +116,7 @@ def main():
             print("🧪 No actual comment created - dry run mode")
             success = True
         else:
-            # Comment will be posted as the GitHub Actions bot
-            print("Using GitHub token for authentication - comment will be posted as the GitHub Actions bot")
+            print("Using GitHub token for authentication - comment will be posted")
 
             response = requests.post(comment_url, headers=headers, json=comment_data)
 
@@ -137,7 +131,6 @@ def main():
         print("No branches to backport to after filtering")
         success = True  # No branches to backport is not an error condition
 
-    # Return success code for CI
     return 0 if success else 1
 
 if __name__ == "__main__":

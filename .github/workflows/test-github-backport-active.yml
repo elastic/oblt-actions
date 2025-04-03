@@ -35,6 +35,5 @@ jobs:
       - name: Test with PR 253
         uses: ./github/backport-active
         with:
-          backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
           dry-run: 'true'
           pr-number: 253
