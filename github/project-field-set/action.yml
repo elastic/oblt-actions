@@ -36,6 +36,9 @@ runs:
         field_id=$( echo "$field_json" | jq -r '.id' )
         field_value_id=$( echo "$field_json" | jq -r ".options[]|select(.name==\"${FIELD_VALUE}\")|.id" )
         gh project item-edit --id "${ITEM_ID}" --project-id "${PROJECT_ID}" --field-id "${field_id}" --single-select-option-id "${field_value_id}"
+
+        echo "field id ${field_id}"
+        echo "field value ${field_value_id}"
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         PROJECT_ID: ${{ inputs.project-id }}
