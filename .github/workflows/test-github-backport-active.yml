@@ -42,4 +42,3 @@ jobs:
         uses: ./github/backport-active
         with:
           pr-number: 253
-          github-token: ${{ github.token }}
