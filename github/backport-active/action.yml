@@ -4,15 +4,12 @@ description: 'Automatically backport changes to specified branches based on PR l
 inputs:
   github-token:
     description: 'GitHub token for authentication'
-    required: true
     default: ${{ github.token }}
   backports-url:
     description: 'URL to fetch the backport branches configuration JSON'
-    required: true
     default: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
   pr-number:
-    description: 'PR number to use in dry-run mode'
-    required: true
+    description: 'PR number to use (needed for tests)'
     default: ${{ github.event.pull_request.number }}
 
 runs:
