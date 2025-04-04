@@ -29,7 +29,7 @@ runs:
   steps:
     - name: Set select field value of project item
       id: gh-api-project-select-field-value
-      if: ${{ ! inputs.field-iteration }}
+      if: ${{ inputs.field-iteration == false }}
       shell: bash
       run: |
         field_json=$(gh api graphql -f query='query($project_id:ID!){ node(id:$project_id){ ... on ProjectV2 { fields(first:20) { nodes { ... on ProjectV2SingleSelectField { id name options { id name } } } } } } }' --jq ".data.node.fields.nodes[]|select(.name==\"${FIELD_NAME}\")" -F project_id=${PROJECT_ID})
@@ -45,7 +45,7 @@ runs:
 
     - name: Set iteration field value of project item
       id: gh-api-project-iteration-field-value
-      if: ${{ inputs.field-iteration }}
+      if: ${{ inputs.field-iteration == true }}
       shell: bash
       run: |
         field_json=$(gh api graphql -f query='query($project_id:ID!){ node(id:$project_id) { ... on ProjectV2 { fields(first: 20) { nodes { ... on ProjectV2IterationField { id name configuration { iterations { startDate id } } } } } } } }' --jq ".data.node.fields.nodes[]|select(.name==\"${FIELD_NAME}\")" -F project_id=${PROJECT_ID})
