@@ -17,6 +17,7 @@ on:
       - '!updatecli/run/**'
       - '!oblt-cli/cluster-name-validation/**'
       - '!oblt-cli/run/**'
+      - '!github/backport-active/**'
 
 permissions:
   contents: read
