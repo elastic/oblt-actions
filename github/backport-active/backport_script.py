@@ -91,6 +91,8 @@ def main():
         # Create comment via GitHub API
         comment_url = f"https://api.github.com/repos/{repository}/issues/{pr_number}/comments"
         comment_data = {"body": comment}
+        print(f'COMMENT_URL = {comment_url}')
+        print(f'COMMENT_DATA = {comment_data}')
 
         print("Using GitHub token for authentication - comment will be posted")
 
