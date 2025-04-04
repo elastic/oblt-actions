@@ -34,7 +34,7 @@ runs:
       id: gh-api-add-to-project
       run: |
         project_id=$(gh api graphql -f query='query($org:String!,$project_number:Int!){ organization(login:$org){ projectV2(number:$project_number) { id } } }' -F project_number=${PROJECT_NUMBER_ID} -F org=${ORG} --jq '.data.organization.projectV2.id' )
-        item_id=$(gh project item-add ${PROJECT_NUMBER_ID} --url ${PULL_REQUEST_URL} --owner $ORG --format json --jq .id)
+        item_id=$(gh project item-add ${project_id} --url ${PULL_REQUEST_URL} --owner $ORG --format json --jq .id)
         echo "item-id=$(echo $item_id)" >> $GITHUB_OUTPUT
         echo "project-id=$(echo $project_id)" >> $GITHUB_OUTPUT
       shell: bash
