@@ -22,7 +22,7 @@ inputs:
 outputs:
   project-id:
     description: "ID of the project"
-  value: ${{ steps.gh-api-add-to-project.outputs.project-id }}
+    value: ${{ steps.gh-api-add-to-project.outputs.project-id }}
   item-id:
     description: "ID of item in the project"
     value: ${{ steps.gh-api-add-to-project.outputs.item-id }}
