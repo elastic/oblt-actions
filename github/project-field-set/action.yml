@@ -5,10 +5,10 @@ description: Sets field of an GitHub project item
 inputs:
   project-id:
     description: "ID of the project"
-  value: ${{ steps.gh-api-add-to-project.outputs.project-id }}
+    required: true
   item-id:
     description: "ID of item in the project"
-    value: ${{ steps.gh-api-add-to-project.outputs.item-id }}
+    required: true
   github-token:
     description: 'The GitHub access token.'
     default: ${{ github.token }}
