@@ -124,17 +124,17 @@ and replace `<action-path>` with the path to the action directory or remove sect
 [![test-<action-path>](https://github.com/elastic/oblt-actions/actions/workflows/test-<action-path>.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-<action-path>.yml)
 
 <!--description-->
-<!--description-->
+<!--/description-->
 
 ## Inputs
 
 <!--inputs-->
-<!--inputs-->
+<!--/inputs-->
 
 ## Outputs
 
 <!--outputs-->
-<!--outputs-->
+<!--/outputs-->
 
 ## Usage
 <!--usage action="elastic/oblt-actions/<action-path>" version="env:VERSION"-->
