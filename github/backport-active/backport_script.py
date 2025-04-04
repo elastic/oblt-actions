@@ -4,38 +4,21 @@ import json
 import requests
 
 def main():
-    # Check if we're in dry-run mode
-    dry_run = os.environ['DRY_RUN']
-
     # Get environment variables
     github_token = os.environ['GITHUB_TOKEN']
-    try:
-        pr_number = int(os.environ['PR_NUMBER'])
-    except (ValueError, KeyError):
-        # Check if PR_NUMBER is empty or not provided
-        print("Warning: PR_NUMBER is empty or invalid.")
-
-    repo_owner = os.environ['REPO_OWNER']
-    repo_name = os.environ['REPOSITORY']
-
+    pr_number = int(os.environ['PR_NUMBER'])
+    repository = os.environ['REPOSITORY']
+    labels_json = os.environ['PR_LABELS']
     backports_url = os.environ['BACKPORTS_URL']
     print(f"Using backports URL: {backports_url}")
 
-    labels_json = os.environ['PR_LABELS']
-
+    # Parse PR labels
     try:
         labels_data = json.loads(labels_json)
         labels = [label['name'] for label in labels_data]
     except (json.JSONDecodeError, KeyError):
         print(f"Error parsing PR labels JSON: {labels_json}")
         labels = []
-
-    print(f"PR Labels: {labels}")
-
-    if dry_run:
-        print("🧪 DRY RUN MODE: No comments will be created")
-        print(f"🧪 Using test PR #{pr_number} in repository {repo_owner}/{repo_name}")
-        print(f"🧪 Using labels: {labels}")
 
     # Define GitHub API headers
     headers = {
@@ -106,27 +89,20 @@ def main():
         comment = f"@mergifyio backport {' '.join(filtered_branches)}"
 
         # Create comment via GitHub API
-        comment_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/issues/{pr_number}/comments"
+        comment_url = f"https://api.github.com/repos/{repository}/issues/{pr_number}/comments"
         comment_data = {"body": comment}
 
-        if dry_run:
-            print("\n🧪 DRY RUN: Would add comment:")
-            print(f"🧪 PR: #{pr_number}")
-            print(f"🧪 Comment: {comment}")
-            print("🧪 No actual comment created - dry run mode")
+        print("Using GitHub token for authentication - comment will be posted")
+
+        response = requests.post(comment_url, headers=headers, json=comment_data)
+
+        if response.status_code == 201:
+            print(f"Successfully added backport comment: {comment}")
             success = True
         else:
-            print("Using GitHub token for authentication - comment will be posted")
-
-            response = requests.post(comment_url, headers=headers, json=comment_data)
-
-            if response.status_code == 201:
-                print(f"Successfully added backport comment: {comment}")
-                success = True
-            else:
-                print(f"Failed to add comment. Status code: {response.status_code}")
-                print(f"Response: {response.text}")
-                success = False
+            print(f"Failed to add comment. Status code: {response.status_code}")
+            print(f"Response: {response.text}")
+            success = False
     else:
         print("No branches to backport to after filtering")
         success = True  # No branches to backport is not an error condition

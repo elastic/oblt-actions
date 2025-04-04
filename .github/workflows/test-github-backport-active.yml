@@ -40,5 +40,4 @@ jobs:
       - name: Test with PR 253
         uses: ./github/backport-active
         with:
-          dry-run: 'true'
           pr-number: 253

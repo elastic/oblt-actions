@@ -10,10 +10,6 @@ inputs:
     description: 'URL to fetch the backport branches configuration JSON'
     required: true
     default: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
-  dry-run:
-    description: 'Run in dry-run mode without creating comments'
-    required: true
-    default: 'false'
   pr-number:
     description: 'PR number to use in dry-run mode'
     required: true
@@ -37,10 +33,8 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         PR_NUMBER: ${{ inputs.pr-number }}
-        REPO_OWNER: ${{ github.repository_owner }}
         REPOSITORY: ${{ github.repository }}
         PR_LABELS: ${{ toJSON(github.event.pull_request.labels) }}
         BACKPORTS_URL: ${{ inputs.backports-url }}
-        DRY_RUN: ${{ inputs.dry-run }}
       run: python ${{ github.action_path }}/backport_script.py
       shell: bash
