@@ -3,15 +3,15 @@ name: 'github/project-field-set'
 description: Sets field of an GitHub project item
 
 inputs:
+  github-token:
+    description: 'The GitHub access token.'
+    default: ${{ github.token }}
+    required: true
   project-id:
     description: "ID of the project"
     required: true
   item-id:
     description: "ID of item in the project"
-    required: true
-  github-token:
-    description: 'The GitHub access token.'
-    default: ${{ github.token }}
     required: true
   field-name:
     description: 'Field name'
