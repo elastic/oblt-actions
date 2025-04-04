@@ -101,7 +101,7 @@ jobs:
         run: test "${{ steps.my-action.outputs.pipeline }}" = "oblt-hello-world"
 ```
 
-**NOTE**: replace `<my-action>` with the action anme without `/` and `<action-path>` with the path to the action directory.
+**NOTE**: replace `<my-action>` with the action name without `/` and `<action-path>` with the path to the action directory.
 
 ### .github/workflows/no-test.yml
 
@@ -123,17 +123,17 @@ and replace `<action-path>` with the path to the action directory or remove sect
 [![usages](https://img.shields.io/badge/usages-white?logo=githubactions&logoColor=blue)](https://github.com/search?q=elastic%2Foblt-actions%2F<action-path>+%28path%3A.github%2Fworkflows+OR+path%3A**%2Faction.yml+OR+path%3A**%2Faction.yaml%29&type=code)
 [![test-<action-path>](https://github.com/elastic/oblt-actions/actions/workflows/test-<action-path>.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-<action-path>.yml)
 
-<--description-->
+<!--description-->
 <!--description-->
 
 ## Inputs
 
-<--inputs-->
+<!--inputs-->
 <!--inputs-->
 
 ## Outputs
 
-<--outputs-->
+<!--outputs-->
 <!--outputs-->
 
 ## Usage
