@@ -11,8 +11,8 @@ Automatically backport changes to specified branches based on PR labels
 <!--inputs-->
 | Name            | Description                                           | Required | Default                                                                |
 |-----------------|-------------------------------------------------------|----------|------------------------------------------------------------------------|
-| `github-token`  | GitHub token for authentication                       | `true`   | `${{ github.token }}`                                                  |
-| `backports-url` | URL to fetch the backport branches configuration JSON | `true`   | `https://storage.googleapis.com/artifacts-api/snapshots/branches.json` |
+| `github-token`  | GitHub token for authentication                       | `false`  | `${{ github.token }}`                                                  |
+| `backports-url` | URL to fetch the backport branches configuration JSON | `false`  | `https://storage.googleapis.com/artifacts-api/snapshots/branches.json` |
 | `pr-number`     | PR number to use (needed for tests)                   | `false`  | `${{ github.event.pull_request.number }}`                              |
 <!--/inputs-->
 
