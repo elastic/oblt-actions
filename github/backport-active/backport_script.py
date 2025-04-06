@@ -43,7 +43,7 @@ def main():
                     if isinstance(item, dict) and 'name' in item:
                         labels.append(item['name'])
             else:
-                print(f"API returned status code {response.status_code}")
+                print(f"API returned status code: {response.status_code}")
         except Exception as e:
             print(f"Error fetching labels: {str(e)}")
 
