@@ -37,6 +37,8 @@ runs:
         item_id=$(gh project item-add ${PROJECT_NUMBER_ID} --url ${ITEM_URL} --owner $ORG --format json --jq .id)
         echo "item-id=$(echo $item_id)" >> $GITHUB_OUTPUT
         echo "project-id=$(echo $project_id)" >> $GITHUB_OUTPUT
+
+        echo "::notice item added to project https://github.com/orgs/${ORG}/projects/${PROJECT_NUMBER_ID}"
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github-token }}
