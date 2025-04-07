@@ -1,0 +1,44 @@
+name: test-github-backport-active
+
+on:
+  merge_group: ~
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-github-backport-active.yml'
+      - 'github/backport-active/**'
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/test-github-backport-active.yml'
+      - 'github/backport-active/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  test:
+    needs:
+      - backport-action
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  backport-action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Test with actual PR info if available
+      - name: Test with PR 253
+        uses: ./github/backport-active
+        with:
+          pr-number: 253

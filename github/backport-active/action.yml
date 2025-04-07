@@ -1,0 +1,37 @@
+name: 'Backport Action'
+description: 'Automatically backport changes to specified branches based on PR labels'
+
+inputs:
+  github-token:
+    description: 'GitHub token for authentication'
+    default: ${{ github.token }}
+  backports-url:
+    description: 'URL to fetch the backport branches configuration JSON'
+    default: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
+  pr-number:
+    description: 'PR number to use (needed for tests)'
+    default: ${{ github.event.pull_request.number }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+      shell: bash
+
+    - name: Run backport script
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        PR_NUMBER: ${{ inputs.pr-number }}
+        REPOSITORY: ${{ github.repository }}
+        PR_LABELS: ${{ toJSON(github.event.pull_request.labels) }}
+        BACKPORTS_URL: ${{ inputs.backports-url }}
+      run: python ${{ github.action_path }}/backport_script.py
+      shell: bash
