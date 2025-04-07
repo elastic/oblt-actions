@@ -22,7 +22,7 @@ inputs:
   field-iteration:
     description: 'Must be set to "true" for iteration fields'
     required: false
-    type: 'boolean'
+    type: boolean
     default: false
 
 runs:
@@ -38,8 +38,8 @@ runs:
         field_value_id=$( echo "$field_json" | jq -r ".options[]|select(.name==\"${FIELD_VALUE}\")|.id" )
         gh project item-edit --id "${ITEM_ID}" --project-id "${PROJECT_ID}" --field-id "${field_id}" --single-select-option-id "${field_value_id}"
 
-        echo "::notice field id ${field_id}"
-        echo "::notice field value ${field_value_id}"
+        echo "::notice:: field id ${field_id}"
+        echo "::notice:: field value ${field_value_id}"
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         PROJECT_ID: ${{ inputs.project-id }}
@@ -57,8 +57,8 @@ runs:
         field_value_id=$(echo "$field_json" | jq -r 'last(.configuration.iterations[]|select(.startDate<=(now|strftime("%Y-%m-%d"))))|.id')
         gh project item-edit --id "${item_id}" --project-id "${project_id}" --field-id "${field_id}" --iteration-id "${field_value_id}"
 
-        echo "::notice field id ${field_id}"
-        echo "::notice field value ${field_value_id}"
+        echo "::notice:: field id ${field_id}"
+        echo "::notice:: field value ${field_value_id}"
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         PROJECT_ID: ${{ inputs.project-id }}
