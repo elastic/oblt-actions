@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v4
 
       # Test with actual PR info if available
-      - name: Test with PR 253
+      - name: Test with PR 262
         uses: ./github/backport-active
         with:
-          pr-number: 253
+          pr-number: 262
