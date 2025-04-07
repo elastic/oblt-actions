@@ -10,9 +10,9 @@ Sets field of an GitHub project item
 <!--inputs-->
 | Name              | Description                                                              | Required | Default               |
 |-------------------|--------------------------------------------------------------------------|----------|-----------------------|
+| `github-token`    | The GitHub access token.                                                 | `true`   | `${{ github.token }}` |
 | `project-id`      | ID of the project                                                        | `true`   | ` `                   |
 | `item-id`         | ID of item in the project                                                | `true`   | ` `                   |
-| `github-token`    | The GitHub access token.                                                 | `true`   | `${{ github.token }}` |
 | `field-name`      | Field name                                                               | `true`   | ` `                   |
 | `field-value`     | Field value, when "field-iteration" = true the current iteration is used | `false`  | ` `                   |
 | `field-iteration` | Must be set to "true" for iteration fields                               | `false`  | `false`               |
