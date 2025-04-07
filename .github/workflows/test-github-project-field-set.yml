@@ -1,0 +1,57 @@
+name: test-github-project-field-set
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-github-project-field-set.yml'
+      - 'github/project-field-set/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-github-project-field-set.yml'
+      - 'github/project-field-set/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    needs:
+      - default
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  default:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get token
+        id: get_token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+        with:
+          app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permissions: >-
+            {
+              "organization_projects": "write",
+              "issues": "read"
+            }
+
+      - uses: ./github/project-field-set
+        with:
+          github-token: ${{ steps.get_token.outputs.token }}
+          item-id: "PVT_kwDOAGc3Zs4A2JDT"
+          field-name: "Iteration"
+          field-value: "Iteration 2"
+          project-id: 1888
