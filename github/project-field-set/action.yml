@@ -22,12 +22,12 @@ inputs:
   field-iteration:
     description: 'Must be set to "true" for iteration fields'
     required: false
-    type: boolean
     default: 'false'
 
 runs:
   using: "composite"
   steps:
+
     - name: Set select field value of project item
       id: gh-api-project-select-field-value
       if: ${{ inputs.field-iteration != 'true' }}
