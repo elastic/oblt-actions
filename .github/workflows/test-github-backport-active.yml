@@ -11,6 +11,8 @@ on:
       - 'github/backport-active/**'
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - '.github/workflows/test-github-backport-active.yml'
       - 'github/backport-active/**'
