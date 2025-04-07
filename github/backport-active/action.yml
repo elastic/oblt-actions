@@ -26,26 +26,6 @@ runs:
         pip install requests
       shell: bash
 
-    - name: Fetch PR labels
-      id: fetch-labels
-      env:
-        GH_TOKEN: ${{ inputs.github-token }}
-        PR_NUMBER: ${{ inputs.pr-number }}
-      run: |
-        # Only fetch labels if no PR context is available
-        if [ "${{ github.event_name }}" != "pull_request" ]; then
-          echo "No PR context, fetching labels for PR #$PR_NUMBER"
-          LABELS=$(curl -s -H "Authorization: token $GH_TOKEN" \
-                 -H "Accept: application/vnd.github.v3+json" \
-                 "https://api.github.com/repos/${{ github.repository }}/issues/$PR_NUMBER/labels" | \
-                 python -c "import json, sys; data=json.load(sys.stdin); print(json.dumps([{'name': label['name']} for label in data]))")
-          echo "PR_LABELS=$LABELS" >> $GITHUB_ENV
-          echo "Fetched labels: $LABELS"
-        else
-          echo "Using labels from PR context"
-        fi
-      shell: bash
-
     - name: Run backport script
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}

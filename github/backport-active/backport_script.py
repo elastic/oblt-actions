@@ -14,12 +14,30 @@ def main():
 
     # Parse PR labels
     try:
+        labels_json = os.environ.get('PR_LABELS', '[]')
         labels_data = json.loads(labels_json)
-        print(f"Label data = { labels_data }")
-        labels = [label['name'] for label in labels_data]
-    except (json.JSONDecodeError, KeyError):
-        print(f"Error parsing PR labels JSON: {labels_json}")
+        labels = [label['name'] for label in labels_data if 'name' in label]
+        print(f"Labels from environment: {labels}")
+    except (json.JSONDecodeError, KeyError) as e:
+        print(f"Error parsing PR labels from environment: {e}")
         labels = []
+
+    # If no labels were found, fetch them directly from GitHub API (needed if non pull request event used)
+    if not labels:
+        print(f"Fetching labels directly for PR #{pr_number}")
+        try:
+            labels_url = f"https://api.github.com/repos/{repository}/issues/{pr_number}/labels"
+            print(f"Labels URL: {labels_url}")
+
+            response = requests.get(labels_url, headers=headers)
+            response.raise_for_status()
+
+            labels_data = response.json()
+            labels = [label['name'] for label in labels_data]
+            print(f"Fetched labels from API: {labels}")
+        except Exception as e:
+            print(f"Error fetching labels from API: {e}")
+            labels = []
 
     # Define GitHub API headers
     headers = {
