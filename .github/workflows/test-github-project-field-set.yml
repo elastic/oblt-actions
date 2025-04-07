@@ -51,7 +51,9 @@ jobs:
       - uses: ./github/project-field-set
         with:
           github-token: ${{ steps.get_token.outputs.token }}
-          item-id: "PVT_kwDOAGc3Zs4A2JDT"
+          # GH PR ID in UI is https://github.com/elastic/oblt-actions/pull/260
+          item-id: "PVTI_lADOAGc3Zs4A2JDTzgZHGSs"
           field-name: "Iteration"
           field-value: "Iteration 2"
-          project-id: 1888
+          # Project ID in UI is 1888
+          project-id: "PVT_kwDOAGc3Zs4A2JDT"
