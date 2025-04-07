@@ -13,6 +13,8 @@ on:
       - '!buildkite/run/**'
       - '!check-dependent-jobs/**'
       - '!git/setup/**'
+      - '!github/project-add/**'
+      - '!github/project-field-set/**'
       - '!google/auth/**'
       - '!updatecli/run/**'
       - '!oblt-cli/cluster-name-validation/**'
