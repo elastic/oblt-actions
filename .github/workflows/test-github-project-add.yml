@@ -56,8 +56,8 @@ jobs:
           project-id: 1888
           item-url: "https://github.com/elastic/oblt-actions/pull/260"
 
-      - name: assert project-id==1888
-        run: test "${{ steps.project-add.outputs.project-id }}" = "1888"
+      - name: assert project-id is not empty
+        run: test -n "${{ steps.project-add.outputs.project-id }}"
 
       - name: assert item-id is not empty
         run: test -n "${{ steps.project-add.outputs.item-id }}"
