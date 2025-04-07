@@ -56,11 +56,22 @@ jobs:
           project-id: 1888
           item-url: "https://github.com/elastic/oblt-actions/pull/260"
 
-      - uses: ./github/project-field-set
+      - name: set next iteration
+        uses: ./github/project-field-set
         with:
           github-token: ${{ steps.get_token.outputs.token }}
           item-id: ${{ steps.project-add.outputs.item-id }}
           field-iteration: "true"
           field-name: "Iteration"
           field-value: "Iteration 2"
+          project-id: ${{ steps.project-add.outputs.project-id }}
+
+      - name: set previous iteration
+        uses: ./github/project-field-set
+        with:
+          github-token: ${{ steps.get_token.outputs.token }}
+          item-id: ${{ steps.project-add.outputs.item-id }}
+          field-iteration: "true"
+          field-name: "Iteration"
+          field-value: "Iteration 1"
           project-id: ${{ steps.project-add.outputs.project-id }}
