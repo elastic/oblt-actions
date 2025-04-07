@@ -12,38 +12,46 @@ def main():
     backports_url = os.environ['BACKPORTS_URL']
     print(f"Using backports URL: {backports_url}")
 
-    # Parse PR labels
-    try:
-        labels_json = os.environ.get('PR_LABELS', '[]')
-        labels_data = json.loads(labels_json)
-        labels = [label['name'] for label in labels_data if 'name' in label]
-        print(f"Labels from environment: {labels}")
-    except (json.JSONDecodeError, KeyError) as e:
-        print(f"Error parsing PR labels from environment: {e}")
-        labels = []
-
-    # If no labels were found, fetch them directly from GitHub API (needed if non pull request event used)
-    if not labels:
-        print(f"Fetching labels directly for PR #{pr_number}")
-        try:
-            labels_url = f"https://api.github.com/repos/{repository}/issues/{pr_number}/labels"
-            print(f"Labels URL: {labels_url}")
-
-            response = requests.get(labels_url, headers=headers)
-            response.raise_for_status()
-
-            labels_data = response.json()
-            labels = [label['name'] for label in labels_data]
-            print(f"Fetched labels from API: {labels}")
-        except Exception as e:
-            print(f"Error fetching labels from API: {e}")
-            labels = []
-
     # Define GitHub API headers
     headers = {
         'Authorization': f'token {github_token}',
         'Accept': 'application/vnd.github.v3+json'
     }
+
+    labels = []
+
+    # First try to get labels from PR_LABELS environment variable
+    labels_json = os.environ.get('PR_LABELS', '[]')
+    print(f"Raw PR_LABELS from environment: '{labels_json}'")
+
+    # If we have some JSON data, try to extract label names
+    if labels_json and labels_json != 'null':
+        try:
+            labels_data = json.loads(labels_json)
+            if isinstance(labels_data, list):
+                for item in labels_data:
+                    if isinstance(item, dict) and 'name' in item:
+                        labels.append(item['name'])
+        except json.JSONDecodeError:
+            print(f"Invalid JSON in PR_LABELS: {labels_json}")
+
+    # If no labels found, fetch from GitHub API
+    if not labels:
+        print(f"Fetching labels for PR #{pr_number} via GitHub API")
+        try:
+            url = f"https://api.github.com/repos/{repository}/issues/{pr_number}/labels"
+            response = requests.get(url, headers=headers)
+            if response.status_code == 200:
+                api_labels = response.json()
+                for item in api_labels:
+                    if isinstance(item, dict) and 'name' in item:
+                        labels.append(item['name'])
+            else:
+                print(f"API returned status code {response.status_code}")
+        except Exception as e:
+            print(f"Error fetching labels: {str(e)}")
+
+    print(f"Final labels: {labels}")
 
     # Function to get config from URL
     def get_config_from_url(url):
