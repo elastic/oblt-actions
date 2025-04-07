@@ -15,6 +15,7 @@ def main():
     # Parse PR labels
     try:
         labels_data = json.loads(labels_json)
+        print(f"Label data = { labels_data }")
         labels = [label['name'] for label in labels_data]
     except (json.JSONDecodeError, KeyError):
         print(f"Error parsing PR labels JSON: {labels_json}")
