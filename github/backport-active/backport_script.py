@@ -19,10 +19,7 @@ def main():
     }
 
     labels = []
-
-    # First try to get labels from PR_LABELS environment variable
     labels_json = os.environ.get('PR_LABELS', '[]')
-    print(f"Raw PR_LABELS from environment: '{labels_json}'")
 
     # If we have some JSON data, try to extract label names
     if labels_json and labels_json != 'null':
@@ -35,9 +32,8 @@ def main():
         except json.JSONDecodeError:
             print(f"Invalid JSON in PR_LABELS: {labels_json}")
 
-    # If no labels found, fetch from GitHub API
+    # If no labels found, fetch from GitHub API (needed for non PR events)
     if not labels:
-        print(f"Fetching labels for PR #{pr_number} via GitHub API")
         try:
             url = f"https://api.github.com/repos/{repository}/issues/{pr_number}/labels"
             response = requests.get(url, headers=headers)
@@ -51,7 +47,7 @@ def main():
         except Exception as e:
             print(f"Error fetching labels: {str(e)}")
 
-    print(f"Final labels: {labels}")
+    print(f"Labels found: {labels}")
 
     # Function to get config from URL
     def get_config_from_url(url):
