@@ -60,6 +60,7 @@ jobs:
         with:
           github-token: ${{ steps.get_token.outputs.token }}
           item-id: ${{ steps.project-add.outputs.item-id }}
+          field-iteration: "true"
           field-name: "Iteration"
           field-value: "Iteration 2"
           project-id: ${{ steps.project-add.outputs.project-id }}
