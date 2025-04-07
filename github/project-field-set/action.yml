@@ -7,8 +7,13 @@ inputs:
     description: 'The GitHub access token.'
     default: ${{ github.token }}
     required: true
+  github-org:
+    description: 'The GitHub org'
+    default: 'elastic'
+    required: true
   project-id:
-    description: "ID of the project"
+    description: 'The GitHub project numeric ID.'
+    type: number
     required: true
   item-id:
     description: "ID of item in the project"
@@ -33,13 +38,16 @@ runs:
       if: ${{ inputs.field-iteration != 'true' }}
       shell: bash
       run: |
-        field_json=$(gh api graphql -f query='query($project_id:ID!){ node(id:$project_id){ ... on ProjectV2 { fields(first:20) { nodes { ... on ProjectV2SingleSelectField { id name options { id name } } } } } } }' --jq ".data.node.fields.nodes[]|select(.name==\"${FIELD_NAME}\")" -F project_id=${PROJECT_ID})
+        project_id=$(gh api graphql -f query='query($org:String!,$project_number:Int!){ organization(login:$org){ projectV2(number:$project_number) { id } } }' -F project_number=${PROJECT_NUMBER_ID} -F org=${ORG} --jq '.data.organization.projectV2.id' )
+        field_json=$(gh api graphql -f query='query($project_id:ID!){ node(id:$project_id){ ... on ProjectV2 { fields(first:20) { nodes { ... on ProjectV2SingleSelectField { id name options { id name } } } } } } }' --jq ".data.node.fields.nodes[]|select(.name==\"${FIELD_NAME}\")" -F project_id=${project_id})
         field_id=$( echo "$field_json" | jq -r '.id' )
         field_value_id=$( echo "$field_json" | jq -r ".options[]|select(.name==\"${FIELD_VALUE}\")|.id" )
-        gh project item-edit --id "${ITEM_ID}" --project-id "${PROJECT_ID}" --field-id "${field_id}" --single-select-option-id "${field_value_id}"
+        gh project item-edit --id "${ITEM_ID}" --project-id "${project_id}" --field-id "${field_id}" --single-select-option-id "${field_value_id}"
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         PROJECT_ID: ${{ inputs.project-id }}
+        ORG: ${{ inputs.github-org }}
+        PROJECT_NUMBER_ID: ${{ inputs.project-id }}
         ITEM_ID: ${{ inputs.item-id }}
         FIELD_NAME: ${{ inputs.field-name }}
         FIELD_VALUE: ${{ inputs.field-value }}
@@ -49,12 +57,15 @@ runs:
       if: ${{ inputs.field-iteration == 'true' }}
       shell: bash
       run: |
-        field_json=$(gh api graphql -f query='query($project_id:ID!){ node(id:$project_id) { ... on ProjectV2 { fields(first: 20) { nodes { ... on ProjectV2IterationField { id name configuration { iterations { startDate id } } } } } } } }' --jq ".data.node.fields.nodes[]|select(.name==\"${FIELD_NAME}\")" -F project_id=${PROJECT_ID})
+        project_id=$(gh api graphql -f query='query($org:String!,$project_number:Int!){ organization(login:$org){ projectV2(number:$project_number) { id } } }' -F project_number=${PROJECT_NUMBER_ID} -F org=${ORG} --jq '.data.organization.projectV2.id' )
+        field_json=$(gh api graphql -f query='query($project_id:ID!){ node(id:$project_id) { ... on ProjectV2 { fields(first: 20) { nodes { ... on ProjectV2IterationField { id name configuration { iterations { startDate id } } } } } } } }' --jq ".data.node.fields.nodes[]|select(.name==\"${FIELD_NAME}\")" -F project_id=${project_id})
         field_id=$(echo "$field_json" | jq -r '.id' )
         field_value_id=$(echo "$field_json" | jq -r 'last(.configuration.iterations[]|select(.startDate<=(now|strftime("%Y-%m-%d"))))|.id')
         gh project item-edit --id "${ITEM_ID}" --project-id "${PROJECT_ID}" --field-id "${field_id}" --iteration-id "${field_value_id}"
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         PROJECT_ID: ${{ inputs.project-id }}
+        ORG: ${{ inputs.github-org }}
+        PROJECT_NUMBER_ID: ${{ inputs.project-id }}
         ITEM_ID: ${{ inputs.item-id }}
         FIELD_NAME: ${{ inputs.field-name }}
