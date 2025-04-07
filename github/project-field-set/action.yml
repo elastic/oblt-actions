@@ -52,7 +52,7 @@ runs:
         field_json=$(gh api graphql -f query='query($project_id:ID!){ node(id:$project_id) { ... on ProjectV2 { fields(first: 20) { nodes { ... on ProjectV2IterationField { id name configuration { iterations { startDate id } } } } } } } }' --jq ".data.node.fields.nodes[]|select(.name==\"${FIELD_NAME}\")" -F project_id=${PROJECT_ID})
         field_id=$(echo "$field_json" | jq -r '.id' )
         field_value_id=$(echo "$field_json" | jq -r 'last(.configuration.iterations[]|select(.startDate<=(now|strftime("%Y-%m-%d"))))|.id')
-        gh project item-edit --id "${item_id}" --project-id "${PROJECT_ID}" --field-id "${field_id}" --iteration-id "${field_value_id}"
+        gh project item-edit --id "${ITEM_ID}" --project-id "${PROJECT_ID}" --field-id "${field_id}" --iteration-id "${field_value_id}"
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         PROJECT_ID: ${{ inputs.project-id }}
