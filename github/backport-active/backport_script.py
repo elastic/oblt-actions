@@ -45,7 +45,7 @@ def main():
             else:
                 print(f"API returned status code: {response.status_code}")
         except Exception as e:
-            print(f"Error fetching labels: {str(e)}")
+            print(f"Error fetching labels {str(e)}")
 
     print(f"Labels found: {labels}")
 
