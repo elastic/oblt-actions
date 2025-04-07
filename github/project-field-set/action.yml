@@ -22,12 +22,12 @@ inputs:
     description: 'Field name'
     required: true
   field-value:
-    description: 'Field value, when "field-iteration" = true the current iteration is used'
+    description: 'Field value'
     required: false
-  field-iteration:
-    description: 'Must be set to "true" for iteration fields'
-    required: false
-    default: 'false'
+  field-type:
+    description: 'Field type, supported values are "single-select" and "iteration"'
+    required: true
+    default: 'single-select'
 
 runs:
   using: "composite"
@@ -35,7 +35,7 @@ runs:
 
     - name: Set select field value of project item
       id: gh-api-project-select-field-value
-      if: ${{ inputs.field-iteration != 'true' }}
+      if: ${{ inputs.field-type == 'single-select' }}
       shell: bash
       run: |
         project_id=$(gh api graphql -f query='query($org:String!,$project_number:Int!){ organization(login:$org){ projectV2(number:$project_number) { id } } }' -F project_number=${PROJECT_NUMBER_ID} -F org=${ORG} --jq '.data.organization.projectV2.id' )
@@ -45,7 +45,6 @@ runs:
         gh project item-edit --id "${ITEM_ID}" --project-id "${project_id}" --field-id "${field_id}" --single-select-option-id "${field_value_id}"
       env:
         GH_TOKEN: ${{ inputs.github-token }}
-        PROJECT_ID: ${{ inputs.project-id }}
         ORG: ${{ inputs.github-org }}
         PROJECT_NUMBER_ID: ${{ inputs.project-id }}
         ITEM_ID: ${{ inputs.item-id }}
@@ -54,17 +53,16 @@ runs:
 
     - name: Set iteration field value of project item
       id: gh-api-project-iteration-field-value
-      if: ${{ inputs.field-iteration == 'true' }}
+      if: ${{ inputs.field-type == 'iteration' }}
       shell: bash
       run: |
         project_id=$(gh api graphql -f query='query($org:String!,$project_number:Int!){ organization(login:$org){ projectV2(number:$project_number) { id } } }' -F project_number=${PROJECT_NUMBER_ID} -F org=${ORG} --jq '.data.organization.projectV2.id' )
         field_json=$(gh api graphql -f query='query($project_id:ID!){ node(id:$project_id) { ... on ProjectV2 { fields(first: 20) { nodes { ... on ProjectV2IterationField { id name configuration { iterations { startDate id } } } } } } } }' --jq ".data.node.fields.nodes[]|select(.name==\"${FIELD_NAME}\")" -F project_id=${project_id})
         field_id=$(echo "$field_json" | jq -r '.id' )
         field_value_id=$(echo "$field_json" | jq -r 'last(.configuration.iterations[]|select(.startDate<=(now|strftime("%Y-%m-%d"))))|.id')
-        gh project item-edit --id "${ITEM_ID}" --project-id "${PROJECT_ID}" --field-id "${field_id}" --iteration-id "${field_value_id}"
+        gh project item-edit --id "${ITEM_ID}" --project-id "${project_id}" --field-id "${field_id}" --iteration-id "${field_value_id}"
       env:
         GH_TOKEN: ${{ inputs.github-token }}
-        PROJECT_ID: ${{ inputs.project-id }}
         ORG: ${{ inputs.github-org }}
         PROJECT_NUMBER_ID: ${{ inputs.project-id }}
         ITEM_ID: ${{ inputs.item-id }}
