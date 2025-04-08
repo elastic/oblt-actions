@@ -12,7 +12,7 @@ Sets field of an GitHub project item
 | Name           | Description                                                                                                 | Required | Default               |
 |----------------|-------------------------------------------------------------------------------------------------------------|----------|-----------------------|
 | `github-token` | The GitHub access token.                                                                                    | `true`   | `${{ github.token }}` |
-| `github-token` | The GitHub org                                                                                              | `true`   | `elastic`             |
+| `github-org`   | The GitHub org                                                                                              | `true`   | `elastic`             |
 | `project-id`   | The GitHub project numeric ID.                                                                              | `true`   | ` `                   |
 | `item-id`      | ID of item in the project                                                                                   | `true`   | ` `                   |
 | `field-name`   | Field name                                                                                                  | `true`   | ` `                   |
