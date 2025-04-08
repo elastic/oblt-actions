@@ -62,23 +62,20 @@ runs:
 
         jq_expr=''
         if [ '@current' == "${FIELD_VALUE}" ]; then
-          jq_expr='last(.configuration.iterations[]|select(.startDate<=(now|strftime("%Y-%m-%d"))))|.id'
+          jq_expr='last(.configuration.iterations[]|select(.startDate<=(now|strftime("%Y-%m-%d"))))'
         elif [ '@next' == "${FIELD_VALUE}" ]; then
-          jq_expr='first(.configuration.iterations[]|select(.startDate>(now|strftime("%Y-%m-%d"))))|.id'
+          jq_expr='first(.configuration.iterations[]|select(.startDate>(now|strftime("%Y-%m-%d"))))'
         elif [ '@previous' == "${FIELD_VALUE}" ]; then
           jq_expr='first(.configuration.completedIterations[])|.id'
         else
-          jq_expr=".configuration.iterations + .configuration.completedIterations|.[]|select(.title==\"${FIELD_VALUE}\")|.id"
+          jq_expr=".configuration.iterations + .configuration.completedIterations|.[]|select(.title==\"${FIELD_VALUE}\")"
         fi
 
-        echo "::notice:: ${jq_expr}"
-        echo "::notice:: ${field_json}"
+        field_value_id=$(jq -r "${jq_expr}|.id" <<< "${field_json}")
+        field_value_title=$(jq -r "${jq_expr}|.title" <<< "${field_json}")
 
-        field_value_id=$(jq -r "${jq_expr}" <<< "${field_json}")
-
-        echo "::notice:: gh project item-edit --id \"${ITEM_ID}\" --project-id \"${project_id}\" --field-id \"${field_id}\" --iteration-id \"${field_value_id}\""
         gh project item-edit --id "${ITEM_ID}" --project-id "${project_id}" --field-id "${field_id}" --iteration-id "${field_value_id}"
-
+        echo "::notice:: ${FIELD_NAME} iteration field set to '${field_value_title}'"
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         ORG: ${{ inputs.github-org }}
