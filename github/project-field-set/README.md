@@ -9,14 +9,15 @@ Sets field of an GitHub project item
 
 ## Inputs
 <!--inputs-->
-| Name              | Description                                                              | Required | Default               |
-|-------------------|--------------------------------------------------------------------------|----------|-----------------------|
-| `github-token`    | The GitHub access token.                                                 | `true`   | `${{ github.token }}` |
-| `project-id`      | ID of the project                                                        | `true`   | ` `                   |
-| `item-id`         | ID of item in the project                                                | `true`   | ` `                   |
-| `field-name`      | Field name                                                               | `true`   | ` `                   |
-| `field-value`     | Field value, when "field-iteration" = true the current iteration is used | `false`  | ` `                   |
-| `field-iteration` | Must be set to "true" for iteration fields                               | `false`  | `false`               |
+| Name           | Description                                                                                                 | Required | Default               |
+|----------------|-------------------------------------------------------------------------------------------------------------|----------|-----------------------|
+| `github-token` | The GitHub access token.                                                                                    | `true`   | `${{ github.token }}` |
+| `github-token` | The GitHub org                                                                                              | `true`   | `elastic`             |
+| `project-id`   | The GitHub project numeric ID.                                                                              | `true`   | ` `                   |
+| `item-id`      | ID of item in the project                                                                                   | `true`   | ` `                   |
+| `field-name`   | Field name                                                                                                  | `true`   | ` `                   |
+| `field-value`  | Field value, when `field-type` = `iteration` then `@current` and `@next` and `@previous` are also supported | `true`   | ` `                   |
+| `field-type`   | Field type, supported values are `single-select` and `iteration`                                            | `false`  | `single-select`       |
 <!--/inputs-->
 
 ## Usage

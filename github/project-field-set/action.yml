@@ -13,7 +13,6 @@ inputs:
     required: true
   project-id:
     description: 'The GitHub project numeric ID.'
-    type: number
     required: true
   item-id:
     description: "ID of item in the project"
@@ -22,10 +21,10 @@ inputs:
     description: 'Field name'
     required: true
   field-value:
-    description: 'Field value'
+    description: 'Field value, when `field-type` = `iteration` then `@current` and `@next` and `@previous` are also supported'
     required: true
   field-type:
-    description: 'Field type, supported values are "single-select" and "iteration"'
+    description: 'Field type, supported values are `single-select` and `iteration`'
     required: true
     default: 'single-select'
 

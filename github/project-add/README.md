@@ -22,7 +22,6 @@ Adds a GitHub issue or pull-request to a GitHub project
 
 | Name         | Description               |
 |--------------|---------------------------|
-| `project-id` | ID of the project         |
 | `item-id`    | ID of item in the project |
 
 
