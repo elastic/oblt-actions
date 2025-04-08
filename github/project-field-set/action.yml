@@ -71,8 +71,14 @@ runs:
           jq_expr=".configuration.iterations + .configuration.completedIterations|.[]|select(.title==\"${FIELD_VALUE}\")|.id"
         fi
 
+        echo "::notice:: ${jq_expr}"
+        echo "::notice:: ${field_json}"
+
         field_value_id=$(jq -r "${jq_expr}" <<< "${field_json}")
+
+        echo "::notice:: gh project item-edit --id \"${ITEM_ID}\" --project-id \"${project_id}\" --field-id \"${field_id}\" --iteration-id \"${field_value_id}\""
         gh project item-edit --id "${ITEM_ID}" --project-id "${project_id}" --field-id "${field_id}" --iteration-id "${field_value_id}"
+
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         ORG: ${{ inputs.github-org }}
