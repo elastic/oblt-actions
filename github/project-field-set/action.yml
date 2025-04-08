@@ -43,7 +43,7 @@ runs:
         field_id=$( echo "$field_json" | jq -r '.id' )
         field_value_id=$( echo "$field_json" | jq -r ".options[]|select(.name==\"${FIELD_VALUE}\")|.id" )
         gh project item-edit --id "${ITEM_ID}" --project-id "${project_id}" --field-id "${field_id}" --single-select-option-id "${field_value_id}"
-        echo "::notice:: ${FIELD_NAME} single select field set to '${FIELD_VALUE}'"
+        echo "::notice:: '${FIELD_NAME}' single select field set to '${FIELD_VALUE}'"
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         ORG: ${{ inputs.github-org }}
@@ -73,7 +73,7 @@ runs:
         field_value_id=$(jq -r "${jq_expr}|.id" <<< "${field_json}")
         field_value_title=$(jq -r "${jq_expr}|.title" <<< "${field_json}")
         gh project item-edit --id "${ITEM_ID}" --project-id "${project_id}" --field-id "${field_id}" --iteration-id "${field_value_id}"
-        echo "::notice:: ${FIELD_NAME} iteration field set to '${field_value_title}'"
+        echo "::notice:: '${FIELD_NAME}' iteration field set to '${field_value_title}'"
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         ORG: ${{ inputs.github-org }}
