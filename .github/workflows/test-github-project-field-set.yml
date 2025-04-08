@@ -52,26 +52,34 @@ jobs:
         id: project-add
         with:
           github-token: ${{ steps.get_token.outputs.token }}
-          github-org: elastic
           project-id: 1888
           item-url: "https://github.com/elastic/oblt-actions/pull/260"
+
+      - name: set priority
+        uses: ./github/project-field-set
+        with:
+          github-token: ${{ steps.get_token.outputs.token }}
+          item-id: ${{ steps.project-add.outputs.item-id }}
+          project-id: 1888
+          field-name: "Priority"
+          field-value: "P1"
 
       - name: set next iteration
         uses: ./github/project-field-set
         with:
           github-token: ${{ steps.get_token.outputs.token }}
           item-id: ${{ steps.project-add.outputs.item-id }}
-          field-iteration: "true"
+          project-id: 1888
+          field-type: 'iteration'
           field-name: "Iteration"
           field-value: "Iteration 2"
-          project-id: ${{ steps.project-add.outputs.project-id }}
 
       - name: set previous iteration
         uses: ./github/project-field-set
         with:
           github-token: ${{ steps.get_token.outputs.token }}
           item-id: ${{ steps.project-add.outputs.item-id }}
-          field-iteration: "true"
+          project-id: 1888
+          field-type: 'iteration'
           field-name: "Iteration"
           field-value: "Iteration 1"
-          project-id: ${{ steps.project-add.outputs.project-id }}
