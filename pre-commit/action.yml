@@ -6,6 +6,9 @@ inputs:
   clean-checkout:
     default: "true"
     description: "Whether to execute `git clean -ffdx && git reset --hard HEAD` before fetching"
+  python-version:
+    default: "3.11"
+    description: "What Python version to use"
 runs:
   using: "composite"
   steps:
@@ -14,9 +17,10 @@ runs:
         clean: ${{ inputs.clean-checkout }}
         # Fetch all the history so the pre-commit/action can compare changes between the target and the git commit
         fetch-depth: 0
+
     - uses: actions/setup-python@v5
       with:
-        python-version: 3.9
+        python-version: ${{ inputs.python-version }}
 
     - name: Run pre-commit on PRs
       uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1

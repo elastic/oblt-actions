@@ -1,0 +1,61 @@
+name: test-pre-commit
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-pre-commit.yml'
+      - 'pre-commit/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-pre-commit.yml'
+      - 'pre-commit/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    needs:
+      - default
+      - version
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  default:
+    runs-on: ubuntu-latest
+    env:
+      want: "3.11"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./pre-commit
+      - name: Verify python version
+        run: |
+          got=$(python --version 2>&1)
+          echo "${got} == ${want}"
+          [[ "${got}" == *"${want}"* ]]
+
+  version:
+    runs-on: ubuntu-latest
+    env:
+      want: "3.9"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./pre-commit
+        with:
+          python-version: "v${{ env.want }}"
+      - name: Verify python version
+        run: |
+          got=$(python --version 2>&1)
+          echo "${got} == ${want}"
+          [[ "${got}" == *"${want}"* ]]

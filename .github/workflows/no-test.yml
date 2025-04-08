@@ -13,11 +13,12 @@ on:
       - '!buildkite/run/**'
       - '!check-dependent-jobs/**'
       - '!git/setup/**'
+      - '!github/backport-active/**'
       - '!google/auth/**'
-      - '!updatecli/run/**'
       - '!oblt-cli/cluster-name-validation/**'
       - '!oblt-cli/run/**'
-      - '!github/backport-active/**'
+      - '!pre-commit/**'
+      - '!updatecli/run/**'
 
 permissions:
   contents: read
