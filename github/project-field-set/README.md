@@ -17,7 +17,7 @@ Sets field of an GitHub project item
 | `item-id`      | ID of item in the project                                                                                   | `true`   | ` `                   |
 | `field-name`   | Field name                                                                                                  | `true`   | ` `                   |
 | `field-value`  | Field value, when `field-type` = `iteration` then `@current` and `@next` and `@previous` are also supported | `true`   | ` `                   |
-| `field-type`   | Field type, supported values are `single-select` and `iteration`                                            | `false`  | `single-select`       |
+| `field-type`   | Field type, supported values are `single-select` and `iteration`                                            | `true`   | `single-select`       |
 <!--/inputs-->
 
 ## Usage
