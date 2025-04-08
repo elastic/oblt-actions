@@ -85,3 +85,4 @@ runs:
         PROJECT_NUMBER_ID: ${{ inputs.project-id }}
         ITEM_ID: ${{ inputs.item-id }}
         FIELD_NAME: ${{ inputs.field-name }}
+        FIELD_VALUE: ${{ inputs.field-value }}
