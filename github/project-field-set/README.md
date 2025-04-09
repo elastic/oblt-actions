@@ -22,8 +22,32 @@ Sets field of an GitHub project item
 
 ## Usage
 <!--usage action="elastic/oblt-actions/github/project-field-set" version="env:VERSION"-->
+
 ```yaml
 steps:
-  - uses: elastic/oblt-actions/github/project-field-set@v1
+  # set single-select field
+  - name: set status in project
+    uses: elastic/oblt-actions/github/project-field-set@v1
+    with:
+      github-token: <GITHUB_TOKEN>
+      github-org: 'elastic'
+      project-id: 123456
+      # <ITEM_ID> is provided by the `elastic/oblt-actions/github/project-add` action.
+      item-id: <ITEM_ID>
+      field-name: 'Status'
+      field-value: 'In Progress'
+
+  # set iteration field
+  - name: set current iteration in project
+    uses: elastic/oblt-actions/github/project-field-set@v1
+    with:
+      github-token: <GITHUB_TOKEN>
+      github-org: 'elastic'
+      project-id: 123456
+      # <ITEM_ID> is provided by the `elastic/oblt-actions/github/project-add` action.
+      item-id: <ITEM_ID>
+      field-type: 'iteration'
+      field-name: 'Iteration'
+      field-value: '@current'
 ```
 <!--/usage-->
