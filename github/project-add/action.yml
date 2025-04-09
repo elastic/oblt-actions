@@ -1,0 +1,43 @@
+name: 'github/project-add'
+
+description: Adds a GitHub issue or pull-request to a GitHub project
+
+inputs:
+  item-url:
+    description: 'The GitHub issue/pull-request URL to add'
+    default: ''
+  github-org:
+    description: 'The GitHub org'
+    default: 'elastic'
+    required: true
+  github-token:
+    description: 'The GitHub access token.'
+    default: ${{ github.token }}
+    required: true
+  project-id:
+    description: 'The GitHub project numeric ID.'
+    type: number
+    required: true
+
+outputs:
+  item-id:
+    description: "ID of item in the project"
+    value: ${{ steps.gh-api-add-to-project.outputs.item-id }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: add item to project
+      id: gh-api-add-to-project
+      run: |
+        project_id=$(gh api graphql -f query='query($org:String!,$project_number:Int!){ organization(login:$org){ projectV2(number:$project_number) { id } } }' -F project_number="${PROJECT_NUMBER_ID}" -F org="${ORG}" --jq '.data.organization.projectV2.id' )
+        item_id=$(gh project item-add "${PROJECT_NUMBER_ID}" --url "${ITEM_URL}" --owner "${ORG}" --format json --jq .id)
+        echo "item-id=${item_id}" >> "${GITHUB_OUTPUT}"
+
+        echo "::notice::Item added to project https://github.com/orgs/${ORG}/projects/${PROJECT_NUMBER_ID}"
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        ORG: ${{ inputs.github-org }}
+        ITEM_URL: ${{ inputs.item-url }}
+        PROJECT_NUMBER_ID: ${{ inputs.project-id }}

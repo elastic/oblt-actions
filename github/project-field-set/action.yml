@@ -1,0 +1,82 @@
+name: 'github/project-field-set'
+
+description: Sets field of an GitHub project item
+
+inputs:
+  github-token:
+    description: 'The GitHub access token.'
+    default: ${{ github.token }}
+    required: true
+  github-org:
+    description: 'The GitHub org'
+    default: 'elastic'
+    required: true
+  project-id:
+    description: 'The GitHub project numeric ID.'
+    required: true
+  item-id:
+    description: "ID of item in the project"
+    required: true
+  field-name:
+    description: 'Field name'
+    required: true
+  field-value:
+    description: 'Field value, when `field-type` = `iteration` then `@current` and `@next` and `@previous` are also supported'
+    required: true
+  field-type:
+    description: 'Field type, supported values are `single-select` and `iteration`'
+    required: true
+    default: 'single-select'
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Set select field value of project item
+      id: gh-api-project-select-field-value
+      if: ${{ inputs.field-type == 'single-select' }}
+      shell: bash
+      run: |
+        project_id=$(gh api graphql -f query='query($org:String!,$project_number:Int!){ organization(login:$org){ projectV2(number:$project_number) { id } } }' -F project_number="${PROJECT_NUMBER_ID}" -F org="${ORG}" --jq '.data.organization.projectV2.id' )
+        field_json=$(gh api graphql -f query='query($project_id:ID!){ node(id:$project_id){ ... on ProjectV2 { fields(first:20) { nodes { ... on ProjectV2SingleSelectField { id name options { id name } } } } } } }' --jq ".data.node.fields.nodes[]|select(.name==\"${FIELD_NAME}\")" -F project_id="${project_id}")
+        field_id=$( echo "${field_json}" | jq -r '.id' )
+        field_value_id=$( echo "$field_json" | jq -r ".options[]|select(.name==\"${FIELD_VALUE}\")|.id" )
+        gh project item-edit --id "${ITEM_ID}" --project-id "${project_id}" --field-id "${field_id}" --single-select-option-id "${field_value_id}"
+        echo "::notice:: '${FIELD_NAME}' single select field set to '${FIELD_VALUE}'"
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        ORG: ${{ inputs.github-org }}
+        PROJECT_NUMBER_ID: ${{ inputs.project-id }}
+        ITEM_ID: ${{ inputs.item-id }}
+        FIELD_NAME: ${{ inputs.field-name }}
+        FIELD_VALUE: ${{ inputs.field-value }}
+
+    - name: Set iteration field value of project item
+      id: gh-api-project-iteration-field-value
+      if: ${{ inputs.field-type == 'iteration' }}
+      shell: bash
+      run: |
+        project_id=$(gh api graphql -f query='query($org:String!,$project_number:Int!){ organization(login:$org){ projectV2(number:$project_number) { id } } }' -F project_number="${PROJECT_NUMBER_ID}" -F org="${ORG}" --jq '.data.organization.projectV2.id' )
+        field_json=$(gh api graphql -f query='query($project_id:ID!){ node(id:$project_id) { ... on ProjectV2 { fields(first: 20) { nodes { ... on ProjectV2IterationField { id name configuration { iterations { startDate id title } completedIterations { startDate id title } } } } } } } }' --jq ".data.node.fields.nodes[]|select(.name==\"${FIELD_NAME}\")" -F project_id="${project_id}")
+        field_id=$(echo "$field_json" | jq -r '.id' )
+        jq_expr=''
+        if [ '@current' == "${FIELD_VALUE}" ]; then
+          jq_expr='last(.configuration.iterations[]|select(.startDate<=(now|strftime("%Y-%m-%d"))))'
+        elif [ '@next' == "${FIELD_VALUE}" ]; then
+          jq_expr='first(.configuration.iterations[]|select(.startDate>(now|strftime("%Y-%m-%d"))))'
+        elif [ '@previous' == "${FIELD_VALUE}" ]; then
+          jq_expr='first(.configuration.completedIterations[])'
+        else
+          jq_expr=".configuration.iterations + .configuration.completedIterations|.[]|select(.title==\"${FIELD_VALUE}\")"
+        fi
+        field_value_id=$(jq -r "${jq_expr}|.id" <<< "${field_json}")
+        field_value_title=$(jq -r "${jq_expr}|.title" <<< "${field_json}")
+        gh project item-edit --id "${ITEM_ID}" --project-id "${project_id}" --field-id "${field_id}" --iteration-id "${field_value_id}"
+        echo "::notice:: '${FIELD_NAME}' iteration field set to '${field_value_title}' (${FIELD_VALUE})"
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        ORG: ${{ inputs.github-org }}
+        PROJECT_NUMBER_ID: ${{ inputs.project-id }}
+        ITEM_ID: ${{ inputs.item-id }}
+        FIELD_NAME: ${{ inputs.field-name }}
+        FIELD_VALUE: ${{ inputs.field-value }}
