@@ -84,7 +84,7 @@ def main():
     filtered_branches = []
 
     if 'backport-active-all' in labels:
-        filtered_branches = [branch for branch in target_branches if branch != 'main']
+        filtered_branches = [branch for branch in target_branches if branch != 'main' and branch != '7.17']
         print('Using all branches from JSON (excluding main) due to backport-active-all label')
     else:
         # Process 8.x and 9.x branches based on labels
