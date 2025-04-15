@@ -16,8 +16,8 @@ class TestBackportScript(unittest.TestCase):
 
     @patch('backport_script.requests.get')
     @patch('backport_script.requests.post')
-    def test_backport_active_all(self, mock_post, mock_get):
-        # In this scenario, the PR label "backport-active-all" triggers backporting on all branches (except 'main')
+    def test_backport_active_all_label_selects_all_branches_but_main_or_717(self, mock_post, mock_get):
+        # In this scenario, the PR label "backport-active-all" triggers backporting on all branches (except 'main' and '7.17').
         os.environ['PR_LABELS'] = json.dumps([{"name": "backport-active-all"}])
         config_response = MagicMock()
         config_data = {'branches': ['main', '7.17', '8.16', '8.17', '9.0']}
@@ -42,8 +42,8 @@ class TestBackportScript(unittest.TestCase):
         exit_code = backport_script.main()
         self.assertEqual(exit_code, 0)
 
-        # We expect branches other than 'main' to be targeted:
-        expected_branches = ['7.17', '8.16', '8.17', '9.0']
+        # We expect branches other than 'main' or '7.17' to be targeted:
+        expected_branches = ['8.16', '8.17', '9.0']
         expected_comment = f"@mergifyio backport {' '.join(expected_branches)}"
 
         # Verify that a comment containing the expected branches has been posted.
@@ -54,7 +54,7 @@ class TestBackportScript(unittest.TestCase):
 
     @patch('backport_script.requests.get')
     @patch('backport_script.requests.post')
-    def test_backport_active_8(self, mock_post, mock_get):
+    def test_backport_active_8_label_selects_only_8x_branches(self, mock_post, mock_get):
         # Change PR_LABELS so that only "backport-active-8" is present.
         os.environ['PR_LABELS'] = json.dumps([{"name": "backport-active-8"}])
         config_response = MagicMock()
@@ -80,6 +80,41 @@ class TestBackportScript(unittest.TestCase):
 
         # Expect only branches starting with "8." to be selected.
         expected_branches = ['8.0', '8.1']
+        expected_comment = f"@mergifyio backport {' '.join(expected_branches)}"
+
+        mock_post.assert_called_once()
+        _, kwargs = mock_post.call_args
+        body = kwargs.get('json', {}).get('body', '')
+        self.assertIn(expected_comment, body)
+
+    @patch('backport_script.requests.get')
+    @patch('backport_script.requests.post')
+    def test_backport_active_9_label_selects_only_9x_branches(self, mock_post, mock_get):
+        # Change PR_LABELS so that only "backport-active-9" is present.
+        os.environ['PR_LABELS'] = json.dumps([{"name": "backport-active-9"}])
+        config_response = MagicMock()
+        config_data = {'branches': ['9.0', '8.1', 'main', '7.17']}
+        config_response.status_code = 200
+        config_response.json.return_value = config_data
+
+        def get_side_effect(url, headers=None, timeout=None):
+            if url == os.environ['BACKPORTS_URL']:
+                return config_response
+            else:
+                dummy = MagicMock()
+                dummy.status_code = 404
+                return dummy
+        mock_get.side_effect = get_side_effect
+
+        post_response = MagicMock()
+        post_response.status_code = 201
+        mock_post.return_value = post_response
+
+        exit_code = backport_script.main()
+        self.assertEqual(exit_code, 0)
+
+        # Expect only branches starting with "9." to be selected.
+        expected_branches = ['9.0']
         expected_comment = f"@mergifyio backport {' '.join(expected_branches)}"
 
         mock_post.assert_called_once()
