@@ -25,6 +25,7 @@ jobs:
   test:
     needs:
       - backport-action
+      - unit-test
     runs-on: ubuntu-latest
     steps:
       - id: check
@@ -32,6 +33,14 @@ jobs:
         with:
           jobs: ${{ toJSON(needs) }}
       - run: ${{ steps.check.outputs.is-success }}
+
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: python3 -m unittest test_backport_script.py
+        working-directory: github/backport-active
 
   backport-action:
     runs-on: ubuntu-latest
