@@ -16,7 +16,7 @@ class TestBackportScript(unittest.TestCase):
 
     @patch('backport_script.requests.get')
     @patch('backport_script.requests.post')
-    def test_backport_active_all(self, mock_post, mock_get):
+    def test_backport_active_all_label_selects_all_branches_but_main_or_717(self, mock_post, mock_get):
         # In this scenario, the PR label "backport-active-all" triggers backporting on all branches (except 'main' and '7.17').
         os.environ['PR_LABELS'] = json.dumps([{"name": "backport-active-all"}])
         config_response = MagicMock()
@@ -54,7 +54,7 @@ class TestBackportScript(unittest.TestCase):
 
     @patch('backport_script.requests.get')
     @patch('backport_script.requests.post')
-    def test_backport_active_8(self, mock_post, mock_get):
+    def test_backport_active_8_label_selects_only_8x_branches(self, mock_post, mock_get):
         # Change PR_LABELS so that only "backport-active-8" is present.
         os.environ['PR_LABELS'] = json.dumps([{"name": "backport-active-8"}])
         config_response = MagicMock()
@@ -89,7 +89,7 @@ class TestBackportScript(unittest.TestCase):
 
     @patch('backport_script.requests.get')
     @patch('backport_script.requests.post')
-    def test_backport_active_9(self, mock_post, mock_get):
+    def test_backport_active_9_label_selects_only_9x_branches(self, mock_post, mock_get):
         # Change PR_LABELS so that only "backport-active-9" is present.
         os.environ['PR_LABELS'] = json.dumps([{"name": "backport-active-9"}])
         config_response = MagicMock()
