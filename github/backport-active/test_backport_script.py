@@ -42,7 +42,7 @@ class TestBackportScript(unittest.TestCase):
         exit_code = backport_script.main()
         self.assertEqual(exit_code, 0)
 
-        # We expect branches other than 'main' to be targeted:
+        # We expect branches other than 'main' or '7.17' to be targeted:
         expected_branches = ['8.16', '8.17', '9.0']
         expected_comment = f"@mergifyio backport {' '.join(expected_branches)}"
 
