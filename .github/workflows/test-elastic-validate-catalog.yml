@@ -1,0 +1,26 @@
+name: test-elastic-validate-catalog
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  pull_request:
+    paths:
+      - 'elastic/validate-catalog/**'
+      - '.github/workflows/test-elastic-validate-catalog.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'elastic/validate-catalog/**'
+      - '.github/workflows/test-elastic-validate-catalog.yml'
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./elastic/validate-catalog
