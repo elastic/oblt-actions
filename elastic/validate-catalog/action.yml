@@ -27,6 +27,7 @@ runs:
         password: ${{ inputs.github-token }}
 
     - run: docker pull ${{ env.IMAGE }}
+      shell: bash
       env:
         IMAGE: ${{ inputs.container-image }}
 
@@ -35,5 +36,6 @@ runs:
           --mount type=bind,source=./catalog-info.yaml,target=/home/app/catalog-info.yaml \
           ${{ env.IMAGE }} \
           rre validate --backstage-entity-aware --verbose catalog-info.yaml
+      shell: bash
       env:
         IMAGE: ${{ inputs.container-image }}
