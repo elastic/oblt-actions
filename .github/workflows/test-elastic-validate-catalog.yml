@@ -42,9 +42,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: echo "foo-bar" > catalog-info.yaml
+      - run: echo "wrong-content" > catalog-info.yaml
       - uses: ./elastic/validate-catalog
         id: validate-catalog
         continue-on-error: true
       - name: Assert is failure
-        run: test "${{steps.validation-catalog.outcome}}" = "failure"
+        run: test "${{steps.validate-catalog.outcome}}" = "failure"
