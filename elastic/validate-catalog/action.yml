@@ -1,0 +1,39 @@
+---
+name: elastic/validate-catalog
+description: |
+  Run the catalog-info validation
+
+inputs:
+  container-image:
+    description: 'The catalog info container image.'
+    required: false
+    type: string
+    default: 'ghcr.io/elastic/observability-robots/ci-agent-images/pipelib:latest'
+  github-token:
+    description: 'The GitHub access token.'
+    required: false
+    type: string
+    default: ${{ github.token }}
+
+runs:
+  using: "composite"
+  steps:
+    - uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ inputs.github-token }}
+
+    - run: docker pull --quiet ${{ env.IMAGE }}
+      shell: bash
+      env:
+        IMAGE: ${{ inputs.container-image }}
+
+    - run: |-
+        docker run -t \
+          --mount type=bind,source=./catalog-info.yaml,target=/home/app/catalog-info.yaml \
+          ${{ env.IMAGE }} \
+          rre validate --backstage-entity-aware --verbose catalog-info.yaml
+      shell: bash
+      env:
+        IMAGE: ${{ inputs.container-image }}

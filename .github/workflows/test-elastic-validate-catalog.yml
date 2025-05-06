@@ -1,0 +1,50 @@
+name: test-elastic-validate-catalog
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  pull_request:
+    paths:
+      - 'elastic/validate-catalog/**'
+      - '.github/workflows/test-elastic-validate-catalog.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'elastic/validate-catalog/**'
+      - '.github/workflows/test-elastic-validate-catalog.yml'
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  test:
+    needs:
+      - main
+      - failed
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: touch catalog-info.yaml
+      - uses: ./elastic/validate-catalog
+
+  failed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "wrong-content" > catalog-info.yaml
+      - uses: ./elastic/validate-catalog
+        id: validate-catalog
+        continue-on-error: true
+      - name: Assert is failure
+        run: test "${{steps.validate-catalog.outcome}}" = "failure"
