@@ -1,0 +1,23 @@
+name: test-elastic-github-commands
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  pull_request:
+    paths:
+      - '.github/workflows/test-elastic-github-commands.yml'
+      - 'elastic/github-commands/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./elastic/github-commands
