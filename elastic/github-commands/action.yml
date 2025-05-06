@@ -1,0 +1,39 @@
+name: elastic/github-commands
+description: Print the supported GitHub commands
+inputs:
+  github-token:
+    description: 'The GitHub access token.'
+    required: false
+    type: string
+    default: ${{ github.token }}
+  continue-on-error:
+    description: 'Whether to continue on error.'
+    required: false
+    type: boolean
+    default: true
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      continue-on-error: true
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const body = `
+            ### :robot: GitHub comments
+
+            <details><summary>Expand to view the GitHub comments</summary>
+            <p>
+
+            Just comment with:
+            - \`run\` \`docs-build\` : Re-trigger the docs validation. (use unformatted text in the comment!)
+            </p>
+            </details>
+          `.replace(/  +/g, '')
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: body
+          })

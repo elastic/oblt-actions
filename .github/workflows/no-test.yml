@@ -12,6 +12,7 @@ on:
       - '!aws/auth/**'
       - '!buildkite/run/**'
       - '!check-dependent-jobs/**'
+      - '!elastic/github-commands/**'
       - '!git/setup/**'
       - '!github/backport-active/**'
       - '!github/project-add/**'
