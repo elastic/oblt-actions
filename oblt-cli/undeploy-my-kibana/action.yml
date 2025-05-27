@@ -62,7 +62,7 @@ runs:
 
     - name: Gather PR Owner
       run: |-
-        PR_AUTHOR=$(gh pr view ${PR} --repo ${REPO} --json author --jq .author.login)
+        PR_AUTHOR=$(gh pr view "${PR}" --repo "${REPO}" --json author --jq .author.login)
         echo "PR_AUTHOR=${PR_AUTHOR}" >> $GITHUB_ENV
       env:
         PR: ${{ inputs.pull-request }}

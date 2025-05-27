@@ -84,7 +84,7 @@ runs:
     - name: Get cluster given the target branch (either edge-lite or release)
       if: contains(steps.is_elastic_member.outputs.result, 'true')
       run: |-
-        PR=$(basename ${ISSUE_URL})
+        PR=$(basename "${ISSUE_URL}")
         echo "PR=${PR}" >> $GITHUB_ENV
 
         # issue_comment does not contain any references to github.base_ref
@@ -128,7 +128,7 @@ runs:
           create \
           --label 'deploy-custom-kibana' \
           --title "[Deploy Kibana] for user ${GITHUB_USER} with PR kibana@pr-${{ env.PR }} on cluster ${{ env.CLUSTER }}" \
-          --assignee ${GITHUB_USER} \
+          --assignee "${GITHUB_USER}" \
           --body-file .body-content \
           --repo elastic/observability-test-environments | tee .issue
         echo "issue=$(cat .issue)" >> "$GITHUB_OUTPUT"
