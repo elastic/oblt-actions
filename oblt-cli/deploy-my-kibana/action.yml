@@ -69,7 +69,9 @@ runs:
 
     - if: ${{ inputs.github-token != '' }}
       name: If GitHub token provided
-      run: echo "GH_TOKEN=${{ inputs.github-token }}" >> "$GITHUB_ENV"
+      run: echo "GH_TOKEN=${GH_TOKEN}" >> "$GITHUB_ENV"
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
       shell: bash
 
     - uses: elastic/oblt-actions/github/is-member-of@v1
