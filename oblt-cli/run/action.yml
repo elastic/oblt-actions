@@ -24,7 +24,8 @@ runs:
         slack-channel: ${{ inputs.slack-channel }}
         username: ${{ inputs.username }}
     - name: run oblt-cli
-      run: oblt-cli --verbose ${{ inputs.command }}
+      run: oblt-cli --verbose ${COMMAND}
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
+        COMMAND: ${{ inputs.command }}

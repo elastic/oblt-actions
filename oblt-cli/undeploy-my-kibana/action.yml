@@ -62,8 +62,11 @@ runs:
 
     - name: Gather PR Owner
       run: |-
-        PR_AUTHOR=$(gh pr view ${{ inputs.pull-request }} --repo ${{ inputs.repository }} --json author --jq .author.login)
+        PR_AUTHOR=$(gh pr view ${PR} --repo ${REPO} --json author --jq .author.login)
         echo "PR_AUTHOR=${PR_AUTHOR}" >> $GITHUB_ENV
+      env:
+        PR: ${{ inputs.pull-request }}
+        REPO: ${{ inputs.repository }}
       shell: bash
 
     - name: Create GitHub issue body
