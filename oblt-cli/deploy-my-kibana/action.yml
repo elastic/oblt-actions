@@ -133,7 +133,7 @@ runs:
           --repo elastic/observability-test-environments | tee .issue
         echo "issue=$(cat .issue)" >> "$GITHUB_OUTPUT"
       env:
-        USER: ${{ inputs.user }}
+        GITHUB_USER: ${{ inputs.user }}
         COMMENT_URL: ${{ inputs.comment-url }}
       shell: bash
 
