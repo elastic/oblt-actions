@@ -49,6 +49,10 @@ inputs:
     description: Set this action as failed if test report contain any failed test
     required: true
     default: 'true'
+  fail-on-empty:
+    description: Set this action as failed if no test results are found
+    required: true
+    default: 'false'
   only-summary:
     description: |
       Allows you to generate only the summary.
@@ -57,18 +61,11 @@ inputs:
       Detailed listing of test suites and test cases will be skipped.
     default: 'false'
     required: false
-  output-to:
-    description: |
-      The location to write the report to. Supported options:
-        - checks
-        - step-summary
-    default: 'checks'
-    required: false
 runs:
   using: "composite"
   steps:
     - name: Report test results
-      uses: phoenix-actions/test-reporting@f957cd93fc2d848d556fa0d03c57bc79127b6b5e # v15
+      uses: dorny/test-reporter@890a17cecf52a379fc869ab770a71657660be727 # v2.1.0
       with:
         artifact: ${{ inputs.artifact }}
         name: ${{ inputs.name }}
@@ -77,5 +74,5 @@ runs:
         list-suites: ${{ inputs.list-suites }}
         list-tests: ${{ inputs.list-tests }}
         fail-on-error: ${{ inputs.fail-on-error }}
+        fail-on-empty: ${{ inputs.fail-on-empty }}
         only-summary: ${{ inputs.only-summary }}
-        output-to: ${{ inputs.output-to }}
