@@ -14,13 +14,14 @@ Setup oblt-cli for use in GitHub Actions workflows.
 
 ## Inputs
 <!--inputs-->
-| Name            | Description                                                                                                        | Required | Default            |
-|-----------------|--------------------------------------------------------------------------------------------------------------------|----------|--------------------|
-| `github-token`  | The GitHub access token.                                                                                           | `true`   | ` `                |
-| `slack-channel` | The slack channel to notify the status.                                                                            | `false`  | `#observablt-bots` |
-| `username`      | Username to show in the deployments with oblt-cli, format: [a-z0-9]                                                | `false`  | `obltmachine`      |
-| `version`       | Install a specific version of oblt-cli. If both `version` and `version-file` are provided, `version` will be used. | `false`  | ` `                |
-| `version-file`  | The file to read the version from. E.g. `.oblt-cli-version` or `.tool-versions` (asdf-vm).                         | `false`  | ` `                |
+| Name             | Description                                                                                                        | Required | Default                 |
+|------------------|--------------------------------------------------------------------------------------------------------------------|----------|-------------------------|
+| `github-token`   | The GitHub access token.                                                                                           | `true`   | ` `                     |
+| `slack-channel`  | The slack channel to notify the status.                                                                            | `false`  | `#observablt-bots`      |
+| `username`       | Username to show in the deployments with oblt-cli, format: [a-z0-9]                                                | `false`  | `obltmachine`           |
+| `version`        | Install a specific version of oblt-cli. If both `version` and `version-file` are provided, `version` will be used. | `false`  | ` `                     |
+| `version-file`   | The file to read the version from. E.g. `.oblt-cli-version` or `.tool-versions` (asdf-vm).                         | `false`  | ` `                     |
+| `gcp-project-id` | The GCP Project ID                                                                                                 | `false`  | `elastic-observability` |
 <!--/inputs-->
 
 ## Usage

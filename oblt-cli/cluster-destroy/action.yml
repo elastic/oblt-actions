@@ -14,6 +14,10 @@ inputs:
     description: 'Username to show in the deployments with oblt-cli, format: [a-z0-9]'
     default: 'obltmachine'
     required: false
+  gcp-project-id:
+    description: 'The GCP Project ID'
+    default: 'elastic-observability'
+    required: false
 runs:
   using: "composite"
   steps:
@@ -27,6 +31,8 @@ runs:
       with:
         github-token: ${{ inputs.github-token }}
         username: ${{ inputs.username }}
+        gcp-project-id: ${{ inputs.gcp-project-id }}
+
     - run: |
         oblt-cli cluster destroy --cluster-name "${{ steps.validation.outputs.cluster-name }}" --force
       shell: bash

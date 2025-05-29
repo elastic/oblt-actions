@@ -21,6 +21,10 @@ inputs:
   version-file:
     description: "The file to read the version from. E.g. `.oblt-cli-version` or `.tool-versions` (asdf-vm)."
     required: false
+  gcp-project-id:
+    description: 'The GCP Project ID'
+    default: 'elastic-observability'
+    required: false
 
 runs:
   using: composite
@@ -32,18 +36,23 @@ runs:
         OBLT_CLI_VERSION: ${{ inputs.version }}
         OBLT_CLI_VERSION_FILE: ${{ inputs.version-file }}
       shell: bash
+
+      # TODO: validate if version is greater than 7.19.0
     - name: Configure oblt-cli
       run: >
         oblt-cli configure
         --git-http-mode
         --username="${OBLT_CLI_USERNAME}"
         --slack-channel="${OBLT_CLI_SLACK_CHANNEL}"
+        --project-id="${OBLT_CLI_GCP_PROJECT_ID}"
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         ELASTIC_APM_ENVIRONMENT: ci
         OBLT_CLI_USERNAME: ${{ inputs.username }}
         OBLT_CLI_SLACK_CHANNEL: ${{ inputs.slack-channel }}
+        OBLT_CLI_GCP_PROJECT_ID: ${{ inputs.gcp-project-id }}
       shell: bash
+
     - name: Export env
       run: echo "ELASTIC_APM_ENVIRONMENT=ci" >> $GITHUB_ENV
       shell: bash

@@ -8,12 +8,13 @@ Run the oblt-cli wrapper to destroy the given cluster
 
 ## Inputs
 <!--inputs-->
-| Name                | Description                                                         | Required | Default       |
-|---------------------|---------------------------------------------------------------------|----------|---------------|
-| `cluster-name`      | The cluster name                                                    | `false`  | ` `           |
-| `cluster-info-file` | The cluster info file (absolute path)                               | `false`  | ` `           |
-| `github-token`      | The GitHub access token.                                            | `true`   | ` `           |
-| `username`          | Username to show in the deployments with oblt-cli, format: [a-z0-9] | `false`  | `obltmachine` |
+| Name                | Description                                                         | Required | Default                 |
+|---------------------|---------------------------------------------------------------------|----------|-------------------------|
+| `cluster-name`      | The cluster name                                                    | `false`  | ` `                     |
+| `cluster-info-file` | The cluster info file (absolute path)                               | `false`  | ` `                     |
+| `github-token`      | The GitHub access token.                                            | `true`   | ` `                     |
+| `username`          | Username to show in the deployments with oblt-cli, format: [a-z0-9] | `false`  | `obltmachine`           |
+| `gcp-project-id`    | The GCP Project ID                                                  | `false`  | `elastic-observability` |
 <!--/inputs-->
 
 ## Usage

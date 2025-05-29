@@ -9,11 +9,12 @@ Run the oblt-cli wrapper to retrieve the credentials to connect to the given clu
 
 ## Inputs
 <!--inputs-->
-| Name                | Description                           | Required | Default |
-|---------------------|---------------------------------------|----------|---------|
-| `cluster-name`      | The cluster name                      | `false`  | ` `     |
-| `cluster-info-file` | The cluster info file (absolute path) | `false`  | ` `     |
-| `github-token`      | The GitHub access token.              | `true`   | ` `     |
+| Name                | Description                           | Required | Default                 |
+|---------------------|---------------------------------------|----------|-------------------------|
+| `cluster-name`      | The cluster name                      | `false`  | ` `                     |
+| `cluster-info-file` | The cluster info file (absolute path) | `false`  | ` `                     |
+| `github-token`      | The GitHub access token.              | `true`   | ` `                     |
+| `gcp-project-id`    | The GCP Project ID                    | `false`  | `elastic-observability` |
 <!--/inputs-->
 
 ## Exported Environment Variables
