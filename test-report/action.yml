@@ -64,10 +64,39 @@ inputs:
         - step-summary
     default: 'checks'
     required: false
+  github-token:
+    description: >-
+      GitHub token used to access the GitHub API. Defaults to secrets.GITHUB_TOKEN.
+    default: ${{ github.token }}
+    required: false
 runs:
   using: "composite"
   steps:
+    - name: Check artifact existence via GitHub API
+      id: check_artifact
+      shell: bash
+      run: |
+        # Remove leading and trailing slashes from the regex pattern
+        ARTIFACT_NAME_PATTERN="${INPUT_ARTIFACT#/}"
+        ARTIFACT_NAME_PATTERN="${ARTIFACT_NAME_PATTERN%/}"
+        ARTIFACTS_JSON=$(gh api \
+          repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts)
+        MATCHED=$(echo "$ARTIFACTS_JSON" | jq -r --arg pattern "$ARTIFACT_NAME_PATTERN" '.artifacts[] | select(.name | test($pattern)) | .name')
+        if [[ -n "$MATCHED" ]]; then
+          echo "Artifacts found: $MATCHED"
+          echo "found=true" >> $GITHUB_OUTPUT
+        else
+          echo "Artifacts not found. Skipping report generation."
+          echo "found=false" >> $GITHUB_OUTPUT
+        fi
+      env:
+        INPUT_ARTIFACT: ${{ inputs.artifact }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_RUN_ID: ${{ github.run_id }}
+        GH_TOKEN: ${{ inputs.github-token }}
+
     - name: Report test results
+      if: steps.check_artifact.outputs.found == 'true'
       uses: phoenix-actions/test-reporting@f957cd93fc2d848d556fa0d03c57bc79127b6b5e # v15
       with:
         artifact: ${{ inputs.artifact }}
