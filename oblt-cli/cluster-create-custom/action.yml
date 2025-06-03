@@ -37,6 +37,16 @@ inputs:
     description: 'Whether to deploy a cluster with a random name'
     default: false
     required: false
+  wait:
+    description: 'it waits N minutes for the operation to finish. (default 0 if no wait time is provided)'
+    default: '0'
+    required: false
+
+outputs:
+  cluster-name:
+    description: 'The cluster name that has been created'
+    value: ${{ steps.info.outputs.cluster-name }}
+
 runs:
   using: "composite"
   steps:
@@ -51,6 +61,7 @@ runs:
         gitops: ${{ inputs.gitops }}
         input_parameters: ${{ inputs.parameters }}
         skip_random_name: ${{ inputs.skip-random-name }}
+        wait_time: ${{ inputs.wait }}
       with:
         script: |
           const {
@@ -97,6 +108,15 @@ runs:
             core.setOutput('SKIP_RANDOM_NAME', '--skip-random-name')
           }
 
+          cluster_json_file = `${RUNNER_TEMP}/cluster.json`
+          core.setOutput('cluster-json-file', `${cluster_json_file}`)
+          if (wait_time) {
+            waitFlags = []
+            waitFlags.push(`--wait=${wait_time}`)
+            waitFlags.push(`--output-file=${cluster_json_file}`)
+            core.setOutput('WAIT', waitFlags.join(' '))
+          }
+
     - uses: elastic/oblt-actions/oblt-cli/setup@v1.28.0
       with:
         github-token: ${{ inputs.github-token }}
@@ -110,7 +130,19 @@ runs:
             ${{ steps.flags.outputs.CLUSTER_NAME_PREFIX }} \
             ${{ steps.flags.outputs.CLUSTER_NAME_SUFFIX }} \
             ${{ steps.flags.outputs.PARAMETERS }} \
-            ${{ steps.flags.outputs.SKIP_RANDOM_NAME }}
+            ${{ steps.flags.outputs.SKIP_RANDOM_NAME }} \
+            ${{ steps.flags.outputs.WAIT }}
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
+
+    - run: |
+        cluster_name=""
+        if [ -f "${cluster_json}" ]; then
+          cluster_name=$(jq -r '.ClusterName' < "${cluster_json}")
+        fi
+        echo "cluster-name=${cluster_name}" >> "$GITHUB_OUTPUT"
+      id: info
+      shell: bash
+      env:
+        cluster_json: "${{ steps.flags.outputs.cluster-json-file }}"
