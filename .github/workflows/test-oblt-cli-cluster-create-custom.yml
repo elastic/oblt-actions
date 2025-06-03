@@ -140,7 +140,6 @@ jobs:
           template: 'deploy-kibana'
           cluster-name-prefix: 'testgithubaction'
           gitops: true
-          parameters: '{"RemoteClusterName":"release-oblt","StackVersion":"8.7.0","KibanaDockerImage":"docker.elastic.co/observability-ci/kibana-cloud:8.7.0-SNAPSHOT"}'
           wait: '15'
 
       - name: Assert is not empty
