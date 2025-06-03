@@ -137,7 +137,7 @@ jobs:
         id: create
         with:
           github-token: ${{ steps.get_token.outputs.token }}
-          template: 'deploy-kibana'
+          template: 'serverless'
           cluster-name-prefix: 'testgithubaction'
           gitops: true
           wait: '15'
