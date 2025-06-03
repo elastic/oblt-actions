@@ -10,6 +10,10 @@ inputs:
   github-token:
     description: 'The GitHub access token.'
     required: true
+  gcp-project-id:
+    description: 'The GCP Project ID'
+    default: 'elastic-observability'
+    required: false
 runs:
   using: "composite"
   steps:
@@ -22,6 +26,7 @@ runs:
     - uses: elastic/oblt-actions/oblt-cli/setup@v1.28.0
       with:
         github-token: ${{ inputs.github-token }}
+        gcp-project-id: ${{ inputs.gcp-project-id }}
 
     - name: run oblt-cli
       run: |

@@ -37,6 +37,10 @@ inputs:
     description: 'Whether to deploy a cluster with a random name'
     default: false
     required: false
+  gcp-project-id:
+    description: 'The GCP Project ID'
+    default: 'elastic-observability'
+    required: false
 runs:
   using: "composite"
   steps:
@@ -102,6 +106,7 @@ runs:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
         username: ${{ inputs.username }}
+        gcp-project-id: ${{ inputs.gcp-project-id }}
 
     - run: |
         oblt-cli cluster create custom \

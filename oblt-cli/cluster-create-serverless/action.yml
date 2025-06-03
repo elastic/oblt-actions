@@ -38,6 +38,10 @@ inputs:
     description: 'it waits N minutes for the operation to finish. (default 0 if no wait time is provided)'
     default: '0'
     required: false
+  gcp-project-id:
+    description: 'The GCP Project ID'
+    default: 'elastic-observability'
+    required: false
 
 outputs:
   cluster-name:
@@ -115,6 +119,8 @@ runs:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
         username: ${{ inputs.username }}
+        gcp-project-id: ${{ inputs.gcp-project-id }}
+
     - run: |
         oblt-cli cluster create custom \
           --template serverless \
