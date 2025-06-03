@@ -72,6 +72,8 @@ runs:
             gitops,
             input_parameters,
             skip_random_name,
+            wait_time,
+            RUNNER_TEMP
           } = process.env
           let parameters = {}
           if (gitops === 'true') {
