@@ -13,7 +13,8 @@ Check whether the given GitHub Pull Request author is member of the given GitHub
 | `pull-request` | The GitHub Pull Request ID | `true`   | ` `     |
 | `repository`   | The GitHub repository      | `true`   | ` `     |
 | `github-org`   | The GitHub org             | `true`   | ` `     |
-| `github-token` | The GitHub access token.   | `true`   | ` `     |
+| `github-token` | The GitHub access token    | `true`   | ` `     |
+| `exclude-bots` | Exclude bots               | `false`  | `true`  |
 <!--/inputs-->
 
 ## Usage

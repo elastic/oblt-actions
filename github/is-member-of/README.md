@@ -8,12 +8,12 @@ Check whether the given GitHub user is a member of the given GitHub organization
 
 ## Inputs
 <!--inputs-->
-| Name           | Description              | Required | Default |
-|----------------|--------------------------|----------|---------|
-| `github-user`  | The GitHub user          | `true`   | ` `     |
-| `github-org`   | The GitHub org           | `true`   | ` `     |
-| `github-token` | The GitHub access token. | `true`   | ` `     |
-| `exclude-bots` | Exclude bots             | `false`  | `true`  |
+| Name           | Description             | Required | Default |
+|----------------|-------------------------|----------|---------|
+| `github-user`  | The GitHub user         | `true`   | ` `     |
+| `github-org`   | The GitHub org          | `true`   | ` `     |
+| `github-token` | The GitHub access token | `true`   | ` `     |
+| `exclude-bots` | Exclude bots            | `false`  | `true`  |
 <!--/inputs-->
 
 ## Usage
