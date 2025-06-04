@@ -10,8 +10,12 @@ inputs:
     description: 'The GitHub org'
     required: true
   github-token:
-    description: 'The GitHub access token.'
+    description: 'The GitHub access token'
     required: true
+  exclude-bots:
+    description: 'Exclude bots'
+    default: 'true'
+    required: false
 
 outputs:
   result:
@@ -24,13 +28,17 @@ runs:
     - id: gh-api-is-member
       name: Check if user is member of the given org
       run: |
-        if gh api \
-          -H "Accept: application/vnd.github+json" \
-          /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} ; then
-          echo "result=true" >> $GITHUB_OUTPUT
-        else
-          echo "result=false" >> $GITHUB_OUTPUT
+        user_type="$(gh api -H 'Accept: application/vnd.github+json' /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} --jq '.user.type' )"
+        result='false'
+        if [ '' != "${user_type}" ]; then
+          result='true'
         fi
+        if [ 'true' == "${{ input.exclude-bots }}" ]; then
+          if [ 'Bot' == "${user_type}" ]; then
+            result='false'
+          fi
+        fi
+        echo "result=${result}" >> $GITHUB_OUTPUT
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         GH_USER: ${{ inputs.github-user }}
