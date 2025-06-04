@@ -33,13 +33,14 @@ runs:
         if [ '' != "${user_type}" ]; then
           result='true'
         fi
-        if [ 'true' == "${{ input.exclude-bots }}" ]; then
+        if [ 'true' == "${{ env.EXCLUDE_BOTS }}" ]; then
           if [ 'Bot' == "${user_type}" ]; then
             result='false'
           fi
         fi
         echo "result=${result}" >> $GITHUB_OUTPUT
       env:
+        EXCLUDE_BOTS: ${{ input.exclude-bots }}
         GH_TOKEN: ${{ inputs.github-token }}
         GH_USER: ${{ inputs.github-user }}
         GH_ORG: ${{ inputs.github-org }}
