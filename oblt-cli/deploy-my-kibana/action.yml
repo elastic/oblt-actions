@@ -126,7 +126,7 @@ runs:
         EOT
         gh issue \
           create \
-          --label 'deploy-custom-kibana' \
+          --label 'deploy-custom-kibana-fix-slack' \
           --title "[Deploy Kibana] for user ${GITHUB_USER} with PR kibana@pr-${{ env.PR }} on cluster ${{ env.CLUSTER }}" \
           --assignee "${GITHUB_USER}" \
           --body-file .body-content \
