@@ -1,6 +1,6 @@
 name: 'github/is-member-of'
 
-description: Check whether the given GitHub user is member of the given GitHub organization
+description: Check whether the given GitHub user is a member of the given GitHub organization
 
 inputs:
   github-user:
