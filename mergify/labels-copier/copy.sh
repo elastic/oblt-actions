@@ -35,5 +35,5 @@ echo ">> $labels will be added"
 if [ "$DRY_RUN" == "true" ]; then
   echo ">> DRY_RUN is set, skipping the label addition"
 else
-  gh pr edit --add-label "$labels" "$PR_URL"
+  gh pr edit --repo "$REPOSITORY" --add-label "$labels" "$PR_URL"
 fi
