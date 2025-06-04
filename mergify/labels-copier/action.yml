@@ -30,6 +30,7 @@ runs:
       id: copy-labels
       shell: bash
       env:
+        REPOSITORY: ${{ inputs.repository }}
         REPOSITORY_URL: ${{ github.server_url }}/${{ inputs.repository }}
         PR_URL: ${{ github.server_url }}/${{ inputs.repository }}/pull/${{ inputs.pull-request }}
         GH_TOKEN: ${{ inputs.github-token}}
