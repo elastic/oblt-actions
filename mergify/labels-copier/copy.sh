@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Environment variables:
 #  PR_URL
+#  REPOSITORY
 #  REPOSITORY_URL
 #  EXCLUDED_LABEL
 #  DRY_RUN
@@ -8,7 +9,7 @@
 #
 # You can run this locally for testing purposes:
 #
-# $ REPOSITORY_URL=https://github.com/elastic/apm-server PR_URL=https://github.com/elastic/apm-server/pull/15035 EXCLUDED_LABEL=backport-* DRY_RUN=true sh mergify/labels-copier/copy.sh
+# $ REPOSITORY=elastic/apm-server REPOSITORY_URL=https://github.com/elastic/apm-server PR_URL=https://github.com/elastic/apm-server/pull/15035 EXCLUDED_LABEL=backport-* DRY_RUN=true sh mergify/labels-copier/copy.sh
 #
 
 set -eo pipefail
@@ -19,14 +20,14 @@ if [ -n "$RUNNER_DEBUG" ] ; then
 fi
 
 # Get the PR Number from the body since Mergify uses the PR number as the body.
-pr_number=$(gh pr view --json body -q ".body" "$PR_URL" \
+pr_number=$(gh pr view --json body -q ".body" "$PR_URL" --repo "$REPOSITORY" \
   | sed -n -e '/automatic backport of pull request/,/done/p' \
   | sed 's#.*automatic backport of pull request ##g' \
   | cut -d"#" -f2 \
   | cut -d" " -f1)
 
 # Get the labels from the PR and filter out the excluded labels.
-labels=$(gh pr view --json labels "${REPOSITORY_URL}/pull/$pr_number" | jq -r --arg regex "$EXCLUDED_LABEL" '.labels | map(select(.name | test($regex) | not)) | map(.name) | join(",")')
+labels=$(gh pr view --json labels "${REPOSITORY_URL}/pull/$pr_number" --repo "$REPOSITORY" | jq -r --arg regex "$EXCLUDED_LABEL" '.labels | map(select(.name | test($regex) | not)) | map(.name) | join(",")')
 if [ -n "$CI" ] ; then
   echo "labels=$labels" >> "$GITHUB_OUTPUT"
 fi
