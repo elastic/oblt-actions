@@ -30,9 +30,10 @@ runs:
           -H "Accept: application/vnd.github+json" \
           /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} 2>/dev/null | jq -r '.status // .user.type' )
 
-        if [ '404' != "${result}" ]; then
+        if [[ 'User' == "${result}" ]]; then
           echo "result=true" >> $GITHUB_OUTPUT
         else
+          # 404 or unknown user type
           echo "result=false" >> $GITHUB_OUTPUT
         fi
         set -e
