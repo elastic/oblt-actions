@@ -37,7 +37,7 @@ jobs:
           github-token: ${{ secrets.PAT_TOKEN }}
 
       - if: steps.is_elastic_pr_author.outputs.result == true
-        run: echo 'PR authr is member of'
+        run: echo 'PR author is member of'
       # ...
 ```
 <!--/usage-->
