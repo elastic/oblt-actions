@@ -29,7 +29,7 @@ runs:
           /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} 2>/dev/null \
           --jq '.user.type' )
         
-        echo "result=${result" >> $GITHUB_OUTPUT
+        echo "::error ${result}"
         
         if [ 'User' = "${result}" ]; then
           echo "result=true" >> $GITHUB_OUTPUT
