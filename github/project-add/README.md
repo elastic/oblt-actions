@@ -21,9 +21,9 @@ Adds a GitHub issue or pull-request to a GitHub project
 ## Outputs
 
 <!--outputs-->
-| Name         | Description               |
-|--------------|---------------------------|
-| `item-id`    | ID of item in the project |
+| Name      | Description               |
+|-----------|---------------------------|
+| `item-id` | ID of item in the project |
 <!--/ouputs-->
 
 ## Usage

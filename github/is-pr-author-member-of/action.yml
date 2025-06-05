@@ -18,7 +18,7 @@ inputs:
 
 outputs:
   result:
-    description: 'The result in either true or false'
+    description: '`true` if user is member of the GitHub org, `false` if not a member or a bot'
     value: ${{ steps.is_org_pr_author.outputs.result }}
   author:
     description: 'The Pull Request author'
