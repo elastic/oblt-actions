@@ -24,9 +24,9 @@ runs:
     - id: gh-api-is-member
       name: Check if user is member of the given org
       run: |
-        result=$(gh api \
+        result="$(gh api \
           -H "Accept: application/vnd.github+json" \
-          /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} )
+          /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} )"
         
         echo "::error:: result='${result}'"
         
