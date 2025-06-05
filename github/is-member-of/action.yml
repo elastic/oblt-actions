@@ -25,6 +25,10 @@ runs:
       name: Check if user is member of the given org
       run: |
         # GH API call will return a 404 for non-members or bots
+        
+        # printf debug
+        gh api -H 'Accept: application/vnd.github+json' /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} --jq '.status // .user.type' 2>/dev/null
+        
         result=$(gh api -H 'Accept: application/vnd.github+json' /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} --jq '.status // .user.type' 2>/dev/null )
         if [ 'User' == "${result}" ]; then
           result='true'
