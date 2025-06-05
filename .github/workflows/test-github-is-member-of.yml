@@ -23,6 +23,7 @@ jobs:
     needs:
       - is-member
       - is-not-member
+      - bot-is-not-member
     runs-on: ubuntu-latest
     steps:
       - id: check
@@ -56,7 +57,6 @@ jobs:
       - name: Assert is member
         run: test "${{steps.validation.outputs.result}}" = "true"
 
-
   is-not-member:
     runs-on: ubuntu-latest
     steps:
@@ -80,4 +80,29 @@ jobs:
           github-org: "github"
 
       - name: Assert is not member
+        run: test "${{steps.validation.outputs.result}}" = "false"
+
+  bot-is-not-member:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: elastic/oblt-actions/git/setup@v1
+      - name: Get token
+        id: get_token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+        with:
+          app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permissions: >-
+            {
+              "members": "read"
+            }
+      - uses: ./github/is-member-of
+        id: validation
+        with:
+          github-token: ${{ steps.get_token.outputs.token }}
+          github-user: "dependabot[bot]"
+          github-org: "github"
+
+      - name: Assert bot should not be a member
         run: test "${{steps.validation.outputs.result}}" = "false"
