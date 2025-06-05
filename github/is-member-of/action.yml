@@ -27,8 +27,8 @@ runs:
         set +e
         result="$(gh api \
           -H "Accept: application/vnd.github+json" \
-          /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} --jq '.user.type // .status' 2>/dev/null )"
-        if [ 'User' = "${result}" ]; then
+          /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} --jq '.status // "member" ' 2>/dev/null )"
+        if [ '404' != "${result}" ]; then
           echo "result=true" >> $GITHUB_OUTPUT
         else
           echo "result=false" >> $GITHUB_OUTPUT
