@@ -28,12 +28,12 @@ runs:
         gh api \
           -H "Accept: application/vnd.github+json" \
           /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} 2>/dev/null
-        set -e
         if [ 0 = $? ]; then
           echo "result=true" >> $GITHUB_OUTPUT
         else
           echo "result=false" >> $GITHUB_OUTPUT
         fi
+        set -e
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         GH_USER: ${{ inputs.github-user }}
