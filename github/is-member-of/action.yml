@@ -26,10 +26,9 @@ runs:
       run: |
         gh api \
           -H "Accept: application/vnd.github+json" \
-          /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }}
-        echo "::error:: $?"
+          /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} 2>/dev/null
         
-        if [ 'User' = "${result}" ]; then
+        if [ 0 = "$?" ]; then
           echo "result=true" >> $GITHUB_OUTPUT
         else
           echo "result=false" >> $GITHUB_OUTPUT
