@@ -24,8 +24,9 @@ runs:
     - id: gh-api-is-member
       name: Check if user is member of the given org
       run: |
+        gh api -H 'Accept: application/vnd.github+json' /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }}
+        
         # printf debug
-        gh api -H 'Accept: application/vnd.github+json' /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} | jq -r '.status // .user.type'
         gh api -H 'Accept: application/vnd.github+json' /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} --jq '.status // .user.type'
         
         result=$(gh api -H 'Accept: application/vnd.github+json' /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} --jq '.status // .user.type' 2>/dev/null )
