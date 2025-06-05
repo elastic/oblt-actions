@@ -15,10 +15,6 @@ inputs:
   github-token:
     description: 'The GitHub access token'
     required: true
-  exclude-bots:
-    description: 'Exclude bots'
-    default: 'true'
-    required: false
 
 outputs:
   result:
@@ -48,4 +44,3 @@ runs:
         github-user: ${{ steps.gh_api_pr_author.outputs.result }}
         github-org: ${{ inputs.github-org }}
         github-token: ${{ inputs.github-token }}
-        exclude-bots: ${{ inputs.exclude-bots }}

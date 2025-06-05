@@ -1,6 +1,6 @@
 name: 'github/is-member-of'
 
-description: Check whether the given GitHub user is a member of the given GitHub organization
+description: Check whether the given GitHub user is a member of the given GitHub organization.
 
 inputs:
   github-user:
@@ -12,14 +12,10 @@ inputs:
   github-token:
     description: 'The GitHub access token'
     required: true
-  exclude-bots:
-    description: 'Exclude bots'
-    default: 'true'
-    required: false
 
 outputs:
   result:
-    description: 'The result in either true or false'
+    description: '`true` if user is member of the GitHub org, `false` if not a member or a bot'
     value: ${{ steps.gh-api-is-member.outputs.result }}
 
 runs:
@@ -28,19 +24,15 @@ runs:
     - id: gh-api-is-member
       name: Check if user is member of the given org
       run: |
-        user_type="$(gh api -H 'Accept: application/vnd.github+json' /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} --jq '.user.type' )"
-        result='false'
-        if [ '' != "${user_type}" ]; then
+        # GH API call will return a 404 for non-members or bots
+        user_type=$(gh api -H 'Accept: application/vnd.github+json' /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} --jq .user.type 2>/dev/null)   
+        if [ 'User' != "${user_type}" ]; then
           result='true'
-        fi
-        if [ 'true' == "${{ env.EXCLUDE_BOTS }}" ]; then
-          if [ 'Bot' == "${user_type}" ]; then
-            result='false'
-          fi
+        else
+          result='false'
         fi
         echo "result=${result}" >> $GITHUB_OUTPUT
       env:
-        EXCLUDE_BOTS: ${{ inputs.exclude-bots }}
         GH_TOKEN: ${{ inputs.github-token }}
         GH_USER: ${{ inputs.github-user }}
         GH_ORG: ${{ inputs.github-org }}

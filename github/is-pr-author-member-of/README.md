@@ -14,7 +14,6 @@ Check whether the given GitHub Pull Request author is a member of the given GitH
 | `repository`   | The GitHub repository      | `true`   | ` `     |
 | `github-org`   | The GitHub org             | `true`   | ` `     |
 | `github-token` | The GitHub access token    | `true`   | ` `     |
-| `exclude-bots` | Exclude bots               | `false`  | `true`  |
 <!--/inputs-->
 
 ## Usage
