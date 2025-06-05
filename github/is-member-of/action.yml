@@ -30,15 +30,8 @@ runs:
           /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} 2>/dev/null )"
         set -e
         
-        echo "result=${json}" >> $GITHUB_OUTPUT
-
         echo "::error:: ${json}"
-        
-        # if [ 0 = "$?" ]; then
-        #   echo "result=true" >> $GITHUB_OUTPUT
-        # else
-        #   echo "result=false" >> $GITHUB_OUTPUT
-        # fi
+        echo "result=${json}" >> $GITHUB_OUTPUT
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         GH_USER: ${{ inputs.github-user }}
