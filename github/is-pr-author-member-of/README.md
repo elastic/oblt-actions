@@ -16,6 +16,14 @@ Check whether the given GitHub Pull Request author is a member of the given GitH
 | `github-token` | The GitHub access token    | `true`   | ` `     |
 <!--/inputs-->
 
+## Outputs
+<!--outputs-->
+| Name     | Description                                                                  |
+|----------|------------------------------------------------------------------------------|
+| `result` | `true` if user is member of the GitHub org, `false` if not a member or a bot |
+| `author` | The Pull Request author                                                      |
+<!--/outputs-->
+
 ## Usage
 
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
