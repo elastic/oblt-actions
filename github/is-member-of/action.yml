@@ -28,6 +28,9 @@ runs:
           -H "Accept: application/vnd.github+json" \
           /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} 2>/dev/null \
           --jq '.user.type' )
+        
+        echo "result=${result" >> $GITHUB_OUTPUT
+        
         if [ 'User' = "${result}" ]; then
           echo "result=true" >> $GITHUB_OUTPUT
         else
