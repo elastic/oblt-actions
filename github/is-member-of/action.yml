@@ -29,6 +29,8 @@ runs:
           -H "Accept: application/vnd.github+json" \
           /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} 2>/dev/null )"
         set -e
+        
+        echo "result=${json}" >> $GITHUB_OUTPUT
 
         echo "::error:: ${json}"
         
