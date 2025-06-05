@@ -20,10 +20,11 @@ Adds a GitHub issue or pull-request to a GitHub project
 
 ## Outputs
 
+<!--outputs-->
 | Name         | Description               |
 |--------------|---------------------------|
 | `item-id`    | ID of item in the project |
-
+<!--/ouputs-->
 
 ## Usage
 <!--usage action="elastic/oblt-actions/github/project-add" version="env:VERSION"-->
