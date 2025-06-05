@@ -28,7 +28,7 @@ runs:
         
         gh api \
           -H "Accept: application/vnd.github+json" \
-          /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} --jq '.status // "member"'
+          /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} | jq -r '.status // "member"'
         
         result="$(gh api \
           -H "Accept: application/vnd.github+json" \
