@@ -26,11 +26,12 @@ runs:
       run: |
         # required because 'gh api' will return non-zero for 404s to indicate lack of membership
         set +e
+        # gh api will return a 404 with status to indicate lack of membership
         result=$(gh api \
           -H "Accept: application/vnd.github+json" \
-          /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} 2>/dev/null | jq -r '.status // .user.type' )
+          /orgs/${{ env.GH_ORG }}/members/${{ env.GH_USER }} 2>/dev/null | jq -r '.status // "member"' )
 
-        if [[ 'User' == "${result}" ]]; then
+        if [[ '404' != "${result}" ]]; then
           echo "result=true" >> $GITHUB_OUTPUT
         else
           # 404 or unknown user type
