@@ -43,7 +43,7 @@ jobs:
           github-user: "dependabot[bot]"
 
       - name: Assert is bot
-        run: test "${{steps.validation.outputs.result}}" = "Bot"
+        run: test "${{steps.validation.outputs.result}}" = "bot"
 
   is-not-bot:
     runs-on: ubuntu-latest
@@ -63,4 +63,4 @@ jobs:
           github-user: "octocat"
 
       - name: Assert is not bot
-        run: test "${{steps.validation.outputs.result}}" = "User"
+        run: test "${{steps.validation.outputs.result}}" = "user"
