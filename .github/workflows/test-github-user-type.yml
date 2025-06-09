@@ -3,12 +3,6 @@ name: test-github-user-type
 on:
   merge_group: ~
   workflow_dispatch:
-    inputs:
-      dry-run:
-        description: 'Dry run'
-        required: true
-        default: false
-        type: boolean
   push:
     paths:
       - '.github/workflows/test-github-user-type.yml'
