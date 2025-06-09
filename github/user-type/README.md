@@ -21,7 +21,7 @@ Get GitHub user type
 <!--outputs-->
 | Name     | Description                                                    |
 |----------|----------------------------------------------------------------|
-| `result` | The GitHub user type: `User` for regular users, `Bot` for bots |
+| `result` | The GitHub user type: `user` for regular users, `bot` for bots |
 <!--/outputs-->
 
 ## Usage

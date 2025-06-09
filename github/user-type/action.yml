@@ -13,7 +13,7 @@ inputs:
 
 outputs:
   result:
-    description: "The GitHub user type: `User` for regular users, `Bot` for bots"
+    description: "The GitHub user type: `user` for regular users, `bot` for bots"
     value: ${{ steps.gh-api-user-type.outputs.result }}
 
 runs:
