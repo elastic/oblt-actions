@@ -1,0 +1,36 @@
+name: 'github/user-type'
+
+description: Get GitHub user type
+
+inputs:
+  github-token:
+    description: 'The GitHub access token.'
+    default: ${{ github.token }}
+    required: true
+  github-user:
+    description: 'The GitHub username'
+    required: true
+
+outputs:
+  result:
+    description: "The GitHub user type: `user` for regular users, `bot` for bots"
+    value: ${{ steps.gh-api-user-type.outputs.result }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: get user type
+      id: gh-api-user-type
+      run: |
+        # will produce a 404 and non-zero status when user does not exists
+        # API result is normalized to lower-case, known values: 'Bot', 'User
+        type=$(gh api \
+          -H "Accept: application/vnd.github+json" \
+          /users/${{ env.GH_USER }} --jq .type | tr '[:upper:]' '[:lower:]')
+
+        echo "result=${type}" >> "${GITHUB_OUTPUT}"
+        echo "::debug::GitHub user type = ${type}"
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        GH_USER: ${{ inputs.github-user }}
