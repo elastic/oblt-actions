@@ -1,6 +1,6 @@
 name: 'github/is-pr-author-member-of'
 
-description: Check whether the given GitHub Pull Request author is member of the given GitHub organization
+description: Check whether the given GitHub Pull Request author is a member of the given GitHub organization
 
 inputs:
   pull-request:
@@ -13,12 +13,12 @@ inputs:
     description: 'The GitHub org'
     required: true
   github-token:
-    description: 'The GitHub access token.'
+    description: 'The GitHub access token'
     required: true
 
 outputs:
   result:
-    description: 'The result in either true or false'
+    description: '`true` if user is member of the GitHub org, `false` if not a member or a bot'
     value: ${{ steps.is_org_pr_author.outputs.result }}
   author:
     description: 'The Pull Request author'
