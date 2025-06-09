@@ -36,6 +36,10 @@ jobs:
         with:
           app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
           private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permissions: >-
+            {
+              "members": "read"
+            }
       - uses: ./github/user-type
         id: validation
         with:
@@ -56,6 +60,10 @@ jobs:
         with:
           app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
           private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permissions: >-
+            {
+              "members": "read"
+            }
       - uses: ./github/user-type
         id: validation
         with:
