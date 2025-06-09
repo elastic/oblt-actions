@@ -1,4 +1,4 @@
-name: test-github-is-member-of
+name: test-github-user-type
 
 on:
   merge_group: ~
@@ -11,8 +11,8 @@ on:
         type: boolean
   push:
     paths:
-      - '.github/workflows/test-github-is-member-of.yml'
-      - 'github/is-member-of/**'
+      - '.github/workflows/test-github-user-type.yml'
+      - 'github/user-type/**'
 
 permissions:
   contents: read
@@ -42,14 +42,14 @@ jobs:
         with:
           app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
           private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-      - uses: ./github/is-bot
+      - uses: ./github/user-type
         id: validation
         with:
           github-token: ${{ steps.get_token.outputs.token }}
           github-user: "dependabot[bot]"
 
       - name: Assert is bot
-        run: test "${{steps.validation.outputs.result}}" = "true"
+        run: test "${{steps.validation.outputs.result}}" = "Bot"
 
   is-not-bot:
     runs-on: ubuntu-latest
@@ -62,11 +62,11 @@ jobs:
         with:
           app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
           private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-      - uses: ./github/is-bot
+      - uses: ./github/user-type
         id: validation
         with:
           github-token: ${{ steps.get_token.outputs.token }}
           github-user: "octocat"
 
       - name: Assert is not bot
-        run: test "${{steps.validation.outputs.result}}" = "false"
+        run: test "${{steps.validation.outputs.result}}" = "User"

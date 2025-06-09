@@ -1,6 +1,6 @@
 name: 'github/project-add'
 
-description: Tests if a GitHub user is a bot or not
+description: Get GitHub user type
 
 inputs:
   github-token:
@@ -13,27 +13,22 @@ inputs:
 
 outputs:
   result:
-    description: "`true` if user is bot, `false` otherwise"
+    description: "The GitHub user type: `User` for regular users, `Bot` for bots"
     value: ${{ steps.gh-api-user-type.outputs.result }}
 
 runs:
   using: "composite"
   steps:
-    - name: add item to project
+    - name: get user type
       id: gh-api-user-type
       run: |
-        # will produce a 404 and non-zero when user does not exists
+        # will produce a 404 and non-zero status when user does not exists
         type=$(gh api \
           -H "Accept: application/vnd.github+json" \
           /users/${{ env.GH_USER }} --jq .type )
 
-        echo "::notice::GitHub user type = ${type}"
-
-        if [[ 'Bot' == "${type}" ]]; then
-          echo "result=true" >> "${GITHUB_OUTPUT}"
-        else
-          echo "result=false" >> "${GITHUB_OUTPUT}"
-        fi
+        echo "result=${type}" >> "${GITHUB_OUTPUT}"
+        echo "::debug::GitHub user type = ${type}"
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github-token }}
