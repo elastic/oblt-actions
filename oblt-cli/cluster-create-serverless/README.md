@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: elastic/oblt-actions/git/setup@v1
-      - uses: elastic/oblt-actions/oblt-cli/create-serverless@v1
+      - uses: elastic/oblt-actions/oblt-cli/cluster-create-serverless@v1
         with:
           target: 'staging'
           cluster-name-prefix: 'foo'
