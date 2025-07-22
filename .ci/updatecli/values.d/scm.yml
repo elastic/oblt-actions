@@ -8,8 +8,3 @@ scm:
   user: obltmachine
   email: obltmachine@users.noreply.github.com
   # end update-compose policy values
-
-# update-compose policy uses a different data structure for the
-# labels, so we need to use a different key
-labels:
-  - 'changelog:dependencies'
