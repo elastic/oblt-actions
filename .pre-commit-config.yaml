@@ -10,6 +10,7 @@ repos:
         exclude: |
           (?x)^(
               dist/index.js|
+              snapshoty/run/dist/index.js|
               updatecli/install/.default-updatecli-version
           )$
       - id: mixed-line-ending
