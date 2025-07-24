@@ -7,12 +7,14 @@ repos:
       - id: check-yaml
       - id: check-xml
       - id: end-of-file-fixer
-        exclude: >
-          (dist/index.js|snapshoty/run/dist/index.js|updatecli/install/.default-updatecli-version)$
+        exclude: |
+          (?x)^(
+              dist/index.js|
+              updatecli/install/.default-updatecli-version
+          )$
       - id: mixed-line-ending
       - id: trailing-whitespace
-        exclude: >
-          (dist/index.js|snapshoty/run/dist/index.js|updatecli/install/.default-updatecli-version)$
+        exclude: dist/index.js
   - repo: https://github.com/reakaleek/gh-action-readme
     rev: v0.4.0
     hooks:
