@@ -7,7 +7,12 @@ repos:
       - id: check-yaml
       - id: check-xml
       - id: end-of-file-fixer
-        exclude: dist/index.js
+        exclude: |
+          (?x)^(
+              dist/index.js|
+              snapshoty/run/dist/index.js|
+              updatecli/install/.default-updatecli-version
+          )$
       - id: mixed-line-ending
       - id: trailing-whitespace
         exclude: dist/index.js
