@@ -88,7 +88,7 @@ runs:
         echo "PR=${PR}" >> $GITHUB_ENV
 
         # issue_comment does not contain any references to github.base_ref
-        TARGET_BRANCH=$(gh pr view ${PR} --repo ${{ inputs.repository }} --json baseRefName --jq .baseRefName)
+        TARGET_BRANCH=$(gh pr view ${PR} --repo "$REPOSITORY" --json baseRefName --jq .baseRefName)
 
         if [ "${TARGET_BRANCH}" == 'main' ] ; then
           echo "CLUSTER=edge-lite-oblt" >> $GITHUB_ENV
@@ -97,6 +97,7 @@ runs:
         fi
       env:
         ISSUE_URL: ${{ inputs.issue-url }}
+        REPOSITORY: ${{ inputs.repository }}
       shell: bash
 
     - name: Create GitHub issue
