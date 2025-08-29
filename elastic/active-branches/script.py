@@ -4,58 +4,91 @@ import json
 import os
 import requests
 
-def fails(msg):
-    print(msg)
+class Inputs:
+    def __init__(self):
+        self.branches_to_exclude = os.environ.get('EXCLUDE_BRANCHES', '')
+        self.filter_branches = os.environ.get('FILTER', 'false')
+        self.repository = os.environ.get('REPOSITORY', '')
+        self.github_token = os.environ.get('GITHUB_TOKEN', '')
+
+class Outputs:
+    def __init__(self):
+        self.matrix = dict()
+        self.branches = list()
+
+class Env:
+    def __init__(self):
+        self.github_output = os.environ.get('GITHUB_OUTPUT')
+
+def fails(msg: str) -> None:
+    print(f'ERROR: {msg}')
     exit(1)
 
-req = requests.get(url='https://storage.googleapis.com/artifacts-api/snapshots/branches.json')
-if req.status_code != requests.codes.ok:
-    fails("Failed to fetch active branches")
+def get(url: str, headers: dict = None) -> requests.Response:
+    response = requests.get(url, headers=headers if headers else {})
+    response.raise_for_status()
+    return response
 
-try:
-    payload = req.json()
-except requests.exceptions.JSONDecodeError:
-    fails("Failed to decode json payload")
+def main(releases_url: str, github_url: str) -> Outputs:
+    # Input and Output objects
+    inputs = Inputs()
+    outputs = Outputs()
 
-branches = payload.get('branches')
-if not branches:
-    fails("Failed to retrieve active branches")
+    # Define vars
+    active_branches = list()
+    active_branches_after_exclusion = list()
+    active_branches_after_filter = list()
 
-exclude_branches = os.environ.get('EXCLUDE_BRANCHES', '')
-exclude_branches = set(filter(lambda branch: len(branch) > 0, exclude_branches.split(',')))
-if exclude_branches:
-    branches = list(filter(lambda branch: branch not in exclude_branches, branches))
+    # Get active branches
+    try:
+        response = get(releases_url)
+        payload = response.json()
+        active_branches = [branch['branch'] for branch in payload['releases'] if branch['active_release'] == True]
+    except requests.exceptions.HTTPError as e:
+        fails(f'Failed to fetch releases. HTTP Error: {e}')
+    except json.decoder.JSONDecodeError as e:
+        fails(f'Failed to decode json response. JSON DecodeError: {e}')
 
-# Filter branches based on the existence in the GitHub repository
-filter_str = os.environ.get('FILTER', 'false')
-filter = filter_str.lower() in ('true', '1', 't', 'y', 'yes')
-repository = os.environ.get('REPOSITORY', '')
-if filter and repository:
-    # Check if branches exist in the GitHub repository
-    headers = {
-        'Accept': 'application/vnd.github.v3+json'
-    }
-    github_token = os.environ.get('GITHUB_TOKEN', '')
-    if github_token:
-        headers['Authorization'] = f'token {github_token}'
+    # Exclude branches
+    if inputs.branches_to_exclude:
+        branches_to_exclude = set(filter(lambda branch: len(branch) > 0, inputs.branches_to_exclude.split(',')))
+        if branches_to_exclude:
+            active_branches_after_exclusion = list(filter(lambda branch: branch not in branches_to_exclude, active_branches))
+        active_branches = active_branches_after_exclusion
 
-    existing_branches = []
-    for branch in branches:
-        branch_url = f'https://api.github.com/repos/{repository}/branches/{branch}'
-        response = requests.get(branch_url, headers=headers)
-        if response.status_code == 200:
-            existing_branches.append(branch)
-        else:
-            print(f"Branch {branch} does not exist in the repository")
+    # Filter branches
+    should_be_filtered = inputs.filter_branches.lower() in ('true', '1', 't', 'y', 'yes')
+    if inputs.repository and should_be_filtered:
+        headers = {'Accept': 'application/vnd.github.v3+json'}
+        if inputs.github_token:
+            headers['Authorization'] = f'token {inputs.github_token}'
+        for active_branch in active_branches:
+            try:
+                _ = get(f'{github_url}/repos/{inputs.repository}/branches/{active_branch}', headers=headers)
+                active_branches_after_filter.append(active_branch)
+            except requests.exceptions.HTTPError as e:
+                fails(f'Branch {active_branch} does NOT exist in the repository {inputs.repository}. HTTP Error: {e}')
+                continue
+        active_branches = active_branches_after_filter
 
-    branches = existing_branches
+    include_branches = list(map(lambda branch: {"branch": branch}, active_branches))
+    outputs.matrix = {'include': include_branches}
+    outputs.branches = active_branches
 
-include_branches = list(map(lambda branch: {"branch": branch}, branches))
-matrix = {'include': include_branches}
+    return outputs
 
-with open(os.environ.get('GITHUB_OUTPUT'), "a") as file_descriptor:
-    file_descriptor.write(f"matrix={json.dumps(matrix)}\n")
-    file_descriptor.write(f"branches={json.dumps(branches)}\n")
+if __name__ == "__main__":
+    env = Env()
+    future_releases_url = "https://artifacts.elastic.co/releases/TfEVhiaBGqR64ie0g0r0uUwNAbEQMu1Z/future-releases/stack.json"
+    github_url = "https://api.github.com"
+    outputs = main(
+        releases_url=future_releases_url,
+        github_url=github_url
+    )
 
-print(f"INFO: matrix={json.dumps(matrix)}")
-print(f"INFO: branches={json.dumps(branches)}")
+    with open(env.github_output, "a") as f:
+        f.write(f"matrix={json.dumps(outputs.matrix)}\n")
+        f.write(f"branches={json.dumps(outputs.branches)}\n")
+
+    print(f"INFO: matrix={json.dumps(outputs.matrix)}")
+    print(f"INFO: branches={json.dumps(outputs.branches)}")
