@@ -5,6 +5,10 @@ inputs:
   jobs:
     required: true
     description: needs context as JSON string
+  include-skipped:
+    required: false
+    default: 'false'
+    description: Whether to consider skipped jobs as successful
 outputs:
   is-success:
     description: The evaluated result of all provided jobs in the needs context.
@@ -20,8 +24,17 @@ runs:
       with:
         script: |
           const jobs = JSON.parse(process.env.JOBS)
-          const isSuccess = Object.values(jobs).every(job => job.result === 'success' || job.result === 'skipped')
+          const includeSkipped = process.env.INCLUDE_SKIPPED === 'true'
+
+          let isSuccess
+          if (includeSkipped) {
+            isSuccess = Object.values(jobs).every(job => job.result === 'success' || job.result === 'skipped')
+          } else {
+            isSuccess = Object.values(jobs).every(job => job.result === 'success')
+          }
+
           core.setOutput('is-success', isSuccess)
           core.setOutput('status', isSuccess ? 'success' : 'failure')
       env:
         JOBS: ${{ inputs.jobs }}
+        INCLUDE_SKIPPED: ${{ inputs.include-skipped }}
