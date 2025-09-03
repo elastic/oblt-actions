@@ -21,6 +21,22 @@ permissions:
 
 jobs:
   test:
+    if: always()
+    needs:
+      - test-success
+      - test-failure-and-success
+      - test-failures
+      - test-skipped-default
+      - test-skipped-opt-in
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  test-success:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,6 +47,10 @@ jobs:
       - name: assert outputs.is-success==true
         run: test "${{ steps.check.outputs.is-success }}" = "true"
 
+  test-failure-and-success:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - uses: ./check-dependent-jobs
         id: check-2
         with:
@@ -38,6 +58,10 @@ jobs:
       - name: assert outputs.is-success==false
         run: test "${{ steps.check-2.outputs.is-success }}" = "false"
 
+  test-failures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - uses: ./check-dependent-jobs
         id: check-3
         with:
@@ -45,6 +69,10 @@ jobs:
       - name: assert outputs.is-success==false
         run: test "${{ steps.check-3.outputs.is-success }}" = "false"
 
+  test-skipped-default:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - uses: ./check-dependent-jobs
         id: check-4
         with:
@@ -52,6 +80,10 @@ jobs:
       - name: assert outputs.is-success==false
         run: test "${{ steps.check-4.outputs.is-success }}" = "false"
 
+  test-skipped-opt-in:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - uses: ./check-dependent-jobs
         id: check-5
         with:
