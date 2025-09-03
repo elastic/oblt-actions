@@ -20,7 +20,7 @@ runs:
       with:
         script: |
           const jobs = JSON.parse(process.env.JOBS)
-          const isSuccess = Object.values(jobs).every(job => job.result === 'success')
+          const isSuccess = Object.values(jobs).every(job => job.result === 'success' || job.result === 'skipped')
           core.setOutput('is-success', isSuccess)
           core.setOutput('status', isSuccess ? 'success' : 'failure')
       env:
