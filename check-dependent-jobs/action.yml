@@ -5,7 +5,7 @@ inputs:
   jobs:
     required: true
     description: needs context as JSON string
-  include-skipped:
+  skipped-as-success:
     required: false
     default: 'false'
     description: Whether to consider skipped jobs as successful
@@ -37,4 +37,4 @@ runs:
           core.setOutput('status', isSuccess ? 'success' : 'failure')
       env:
         JOBS: ${{ inputs.jobs }}
-        INCLUDE_SKIPPED: ${{ inputs.include-skipped }}
+        INCLUDE_SKIPPED: ${{ inputs.skipped-as-success }}

@@ -9,10 +9,10 @@ Evaluates the combined the status results of the provided needs context.
 
 ## Inputs
 <!--inputs-->
-| Name              | Description                                    | Required | Default |
-|-------------------|------------------------------------------------|----------|---------|
-| `jobs`            | needs context as JSON string                   | `true`   | ` `     |
-| `include-skipped` | Whether to consider skipped jobs as successful | `false`  | `false` |
+| Name                 | Description                                    | Required | Default |
+|----------------------|------------------------------------------------|----------|---------|
+| `jobs`               | needs context as JSON string                   | `true`   | ` `     |
+| `skipped-as-success` | Whether to consider skipped jobs as successful | `false`  | `false` |
 <!--/inputs-->
 
 ## Outputs

@@ -39,7 +39,7 @@ jobs:
   test-success:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./check-dependent-jobs
         id: check
         with:
@@ -50,7 +50,7 @@ jobs:
   test-failure-and-success:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./check-dependent-jobs
         id: check-2
         with:
@@ -61,7 +61,7 @@ jobs:
   test-failures:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./check-dependent-jobs
         id: check-3
         with:
@@ -72,7 +72,7 @@ jobs:
   test-skipped-default:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./check-dependent-jobs
         id: check-4
         with:
@@ -83,11 +83,11 @@ jobs:
   test-skipped-opt-in:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./check-dependent-jobs
         id: check-5
         with:
           jobs: '{ "job-a": { "result": "success" }, "job-b": { "result": "skipped" } }'
-          include-skipped: 'true'
+          skipped-as-success: 'true'
       - name: assert outputs.is-success==true
         run: test "${{ steps.check-5.outputs.is-success }}" = "true"
