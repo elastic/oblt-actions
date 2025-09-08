@@ -1,4 +1,4 @@
-name: test-aws-auth
+name: test-azure-auth
 
 on:
   merge_group: ~
