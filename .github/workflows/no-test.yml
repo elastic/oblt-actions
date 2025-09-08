@@ -23,6 +23,7 @@ on:
       - '!oblt-cli/run/**'
       - '!pre-commit/**'
       - '!updatecli/run/**'
+      - '!azure/auth/**'
 
 permissions:
   contents: read
