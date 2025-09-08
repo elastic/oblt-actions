@@ -11,7 +11,7 @@ on:
     branches:
       - main
     paths:
-      - 'azure/**'
+      - 'azure/auth/**'
       - '.github/workflows/test-azure-auth.yml'
 
 permissions:
