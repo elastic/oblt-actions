@@ -1,0 +1,31 @@
+name: test-aws-auth
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  pull_request:
+    paths:
+      - 'aws/azure/**'
+      - '.github/workflows/test-azure-auth.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'aws/azure/**'
+      - '.github/workflows/test-azure-auth.yml'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  test-azure-auth:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./azure/auth
+        with:
+          subscriptionId: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          tenantId: ${{ secrets.ARM_TENANT_ID }}
+          clientId: ${{ secrets.ARM_CLIENT_ID }}
+      - run: az account show --query "id" --output tsv
