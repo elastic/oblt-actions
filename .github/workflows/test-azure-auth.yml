@@ -5,7 +5,7 @@ on:
   workflow_dispatch: ~
   pull_request:
     paths:
-      - 'azure/**'
+      - 'azure/auth/**'
       - '.github/workflows/test-azure-auth.yml'
   push:
     branches:
