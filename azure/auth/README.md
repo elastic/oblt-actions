@@ -18,13 +18,17 @@ Authenticate to Azure using a service principal with OIDC.
 ## Usage
 <!--usage action="azure/auth" version="v1"-->
 ```yaml
-on: push
-steps:
-  - uses: elastic/oblt-actions/azure/auth@v1
-    with:
-      subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      tenant-id: ${{ secrets.ARM_TENANT_ID }}
-      client-id: ${{ secrets.ARM_CLIENT_ID }}
-  - run: az account show --query "id" --output tsv
+jobs:
+  job_id:
+    permissions:
+      id-token: write
+    steps:
+        - uses: elastic/oblt-actions/azure/auth@v1
+          with:
+            subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+            tenant-id: ${{ secrets.ARM_TENANT_ID }}
+            client-id: ${{ secrets.ARM_CLIENT_ID }}
+
+        - run: az ...
 ```
 <!--/usage-->
