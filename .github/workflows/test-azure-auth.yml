@@ -19,7 +19,7 @@ permissions:
   id-token: write
 
 jobs:
-  test-azure-auth:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
