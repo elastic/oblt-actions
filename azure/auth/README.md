@@ -4,11 +4,11 @@ Authenticate to Azure using a service principal with OIDC.
 <!--/description-->
 ## Inputs
 <!--inputs-->
-| Name             | Description                                   | Required | Default |
-|------------------|-----------------------------------------------|----------|---------|
-| `subscriptionId` | The Azure subscription ID to authenticate to. | `true`   | ` `     |
-| `tenantId`       | The Azure tenant ID.                          | `true`   | ` `     |
-| `clientId`       | The Azure client ID (Service Principal).      | `true`   | ` `     |
+| Name              | Description                                   | Required | Default |
+|-------------------|-----------------------------------------------|----------|---------|
+| `subscription-id` | The Azure subscription ID to authenticate to. | `true`   | ` `     |
+| `tenant-id`       | The Azure tenant ID.                          | `true`   | ` `     |
+| `client-id`       | The Azure client ID (Service Principal).      | `true`   | ` `     |
 <!--/inputs-->
 ## Outputs
 <!--outputs-->
@@ -16,10 +16,15 @@ Authenticate to Azure using a service principal with OIDC.
 |------|-------------|
 <!--/outputs-->
 ## Usage
-<!--usage action="your/action" version="v1"-->
+<!--usage action="azure/auth" version="v1"-->
 ```yaml
 on: push
 steps:
-  - uses: your/action@v1
+  - uses: elastic/oblt-actions/azure/auth@v1
+    with:
+      subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      tenant-id: ${{ secrets.ARM_TENANT_ID }}
+      client-id: ${{ secrets.ARM_CLIENT_ID }}
+  - run: az account show --query "id" --output tsv
 ```
 <!--/usage-->

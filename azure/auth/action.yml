@@ -3,13 +3,13 @@ name: azure-auth
 description: Authenticate to Azure using a service principal with OIDC.
 author: Elastic Observability Team
 inputs:
-  subscriptionId:
+  subscription-id:
     description: The Azure subscription ID to authenticate to.
     required: true
-  tenantId:
+  tenant-id:
     description: The Azure tenant ID.
     required: true
-  clientId:
+  client-id:
     description: The Azure client ID (Service Principal).
     required: true
 
@@ -19,15 +19,15 @@ runs:
     - name: Azure login
       uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
       with:
-        client-id: ${{ inputs.clientId }}
-        tenant-id: ${{ inputs.tenantId }}
-        subscription-id: ${{ inputs.subscriptionId }}
+        client-id: ${{ inputs.client-id }}
+        tenant-id: ${{ inputs.tenant-id }}
+        subscription-id: ${{ inputs.subscription-id }}
 
     - name: Set outputs
-      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+      uses: actions/github-script@v8.0.0
       with:
         script: |
-          core.exportVariable('ARM_SUBSCRIPTION_ID', '${{ inputs.subscriptionId }}');
-          core.exportVariable('ARM_TENANT_ID', '${{ inputs.tenantId }}');
-          core.exportVariable('ARM_CLIENT_ID', '${{ inputs.clientId }}');
+          core.exportVariable('ARM_SUBSCRIPTION_ID', '${{ inputs.subscription-id }}');
+          core.exportVariable('ARM_TENANT_ID', '${{ inputs.tenant-id }}');
+          core.exportVariable('ARM_CLIENT_ID', '${{ inputs.client-id }}');
           core.exportVariable('ARM_USE_OIDC', 'true');

@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./azure/auth
         with:
-          subscriptionId: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-          tenantId: ${{ secrets.ARM_TENANT_ID }}
-          clientId: ${{ secrets.ARM_CLIENT_ID }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          client-id: ${{ secrets.ARM_CLIENT_ID }}
       - run: az account show --query "id" --output tsv
