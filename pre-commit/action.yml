@@ -12,13 +12,13 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         clean: ${{ inputs.clean-checkout }}
         # Fetch all the history so the pre-commit/action can compare changes between the target and the git commit
         fetch-depth: 0
 
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v6
       with:
         python-version: ${{ inputs.python-version }}
 

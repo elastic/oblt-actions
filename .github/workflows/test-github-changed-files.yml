@@ -34,7 +34,7 @@ jobs:
   unit-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: |
           cd github/changed-files
           npm install
@@ -43,7 +43,7 @@ jobs:
   simple-run:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./git/setup
       - name: Add files
         run: |

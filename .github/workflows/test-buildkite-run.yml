@@ -28,7 +28,7 @@ jobs:
   test-no-wait-for:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./buildkite/run
         with:
           pipeline: 'oblt-hello-world'
@@ -38,7 +38,7 @@ jobs:
   test-wait-for:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: buildkite
         uses: ./buildkite/run
         with:

@@ -37,7 +37,7 @@ jobs:
   cluster-name:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./oblt-cli/cluster-name-validation
         id: validation
         with:
@@ -48,7 +48,7 @@ jobs:
   failures:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: ./.github/actions/oblt-cli-cluster-name-validation
         id: validation
@@ -93,7 +93,7 @@ jobs:
   cluster-info-file:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: echo "{\"ClusterName\":\"bar\"}" | tee ${{ github.workspace }}/cluster-info.json
       - uses: ./oblt-cli/cluster-name-validation
         id: validation
