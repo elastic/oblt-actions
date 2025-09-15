@@ -24,6 +24,7 @@ runs:
     - id: gh-api-is-member
       name: Check if user is member of the given org
       run: |
+        set -x
         # required because 'gh api' will return non-zero return code for 404s to indicate lack of membership
         set +e
         # gh api will return a 404 with 'status' JSON attribute to indicate lack of membership
