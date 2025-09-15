@@ -39,7 +39,7 @@ runs:
       shell: bash
 
     - id: is_org_pr_author
-      uses: elastic/oblt-actions/github/is-member-of@v1
+      uses: ./github/is-member-of
       with:
         github-user: ${{ steps.gh_api_pr_author.outputs.result }}
         github-org: ${{ inputs.github-org }}
