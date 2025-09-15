@@ -23,7 +23,7 @@ jobs:
   undeploy-my-kibana:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: ./oblt-cli/undeploy-my-kibana
         with:
@@ -35,7 +35,7 @@ jobs:
   no-parameters:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./oblt-cli/undeploy-my-kibana
         id: validation
         continue-on-error: true
@@ -45,7 +45,7 @@ jobs:
   all-parameters:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./oblt-cli/undeploy-my-kibana
         id: validation
         continue-on-error: true

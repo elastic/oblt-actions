@@ -20,7 +20,7 @@ runs:
   using: composite
   steps:
     - id: test
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         script: |
           const jobs = JSON.parse(process.env.JOBS)
