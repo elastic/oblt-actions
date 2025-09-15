@@ -46,7 +46,12 @@ if [[ -n "$BUILD_VARS" ]]; then
   while IFS= read -r line; do
     if [ -n "$line" ] ; then
       name=$(echo "$line" | cut -d= -f1)
-      value=$(echo "$line" | cut -d= -f2)
+      value=$(echo "$line" | cut -d= -f2-)
+      # Strip surrounding quotes from value if present
+      if [[ $value =~ ^\".*\"$ ]]; then
+        value=${value#\"}
+        value=${value%\"}
+      fi
       BUILD_VARS_MANIPULATED="${BUILD_VARS_MANIPULATED} \"$name\": \"$value\","
     fi
   done <<< "$BUILD_VARS"
