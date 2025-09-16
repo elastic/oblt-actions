@@ -61,7 +61,7 @@ runs:
         FAIL_ON_EMPTY: ${{ inputs.fail-on-empty }}
       run: |
         COMMAND="oblt-cli cluster list"
-        if [ "${VERBOSE}" == "true" ] || [ -n "${RUNNER_DEBUG}" == "1" ]; then
+        if [ "${VERBOSE}" == "true" ] || [ -n "${RUNNER_DEBUG}" ]; then
           COMMAND="${COMMAND} --verbose"
         fi
         if [ "${ALL}" == "true" ]; then
