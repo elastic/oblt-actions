@@ -1,0 +1,41 @@
+name: test-oblt-cli-list
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-oblt-cli-list.yml'
+      - 'oblt-cli/list/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-oblt-cli-list.yml'
+      - 'oblt-cli/list/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get token
+        id: get_token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+        with:
+          app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permissions: >-
+            {
+              "contents": "read"
+            }
+          repositories: >-
+            ["observability-test-environments"]
+      - uses: ./oblt-cli/list
+        with:
+          github-token: ${{ steps.get_token.outputs.token }}

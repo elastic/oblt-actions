@@ -1,0 +1,81 @@
+name: 'oblt-cli/list'
+description: 'List clusters using a filter'
+inputs:
+  github-token:
+    description: 'The GitHub access token.'
+    required: true
+  slack-channel:
+    description: 'The slack channel to notify the status.'
+    default: '#observablt-bots'
+    required: false
+  username:
+    description: 'Username to show in the deployments with oblt-cli, format: [a-z0-9]'
+    default: 'obltmachine'
+    required: false
+  version:
+    description: 'The oblt-cli version to use.'
+    required: false
+  verbose:
+    description: 'Run oblt-cli in verbose mode.'
+    required: false
+    default: 'false'
+  filter-key:
+    description: 'The filter key to use.'
+    required: false
+  filter-value:
+    description: 'The filter value to use.'
+    required: false
+  all:
+    description: 'List all clusters.'
+    required: false
+    default: 'false'
+  fail-on-empty:
+    description: 'Fail the action if no clusters are found.'
+    required: false
+    default: 'false'
+  save-to-file:
+    description: 'File path to save the output to.'
+    required: false
+    default: 'clusters.json'
+  version-file:
+    description: 'File containing the oblt-cli version to use. If set, this overrides the version input.'
+    required: false
+runs:
+  using: "composite"
+  steps:
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.30.0
+      with:
+        github-token: ${{ inputs.github-token }}
+        slack-channel: ${{ inputs.slack-channel }}
+        username: ${{ inputs.username }}
+        version: ${{ inputs.version }}
+        version-file: ${{ inputs.version-file }}
+    - name: run oblt-cli
+      env:
+        VERBOSE: ${{ inputs.verbose }}
+        FILTER_KEY: ${{ inputs.filter-key || '' }}
+        FILTER_VALUE: ${{ inputs.filter-value || '' }}
+        ALL: ${{ inputs.all }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        SAVE_TO_FILE: ${{ inputs.save-to-file }}
+        FAIL_ON_EMPTY: ${{ inputs.fail-on-empty }}
+      run: |
+        COMMAND="oblt-cli cluster list"
+        if [ "${VERBOSE}" == "true" ] || [ -n "${RUNNER_DEBUG}" ]; then
+          COMMAND="${COMMAND} --verbose"
+        fi
+        if [ "${ALL}" == "true" ]; then
+          COMMAND="${COMMAND} --all"
+        fi
+        if [ -n "${FILTER_KEY}" ] && [ -n "${FILTER_VALUE}" ]; then
+          COMMAND="${COMMAND} --filter \"${FILTER_KEY}=${FILTER_VALUE}\""
+        fi
+        if [ -n "${SAVE_TO_FILE}" ]; then
+          COMMAND="${COMMAND} --output-file \"${SAVE_TO_FILE}\""
+        fi
+        if [ "${FAIL_ON_EMPTY}" == "false" ]; then
+          COMMAND="${COMMAND} || true"
+        fi
+        echo "Running command: ${COMMAND}"
+        eval "${COMMAND}"
+      shell: bash
