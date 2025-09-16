@@ -8,13 +8,13 @@ on:
       - main
     paths:
       - '.github/workflows/test-oblt-cli-list.yml'
-      - 'oblt-cli/run/**'
+      - 'oblt-cli/list/**'
   push:
     branches:
       - main
     paths:
       - '.github/workflows/test-oblt-cli-list.yml'
-      - 'oblt-cli/run/**'
+      - 'oblt-cli/list/**'
 
 permissions:
   contents: read
