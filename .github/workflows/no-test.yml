@@ -10,6 +10,7 @@ on:
       - '**'
       - '!.github/workflows/test-*'
       - '!aws/auth/**'
+      - '!azure/auth/**'
       - '!buildkite/run/**'
       - '!check-dependent-jobs/**'
       - '!elastic/github-commands/**'
@@ -20,10 +21,10 @@ on:
       - '!github/project-field-set/**'
       - '!google/auth/**'
       - '!oblt-cli/cluster-name-validation/**'
+      - '!oblt-cli/list/**'
       - '!oblt-cli/run/**'
       - '!pre-commit/**'
       - '!updatecli/run/**'
-      - '!azure/auth/**'
 
 permissions:
   contents: read
