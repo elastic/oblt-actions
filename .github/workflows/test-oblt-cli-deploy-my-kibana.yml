@@ -18,7 +18,7 @@ jobs:
   deploy-my-kibana:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: ./oblt-cli/deploy-my-kibana
         if: ${{ github.event_name != 'merge_group' }}
@@ -33,7 +33,7 @@ jobs:
   no-parameters:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./oblt-cli/deploy-my-kibana
         if: ${{ github.event_name != 'merge_group' }}
         id: validation
@@ -45,7 +45,7 @@ jobs:
   all-parameters:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./oblt-cli/deploy-my-kibana
         if: ${{ github.event_name != 'merge_group' }}
         id: validation

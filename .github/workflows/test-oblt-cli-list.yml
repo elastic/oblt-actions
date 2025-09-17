@@ -1,12 +1,20 @@
-name: test-mergify-labels-copier
+name: test-oblt-cli-list
 
 on:
   merge_group: ~
-  workflow_dispatch:
-  push:
+  workflow_dispatch: ~
+  pull_request:
+    branches:
+      - main
     paths:
-      - '.github/workflows/test-mergify-labels-copier.yml'
-      - 'mergify/labels-copier/**'
+      - '.github/workflows/test-oblt-cli-list.yml'
+      - 'oblt-cli/list/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-oblt-cli-list.yml'
+      - 'oblt-cli/list/**'
 
 permissions:
   contents: read
@@ -24,17 +32,10 @@ jobs:
           private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
           permissions: >-
             {
-              "pull_requests": "read"
+              "contents": "read"
             }
-      - uses: ./mergify/labels-copier
-        id: validation
+          repositories: >-
+            ["observability-test-environments"]
+      - uses: ./oblt-cli/list
         with:
           github-token: ${{ steps.get_token.outputs.token }}
-          repository: "elastic/apm-server"
-          pull-request: "15035"
-          excluded-labels-regex: "^backport-*"
-        env:
-          DRY_RUN: true
-
-      - name: assert labels are not empty
-        run: test -n "${{ steps.validation.outputs.labels }}"
