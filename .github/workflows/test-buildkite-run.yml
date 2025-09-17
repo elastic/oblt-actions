@@ -17,6 +17,9 @@ jobs:
     needs:
       - test-no-wait-for
       - test-wait-for
+      - test-env-vars-unquoted
+      - test-env-vars-quoted
+      - test-env-vars-mixed
     runs-on: ubuntu-latest
     steps:
       - id: check
@@ -47,4 +50,57 @@ jobs:
           wait-for: true
 
       - name: Assert is oblt-hello-world
+        run: test "${{ steps.buildkite.outputs.pipeline }}" = "oblt-hello-world"
+
+  test-env-vars-unquoted:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: buildkite
+        uses: ./buildkite/run
+        with:
+          pipeline: 'oblt-hello-world'
+          token: ${{ secrets.BUILDKITE_TOKEN }}
+          wait-for: true
+          env-vars: |
+            SNAPSHOT=false
+            HELM_REPO_ENV=test
+
+      - name: Assert pipeline name
+        run: test "${{ steps.buildkite.outputs.pipeline }}" = "oblt-hello-world"
+
+  test-env-vars-quoted:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: buildkite
+        uses: ./buildkite/run
+        with:
+          pipeline: 'oblt-hello-world'
+          token: ${{ secrets.BUILDKITE_TOKEN }}
+          wait-for: true
+          env-vars: |
+            SNAPSHOT="true"
+            HELM_REPO_ENV="dev"
+
+      - name: Assert pipeline name
+        run: test "${{ steps.buildkite.outputs.pipeline }}" = "oblt-hello-world"
+
+  test-env-vars-mixed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: buildkite
+        uses: ./buildkite/run
+        with:
+          pipeline: 'oblt-hello-world'
+          token: ${{ secrets.BUILDKITE_TOKEN }}
+          wait-for: true
+          env-vars: |
+            SNAPSHOT="true"
+            HELM_REPO_ENV=dev
+            MESSAGE="Hello World"
+            URL=https://example.com/path?param=value
+
+      - name: Assert pipeline name
         run: test "${{ steps.buildkite.outputs.pipeline }}" = "oblt-hello-world"
