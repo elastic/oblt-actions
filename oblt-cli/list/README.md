@@ -9,19 +9,20 @@ List clusters using a filter
 
 ## Inputs
 <!--inputs-->
-| Name            | Description                                                                            | Required | Default            |
-|-----------------|----------------------------------------------------------------------------------------|----------|--------------------|
-| `github-token`  | The GitHub access token.                                                               | `true`   | ` `                |
-| `slack-channel` | The slack channel to notify the status.                                                | `false`  | `#observablt-bots` |
-| `username`      | Username to show in the deployments with oblt-cli, format: [a-z0-9]                    | `false`  | `obltmachine`      |
-| `version`       | The oblt-cli version to use.                                                           | `false`  | ` `                |
-| `verbose`       | Run oblt-cli in verbose mode.                                                          | `false`  | `false`            |
-| `filter-key`    | The filter key to use.                                                                 | `false`  | ` `                |
-| `filter-value`  | The filter value to use.                                                               | `false`  | ` `                |
-| `all`           | List all clusters.                                                                     | `false`  | `false`            |
-| `fail-on-empty` | Fail the action if no clusters are found.                                              | `false`  | `false`            |
-| `save-to-file`  | File path to save the output to.                                                       | `false`  | `clusters.json`    |
-| `version-file`  | File containing the oblt-cli version to use. If set, this overrides the version input. | `false`  | ` `                |
+| Name                             | Description                                                                                                     | Required | Default            |
+|----------------------------------|-----------------------------------------------------------------------------------------------------------------|----------|--------------------|
+| `github-token`                   | The GitHub access token.                                                                                        | `true`   | ` `                |
+| `slack-channel`                  | The slack channel to notify the status.                                                                         | `false`  | `#observablt-bots` |
+| `username`                       | Username to show in the deployments with oblt-cli, format: [a-z0-9]                                             | `false`  | `obltmachine`      |
+| `version`                        | The oblt-cli version to use.                                                                                    | `false`  | ` `                |
+| `verbose`                        | Run oblt-cli in verbose mode.                                                                                   | `false`  | `false`            |
+| `filter-key`                     | The filter key to use.                                                                                          | `false`  | ` `                |
+| `filter-value`                   | The filter value to use.                                                                                        | `false`  | ` `                |
+| `filter-expiry-date-before-than` | Filter clusters with expiry date before the given date (format: ISO or YYYY-MM-DD). Only for versions >= 7.27.0 | `false`  | ` `                |
+| `all`                            | List all clusters.                                                                                              | `false`  | `false`            |
+| `fail-on-empty`                  | Fail the action if no clusters are found.                                                                       | `false`  | `false`            |
+| `save-to-file`                   | File path to save the output to.                                                                                | `false`  | `clusters.json`    |
+| `version-file`                   | File containing the oblt-cli version to use. If set, this overrides the version input.                          | `false`  | ` `                |
 <!--/inputs-->
 
 ## Usage

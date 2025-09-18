@@ -25,6 +25,9 @@ inputs:
   filter-value:
     description: 'The filter value to use.'
     required: false
+  filter-expiry-date-before-than:
+    description: 'Filter clusters with expiry date before the given date (format: ISO or YYYY-MM-DD). Only for versions >= 7.27.0'
+    required: false
   all:
     description: 'List all clusters.'
     required: false
@@ -55,6 +58,7 @@ runs:
         VERBOSE: ${{ inputs.verbose }}
         FILTER_KEY: ${{ inputs.filter-key || '' }}
         FILTER_VALUE: ${{ inputs.filter-value || '' }}
+        FILTER_EXPIRY_DATE_BEFORE_THAN: ${{ inputs.filter-expiry-date-before-than || '' }}
         ALL: ${{ inputs.all }}
         GITHUB_TOKEN: ${{ inputs.github-token }}
         SAVE_TO_FILE: ${{ inputs.save-to-file }}
@@ -69,6 +73,9 @@ runs:
         fi
         if [ -n "${FILTER_KEY}" ] && [ -n "${FILTER_VALUE}" ]; then
           COMMAND="${COMMAND} --filter \"${FILTER_KEY}=${FILTER_VALUE}\""
+        fi
+        if [ -n "${FILTER_EXPIRY_DATE_BEFORE_THAN}" ]; then
+          COMMAND="${COMMAND} --expiry-date-before-than \"${FILTER_EXPIRY_DATE_BEFORE_THAN}\""
         fi
         if [ -n "${SAVE_TO_FILE}" ]; then
           COMMAND="${COMMAND} --output-file \"${SAVE_TO_FILE}\""
