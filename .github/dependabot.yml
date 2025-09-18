@@ -13,3 +13,15 @@ updates:
       github-actions:
         patterns:
           - '*'
+
+  - package-ecosystem: npm
+    directory: "/github/changed-files"
+    schedule:
+      interval: 'weekly'
+      day: 'sunday'
+      time: '22:00'
+    cooldown:
+      default-days: 14
+    open-pull-requests-limit: 10
+    labels:
+      - 'changelog:dependencies'
