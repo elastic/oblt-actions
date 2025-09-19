@@ -157,4 +157,6 @@ jobs:
       - name: test changed files
         run: |
           echo "${{ steps.changed-files.outputs.changed }}" | grep README.md
-          echo "${{ steps.changed-files.outputs.changed }}" | grep *.yaml
+          echo "${{ steps.changed-files.outputs.changed }}" | grep 'file.json'
+          echo "${{ steps.changed-files.outputs.changed }}" | grep 'file.yaml'
+          echo "${{ steps.changed-files.outputs.changed }}" | grep '.pre-commit-config.yaml'
