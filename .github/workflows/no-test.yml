@@ -17,6 +17,7 @@ on:
       - '!elastic/validate-catalog/**'
       - '!git/setup/**'
       - '!github/backport-active/**'
+      - '!github/changed-files/**'
       - '!github/project-add/**'
       - '!github/project-field-set/**'
       - '!google/auth/**'

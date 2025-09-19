@@ -31,9 +31,11 @@ async function run() {
     core.info("Added Files: " + JSON.stringify(added));
     core.info("Modified Files: " + JSON.stringify(modified));
     core.info("Deleted Files: " + JSON.stringify(deleted));
+    core.info("Changed Files: " + JSON.stringify(added.concat(modified, deleted)));
     core.setOutput("added", JSON.stringify(added));
     core.setOutput("modified", JSON.stringify(modified));
     core.setOutput("deleted", JSON.stringify(deleted));
+    core.setOutput("changed", JSON.stringify(added.concat(modified, deleted)));
     core.setOutput("count", added.length + modified.length + deleted.length);
     core.setOutput("count-added", added.length);
     core.setOutput("count-modified", modified.length);

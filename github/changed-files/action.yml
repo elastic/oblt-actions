@@ -22,6 +22,8 @@ outputs:
     description: "The JSON list of modified files."
   added:
     description: "The JSON list of added files."
+  changed:
+    description: "The JSON list of added, modified and deleted files."
   count:
     description: "The count of files."
   count-deleted:
