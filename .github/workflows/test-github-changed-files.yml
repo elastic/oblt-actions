@@ -95,3 +95,52 @@ jobs:
         run: |
           echo "::error ::Modified files are not correct"
           exit 1
+
+  test-changed-files:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./git/setup
+      - name: Add files
+        run: |
+          touch file.json
+          touch file.yaml
+          touch file.bak
+          git rm README.md
+          echo "" >> .pre-commit-config.yaml
+          git commit -a -m "Add files"
+      - uses: ./github/changed-files
+        id: changed-files
+        with:
+          base-ref: "HEAD^1"
+          ref: "HEAD"
+          filter: '["*.yaml","*.json","*.md"]'
+
+      - name: test count
+        if: ${{ steps.changed-files.outputs.count != 4 }}
+        run: |
+          echo "::error ::Count is not 2"
+          exit 1
+
+      - name: test added files
+        if: ${{ steps.changed-files.outputs.count-added != 2 }}
+        run: |
+          echo "::error ::Added files are not correct"
+          exit 1
+
+      - name: test modified files
+        if: ${{ steps.changed-files.outputs.count-modified != 1 }}
+        run: |
+          echo "::error ::Modified files are not correct"
+          exit 1
+
+      - name: test deleted files
+        if: ${{ steps.changed-files.outputs.count-deleted != 1 }}
+        run: |
+          echo "::error ::Deleted files are not correct"
+          exit 1
+
+      - name: test changed files
+        run: |
+          echo "${{ steps.changed-files.outputs.changed }}" | grep README.md
+          echo "${{ steps.changed-files.outputs.changed }}" | grep *.yaml

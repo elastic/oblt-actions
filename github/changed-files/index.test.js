@@ -41,6 +41,9 @@ describe("run", () => {
     expect(core.info).toHaveBeenCalledWith(
       "Deleted Files: " + JSON.stringify(["file3.md"])
     );
+    expect(core.info).toHaveBeenCalledWith(
+      "Changed Files: " + JSON.stringify(["file1.txt", "file4.txt", "file2.js", "file3.md"])
+    );
     expect(core.setOutput).toHaveBeenCalledWith(
       "added",
       JSON.stringify(["file1.txt", "file4.txt"])
@@ -52,6 +55,10 @@ describe("run", () => {
     expect(core.setOutput).toHaveBeenCalledWith(
       "deleted",
       JSON.stringify(["file3.md"])
+    );
+    expect(core.setOutput).toHaveBeenCalledWith(
+      "changed",
+      JSON.stringify(["file1.txt", "file4.txt", "file2.js", "file3.md"])
     );
     expect(core.setOutput).toHaveBeenCalledWith("count", 4);
     expect(core.setOutput).toHaveBeenCalledWith("count-added", 2);
@@ -101,9 +108,11 @@ describe("run", () => {
     expect(core.info).toHaveBeenCalledWith("Added Files: " + JSON.stringify([]));
     expect(core.info).toHaveBeenCalledWith("Modified Files: " + JSON.stringify([]));
     expect(core.info).toHaveBeenCalledWith("Deleted Files: " + JSON.stringify([]));
+    expect(core.info).toHaveBeenCalledWith("Changed Files: " + JSON.stringify([]));
     expect(core.setOutput).toHaveBeenCalledWith("added", JSON.stringify([]));
     expect(core.setOutput).toHaveBeenCalledWith("modified", JSON.stringify([]));
     expect(core.setOutput).toHaveBeenCalledWith("deleted", JSON.stringify([]));
+    expect(core.setOutput).toHaveBeenCalledWith("changed", JSON.stringify([]));
     expect(core.setOutput).toHaveBeenCalledWith("count", 0);
     expect(core.setOutput).toHaveBeenCalledWith("count-added", 0);
     expect(core.setOutput).toHaveBeenCalledWith("count-modified", 0);
