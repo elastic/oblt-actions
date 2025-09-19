@@ -114,7 +114,8 @@ jobs:
           touch file.bak
           git rm README.md
           echo "" >> .pre-commit-config.yaml
-          git commit -a -m "Add files"
+          git add file.json file.yaml file.bak .pre-commit-config.yaml
+          git commit -m "Changed files"
       - uses: ./github/changed-files
         id: changed-files
         with:
@@ -122,10 +123,17 @@ jobs:
           ref: "HEAD"
           filter: '["*.yaml","*.json","*.md"]'
 
+      - name: debug info
+        run: |
+          echo "count=${{ steps.changed-files.outputs.count }}"
+          echo "count-deleted=${{ steps.changed-files.outputs.count-deleted }}"
+          echo "count-added=${{ steps.changed-files.outputs.count-added }}"
+          echo "count-modified=${{ steps.changed-files.outputs.count-modified }}"
+
       - name: test count
         if: ${{ steps.changed-files.outputs.count != 4 }}
         run: |
-          echo "::error ::Count is not 2"
+          echo "::error ::Count is not 4"
           exit 1
 
       - name: test added files
