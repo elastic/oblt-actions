@@ -34,19 +34,15 @@ runs:
     - name: Get token
       if: ${{ inputs.github-token == '' }}
       id: get_token
-      uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+      uses: actions/create-github-app-token@v2
       with:
-        app_id: ${{ inputs.github-app-id }}
-        private_key: ${{ inputs.github-app-private-key }}
-        installation_retrieval_mode: organization
-        installation_retrieval_payload: elastic
-        permissions: >-
-          {
-            "contents": "read",
-            "issues": "write"
-          }
-        repositories: >-
-          ["observability-test-environments"]
+        app-id: ${{ inputs.github-app-id }}
+        private-key: ${{ inputs.github-app-private-key }}
+        owner: elastic
+        permission-contents: read
+        permission-issues: write
+        repositories: |
+          observability-test-environments
 
     - if: ${{ inputs.github-token == '' }}
       name: If ephemeral GitHub token app generated
