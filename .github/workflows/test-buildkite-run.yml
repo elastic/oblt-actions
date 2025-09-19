@@ -55,7 +55,7 @@ jobs:
   test-env-vars-unquoted:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: buildkite
         uses: ./buildkite/run
         with:
@@ -72,7 +72,7 @@ jobs:
   test-env-vars-quoted:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: buildkite
         uses: ./buildkite/run
         with:
@@ -89,7 +89,7 @@ jobs:
   test-env-vars-mixed:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: buildkite
         uses: ./buildkite/run
         with:
