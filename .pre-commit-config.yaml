@@ -11,7 +11,6 @@ repos:
           (?x)^(
               github/changed-files/dist/index.js|
               snapshoty/run/dist/index.js|
-              snapshoty/run/dist/index.js|
               updatecli/install/.default-updatecli-version
           )$
       - id: mixed-line-ending
@@ -19,14 +18,12 @@ repos:
           (?x)^(
               github/changed-files/dist/index.js|
               snapshoty/run/dist/index.js|
-              snapshoty/run/dist/index.js|
               updatecli/install/.default-updatecli-version
           )$
       - id: trailing-whitespace
         exclude: |
           (?x)^(
               github/changed-files/dist/index.js|
-              snapshoty/run/dist/index.js|
               snapshoty/run/dist/index.js|
               updatecli/install/.default-updatecli-version
           )$
