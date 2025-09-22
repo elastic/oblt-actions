@@ -23,10 +23,17 @@ runs:
       id: gh-api-user-type
       run: |
         # will produce a 404 and non-zero status when user does not exists
-        # API result is normalized to lower-case, known values: 'Bot', 'User
-        type=$(gh api \
-          -H "Accept: application/vnd.github+json" \
-          /users/${{ env.GH_USER }} --jq .type | tr '[:upper:]' '[:lower:]')
+        # API result is normalized to lower-case, known values: 'Bot', 'User'
+
+        if [[ 'Copilot' == "${{ env.GH_USER }}" ]]; then
+          # special case for GitHub Copilot:
+          # API returns a 404 for profile access but is 'Bot' as we can see in PRs.
+          type = 'bot'
+        else
+          type=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            /users/${{ env.GH_USER }} --jq .type | tr '[:upper:]' '[:lower:]')
+        fi
 
         echo "result=${type}" >> "${GITHUB_OUTPUT}"
         echo "::debug::GitHub user type = ${type}"

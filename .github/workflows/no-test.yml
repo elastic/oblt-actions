@@ -20,6 +20,7 @@ on:
       - '!github/changed-files/**'
       - '!github/project-add/**'
       - '!github/project-field-set/**'
+      - '!github/user-type/**'
       - '!google/auth/**'
       - '!oblt-cli/cluster-name-validation/**'
       - '!oblt-cli/list/**'
