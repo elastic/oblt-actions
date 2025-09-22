@@ -28,7 +28,7 @@ runs:
         if [[ 'Copilot' == "${{ env.GH_USER }}" ]]; then
           # special case for GitHub Copilot:
           # API returns a 404 for profile access but is 'Bot' as we can see in PRs.
-          type = 'bot'
+          type='bot'
         else
           type=$(gh api \
             -H "Accept: application/vnd.github+json" \
