@@ -4,6 +4,14 @@ on:
   merge_group: ~
   workflow_dispatch:
   push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-mergify-labels-copier.yml'
+      - 'mergify/labels-copier/**'
+  pull_request:
+    branches:
+      - main
     paths:
       - '.github/workflows/test-mergify-labels-copier.yml'
       - 'mergify/labels-copier/**'
