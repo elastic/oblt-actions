@@ -49,8 +49,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: false
 
-      - uses: elastic/oblt-actions/github/changed-files@v2
+      - uses: elastic/oblt-actions/github/changed-files@v1
         id: changed-files
         with:
           base-ref: "origin/main"
