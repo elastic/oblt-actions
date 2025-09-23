@@ -4,6 +4,8 @@ on:
   merge_group: ~
   workflow_dispatch: ~
   pull_request:
+    branches:
+      - main
     paths:
       - 'maven/await-artifact/**'
       - '.github/workflows/test-maven-await-artifact.yml'

@@ -10,6 +10,14 @@ on:
         default: false
         type: boolean
   push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-oblt-cli-cluster-create-custom.yml'
+      - 'oblt-cli/cluster-create-custom/**'
+  pull_request:
+    branches:
+      - main
     paths:
       - '.github/workflows/test-oblt-cli-cluster-create-custom.yml'
       - 'oblt-cli/cluster-create-custom/**'
