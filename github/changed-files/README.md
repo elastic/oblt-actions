@@ -51,9 +51,9 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-          fetch-tags: false
+      # Use fetch-depth: 0 to access full git history for changed-files action
+      - uses: actions/checkout@v5
         with:
-          # fetch-depth: 0 is required so that the changed-files action can access the full git history for accurate comparison.
           fetch-depth: 0
           fetch-tags: false
 
