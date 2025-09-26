@@ -40,16 +40,27 @@ The code is based on the [git-changed-files](https://github.com/kandhavivekraj/g
 name: Check files changed in PR
 on:
   pull_request:
+
+permissions:
+  contents: read
+
 jobs:
   filter-files:
     runs-on: ubuntu-latest
     steps:
-      - uses: elastic/oblt-actions/github/changed-files
+      - uses: actions/checkout@v5
+        # fetch-depth: 0 is required so that the changed-files action can access the full git history for accurate comparison.
+        with:
+          fetch-depth: 0
+          fetch-tags: false
+
+      - uses: elastic/oblt-actions/github/changed-files@v1
         id: changed-files
         with:
           base-ref: "origin/main"
           ref: ${{ github.sha }}
           filter: '["*.yaml","*.json", "*folder/folder/*/file.json"]'
+
       - name: test count
         if: ${{ steps.changed-files.outputs.count > 0}}
         run: |
