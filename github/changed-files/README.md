@@ -49,10 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      # Use fetch-depth: 0 to access full git history for changed-files action
-      - uses: actions/checkout@v5
+        # fetch-depth: 0 is required so that the changed-files action can access the full git history for accurate comparison.
         with:
           fetch-depth: 0
           fetch-tags: false
