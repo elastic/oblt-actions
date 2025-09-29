@@ -9,12 +9,6 @@ on:
         required: true
         default: false
         type: boolean
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/test-oblt-cli-cluster-create-serverless.yml'
-      - 'oblt-cli/cluster-create-serverless/**'
   pull_request:
     branches:
       - main

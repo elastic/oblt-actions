@@ -9,7 +9,7 @@ on:
         required: true
         default: false
         type: boolean
-  push:
+  pull_request:
     branches:
       - main
     paths:

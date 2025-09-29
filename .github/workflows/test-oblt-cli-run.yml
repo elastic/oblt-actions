@@ -9,12 +9,6 @@ on:
     paths:
       - '.github/workflows/test-oblt-cli-run.yml'
       - 'oblt-cli/run/**'
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/test-oblt-cli-run.yml'
-      - 'oblt-cli/run/**'
 
 permissions:
   contents: read
