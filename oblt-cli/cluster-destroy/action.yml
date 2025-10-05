@@ -17,13 +17,13 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: elastic/oblt-actions/oblt-cli/cluster-name-validation@v1.33.1
+    - uses: elastic/oblt-actions/oblt-cli/cluster-name-validation@v1.33.2
       id: validation
       with:
         cluster-name: ${{ inputs.cluster-name }}
         cluster-info-file: ${{ inputs.cluster-info-file }}
 
-    - uses: elastic/oblt-actions/oblt-cli/setup@v1.33.1
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.33.2
       with:
         github-token: ${{ inputs.github-token }}
         username: ${{ inputs.username }}
