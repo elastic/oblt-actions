@@ -41,7 +41,7 @@ jobs:
       - uses: ./updatecli/install
       - name: Verify updatecli version
         run: |
-          want=$(cat updatecli/install/.default-updatecli-version | cut -dv -f2)
+          want=$(cut -dv -f2 < updatecli/install/.default-updatecli-version)
           got=$(updatecli version 2>&1)
           echo "${got} == ${want}"
           [[ "${got}" == *"${want}"* ]]
