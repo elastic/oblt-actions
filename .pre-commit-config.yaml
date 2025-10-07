@@ -40,3 +40,10 @@ repos:
     rev: 0c610de366faf857ef4b33704ee28edcf85778cc
     hooks:
       - id: actionlint
+
+  # For GitHub composite actions
+  # see
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 2d21e3da5122221892c195c0cff8ee47973faf4c  # frozen: 0.34.0
+    hooks:
+      - id: check-github-actions
