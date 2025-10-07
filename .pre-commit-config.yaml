@@ -42,7 +42,7 @@ repos:
       - id: actionlint
         exclude: |
           (?x)^(
-              github/workflows/test-version-framework.yml
+              .github/workflows/test-version-framework.yml
           )$
 
   # For GitHub composite actions
