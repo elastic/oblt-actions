@@ -45,10 +45,10 @@ repos:
               .github/workflows/test-version-framework.yml
           )$
 
-  # For GitHub composite actions
-  # see
-  - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 2d21e3da5122221892c195c0cff8ee47973faf4c  # frozen: 0.34.0
-    hooks:
-      - id: check-github-actions
-        files: action\.(yml|yaml)$
+  # For GitHub composite actions - use an alternative approach
+  # see https://github.com/rhysd/actionlint/issues/46
+  #- repo: https://github.com/python-jsonschema/check-jsonschema
+  #  rev: 2d21e3da5122221892c195c0cff8ee47973faf4c  # frozen: 0.34.0
+  #  hooks:
+  #    - id: check-github-actions
+  #      files: action\.(yml|yaml)$
