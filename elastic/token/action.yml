@@ -1,0 +1,51 @@
+---
+name: elastic/token
+description: 'Fetch an ephemeral GitHub token from Vault using OIDC authentication'
+
+inputs:
+  skip-token-revoke:
+    description: 'Revoke the Vault token on exit'
+    default: false
+
+outputs:
+  token:
+    description: GitHub App installation access token.
+    value: ${{ steps.vault-action.outputs.token }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set Vault Address
+      shell: bash
+      run: |
+        echo "VAULT_ADDR=https://vault-ci-prod.elastic.dev" >> $GITHUB_ENV
+
+    - name: Retrieve GitHub Workflow Ref and generate Vault Role name
+      shell: bash
+      run: |
+        echo "Workflow ref: $GITHUB_WORKFLOW_REF"
+
+        # Generate role name using SHA-256 hash of workflow_ref
+        WORKFLOW_HASH=$(echo -n "$GITHUB_WORKFLOW_REF" | sha256sum | cut -c1-12)
+        VAULT_ROLE="token-policy-$WORKFLOW_HASH"
+        echo "Generated role name: $VAULT_ROLE"
+        echo "VAULT_ROLE=$VAULT_ROLE" >> $GITHUB_ENV
+
+    - name: Use Vault Action to login and retrieve Ephemeral GitHub Token
+      id: vault-action
+      uses: hashicorp/vault-action@v3.4.0
+      with:
+        url: ${{ env.VAULT_ADDR }}
+        role: ${{ env.VAULT_ROLE }}
+        path: github-oidc
+        method: jwt
+        jwtGithubAudience: vault
+        exportEnv: false
+        secrets: |
+          github/token/${{ env.VAULT_ROLE }} token
+
+    - name: Token scope
+      shell: bash
+      run: gh auth status
+      env:
+        GH_TOKEN: ${{ steps.vault-action.outputs.token }}
