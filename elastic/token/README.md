@@ -9,8 +9,8 @@ Fetch an ephemeral GitHub token from Vault using OIDC authentication
 
 ## Inputs
 <!--inputs-->
-| Name                | Description                    | Required | Default |
-|---------------------|--------------------------------|----------|---------|
+| Name                | Description                           | Required | Default |
+|---------------------|---------------------------------------|----------|---------|
 | `skip-token-revoke` | Skip revoking the Vault token on exit | `false`  | `false` |
 <!--/inputs-->
 
@@ -24,10 +24,8 @@ Fetch an ephemeral GitHub token from Vault using OIDC authentication
 
 ## Usage
 
-
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
----
 ...
 jobs:
   validate:
@@ -37,8 +35,12 @@ jobs:
       id-token: write
     steps:
       - uses: elastic/oblt-actions/elastic/token@v1
-        id: token
+        id: get_token
 
-      ...
+      - uses: ..
+        with:
+          github-token: ${{ steps.get_token.outputs.token }}
+
+...
 ```
 <!--/usage-->
