@@ -11,7 +11,7 @@ Fetch an ephemeral GitHub token from Vault using OIDC authentication
 <!--inputs-->
 | Name                | Description                    | Required | Default |
 |---------------------|--------------------------------|----------|---------|
-| `skip-token-revoke` | Revoke the Vault token on exit | `false`  | `false` |
+| `skip-token-revoke` | Skip revoking the Vault token on exit | `false`  | `false` |
 <!--/inputs-->
 
 ## Outputs
