@@ -28,11 +28,7 @@ Fetch an ephemeral GitHub token from Vault using OIDC authentication
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 ---
-name: catalog-info
-
-permissions:
-  contents: read
-
+...
 jobs:
   validate:
     runs-on: ubuntu-latest
