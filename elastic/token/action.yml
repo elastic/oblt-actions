@@ -4,7 +4,7 @@ description: 'Fetch an ephemeral GitHub token from Vault using OIDC authenticati
 
 inputs:
   skip-token-revoke:
-    description: 'Revoke the Vault token on exit'
+    description: 'Skip revoking the Vault token on exit'
     default: false
 
 outputs:
