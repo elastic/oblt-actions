@@ -29,7 +29,7 @@ runs:
         # Generate role name using SHA-256 hash of workflow ref base
         WORKFLOW_HASH=$(echo -n "$WORKFLOW_REF_BASE" | sha256sum | cut -c1-12)
         VAULT_ROLE="token-policy-$WORKFLOW_HASH"
-        echo "Generated role name: $VAULT_ROLE"      
+        echo "Generated role name: $VAULT_ROLE"
         echo "VAULT_ROLE=$VAULT_ROLE" >> $GITHUB_ENV
 
     - name: Use Vault Action to login and retrieve Ephemeral GitHub Token

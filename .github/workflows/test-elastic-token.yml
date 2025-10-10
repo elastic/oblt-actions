@@ -17,4 +17,3 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: ./elastic/token
-
