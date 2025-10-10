@@ -16,4 +16,4 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v5
-      - uses: ./elastic/token
+      - uses: ./elastic/github-token
