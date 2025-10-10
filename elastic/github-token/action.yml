@@ -15,11 +15,6 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Set Vault Address
-      shell: bash
-      run: |
-        echo "VAULT_ADDR=https://vault-ci-prod.elastic.dev" >> $GITHUB_ENV
-
     - name: Retrieve GitHub Workflow Ref and generate Vault Role name
       shell: bash
       run: |
@@ -36,7 +31,7 @@ runs:
       id: vault-action
       uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
       with:
-        url: ${{ env.VAULT_ADDR }}
+        url: "https://vault-ci-prod.elastic.dev"
         role: ${{ env.VAULT_ROLE }}
         path: github-oidc
         method: jwt
