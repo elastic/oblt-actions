@@ -1,5 +1,5 @@
 ---
-name: elastic/token
+name: elastic/github-token
 description: 'Fetch an ephemeral GitHub token from Vault using OIDC authentication'
 
 inputs:

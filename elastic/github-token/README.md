@@ -1,7 +1,7 @@
-# <!--name-->elastic/token<!--/name-->
+# <!--name-->elastic/github-token<!--/name-->
 
-[![usages](https://img.shields.io/badge/usages-white?logo=githubactions&logoColor=blue)](https://github.com/search?q=elastic%2Foblt-actions%2Felastic%2Ftoken+%28path%3A.github%2Fworkflows+OR+path%3A**%2Faction.yml+OR+path%3A**%2Faction.yaml%29&type=code)
-[![test-elastic-token](https://github.com/elastic/oblt-actions/actions/workflows/test-elastic-token.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-elastic-token.yml)
+[![usages](https://img.shields.io/badge/usages-white?logo=githubactions&logoColor=blue)](https://github.com/search?q=elastic%2Foblt-actions%2Felastic%2Fgithub-token+%28path%3A.github%2Fworkflows+OR+path%3A**%2Faction.yml+OR+path%3A**%2Faction.yaml%29&type=code)
+[![test-elastic-github-token](https://github.com/elastic/oblt-actions/actions/workflows/test-elastic-github-token.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-elastic-github-token.yml)
 
 <!--description-->
 Fetch an ephemeral GitHub token from Vault using OIDC authentication
@@ -34,7 +34,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: elastic/oblt-actions/elastic/token@v1
+      - uses: elastic/oblt-actions/elastic/github-token@v1
         id: get_token
 
       - uses: ..

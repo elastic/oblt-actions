@@ -14,7 +14,7 @@ on:
       - '!buildkite/run/**'
       - '!check-dependent-jobs/**'
       - '!elastic/github-commands/**'
-      - '!elastic/token/**'
+      - '!elastic/github-token/**'
       - '!elastic/validate-catalog/**'
       - '!git/setup/**'
       - '!github/backport-active/**'
