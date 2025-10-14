@@ -18,6 +18,10 @@ inputs:
     description: 'The assumed role duration in seconds, if assuming a role. Defaults to 1 hour, but cannot exceed the maximum defined by the role.'
     required: false
     default: '3600'
+  output-credentials:
+    description: 'Whether to output AWS credentials as action outputs, this adds about 25 seconds to the action runtime.'
+    required: false
+    default: 'true'
 
 outputs:
   role-arn:
@@ -70,4 +74,4 @@ runs:
         aws-region: ${{ inputs.aws-region }}
         role-to-assume: ${{ steps.generate-role-arn.outputs.role-arn }}
         role-duration-seconds: ${{ inputs.role-duration-seconds }}
-        output-credentials: true
+        output-credentials: ${{ inputs.output-credentials }}
