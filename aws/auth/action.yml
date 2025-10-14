@@ -19,7 +19,7 @@ inputs:
     required: false
     default: '3600'
   output-credentials:
-    description: 'Whether to output AWS credentials as action outputs, this add about 25seconds to the action runtime.'
+    description: 'Whether to output AWS credentials as action outputs, this adds about 25 seconds to the action runtime.'
     required: false
     default: 'true'
 
