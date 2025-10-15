@@ -25,7 +25,6 @@ echo "::group::Build Linux package"
 export KBN_NP_PLUGINS_BUILT=true
 time node scripts/build \
   --skip-os-packages \
-  --skip-canvas-shareable-runtime \
   --skip-cdn-assets \
   --skip-docker-contexts
 echo "::endgroup::"
@@ -45,6 +44,7 @@ if [ "${SERVERLESS}" == "false" ] ; then
         --skip-docker-ubi \
         --skip-docker-wolfi \
         --skip-docker-fips \
+        --skip-docker-cloud-fips  \
         --skip-generic-folders \
         --skip-platform-folders \
         --skip-docker-serverless
@@ -63,6 +63,7 @@ else
         --skip-docker-ubi \
         --skip-docker-wolfi \
         --skip-docker-fips \
+        --skip-docker-cloud-fips  \
         --skip-docker-ubuntu \
         --skip-docker-cloud
 fi
