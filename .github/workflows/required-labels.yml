@@ -3,7 +3,7 @@ name: required-labels
 on:
   merge_group: ~
   workflow_dispatch: ~
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - labeled
@@ -17,7 +17,6 @@ jobs:
   check-labels:
     permissions:
       contents: read
-      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -26,10 +25,10 @@ jobs:
           labels=$(yq '[.categories[].labels] + .exclude-labels | flatten | unique | sort | @tsv' .github/release-drafter.yml | tr '\t' ',')
           echo "labels=$labels" >> "${GITHUB_OUTPUT}"
       - id: check-labels
-        uses: v1v/github-action-required-labels@feature/merge-queue-support
+        uses: mheap/github-action-required-labels@fb29a14a076b0f74099f6198f77750e8fc236016 # v5.5.0
         with:
           mode: exactly
           count: 1
           use_regex: false
-          add_comment: true
+          add_comment: false
           labels: ${{ steps.get-labels.outputs.labels }}
