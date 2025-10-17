@@ -15,8 +15,6 @@ permissions:
 
 jobs:
   check-labels:
-    permissions:
-      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -33,13 +31,3 @@ jobs:
           use_regex: false
           add_comment: false
           labels: ${{ steps.get-labels.outputs.labels }}
-
-      - name: Generate list using Markdown
-        if: steps.check-labels.outcome == 'failure'
-        run: |
-          {
-            echo "Label error."
-            echo "Requires exactly 1 of: $LABELS"
-          } >> "$GITHUB_STEP_SUMMARY"
-        env:
-          LABELS: ${{ steps.get-labels.outputs.labels }}
