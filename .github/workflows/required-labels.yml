@@ -24,6 +24,7 @@ jobs:
         run: |
           labels=$(yq '[.categories[].labels] + .exclude-labels | flatten | unique | sort | @tsv' .github/release-drafter.yml | tr '\t' ',')
           echo "labels=$labels" >> "${GITHUB_OUTPUT}"
+
       - id: check-labels
         uses: mheap/github-action-required-labels@fb29a14a076b0f74099f6198f77750e8fc236016 # v5.5.0
         with:
@@ -32,3 +33,13 @@ jobs:
           use_regex: false
           add_comment: false
           labels: ${{ steps.get-labels.outputs.labels }}
+
+      - name: Generate list using Markdown
+        if: steps.check-labels.outcome == 'failure'
+        run: |
+          {
+            echo "Label error."
+            echo "Requires exactly 1 of: $LABELS"
+          } >> "$GITHUB_STEP_SUMMARY"
+        env:
+          LABELS: ${{ steps.get-labels.outputs.labels }}
