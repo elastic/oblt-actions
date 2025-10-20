@@ -35,7 +35,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
+        # See https://github.com/jlumbroso/free-disk-space/pull/26
+        uses: Jayllyz/free-disk-space@3bda29d61d3f1fa7bf46c5a9a11f22dd20af07c9 # v1.3.1
         with:
           tool-cache: false
           android: true
