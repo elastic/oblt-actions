@@ -47,7 +47,7 @@ runs:
         ref: ${{ inputs.git-ref }}
         path: ${{ inputs.checkout-path }}
 
-    - uses: actions/setup-node@v5
+    - uses: actions/setup-node@v6
       with:
         node-version-file: ${{ inputs.checkout-path }}/.node-version
         cache: yarn
