@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 #
-#
 set -euo pipefail
 
 # Use environment variables, with sensible defaults if not set
 KIBANA_HOST="${KIBANA_HOST:?KIBANA_HOST is required}"
 KIBANA_USER="${KIBANA_USER:?KIBANA_USER is required}"
 KIBANA_PASSWORD="${KIBANA_PASSWORD:?KIBANA_PASSWORD is required}"
-
 FROM_DATE="${FROM_DATE:?FROM_DATE is required}"
 TO_DATE="${TO_DATE:?TO_DATE is required}"
 DASHBOARD_ID="${DASHBOARD_ID:-kibana-dashboard}"
 PNG_OUTPUT_FILE="${PNG_OUTPUT_FILE:-out.png}"
 TABLE_WIDTH="${TABLE_WIDTH:-2400}"
+
+# Mask secrets in GitHub logs
+echo "::add-mask::$KIBANA_USER"
+echo "::add-mask::$KIBANA_HOST"
+echo "::add-mask::$KIBANA_PASSWORD"
 
 VERSION="0.0.0" # mandatory, doesn't do anything
 
