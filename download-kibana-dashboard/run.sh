@@ -19,7 +19,7 @@ echo "::add-mask::$KIBANA_USER"
 echo "::add-mask::$KIBANA_HOST"
 echo "::add-mask::$KIBANA_PASSWORD"
 
-VERSION="0.0.0" # mandatory, doesn't do anything
+VERSION="0.0.0" # mandatory for the API request; value is not significant
 
 JOB_PARAMS=$(echo "
 (
