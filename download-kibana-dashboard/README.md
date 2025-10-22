@@ -9,17 +9,18 @@ An Action to download a Kibana dashboard in png.
 ## Inputs
 
 <!--inputs-->
-| Name                | Description                                                                               | Required | Default                |
-|---------------------|-------------------------------------------------------------------------------------------|----------|------------------------|
-| `kibana-host`       | The Kibana host URL.                                                                      | `true`   | ` `                    |
-| `kibana-user`       | The user reference for Kibana. (Default: default user)                                    | `true`   | ` `                    |
-| `kibana-password`   | The password for the Kibana user.                                                         | `true`   | ` `                    |
-| `dashboard-id`      | The ID of the dashboard to generate the PNG for.                                          | `false`  | `kibana-dashboard`     |
-| `from-date`         | The start date for the report.                                                            | `true`   | ` `                    |
-| `to-date`           | The end date for the report.                                                              | `true`   | ` `                    |
-| `png-filename`      | The output file path for the generated PNG.                                               | `false`  | `kibana-dashboard.png` |
-| `table-width`       | The width of the table in pixels.                                                         | `false`  | `2400`                 |
-| `if-no-files-found` | The behavior when no files are found to upload. Options are 'error', 'warn', or 'ignore'. | `false`  | `error`                |
+| Name                | Description                                                                                           | Required | Default                |
+|---------------------|-------------------------------------------------------------------------------------------------------|----------|------------------------|
+| `kibana-host`       | The Kibana host URL.                                                                                  | `true`   | ` `                    |
+| `kibana-user`       | The user reference for Kibana. (Default: default user)                                                | `true`   | ` `                    |
+| `kibana-password`   | The password for the Kibana user.                                                                     | `true`   | ` `                    |
+| `dashboard-id`      | The ID of the dashboard to generate the PNG for.                                                      | `false`  | `kibana-dashboard`     |
+| `from-date`         | The start date for the report.                                                                        | `true`   | ` `                    |
+| `to-date`           | The end date for the report.                                                                          | `true`   | ` `                    |
+| `png-filename`      | The output file path for the generated PNG.                                                           | `false`  | `kibana-dashboard.png` |
+| `table-width`       | The width of the table in pixels.                                                                     | `false`  | `2400`                 |
+| `if-no-files-found` | The behavior when no files are found to upload. Options are 'error', 'warn', or 'ignore'.             | `false`  | `error`                |
+| `max-retries`       | The maximum number of retries for fetching the dashboard with a pause of 10 seconds between attempts. | `false`  | `20`                   |
 <!--/inputs-->
 
 ## Outputs

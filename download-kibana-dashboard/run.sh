@@ -11,6 +11,7 @@ TO_DATE="${TO_DATE:?TO_DATE is required}"
 DASHBOARD_ID="${DASHBOARD_ID:-kibana-dashboard}"
 PNG_OUTPUT_FILE="${PNG_OUTPUT_FILE:-out.png}"
 TABLE_WIDTH="${TABLE_WIDTH:-2400}"
+MAX_ATTEMPTS="${MAX_ATTEMPTS:-20}"
 
 # Mask secrets in GitHub logs
 echo "::add-mask::$KIBANA_USER"
@@ -62,7 +63,6 @@ fi
 echo "PNG URL path: $png_url_path"
 
 attempt_counter=0
-max_attempts=20
 sleep_timeout=10
 # Poll for report readiness, handle 503 Retry-After
 while true; do
@@ -89,7 +89,7 @@ while true; do
   fi
 
   attempt_counter=$((attempt_counter+1))
-  if (( attempt_counter >= max_attempts )); then
+  if (( attempt_counter >= MAX_ATTEMPTS )); then
     echo "Max attempts reached. PNG report timed out."
     exit 1
   fi
