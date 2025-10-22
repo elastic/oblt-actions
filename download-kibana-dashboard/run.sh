@@ -56,8 +56,8 @@ response=$(curl -sSL -u "$KIBANA_USER:$KIBANA_PASSWORD" \
 png_url_path=$(echo "$response" | jq -r '.path')
 
 if [[ "$png_url_path" == "null" || -z "$png_url_path" ]]; then
-  echo "Failed to queue report. Response:"
-  echo "$response"
+  echo "::error::Failed to queue report"
+  echo "Response: $response"
   exit 1
 fi
 echo "PNG URL path: $png_url_path"
@@ -71,7 +71,7 @@ while true; do
     echo "Report is ready!"
     break
   elif [[ "$http_code" == "500" ]]; then
-    echo "Report generation failed (HTTP 500)."
+    echo "::error::Report generation failed (HTTP 500)."
     exit 1
   elif [[ "$http_code" == "503" ]]; then
     # Check for Retry-After header
@@ -84,13 +84,13 @@ while true; do
       sleep "$sleep_timeout"
     fi
   else
-    echo "Unexpected HTTP code: $http_code"
+    echo "::error::Unexpected HTTP code: $http_code"
     exit 1
   fi
 
   attempt_counter=$((attempt_counter+1))
   if (( attempt_counter >= MAX_ATTEMPTS )); then
-    echo "Max attempts reached. PNG report timed out."
+    echo "::error::Max attempts reached $MAX_ATTEMPTS. PNG report timed out."
     exit 1
   fi
 done
