@@ -24,7 +24,6 @@ jobs:
     if: always()
     needs:
       - dry-run
-      - wait
     runs-on: ubuntu-latest
     steps:
       - id: check
@@ -58,39 +57,3 @@ jobs:
           dry-run: ${{ github.event.inputs.dry-run != '' && github.event.inputs.dry-run || true }}
       - name: Assert is not empty
         run: test -n "${{steps.create.outputs.cluster-name}}"
-
-  wait:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: elastic/oblt-actions/git/setup@v1
-      - name: Get token
-        id: get_token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
-          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          permission-contents: write
-          permission-pull-requests: read
-          permission-checks: read
-          repositories: |
-            observability-test-environments
-      - uses: ./oblt-cli/cluster-create-ccs
-        id: create
-        with:
-          github-token: ${{ steps.get_token.outputs.token }}
-          remote-cluster: 'release-oblt'
-          cluster-name-prefix: 'testgithubaction'
-          gitops: true
-          wait: '15'
-      - name: Assert is not empty
-        run: test -n "${{ steps.create.outputs.cluster-name }}"
-      # NOTE: this is just to help with tearing down the infra as a best effort
-      #             Wait 60 seconds - that's the average time it takes PRs to get merged.
-      - name: Wait 60 seconds - PRs in oblt-cli need to be merged
-        run: sleep 60
-      - uses: elastic/oblt-actions/oblt-cli/cluster-destroy@v1
-        continue-on-error: true
-        with:
-          cluster-name: ${{ steps.create.outputs.cluster-name }}
-          github-token: ${{ steps.get_token.outputs.token }}
