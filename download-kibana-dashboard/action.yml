@@ -43,7 +43,6 @@ runs:
   using: composite
   steps:
     - name: Fetch Kibana Dashboard
-      working-directory: ${{ inputs.checkout-path }}
       run: ${{ github.action_path }}/run.sh
       shell: bash
       env:
