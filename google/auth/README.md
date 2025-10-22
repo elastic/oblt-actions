@@ -31,12 +31,31 @@ GCP Workload Identity Pool Provider ID we use for Elastic Observability reposito
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 jobs:
-  job_id:
+  federation:
     permissions:
       contents: 'read'
       id-token: 'write'
     steps:
-      - uses: 'actions/checkout@v4' # Checkout needs to happen before using this action
-      - uses: 'elastic/oblt-actions/google/auth@v1'
+      - uses: actions/checkout@v5 # Checkout needs to happen before using this action
+      - uses: elastic/oblt-actions/google/auth@v1
+
+  gcloud:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    steps:
+      - uses: actions/checkout@v5 # Checkout needs to happen before using this action
+      - uses: elastic/oblt-actions/google/auth@v1
+        with:
+          project-id: 'elastic-observability-ci'
+          project-number: '911195782929'
+
+      - name: 'Set up Cloud SDK'
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+        with:
+          version: '>= 363.0.0'
+
+      - name: 'list vms for elastic-observability-ci'
+        run: gcloud compute instances list
 ```
 <!--/usage-->
