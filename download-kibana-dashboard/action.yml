@@ -12,6 +12,10 @@ inputs:
   kibana-password:
     description: "The password for the Kibana user."
     required: true
+  dashboard-title:
+    description: The title of the dashboard to generate the PNG for.
+    required: false
+    default: "kibana-dashboard"
   dashboard-id:
     description: The ID of the dashboard to generate the PNG for.
     required: false
@@ -55,6 +59,7 @@ runs:
         PNG_OUTPUT_FILE: ${{ inputs.png-filename }}
         TABLE_WIDTH: ${{ inputs.table-width }}
         MAX_ATTEMPTS: ${{ inputs.max-retries }}
+        DASHBOARD_TITLE: ${{ inputs.dashboard-title }}
 
     - name: Upload dashboard PNG to artifacts
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

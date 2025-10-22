@@ -12,8 +12,9 @@ An Action to download a Kibana dashboard in png.
 | Name                | Description                                                                                           | Required | Default                |
 |---------------------|-------------------------------------------------------------------------------------------------------|----------|------------------------|
 | `kibana-host`       | The Kibana host URL.                                                                                  | `true`   | ` `                    |
-| `kibana-user`       | The user reference for Kibana. (Default: default user)                                                | `true`   | ` `                    |
+| `kibana-user`       | The user reference for Kibana.                                                                        | `true`   | ` `                    |
 | `kibana-password`   | The password for the Kibana user.                                                                     | `true`   | ` `                    |
+| `dashboard-title`   | The title of the dashboard to generate the PNG for.                                                   | `false`  | `kibana-dashboard`     |
 | `dashboard-id`      | The ID of the dashboard to generate the PNG for.                                                      | `false`  | `kibana-dashboard`     |
 | `from-date`         | The start date for the report.                                                                        | `true`   | ` `                    |
 | `to-date`           | The end date for the report.                                                                          | `true`   | ` `                    |

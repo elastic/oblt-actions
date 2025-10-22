@@ -6,6 +6,7 @@ set -euo pipefail
 KIBANA_HOST="${KIBANA_HOST:?KIBANA_HOST is required}"
 KIBANA_USER="${KIBANA_USER:?KIBANA_USER is required}"
 KIBANA_PASSWORD="${KIBANA_PASSWORD:?KIBANA_PASSWORD is required}"
+DASHBOARD_TITLE="${DASHBOARD_TITLE:-kibana-dashboard}"
 FROM_DATE="${FROM_DATE:?FROM_DATE is required}"
 TO_DATE="${TO_DATE:?TO_DATE is required}"
 DASHBOARD_ID="${DASHBOARD_ID:-kibana-dashboard}"
@@ -43,7 +44,7 @@ JOB_PARAMS=$(echo "
     )
   ),
   objectType:dashboard,
-  title:'ecf_gcp',
+  title:'${DASHBOARD_TITLE}',
   version:'${VERSION}'
 )
 " | tr -d "[:space:]")
