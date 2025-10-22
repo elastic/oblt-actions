@@ -7,7 +7,7 @@ inputs:
     description: The Kibana host URL.
     required: true
   kibana-user:
-    description: "The user reference for Kibana. (Default: default user)"
+    description: "The user reference for Kibana."
     required: true
   kibana-password:
     description: "The password for the Kibana user."
