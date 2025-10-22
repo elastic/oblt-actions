@@ -12,11 +12,11 @@ GCP Workload Identity Pool Provider ID we use for Elastic Observability reposito
 ## Inputs
 
 <!--inputs-->
-| Name             | Description            | Required | Default                    |
-|------------------|------------------------|----------|----------------------------|
-| `project-number` | The GCP project number | `false`  | `8560181848`               |
-| `project-id`     | The GCP project ID     | `false`  | `elastic-observability`    |
-| `repository`     | The repository name    | `false`  | `${{ github.repository }}` |
+| Name             | Description                                                                                                                      | Required | Default                    |
+|------------------|----------------------------------------------------------------------------------------------------------------------------------|----------|----------------------------|
+| `project-number` | The GCP project number                                                                                                           | `false`  | `8560181848`               |
+| `project-id`     | The GCP project ID. The project-id is optional, but may be required by downstream authentication systems such as the gcloud CLI. | `false`  | `elastic-observability`    |
+| `repository`     | The repository name                                                                                                              | `false`  | `${{ github.repository }}` |
 <!--/inputs-->
 
 ## Outputs
