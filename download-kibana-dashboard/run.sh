@@ -48,7 +48,7 @@ JOB_PARAMS=$(echo "
 " | tr -d "[:space:]")
 
 # Request report generation
-response=$(curl -sSL -u "$KIBANA_USER:$KIBANA_PWD" \
+response=$(curl -sSL -u "$KIBANA_USER:$KIBANA_PASSWORD" \
   -H 'kbn-xsrf: true' \
   --data-urlencode "jobParams=${JOB_PARAMS}" "$KIBANA_HOST/api/reporting/generate/pngV2"
 )
@@ -66,7 +66,7 @@ max_attempts=20
 sleep_timeout=10
 # Poll for report readiness, handle 503 Retry-After
 while true; do
-  http_code=$(curl -s -o /dev/null -w "%{http_code}" -u "$KIBANA_USER:$KIBANA_PWD" -H 'kbn-xsrf: true' "$KIBANA_HOST$png_url_path")
+  http_code=$(curl -s -o /dev/null -w "%{http_code}" -u "$KIBANA_USER:$KIBANA_PASSWORD" -H 'kbn-xsrf: true' "$KIBANA_HOST$png_url_path")
   if [[ "$http_code" == "200" ]]; then
     echo "Report is ready!"
     break
@@ -75,7 +75,7 @@ while true; do
     exit 1
   elif [[ "$http_code" == "503" ]]; then
     # Check for Retry-After header
-    retry_after=$(curl -sI -u "$KIBANA_USER:$KIBANA_PWD" -H 'kbn-xsrf: true' "$KIBANA_HOST$png_url_path" | grep -i 'Retry-After:' | awk '{print $2}' | tr -d '\r')
+    retry_after=$(curl -sI -u "$KIBANA_USER:$KIBANA_PASSWORD" -H 'kbn-xsrf: true' "$KIBANA_HOST$png_url_path" | grep -i 'Retry-After:' | awk '{print $2}' | tr -d '\r')
     if [[ -n "$retry_after" ]]; then
       echo "Report not ready, waiting $retry_after seconds (from Retry-After header)..."
       sleep "$retry_after"
@@ -96,5 +96,5 @@ while true; do
 done
 
 echo "Downloading PNG report to $PNG_OUTPUT_FILE..."
-curl -sSL --output "$PNG_OUTPUT_FILE" -u "$KIBANA_USER:$KIBANA_PWD" -H 'kbn-xsrf: true' "$KIBANA_HOST$png_url_path"
+curl -sSL --output "$PNG_OUTPUT_FILE" -u "$KIBANA_USER:$KIBANA_PASSWORD" -H 'kbn-xsrf: true' "$KIBANA_HOST$png_url_path"
 echo "PNG report downloaded successfully."

@@ -49,7 +49,7 @@ runs:
         DASHBOARD_ID: ${{ inputs.dashboard-id }}
         FROM_DATE: ${{ inputs.from-date }}
         TO_DATE: ${{ inputs.to-date }}
-        PNG_FILENAME: ${{ inputs.png-filename }}
+        PNG_OUTPUT_FILE: ${{ inputs.png-filename }}
         TABLE_WIDTH: ${{ inputs.table-width }}
 
     - name: Upload dashboard PNG to artifacts
