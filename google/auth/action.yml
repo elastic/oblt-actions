@@ -10,14 +10,8 @@ inputs:
     description: 'The GCP project number'
     default: '8560181848'
   project-id:
-    description: 'The GCP project ID'
+    description: 'The GCP project ID. The project-id is optional, but may be required by downstream authentication systems such as the gcloud CLI.'
     default: 'elastic-observability'
-    deprecationMessage: |
-      The project-id is actually not relevant and is not used
-      by the internal google-github-actions/auth action if
-      the `workload_identity_provider` input is provided.
-      This option may be removed in a future release.
-
   repository:
     description: 'The repository name'
     default: ${{ github.repository }}
