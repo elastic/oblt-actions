@@ -29,8 +29,10 @@ jobs:
 
       # Using OIDC and the oblt-cli to get cluster credentials
       - uses: elastic/oblt-actions/google/auth@v1
+        if: ${{ github.event_name != 'merge_group' }}
 
       - name: Get token
+        if: ${{ github.event_name != 'merge_group' }}
         id: get_token
         uses: actions/create-github-app-token@v2
         with:
@@ -41,15 +43,17 @@ jobs:
             observability-test-environments
 
       - uses: elastic/oblt-actions/oblt-cli/cluster-credentials@v1
+        if: ${{ github.event_name != 'merge_group' }}
         with:
           github-token: ${{ steps.get_token.outputs.token }}
-          cluster-name: 'observability-ci'
+          cluster-name: 'dev-oblt'
 
       - uses: actions/checkout@v5
 
       - uses: ./download-kibana-dashboard
+        if: ${{ github.event_name != 'merge_group' }}
         with:
           kibana-host: ${{ env.KIBANA_HOST }}
           kibana-user: ${{ env.KIBANA_USERNAME }}
           kibana-password: ${{ env.KIBANA_PASSWORD }}
-          dashboard-id: "bfd7339f-9b89-4c76-aa4f-51e0f93b55fa"
+          dashboard-id: "2c0daa02-35e8-4dd3-aa0a-6a24a48d857d"
