@@ -1,0 +1,55 @@
+name: test-download-kibana-dashboard
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-download-kibana-dashboard.yml'
+      - 'download-kibana-dashboard/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-download-kibana-dashboard.yml'
+      - 'download-kibana-dashboard/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+
+      # Using OIDC and the oblt-cli to get cluster credentials
+      - uses: elastic/oblt-actions/google/auth@v1
+
+      - name: Get token
+        id: get_token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permission-contents: read
+          repositories: |
+            observability-test-environments
+
+      - uses: elastic/oblt-actions/oblt-cli/cluster-credentials@v1
+        with:
+          github-token: ${{ steps.get_token.outputs.token }}
+          cluster-name: 'observability-ci'
+
+      - uses: actions/checkout@v5
+
+      - uses: ./download-kibana-dashboard
+        with:
+          kibana-host: ${{ env.KIBANA_HOST }}
+          kibana-user: ${{ env.KIBANA_USERNAME }}
+          kibana-password: ${{ env.KIBANA_PASSWORD }}
+          dashboard-id: "bfd7339f-9b89-4c76-aa4f-51e0f93b55fa"

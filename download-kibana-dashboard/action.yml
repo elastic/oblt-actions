@@ -21,10 +21,12 @@ inputs:
     required: true
   from-date:
     description: The start date for the report.
-    required: true
+    required: false
+    default: "now-15m"
   to-date:
     description: The end date for the report.
-    required: true
+    required: false
+    default: "now"
   png-filename:
     description: The output file path for the generated PNG.
     required: false

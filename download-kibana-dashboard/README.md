@@ -1,6 +1,7 @@
 # <!--name-->download-kibana-dashboard<!--/name-->
 
 [![usages](https://img.shields.io/badge/usages-white?logo=githubactions&logoColor=blue)](https://github.com/search?q=elastic%2Foblt-actions%2Fdownload-kibana-dashboard+%28path%3A.github%2Fworkflows+OR+path%3A**%2Faction.yml+OR+path%3A**%2Faction.yaml%29&type=code)
+[![test-download-kibana-dashboard](https://github.com/elastic/oblt-actions/actions/workflows/test-download-kibana-dashboard.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-download-kibana-dashboard.yml)
 
 <!--description-->
 An Action to download a Kibana dashboard in png.
@@ -15,9 +16,9 @@ An Action to download a Kibana dashboard in png.
 | `kibana-user`       | The user reference for Kibana.                                                                        | `true`   | ` `                    |
 | `kibana-password`   | The password for the Kibana user.                                                                     | `true`   | ` `                    |
 | `dashboard-title`   | The title of the dashboard to generate the PNG for.                                                   | `false`  | `kibana-dashboard`     |
-| `true`   | ` `                    |
-| `from-date`         | The start date for the report.                                                                        | `true`   | ` `                    |
-| `to-date`           | The end date for the report.                                                                          | `true`   | ` `                    |
+| `dashboard-id`      | The ID of the dashboard to generate the PNG for.                                                      | `true`   | ` `                    |
+| `from-date`         | The start date for the report.                                                                        | `false`  | `now-15m`              |
+| `to-date`           | The end date for the report.                                                                          | `false`  | `now`                  |
 | `png-filename`      | The output file path for the generated PNG.                                                           | `false`  | `kibana-dashboard.png` |
 | `table-width`       | The width of the table in pixels.                                                                     | `false`  | `2400`                 |
 | `if-no-files-found` | The behavior when no files are found to upload. Options are 'error', 'warn', or 'ignore'.             | `false`  | `error`                |
