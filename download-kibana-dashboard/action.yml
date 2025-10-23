@@ -1,0 +1,70 @@
+---
+name: 'download-kibana-dashboard'
+description: |
+  An Action to download a Kibana dashboard in png.
+inputs:
+  kibana-host:
+    description: The Kibana host URL.
+    required: true
+  kibana-user:
+    description: "The user reference for Kibana."
+    required: true
+  kibana-password:
+    description: "The password for the Kibana user."
+    required: true
+  dashboard-title:
+    description: The title of the dashboard to generate the PNG for.
+    required: false
+    default: "kibana-dashboard"
+  dashboard-id:
+    description: The ID of the dashboard to generate the PNG for.
+    required: true
+  from-date:
+    description: The start date for the report.
+    required: false
+    default: "now-15m"
+  to-date:
+    description: The end date for the report.
+    required: false
+    default: "now"
+  png-filename:
+    description: The output file path for the generated PNG.
+    required: false
+    default: "kibana-dashboard.png"
+  table-width:
+    description: The width of the table in pixels.
+    required: false
+    default: "2400"
+  if-no-files-found:
+    description: The behavior when no files are found to upload. Options are 'error', 'warn', or 'ignore'.
+    required: false
+    default: "error"
+  max-retries:
+    description: The maximum number of retries for fetching the dashboard with a pause of 10 seconds between attempts.
+    required: false
+    default: "20"
+
+runs:
+  using: composite
+  steps:
+    - name: Fetch Kibana Dashboard
+      run: ${{ github.action_path }}/run.sh
+      shell: bash
+      env:
+        KIBANA_HOST: ${{ inputs.kibana-host }}
+        KIBANA_USER: ${{ inputs.kibana-user }}
+        KIBANA_PASSWORD: ${{ inputs.kibana-password }}
+        DASHBOARD_ID: ${{ inputs.dashboard-id }}
+        FROM_DATE: ${{ inputs.from-date }}
+        TO_DATE: ${{ inputs.to-date }}
+        PNG_OUTPUT_FILE: ${{ inputs.png-filename }}
+        TABLE_WIDTH: ${{ inputs.table-width }}
+        MAX_ATTEMPTS: ${{ inputs.max-retries }}
+        DASHBOARD_TITLE: ${{ inputs.dashboard-title }}
+
+    - name: Upload dashboard PNG to artifacts
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      with:
+        name: ${{ inputs.png-filename }}
+        path: ${{ inputs.png-filename }}
+        if-no-files-found: ${{ inputs.if-no-files-found }}
