@@ -43,6 +43,10 @@ inputs:
     description: The maximum number of retries for fetching the dashboard with a pause of 10 seconds between attempts.
     required: false
     default: "20"
+  query:
+    description: The KQL query to filter the dashboard data.
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -61,6 +65,7 @@ runs:
         TABLE_WIDTH: ${{ inputs.table-width }}
         MAX_ATTEMPTS: ${{ inputs.max-retries }}
         DASHBOARD_TITLE: ${{ inputs.dashboard-title }}
+        QUERY: ${{ inputs.query }}
 
     - name: Upload dashboard PNG to artifacts
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
