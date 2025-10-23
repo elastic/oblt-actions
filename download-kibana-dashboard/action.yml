@@ -18,8 +18,7 @@ inputs:
     default: "kibana-dashboard"
   dashboard-id:
     description: The ID of the dashboard to generate the PNG for.
-    required: false
-    default: "kibana-dashboard"
+    required: true
   from-date:
     description: The start date for the report.
     required: true
