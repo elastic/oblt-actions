@@ -41,6 +41,7 @@ An Action to download a Kibana dashboard in png.
       kibana-host: "https://my-kibana.kb.us-central1.gcp.cloud.es.io:443"
       kibana-user: "my-kibana-user"
       kibana-password: ${{ secrets.MY_KIBANA_PASS }}
+      dashboard-id: "my-dashboard-id"
       from-date: "2025-10-22T13:33:33.000Z"
       to-date: "2025-10-24T13:33:33.000Z"
 ```
