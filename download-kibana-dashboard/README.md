@@ -23,6 +23,7 @@ An Action to download a Kibana dashboard in png.
 | `table-width`       | The width of the table in pixels.                                                                     | `false`  | `2400`                 |
 | `if-no-files-found` | The behavior when no files are found to upload. Options are 'error', 'warn', or 'ignore'.             | `false`  | `error`                |
 | `max-retries`       | The maximum number of retries for fetching the dashboard with a pause of 10 seconds between attempts. | `false`  | `20`                   |
+| `query`             | The KQL query to filter the dashboard data.                                                           | `false`  | ` `                    |
 <!--/inputs-->
 
 ## Outputs

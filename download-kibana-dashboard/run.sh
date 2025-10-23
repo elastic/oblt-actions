@@ -13,6 +13,7 @@ DASHBOARD_ID="${DASHBOARD_ID:-kibana-dashboard}"
 PNG_OUTPUT_FILE="${PNG_OUTPUT_FILE:-out.png}"
 TABLE_WIDTH="${TABLE_WIDTH:-2400}"
 MAX_ATTEMPTS="${MAX_ATTEMPTS:-20}"
+QUERY="${QUERY:-}"
 
 # Mask secrets in GitHub logs
 echo "::add-mask::$KIBANA_USER"
@@ -34,7 +35,7 @@ JOB_PARAMS=$(echo "
     params:(
       dashboardId:'${DASHBOARD_ID}',
       preserveSavedFilters:!t,
-      query:(language:kuery,query:''),
+      query:(language:kuery,query:'${QUERY}'),
       timeRange:(
         from:'${FROM_DATE}',
         to:'${TO_DATE}'
