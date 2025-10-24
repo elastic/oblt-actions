@@ -15,6 +15,7 @@ on:
       - '!check-dependent-jobs/**'
       - '!download-kibana-dashboard/**'
       - '!elastic/github-commands/**'
+      - '!elastic/github-token/**'
       - '!elastic/validate-catalog/**'
       - '!git/setup/**'
       - '!github/backport-active/**'
