@@ -20,7 +20,7 @@ runs:
       with:
         github-token: ${{ inputs.github-token }}
         script: |
-          let commands = `- \`run\` \`docs-build\` : Re-trigger the docs validation. (use unformatted text in the comment!)`
+          let commands = '- `run` `docs-build` : Re-trigger the docs validation. (use unformatted text in the comment!)'
           // See https://github.com/elastic/logstash/pull/18383
           if ((context.repo.repo === 'logstash' || context.repo.repo === 'oblt-actions') && context.repo.owner === 'elastic') {
             commands += `
