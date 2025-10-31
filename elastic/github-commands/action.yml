@@ -30,13 +30,8 @@ runs:
           const body = `
             ### :robot: GitHub comments
 
-            <details><summary>Expand to view the GitHub comments</summary>
-            <p>
-
             Just comment with:
             ${commands}
-            </p>
-            </details>
           `.replace(/  +/g, '')
           github.rest.issues.createComment({
             issue_number: context.issue.number,
