@@ -8,7 +8,6 @@ def main():
     github_token = os.environ['GITHUB_TOKEN']
     pr_number = int(os.environ['PR_NUMBER'])
     repository = os.environ['REPOSITORY']
-    labels_json = os.environ['PR_LABELS']
     backports_url = os.environ['BACKPORTS_URL']
     print(f"Using backports URL: {backports_url}")
 
