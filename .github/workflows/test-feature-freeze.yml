@@ -47,7 +47,7 @@ jobs:
             # Linux
             TOMORROW=$(date -d tomorrow +%Y-%m-%d)
           fi
-          cat <<EOF > release-freezes.json
+          cat <<EOF > "$RUNNER_TEMP/release-freezes.json"
           [
             {
               "begin": "2025-12-23",
@@ -59,6 +59,8 @@ jobs:
 
       - uses: ./feature-freeze
         id: feature-freeze
+        with:
+          feature-freeze-file: "$RUNNER_TEMP/release-freezes.json"
 
       - name: validate GIT_USER env
         run: test "${steps.feature-freeze.outputs.in-freeze}" = "true"
@@ -70,7 +72,7 @@ jobs:
 
       - name: Setup my-release-freezes.json
         run: |
-          cat <<EOF > my-release-freezes.json
+          cat <<EOF > "$RUNNER_TEMP/my-release-freezes.json"
           [
             {
               "begin": "2023-12-23",
@@ -83,7 +85,7 @@ jobs:
       - uses: ./feature-freeze
         id: feature-freeze
         with:
-          feature-freeze-file: "my-release-freezes.json"
+          feature-freeze-file: "$RUNNER_TEMP/my-release-freezes.json"
 
       - name: validate GIT_USER env
         run: test "${steps.feature-freeze.outputs.in-freeze}" = "false"
