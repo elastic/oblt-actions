@@ -26,5 +26,10 @@ if [ -n "$FREEZE_DESC" ]; then
   IN_FREEZE=true
 fi
 
-echo "in-freeze=${IN_FREEZE}" >> "$GITHUB_OUTPUT"
-echo "### Freeze Feature is ${IN_FREEZE}" >> "$GITHUB_STEP_SUMMARY"
+echo "::warning::feature-freeze ${IN_FREEZE}"
+
+set +u
+if [ -n "${CI:-}" ]; then
+  echo "in-freeze=${IN_FREEZE}" >> "$GITHUB_OUTPUT"
+  echo "### Freeze Feature is ${IN_FREEZE}" >> "$GITHUB_STEP_SUMMARY"
+fi

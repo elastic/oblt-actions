@@ -40,12 +40,11 @@ jobs:
 
       - name: Setup release-freezes.json
         run: |
-          CURRENT_DATE="${CURRENT_DATE:-$(date +%Y-%m-%d)}"
           cat <<EOF > release-freezes.json
           [
             {
               "begin": "2025-12-23",
-              "end": "$CURRENT_DATE",
+              "end": "$(date +%Y-%m-%d)",
               "description": "EOY Holiday Season"
             }
           ]
@@ -64,7 +63,6 @@ jobs:
 
       - name: Setup my-release-freezes.json
         run: |
-          CURRENT_DATE="${CURRENT_DATE:-$(date +%Y-%m-%d)}"
           cat <<EOF > my-release-freezes.json
           [
             {
