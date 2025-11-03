@@ -47,8 +47,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    needs: [check-release-freeze]
-    if: needs.check-release-freeze.outputs.in-freeze == 'false'
+    needs: [check-feature-freeze]
+    if: needs.check-feature-freeze.outputs.in-freeze == 'false'
     ...
 
 ```

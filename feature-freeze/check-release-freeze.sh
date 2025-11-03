@@ -2,7 +2,7 @@
 # Check release freeze
 #
 # Reads release-freezes.json from the repository root or the variable FEATURE_FREEZE_FILE
-# and compares the current  date against all freeze periods and outputs  "true"
+# and compares the current date against all freeze periods and outputs  "true"
 # if there is a description for the current date, "false" otherwise.
 # The file must contain a JSON array of freeze periods with structure:
 # [{"begin": "YYYY-MM-DD", "end": "YYYY-MM-DD", "description": "string"}, ...]
