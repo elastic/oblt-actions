@@ -39,6 +39,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Setup release-freezes.json
+        id: file-setup
         run: |
           if date -v +1d >/dev/null 2>&1; then
             # macOS
@@ -47,7 +48,8 @@ jobs:
             # Linux
             TOMORROW=$(date -d tomorrow +%Y-%m-%d)
           fi
-          cat <<EOF > "${{ env.RUNNER_TEMP }}/release-freezes.json"
+          FILE="${RUNNER_TEMP}/release-freezes.json"
+          cat <<EOF > "$FILE"
           [
             {
               "begin": "2025-12-23",
@@ -56,11 +58,12 @@ jobs:
             }
           ]
           EOF
+          echo "freeze-file=${FILE}" >> "$GITHUB_OUTPUT"
 
       - uses: ./feature-freeze
         id: feature-freeze
         with:
-          feature-freeze-file: "${{ env.RUNNER_TEMP }}/release-freezes.json"
+          feature-freeze-file: "${{ steps.file-setup.outputs.freeze-file }}"
 
       - name: validate GIT_USER env
         run: test "${steps.feature-freeze.outputs.in-freeze}" = "true"
@@ -71,8 +74,10 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Setup my-release-freezes.json
+        id: file-setup
         run: |
-          cat <<EOF > "${{ env.RUNNER_TEMP }}/my-release-freezes.json"
+          FILE="${RUNNER_TEMP}/my-release-freezes.json"
+          cat <<EOF > "$FILE"
           [
             {
               "begin": "2023-12-23",
@@ -81,11 +86,12 @@ jobs:
             }
           ]
           EOF
+          echo "freeze-file=${FILE}" >> "$GITHUB_OUTPUT"
 
       - uses: ./feature-freeze
         id: feature-freeze
         with:
-          feature-freeze-file: "${{ env.RUNNER_TEMP }}/my-release-freezes.json"
+          feature-freeze-file: "${{ steps.file-setup.outputs.freeze-file }}"
 
       - name: validate GIT_USER env
         run: test "${steps.feature-freeze.outputs.in-freeze}" = "false"
