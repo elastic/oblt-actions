@@ -40,11 +40,18 @@ jobs:
 
       - name: Setup release-freezes.json
         run: |
+          if date -v +1d >/dev/null 2>&1; then
+            # macOS
+            TOMORROW=$(date -v +1d +%Y-%m-%d)
+          else
+            # Linux
+            TOMORROW=$(date -d tomorrow +%Y-%m-%d)
+          fi
           cat <<EOF > release-freezes.json
           [
             {
               "begin": "2025-12-23",
-              "end": "$(date +%Y-%m-%d)",
+              "end": "$TOMORROW",
               "description": "EOY Holiday Season"
             }
           ]
