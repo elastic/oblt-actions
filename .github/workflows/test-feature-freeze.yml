@@ -1,0 +1,84 @@
+name: test-feature-freeze
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-feature-freeze.yml'
+      - 'feature-freeze/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-feature-freeze.yml'
+      - 'feature-freeze/**'
+
+permissions:
+  contents: read
+
+jobs:
+
+  test:
+    needs:
+      - test-freeze-detection
+      - test-no-freeze
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  test-freeze-detection:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup .release-freezes.json
+        run: |
+          CURRENT_DATE="${CURRENT_DATE:-$(date +%Y-%m-%d)}"
+          cat <<EOF > .release-freezes.json
+          [
+            {
+              "begin": "2025-12-23",
+              "end": "$CURRENT_DATE",
+              "description": "EOY Holiday Season"
+            }
+          ]
+          EOF
+
+      - uses: ./feature-freeze
+        id: feature-freeze
+
+      - name: validate GIT_USER env
+        run: test "${steps.feature-freeze.outputs.in-freeze}" = "true"
+
+  test-no-freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup my-release-freezes.json
+        run: |
+          CURRENT_DATE="${CURRENT_DATE:-$(date +%Y-%m-%d)}"
+          cat <<EOF > my-release-freezes.json
+          [
+            {
+              "begin": "2023-12-23",
+              "end": "2024-12-23",
+              "description": "EOY Holiday Season"
+            }
+          ]
+          EOF
+
+      - uses: ./feature-freeze
+        id: feature-freeze
+        with:
+          feature-freeze-file: "my-release-freezes.json"
+
+      - name: validate GIT_USER env
+        run: test "${steps.feature-freeze.outputs.in-freeze}" = "false"

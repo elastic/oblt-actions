@@ -16,6 +16,7 @@ on:
       - '!download-kibana-dashboard/**'
       - '!elastic/github-commands/**'
       - '!elastic/validate-catalog/**'
+      - '!feature-freeze/**'
       - '!git/setup/**'
       - '!github/backport-active/**'
       - '!github/changed-files/**'

@@ -1,0 +1,36 @@
+---
+name: 'feature-freeze'
+description: |
+  An Action to check if a repository is currently in a feature freeze period.
+inputs:
+  github-repository:
+    description: 'The GitHub repository (format: ORG/REPO)'
+    default: ${{ github.repository }}
+    required: false
+  git-ref:
+    description: "The git ref of the repository to check. (Default: default branch)"
+    required: false
+  feature-freeze-file:
+    description: The path to the feature freeze file.
+    required: false
+    default: "release-freezes.json"
+
+outputs:
+  in-freeze:
+    description: Whether the repository is in a feature freeze period.
+    value: ${{ steps.check.outputs.in-freeze }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v5
+      with:
+        repository: ${{ inputs.github-repository }}
+        ref: ${{ inputs.git-ref }}
+
+    - name: Check release freeze
+      id: check
+      run: ${{ github.action_path }}/check-release-freeze.sh
+      shell: bash
+      env:
+        FEATURE_FREEZE_FILE: ${{ inputs.feature-freeze-file }}
