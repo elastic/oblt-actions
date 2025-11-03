@@ -26,7 +26,7 @@ if [ -n "$FREEZE_DESC" ]; then
   IN_FREEZE=true
 fi
 
-echo "::warning::feature-freeze ${IN_FREEZE}"
+echo "::warning::Feature freeze status: ${IN_FREEZE}"
 
 set +u
 if [ -n "${CI:-}" ]; then
