@@ -59,6 +59,7 @@ jobs:
           ]
           EOF
           echo "freeze-file=${FILE}" >> "$GITHUB_OUTPUT"
+          cat "$FILE"
 
       - uses: ./feature-freeze
         id: feature-freeze
@@ -66,7 +67,7 @@ jobs:
           feature-freeze-file: "${{ steps.file-setup.outputs.freeze-file }}"
 
       - name: validate GIT_USER env
-        run: test "${steps.feature-freeze.outputs.in-freeze}" = "true"
+        run: test "${{steps.feature-freeze.outputs.in-freeze}}" = "true"
 
   test-no-freeze:
     runs-on: ubuntu-latest
@@ -87,6 +88,7 @@ jobs:
           ]
           EOF
           echo "freeze-file=${FILE}" >> "$GITHUB_OUTPUT"
+          cat "$FILE"
 
       - uses: ./feature-freeze
         id: feature-freeze
@@ -94,4 +96,4 @@ jobs:
           feature-freeze-file: "${{ steps.file-setup.outputs.freeze-file }}"
 
       - name: validate GIT_USER env
-        run: test "${steps.feature-freeze.outputs.in-freeze}" = "false"
+        run: test "${{steps.feature-freeze.outputs.in-freeze}}" = "false"
