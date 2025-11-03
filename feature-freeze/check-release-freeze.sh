@@ -21,10 +21,9 @@ FREEZE_DESC=$(jq -r --arg current "$CURRENT_DATE" '
   .description
 ' "$FEATURE_FREEZE_FILE")
 
+IN_FREEZE=false
 if [ -n "$FREEZE_DESC" ]; then
-  echo "true"
-else
-  echo "false"
+  IN_FREEZE=true
 fi
 
 echo "in-freeze=${IN_FREEZE}" >> "$GITHUB_OUTPUT"

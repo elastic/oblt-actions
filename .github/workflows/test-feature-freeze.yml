@@ -38,10 +38,10 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Setup .release-freezes.json
+      - name: Setup release-freezes.json
         run: |
           CURRENT_DATE="${CURRENT_DATE:-$(date +%Y-%m-%d)}"
-          cat <<EOF > .release-freezes.json
+          cat <<EOF > release-freezes.json
           [
             {
               "begin": "2025-12-23",
