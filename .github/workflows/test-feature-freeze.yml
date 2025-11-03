@@ -52,7 +52,7 @@ jobs:
           cat <<EOF > "$FILE"
           [
             {
-              "begin": "2025-12-23",
+              "begin": "2025-11-01",
               "end": "$TOMORROW",
               "description": "EOY Holiday Season"
             }
