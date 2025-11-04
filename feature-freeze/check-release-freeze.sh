@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Check release freeze
 #
-# Reads release-freezes.json from the repository root or the variable FEATURE_FREEZE_FILE
-# and compares the current date against all freeze periods and outputs  "true"
+# Reads freeze periods from the file specified by the FEATURE_FREEZE_FILE environment variable,
+# which defaults to 'release-freezes.json' in the repository root if not set.
+# Compares the current date against all freeze periods and outputs "true"
 # if there is a description for the current date, "false" otherwise.
 # The file must contain a JSON array of freeze periods with structure:
 # [{"begin": "YYYY-MM-DD", "end": "YYYY-MM-DD", "description": "string"}, ...]
-#
 # The date can be overridden by setting the CURRENT_DATE environment variable
 # (for testing!). If not set, it defaults to the current date.
 
