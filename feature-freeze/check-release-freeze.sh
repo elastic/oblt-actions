@@ -21,15 +21,15 @@ FREEZE_DESC=$(jq -r --arg current "$CURRENT_DATE" '
   .description
 ' "$FEATURE_FREEZE_FILE")
 
-FREEZE_DESC="not active"
+FREEZE_MESSAGE="not active"
 IN_FREEZE=false
 if [ -n "$FREEZE_DESC" ]; then
   IN_FREEZE=true
-  FREEZE_DESC="active"
+  FREEZE_MESSAGE="active"
 fi
 
 if [ -n "${CI:-}" ]; then
   echo "in-freeze=${IN_FREEZE}" >> "$GITHUB_OUTPUT"
-  echo "::warning::Feature freeze is ${FREEZE_DESC} during ${CURRENT_DATE}"
-  echo "### Feature freeze is ${FREEZE_DESC}" >> "$GITHUB_STEP_SUMMARY"
+  echo "::warning::Feature freeze is ${FREEZE_MESSAGE} during ${CURRENT_DATE}"
+  echo "### Feature freeze is ${FREEZE_MESSAGE} during ${CURRENT_DATE}" >> "$GITHUB_STEP_SUMMARY"
 fi
