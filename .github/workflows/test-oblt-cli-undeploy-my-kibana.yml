@@ -3,12 +3,6 @@ name: test-undeploy-my-kibana
 on:
   merge_group: ~
   workflow_dispatch:
-    inputs:
-      dry-run:
-        description: 'Dry run'
-        required: true
-        default: false
-        type: boolean
   pull_request:
     branches:
       - main
