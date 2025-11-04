@@ -1,0 +1,99 @@
+name: test-feature-freeze
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-feature-freeze.yml'
+      - 'feature-freeze/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-feature-freeze.yml'
+      - 'feature-freeze/**'
+
+permissions:
+  contents: read
+
+jobs:
+
+  test:
+    needs:
+      - test-freeze-detection
+      - test-no-freeze
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  test-freeze-detection:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup release-freezes.json
+        id: file-setup
+        run: |
+          if date -v +1d >/dev/null 2>&1; then
+            # macOS
+            TOMORROW=$(date -v +1d +%Y-%m-%d)
+          else
+            # Linux
+            TOMORROW=$(date -d tomorrow +%Y-%m-%d)
+          fi
+          FILE="${RUNNER_TEMP}/release-freezes.json"
+          cat <<EOF > "$FILE"
+          [
+            {
+              "begin": "2025-11-01",
+              "end": "$TOMORROW",
+              "description": "EOY Holiday Season"
+            }
+          ]
+          EOF
+          echo "freeze-file=${FILE}" >> "$GITHUB_OUTPUT"
+          cat "$FILE"
+
+      - uses: ./feature-freeze
+        id: feature-freeze
+        with:
+          feature-freeze-file: "${{ steps.file-setup.outputs.freeze-file }}"
+
+      - name: validate feature freeze is active
+        run: test "${{steps.feature-freeze.outputs.in-freeze}}" = "true"
+
+  test-no-freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup my-release-freezes.json
+        id: file-setup
+        run: |
+          FILE="${RUNNER_TEMP}/my-release-freezes.json"
+          cat <<EOF > "$FILE"
+          [
+            {
+              "begin": "2023-12-23",
+              "end": "2024-12-23",
+              "description": "EOY Holiday Season"
+            }
+          ]
+          EOF
+          echo "freeze-file=${FILE}" >> "$GITHUB_OUTPUT"
+          cat "$FILE"
+
+      - uses: ./feature-freeze
+        id: feature-freeze
+        with:
+          feature-freeze-file: "${{ steps.file-setup.outputs.freeze-file }}"
+
+      - name: validate feature freeze is not active
+        run: test "${{steps.feature-freeze.outputs.in-freeze}}" = "false"
