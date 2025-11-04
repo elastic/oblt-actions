@@ -66,7 +66,7 @@ jobs:
         with:
           feature-freeze-file: "${{ steps.file-setup.outputs.freeze-file }}"
 
-      - name: validate GIT_USER env
+      - name: validate feature freeze is active
         run: test "${{steps.feature-freeze.outputs.in-freeze}}" = "true"
 
   test-no-freeze:
@@ -95,5 +95,5 @@ jobs:
         with:
           feature-freeze-file: "${{ steps.file-setup.outputs.freeze-file }}"
 
-      - name: validate GIT_USER env
+      - name: validate feature freeze is not active
         run: test "${{steps.feature-freeze.outputs.in-freeze}}" = "false"
