@@ -1,5 +1,5 @@
 name: 'pagerduty-alert'
-description: 'Raise a PagerDuty'
+description: 'Raise a PagerDuty alert and return the incident URL'
 inputs:
   summary:
     description: 'The PagerDuty summary of the alert'

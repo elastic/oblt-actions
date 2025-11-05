@@ -19,6 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: ./pagerduty/alert
+        if: github.event_name == 'pull_request'
         id: pagerduty-alert
         with:
           summary: 'Test Alert from OBLT Actions'
@@ -29,5 +30,6 @@ jobs:
           severity: 'critical'
 
       - name: Assert output is not empty
+        if: github.event_name == 'pull_request'
         run: |
           [ -n "${{ steps.pagerduty-alert.outputs.incident-url }}" ]
