@@ -41,7 +41,7 @@ jobs:
           api-key: "${{ secrets.PD_SECRET }}"
           component: "my-component"
           severity: "critical"
-          routing-key: "abderg1231231312"
+          routing-key: "${{ secrets.PD_ROUTING_KEY }}"
 
       - name: Notify a pagerduty incident has been created
         run: echo "${{steps.pagerduty.outputs.incident-url}} has been created"

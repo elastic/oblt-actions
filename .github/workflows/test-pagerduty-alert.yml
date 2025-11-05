@@ -25,7 +25,7 @@ jobs:
           source: 'OBLT Actions Test Suite'
           api-key: ${{ secrets.PD_SECRET }}
           component: 'OBLT Actions'
-          routing-key: ${{ secrets.PAGERDUTY_ROUTING_KEY }}
+          routing-key: ${{ secrets.PD_ROUTING_KEY }}
           severity: 'critical'
 
       - name: Assert output is not empty
