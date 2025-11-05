@@ -1,0 +1,33 @@
+name: test-pagerduty-alert
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-pagerduty-alert.yml'
+      - 'pagerduty/alert/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./pagerduty/alert
+        id: pagerduty-alert
+        with:
+          summary: 'Test Alert from OBLT Actions'
+          source: 'OBLT Actions Test Suite'
+          api-key: ${{ secrets.PD_SECRET }}
+          component: 'OBLT Actions'
+          routing-key: ${{ secrets.PAGERDUTY_ROUTING_KEY }}
+          severity: 'critical'
+
+      - name: Assert output is not empty
+        run: |
+          [ -z "${{ steps.pagerduty-alert.outputs.incident-url }}" ] && exit 1 || exit 0
