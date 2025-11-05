@@ -30,4 +30,4 @@ jobs:
 
       - name: Assert output is not empty
         run: |
-          [ -z "${{ steps.pagerduty-alert.outputs.incident-url }}" ] && exit 1 || exit 0
+          [ -n "${{ steps.pagerduty-alert.outputs.incident-url }}" ]
