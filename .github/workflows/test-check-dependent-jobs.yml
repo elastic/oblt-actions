@@ -48,9 +48,9 @@ jobs:
         run: test "${{ steps.check.outputs.is-success }}" = "true"
 
   test-failure-and-success:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
-      - uses: ubuntu-slim
+      - uses: actions/checkout@v5
       - uses: ./check-dependent-jobs
         id: check-2
         with:
