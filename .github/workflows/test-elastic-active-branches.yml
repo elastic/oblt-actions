@@ -35,7 +35,7 @@ jobs:
       - run: ${{ steps.check.outputs.is-success }}
 
   main:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - uses: ./elastic/active-branches
@@ -45,7 +45,7 @@ jobs:
         run: echo "Main branch could not be found" && exit 1
 
   exclude-main:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - uses: ./elastic/active-branches
@@ -57,7 +57,7 @@ jobs:
         run: echo "Main branch could be found but should be excluded" && exit 1
 
   filter:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
