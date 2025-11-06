@@ -31,7 +31,7 @@ jobs:
     needs:
       - unit-tests
       - simple-run
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - id: check
         uses: elastic/oblt-actions/check-dependent-jobs@v1

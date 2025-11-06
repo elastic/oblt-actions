@@ -28,7 +28,7 @@ jobs:
       - test-env-vars-unquoted
       - test-env-vars-quoted
       - test-env-vars-mixed
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - id: check
         uses: elastic/oblt-actions/check-dependent-jobs@v1
