@@ -32,6 +32,9 @@ outputs:
 runs:
   using: composite
   steps:
+    - uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
     - id: generator
       shell: bash
       run: python ${{ github.action_path }}/script.py
