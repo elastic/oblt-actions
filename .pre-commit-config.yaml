@@ -36,10 +36,10 @@ repos:
           - --env=VERSION=v1
 
   - repo: https://github.com/rhysd/actionlint
-    # Support https://github.com/rhysd/actionlint/pull/561
-    rev: 0c610de366faf857ef4b33704ee28edcf85778cc
+    rev: v1.7.8
     hooks:
       - id: actionlint
+        args: [-ignore, 'label "ubuntu-slim" is unknown.+']
         exclude: |
           (?x)^(
               .github/workflows/test-version-framework.yml
