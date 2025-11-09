@@ -110,7 +110,7 @@ runs:
         project_type: ${{ inputs.project-type }}
         wait_time: ${{ inputs.wait }}
 
-    - uses: elastic/oblt-actions/oblt-cli/setup@v1.34.5
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.35.0
       with:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
