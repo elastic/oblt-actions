@@ -39,6 +39,8 @@ repos:
     rev: v1.7.8
     hooks:
       - id: actionlint
+        # actionlint does not yet recognize the "ubuntu-slim" label.
+        # This ignore rule is necessary until https://github.com/rhysd/actionlint/pull/585 is merged and released.
         args: [-ignore, 'label "ubuntu-slim" is unknown.+']
         exclude: |
           (?x)^(
