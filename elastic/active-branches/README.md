@@ -15,6 +15,7 @@ Fetch the current list of active branches in Elastic (the ones based on the Unif
 | `filter-branches`   | Whether to filter those branches that only exist in the github-repository | `false`  | `false`                    |
 | `github-token`      | The GitHub access token.                                                  | `false`  | `${{ github.token }}`      |
 | `github-repository` | The GitHub repository to search for active branches.                      | `false`  | `${{ github.repository }}` |
+| `python-version`    | The Python version to use.                                                | `false`  | `3.11`                     |
 <!--/inputs-->
 
 ## Outputs
