@@ -24,7 +24,7 @@ jobs:
     needs:
       - default
       - version
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - id: check
         uses: elastic/oblt-actions/check-dependent-jobs@v1
@@ -33,7 +33,7 @@ jobs:
       - run: ${{ steps.check.outputs.is-success }}
 
   default:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     env:
       want: "3.11"
     steps:
@@ -46,7 +46,7 @@ jobs:
           [[ "${got}" == *"${want}"* ]]
 
   version:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     env:
       want: "3.9"
     steps:
