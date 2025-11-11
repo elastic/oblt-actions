@@ -26,7 +26,7 @@ jobs:
       - version
       - version-file
       - version-file-updatecli
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - id: check
         uses: elastic/oblt-actions/check-dependent-jobs@v1
