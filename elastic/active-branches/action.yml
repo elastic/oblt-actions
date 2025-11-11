@@ -51,6 +51,10 @@ runs:
       if: steps.check-python.outputs.python-available == 'false'
       with:
         python-version: '3.13'
+    - name: Install Python dependencies
+      if: ${{ contains(runner.name, 'ubuntu-slim') }}
+      run: pip install requests
+
     - id: generator
       shell: bash
       run: |
