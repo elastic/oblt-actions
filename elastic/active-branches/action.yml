@@ -22,10 +22,6 @@ inputs:
     type: string
     default: ${{ github.repository }}
   python-version:
-    description: 'The Python version to use.'
-    required: false
-    type: string
-    default: '3.11'
 
 outputs:
   matrix:
