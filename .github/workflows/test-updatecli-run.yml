@@ -26,7 +26,7 @@ jobs:
       - version
       - version-file
       - version-file-updatecli
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - id: check
         uses: elastic/oblt-actions/check-dependent-jobs@v1
@@ -35,7 +35,7 @@ jobs:
       - run: ${{ steps.check.outputs.is-success }}
 
   default:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v5
       - uses: ./updatecli/run
@@ -49,7 +49,7 @@ jobs:
           [[ "${got}" == *"${want}"* ]]
 
   version:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     env:
       want: "0.86.0"
     steps:
@@ -65,7 +65,7 @@ jobs:
           [[ "${got}" == *"${want}"* ]]
 
   version-file:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     env:
       want: "0.85.0"
     steps:
@@ -84,7 +84,7 @@ jobs:
           [[ "${got}" == *"${want}"* ]]
 
   version-file-updatecli:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     env:
       want: "0.84.0"
     steps:

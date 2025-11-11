@@ -28,7 +28,7 @@ jobs:
       - test-failures
       - test-skipped-default
       - test-skipped-opt-in
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - id: check
         uses: elastic/oblt-actions/check-dependent-jobs@v1
@@ -37,7 +37,7 @@ jobs:
       - run: ${{ steps.check.outputs.is-success }}
 
   test-success:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v5
       - uses: ./check-dependent-jobs
@@ -48,7 +48,7 @@ jobs:
         run: test "${{ steps.check.outputs.is-success }}" = "true"
 
   test-failure-and-success:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v5
       - uses: ./check-dependent-jobs
@@ -59,7 +59,7 @@ jobs:
         run: test "${{ steps.check-2.outputs.is-success }}" = "false"
 
   test-failures:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v5
       - uses: ./check-dependent-jobs
@@ -70,7 +70,7 @@ jobs:
         run: test "${{ steps.check-3.outputs.is-success }}" = "false"
 
   test-skipped-default:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v5
       - uses: ./check-dependent-jobs
@@ -81,7 +81,7 @@ jobs:
         run: test "${{ steps.check-4.outputs.is-success }}" = "false"
 
   test-skipped-opt-in:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v5
       - uses: ./check-dependent-jobs
