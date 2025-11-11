@@ -32,7 +32,17 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Check if Python is available
+      id: check-python
+      shell: bash
+      run: |
+        if command -v python &> /dev/null || command -v python3 &> /dev/null; then
+          echo "python-available=true" >> $GITHUB_OUTPUT
+        else
+          echo "python-available=false" >> $GITHUB_OUTPUT
+        fi
     - uses: actions/setup-python@v6
+      if: steps.check-python.outputs.python-available == 'false'
       with:
         python-version: '3.13'
     - id: generator
