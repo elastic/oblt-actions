@@ -32,8 +32,6 @@ outputs:
 runs:
   using: composite
   steps:
-    - run: sort | env
-      shell: bash
 
     - name: Install Python dependencies
       run: |
