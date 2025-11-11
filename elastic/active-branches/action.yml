@@ -54,6 +54,7 @@ runs:
     - name: Install Python dependencies
       if: ${{ contains(runner.name, 'ubuntu-slim') }}
       run: pip install requests
+      shell: bash
 
     - id: generator
       shell: bash
