@@ -53,7 +53,12 @@ runs:
         python-version: '3.13'
     - id: generator
       shell: bash
-      run: python ${{ github.action_path }}/script.py
+      run: |
+        PYTHON=python
+        if command -v python3 >/dev/null 2>&1; then
+          PYTHON=python3
+        fi
+        ${PYTHON} "${{ github.action_path }}/script.py"
       env:
         EXCLUDE_BRANCHES: ${{ inputs.exclude-branches }}
         FILTER: ${{ inputs.filter-branches }}
