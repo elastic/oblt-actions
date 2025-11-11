@@ -32,25 +32,9 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Check if Python is available
-      id: check-python
+    - run: sort | env
       shell: bash
-      run: |
-        echo "Checking for Python availability..."
-        if python3 --version &> /dev/null; then
-          echo "Python3 found: $(python3 --version)"
-          echo "python-available=true" >> $GITHUB_OUTPUT
-        elif python --version &> /dev/null; then
-          echo "Python found: $(python --version)"
-          echo "python-available=true" >> $GITHUB_OUTPUT
-        else
-          echo "Python not found or not working"
-          echo "python-available=false" >> $GITHUB_OUTPUT
-        fi
-    - uses: actions/setup-python@v6
-      if: steps.check-python.outputs.python-available == 'false'
-      with:
-        python-version: '3.13'
+
     - name: Install Python dependencies
       if: ${{ contains(runner.name, 'ubuntu-slim') }}
       run: pip install requests
