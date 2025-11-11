@@ -26,6 +26,7 @@ jobs:
       - main
       - exclude-main
       - filter
+      - ubuntu-latest
     runs-on: ubuntu-slim
     steps:
       - id: check
@@ -33,6 +34,16 @@ jobs:
         with:
           jobs: ${{ toJSON(needs) }}
       - run: ${{ steps.check.outputs.is-success }}
+
+  ubuntu-latest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./elastic/active-branches
+        id: active-branches
+      - name: Verify main is in the active branches
+        if: ${{ !contains(fromJSON(steps.active-branches.outputs.branches), 'main') }}
+        run: echo "Main branch could not be found" && exit 1
 
   main:
     runs-on: ubuntu-slim
