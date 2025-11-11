@@ -21,7 +21,6 @@ inputs:
     required: false
     type: string
     default: ${{ github.repository }}
-  python-version:
 
 outputs:
   matrix:
