@@ -36,9 +36,15 @@ runs:
       id: check-python
       shell: bash
       run: |
-        if command -v python &> /dev/null || command -v python3 &> /dev/null; then
+        echo "Checking for Python availability..."
+        if python3 --version &> /dev/null; then
+          echo "Python3 found: $(python3 --version)"
+          echo "python-available=true" >> $GITHUB_OUTPUT
+        elif python --version &> /dev/null; then
+          echo "Python found: $(python --version)"
           echo "python-available=true" >> $GITHUB_OUTPUT
         else
+          echo "Python not found or not working"
           echo "python-available=false" >> $GITHUB_OUTPUT
         fi
     - uses: actions/setup-python@v6
