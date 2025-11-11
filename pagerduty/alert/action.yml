@@ -40,9 +40,8 @@ runs:
           core.setOutput("summary", sanitizedTitle)
 
           // Time window (15 minutes) for searching recent incidents, in milliseconds
-          const SEARCH_WINDOW_MS = 15 * 60 * 1000;
           const now = new Date()
-          const fifteenMinutesAgo = new Date(now.getTime() - SEARCH_WINDOW_MS)
+          const fifteenMinutesAgo = new Date(now.getTime() - (15 * 60 * 1000))
           const isoDate = fifteenMinutesAgo.toISOString()
           core.setOutput("time-search", isoDate)
 
