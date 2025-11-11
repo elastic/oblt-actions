@@ -36,8 +36,12 @@ runs:
       shell: bash
 
     - name: Install Python dependencies
-      if: ${{ contains(runner.name, 'ubuntu-slim') }}
-      run: pip install requests
+      run: |
+        PIP=pip
+        if command -v python3 >/dev/null 2>&1; then
+          PIP=pip3
+        fi
+        ${PIP} install requests
       shell: bash
 
     - id: generator
