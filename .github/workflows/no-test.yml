@@ -27,6 +27,7 @@ on:
       - '!oblt-cli/cluster-name-validation/**'
       - '!oblt-cli/list/**'
       - '!oblt-cli/run/**'
+      - '!pagerduty/alert/**'
       - '!pre-commit/**'
       - '!updatecli/run/**'
 
