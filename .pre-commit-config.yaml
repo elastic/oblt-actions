@@ -44,7 +44,8 @@ repos:
         args: [-ignore, 'label "ubuntu-slim" is unknown.+']
         exclude: |
           (?x)^(
-              .github/workflows/test-version-framework.yml
+              .github/workflows/test-version-framework.yml|
+              .github/workflows/test-pre-commit.yml
           )$
 
   # For GitHub composite actions - use an alternative approach
