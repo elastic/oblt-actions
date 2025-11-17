@@ -32,9 +32,24 @@ outputs:
 runs:
   using: composite
   steps:
+
+    - name: Install Python dependencies
+      run: |
+        PIP=pip
+        if command -v python3 >/dev/null 2>&1; then
+          PIP=pip3
+        fi
+        ${PIP} install requests==2.31.0
+      shell: bash
+
     - id: generator
       shell: bash
-      run: python ${{ github.action_path }}/script.py
+      run: |
+        PYTHON=python
+        if command -v python3 >/dev/null 2>&1; then
+          PYTHON=python3
+        fi
+        ${PYTHON} "${{ github.action_path }}/script.py"
       env:
         EXCLUDE_BRANCHES: ${{ inputs.exclude-branches }}
         FILTER: ${{ inputs.filter-branches }}
