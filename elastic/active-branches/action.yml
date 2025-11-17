@@ -39,7 +39,7 @@ runs:
         if command -v python3 >/dev/null 2>&1; then
           PIP=pip3
         fi
-        ${PIP} install requests
+        ${PIP} install requests==2.31.0
       shell: bash
 
     - id: generator
