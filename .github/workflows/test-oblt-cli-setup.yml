@@ -39,7 +39,7 @@ jobs:
   version:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Get token
         id: get_token
         uses: actions/create-github-app-token@v2
@@ -61,7 +61,7 @@ jobs:
   version-file:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Get token
         id: get_token
         uses: actions/create-github-app-token@v2
@@ -86,7 +86,7 @@ jobs:
   default-version:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Get token
         id: get_token
         uses: actions/create-github-app-token@v2
@@ -108,7 +108,7 @@ jobs:
   tools-versions:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Get token
         id: get_token
         uses: actions/create-github-app-token@v2
@@ -138,7 +138,7 @@ jobs:
   non-existing-file:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Get token
         id: get_token
         uses: actions/create-github-app-token@v2
@@ -161,7 +161,7 @@ jobs:
   both-version-and-version-file:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Get token
         id: get_token
         uses: actions/create-github-app-token@v2

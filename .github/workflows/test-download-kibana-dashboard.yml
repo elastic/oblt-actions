@@ -48,7 +48,7 @@ jobs:
           github-token: ${{ steps.get_token.outputs.token }}
           cluster-name: 'dev-oblt'
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: ./download-kibana-dashboard
         if: ${{ github.event_name != 'merge_group' }}
