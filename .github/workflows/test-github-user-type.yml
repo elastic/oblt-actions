@@ -36,7 +36,7 @@ jobs:
   is-bot:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: elastic/oblt-actions/git/setup@v1
       - name: Get token
         id: get_token
@@ -57,7 +57,7 @@ jobs:
   copilot-is-bot:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: elastic/oblt-actions/git/setup@v1
       - name: Get token
         id: get_token
@@ -79,7 +79,7 @@ jobs:
   is-not-bot:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: elastic/oblt-actions/git/setup@v1
       - name: Get token
         id: get_token

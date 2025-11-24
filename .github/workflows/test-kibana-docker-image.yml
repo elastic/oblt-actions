@@ -33,7 +33,7 @@ jobs:
           # See https://github.com/elastic/kibana/pull/181851
           # - serverless: true
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
         with:

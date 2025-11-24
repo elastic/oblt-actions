@@ -23,7 +23,7 @@ jobs:
   test:
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./git/setup
       - name: validate git user
         run: test "$(git config user.name)" = "obltmachine"

@@ -39,7 +39,7 @@ jobs:
   test-success:
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./check-dependent-jobs
         id: check
         with:
@@ -50,7 +50,7 @@ jobs:
   test-failure-and-success:
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./check-dependent-jobs
         id: check-2
         with:
@@ -61,7 +61,7 @@ jobs:
   test-failures:
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./check-dependent-jobs
         id: check-3
         with:
@@ -72,7 +72,7 @@ jobs:
   test-skipped-default:
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./check-dependent-jobs
         id: check-4
         with:
@@ -83,7 +83,7 @@ jobs:
   test-skipped-opt-in:
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./check-dependent-jobs
         id: check-5
         with:

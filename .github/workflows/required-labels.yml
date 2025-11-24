@@ -20,7 +20,7 @@ jobs:
       pull-requests: read
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - id: get-labels
         run: |
           labels=$(yq '[.categories[].labels] + .exclude-labels | flatten | unique | sort | @tsv' .github/release-drafter.yml | tr '\t' ',')
