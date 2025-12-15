@@ -1,0 +1,25 @@
+name: 'github/create-token'
+description: Create ephemeral GitHub token
+
+inputs:
+  vault-instance:
+    description: 'The GitHub access token.'
+    default: "ci-prod"
+    required: false
+  vault-role:
+    description: 'Vault role to assume for GitHub token retrieval'
+    required: false
+
+outputs:
+  token:
+    description: "The GitHub ephemeral token"
+    value: ${{ steps.fetch-token.outputs.token }}
+
+runs:
+  using: "composite"
+  steps:
+    - id: fetch-token
+      uses: elastic/ci-gh-actions/fetch-github-token@v1.0.0
+      with:
+        vault-instance: ${{ inputs.vault-instance }}
+        vault-role: ${{ inputs.vault-role }}
