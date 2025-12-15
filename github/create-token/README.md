@@ -27,7 +27,7 @@ Create ephemeral GitHub token
 ## Usage
 <!--usage action="elastic/oblt-actions/github/create-token" version="env:VERSION"-->
 ```yaml
-steps:
+my-job:
   permissions:
     id-token: write
   steps:
