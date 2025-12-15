@@ -1,4 +1,4 @@
-name: test-github-create-tokken
+name: test-github-create-token
 
 on:
   merge_group: ~
