@@ -3,11 +3,12 @@ description: Create ephemeral GitHub token
 
 inputs:
   vault-instance:
-    description: 'The GitHub access token.'
+    description: 'The Vault instance to use for GitHub token retrieval'
     default: "ci-prod"
     required: false
-  vault-role:
-    description: 'Vault role to assume for GitHub token retrieval'
+  # NOTE: upstream uses vault-role as input name, but we prefer token-policy for clarity
+  token-policy:
+    description: 'Vault role to assume for GitHub token retrieval if using wildcards in the subclaims.'
     required: false
 
 outputs:
@@ -22,4 +23,4 @@ runs:
       uses: elastic/ci-gh-actions/fetch-github-token@v1.0.0
       with:
         vault-instance: ${{ inputs.vault-instance }}
-        vault-role: ${{ inputs.vault-role }}
+        vault-role: ${{ inputs.token-policy }}

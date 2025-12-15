@@ -10,10 +10,10 @@ Create ephemeral GitHub token
 ## Inputs
 
 <!--inputs-->
-| Name             | Description                                     | Required | Default   |
-|------------------|-------------------------------------------------|----------|-----------|
-| `vault-instance` | The GitHub access token.                        | `false`  | `ci-prod` |
-| `vault-role`     | Vault role to assume for GitHub token retrieval | `false`  | ` `       |
+| Name             | Description                                                                          | Required | Default   |
+|------------------|--------------------------------------------------------------------------------------|----------|-----------|
+| `vault-instance` | The Vault instance to use for GitHub token retrieval                                 | `false`  | `ci-prod` |
+| `token-policy`   | Vault role to assume for GitHub token retrieval if using wildcards in the subclaims. | `false`  | ` `       |
 <!--/inputs-->
 
 ## Outputs
@@ -28,6 +28,8 @@ Create ephemeral GitHub token
 <!--usage action="elastic/oblt-actions/github/create-token" version="env:VERSION"-->
 ```yaml
 steps:
+  persmisions:
+    id-token: write
   steps:
     - uses: elastic/oblt-actions/github/create-token@v1
       id: fetch-token
