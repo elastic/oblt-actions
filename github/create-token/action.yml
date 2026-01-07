@@ -20,7 +20,7 @@ runs:
   using: "composite"
   steps:
     - id: fetch-token
-      uses: elastic/ci-gh-actions/fetch-github-token@v1.1.0
+      uses: elastic/ci-gh-actions/fetch-github-token@v1.2.0
       with:
         vault-instance: ${{ inputs.vault-instance }}
         vault-role: ${{ inputs.token-policy }}
