@@ -10,10 +10,11 @@ Create ephemeral GitHub token
 ## Inputs
 
 <!--inputs-->
-| Name             | Description                                                                          | Required | Default   |
-|------------------|--------------------------------------------------------------------------------------|----------|-----------|
-| `vault-instance` | The Vault instance to use for GitHub token retrieval                                 | `false`  | `ci-prod` |
-| `token-policy`   | Vault role to assume for GitHub token retrieval if using wildcards in the subclaims. | `false`  | ` `       |
+| Name                | Description                                                                          | Required | Default   |
+|---------------------|--------------------------------------------------------------------------------------|----------|-----------|
+| `vault-instance`    | The Vault instance to use for GitHub token retrieval                                 | `false`  | `ci-prod` |
+| `token-policy`      | Vault role to assume for GitHub token retrieval if using wildcards in the subclaims. | `false`  | ` `       |
+| `skip-token-revoke` | If true, skip revoking the GitHub token on exit                                      | `false`  | `false`   |
 <!--/inputs-->
 
 ## Outputs
