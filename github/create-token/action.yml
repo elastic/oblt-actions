@@ -10,6 +10,10 @@ inputs:
   token-policy:
     description: 'Vault role to assume for GitHub token retrieval if using wildcards in the subclaims.'
     required: false
+  skip-token-revoke:
+    description: 'If true, skip revoking the GitHub token on exit'
+    required: false
+    default: 'false'
 
 outputs:
   token:
@@ -24,3 +28,4 @@ runs:
       with:
         vault-instance: ${{ inputs.vault-instance }}
         vault-role: ${{ inputs.token-policy }}
+        skip-token-revoke: ${{ inputs.skip-token-revoke }}
