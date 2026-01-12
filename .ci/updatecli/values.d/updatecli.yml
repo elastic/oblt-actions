@@ -1,0 +1,4 @@
+path: updatecli/install/.default-updatecli-version
+pull_request:
+  labels:
+    - 'changelog:dependencies'
