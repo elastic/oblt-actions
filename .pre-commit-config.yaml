@@ -7,26 +7,17 @@ repos:
       - id: check-yaml
       - id: check-xml
       - id: end-of-file-fixer
-        exclude: |
+        exclude: &common-exclude |
           (?x)^(
               github/changed-files/dist/index.js|
               snapshoty/run/dist/index.js|
               updatecli/install/.default-updatecli-version
           )$
       - id: mixed-line-ending
-        exclude: |
-          (?x)^(
-              github/changed-files/dist/index.js|
-              snapshoty/run/dist/index.js|
-              updatecli/install/.default-updatecli-version
-          )$
+        exclude: *common-exclude
+
       - id: trailing-whitespace
-        exclude: |
-          (?x)^(
-              github/changed-files/dist/index.js|
-              snapshoty/run/dist/index.js|
-              updatecli/install/.default-updatecli-version
-          )$
+        exclude: *common-exclude
   - repo: https://github.com/reakaleek/gh-action-readme
     rev: v0.4.0
     hooks:
@@ -36,7 +27,7 @@ repos:
           - --env=VERSION=v1
 
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.8
+    rev: v1.7.10
     hooks:
       - id: actionlint
         # actionlint does not yet recognize the "ubuntu-slim" label.
