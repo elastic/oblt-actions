@@ -10,7 +10,7 @@ This is an opinionated GitHub Action to send a message in slack with the build r
 <!--inputs-->
 | Name         | Description                                                                    | Required | Default |
 |--------------|--------------------------------------------------------------------------------|----------|---------|
-| `channel-id` |                                                                                | `true`   | ` `     |
+| `channel-id` | Specify the slack channel-id.                                                  | `true`   | ` `     |
 | `bot-token`  | Specify the slack bot token.                                                   | `true`   | ` `     |
 | `message`    | Add additional message to the notification.                                    | `false`  | ` `     |
 | `status`     | Explicitly set status. One of success, failure, cancelled, auto. Default: auto | `false`  | `auto`  |

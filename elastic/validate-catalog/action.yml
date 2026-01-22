@@ -7,12 +7,10 @@ inputs:
   container-image:
     description: 'The catalog info container image.'
     required: false
-    type: string
     default: 'ghcr.io/elastic/observability-robots/ci-agent-images/pipelib:latest'
   github-token:
     description: 'The GitHub access token.'
     required: false
-    type: string
     default: ${{ github.token }}
 
 runs:

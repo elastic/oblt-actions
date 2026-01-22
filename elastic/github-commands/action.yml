@@ -4,12 +4,10 @@ inputs:
   github-token:
     description: 'The GitHub access token.'
     required: false
-    type: string
     default: ${{ github.token }}
   continue-on-error:
     description: 'Whether to continue on error.'
     required: false
-    type: boolean
     default: true
 
 runs:
