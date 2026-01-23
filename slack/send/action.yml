@@ -8,7 +8,7 @@ inputs:
     description: 'Specify the slack bot token.'
     required: true
   channel-id:
-    channel-id: 'Specify the slack channel-id.'
+    description: 'Specify the slack channel-id.'
     required: true
   message:
     description: |-

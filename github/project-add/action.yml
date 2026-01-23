@@ -16,7 +16,6 @@ inputs:
     required: true
   project-id:
     description: 'The GitHub project numeric ID.'
-    type: number
     required: true
 
 outputs:

@@ -5,21 +5,17 @@ inputs:
   exclude-branches:
     description: "Exclude branches comma separated"
     required: false
-    type: string
     default: ''
   filter-branches:
     description: "Whether to filter those branches that only exist in the github-repository"
     default: false
-    type: boolean
   github-token:
     description: 'The GitHub access token.'
     required: false
-    type: string
     default: ${{ github.token }}
   github-repository:
     description: 'The GitHub repository to search for active branches.'
     required: false
-    type: string
     default: ${{ github.repository }}
 
 outputs:
