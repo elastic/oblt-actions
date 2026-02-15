@@ -116,7 +116,7 @@ runs:
             core.setOutput('WAIT', waitFlags.join(' '))
           }
 
-    - uses: elastic/oblt-actions/oblt-cli/setup@v1.36.6
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.36.7
       with:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
