@@ -1,7 +1,5 @@
-const {
-  spawnSync
-} = require('child_process');
-const matcher = require('matcher');
+import { spawnSync } from 'child_process';
+import matcher from 'matcher';
 
 function filterFiles(files, options) {
   let filteredFiles = [];
@@ -14,6 +12,6 @@ function filterFiles(files, options) {
   return filteredFiles;
 }
 
-module.exports = {
+export {
   filterFiles
 };

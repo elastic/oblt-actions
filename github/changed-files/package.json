@@ -2,9 +2,10 @@
   "name": "changed-files",
   "version": "1.0.0",
   "description": "GitHub Action to detect changes in Git",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "bundle": "ncc build index.js"
   },
   "author": "",
