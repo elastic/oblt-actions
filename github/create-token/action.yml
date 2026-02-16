@@ -34,9 +34,7 @@ runs:
       continue-on-error: true
       if: runner.os != 'Windows'
       shell: bash
-      run: |
-        gh api /rate_limit | jq .
-        env | sort
+      run: gh api /rate_limit | jq .
       env:
         GH_TOKEN: ${{ steps.fetch-token.outputs.token }}
         GH_PAGER: ''
