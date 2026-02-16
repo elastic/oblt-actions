@@ -1,5 +1,4 @@
 name: test-github-user-type
-
 on:
   merge_group: ~
   workflow_dispatch:
@@ -15,10 +14,8 @@ on:
     paths:
       - '.github/workflows/test-github-user-type.yml'
       - 'github/user-type/**'
-
 permissions:
   contents: read
-
 jobs:
   test:
     if: always()
@@ -32,7 +29,6 @@ jobs:
         with:
           jobs: ${{ toJSON(needs) }}
       - run: ${{ steps.check.outputs.is-success }}
-
   is-bot:
     runs-on: ubuntu-latest
     steps:
@@ -40,20 +36,16 @@ jobs:
       - uses: elastic/oblt-actions/git/setup@v1
       - name: Get token
         id: get_token
-        uses: actions/create-github-app-token@v2
+        uses: elastic/oblt-actions/github/create-token@v1
         with:
-          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
-          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          permission-members: read
+          token-policy: token-policy-oblt-actions-test-github-user-type
       - uses: ./github/user-type
         id: validation
         with:
           github-token: ${{ steps.get_token.outputs.token }}
           github-user: "dependabot[bot]"
-
       - name: Assert is bot
         run: test "${{steps.validation.outputs.result}}" = "bot"
-
   copilot-is-bot:
     runs-on: ubuntu-latest
     steps:
@@ -61,21 +53,16 @@ jobs:
       - uses: elastic/oblt-actions/git/setup@v1
       - name: Get token
         id: get_token
-        uses: actions/create-github-app-token@v2
+        uses: elastic/oblt-actions/github/create-token@v1
         with:
-          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
-          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          permission-members: read
+          token-policy: token-policy-oblt-actions-test-github-user-type
       - uses: ./github/user-type
         id: validation
         with:
           github-token: ${{ steps.get_token.outputs.token }}
           github-user: "Copilot"
-
       - name: Assert is bot
         run: test "${{steps.validation.outputs.result}}" = "bot"
-
-
   is-not-bot:
     runs-on: ubuntu-latest
     steps:
@@ -83,16 +70,13 @@ jobs:
       - uses: elastic/oblt-actions/git/setup@v1
       - name: Get token
         id: get_token
-        uses: actions/create-github-app-token@v2
+        uses: elastic/oblt-actions/github/create-token@v1
         with:
-          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
-          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          permission-members: read
+          token-policy: token-policy-oblt-actions-test-github-user-type
       - uses: ./github/user-type
         id: validation
         with:
           github-token: ${{ steps.get_token.outputs.token }}
           github-user: "octocat"
-
       - name: Assert is not bot
         run: test "${{steps.validation.outputs.result}}" = "user"

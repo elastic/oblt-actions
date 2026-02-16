@@ -1,5 +1,4 @@
 name: test-oblt-cli-cluster-create-custom
-
 on:
   merge_group: ~
   workflow_dispatch:
@@ -15,10 +14,8 @@ on:
     paths:
       - '.github/workflows/test-oblt-cli-cluster-create-custom.yml'
       - 'oblt-cli/cluster-create-custom/**'
-
 permissions:
   contents: read
-
 jobs:
   test:
     if: always()
@@ -33,7 +30,6 @@ jobs:
         with:
           jobs: ${{ toJSON(needs) }}
       - run: ${{ steps.check.outputs.is-success }}
-
   no-gitops:
     runs-on: ubuntu-latest
     steps:
@@ -41,13 +37,9 @@ jobs:
       - uses: elastic/oblt-actions/git/setup@v1
       - name: Get token
         id: get_token
-        uses: actions/create-github-app-token@v2
+        uses: elastic/oblt-actions/github/create-token@v1
         with:
-          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
-          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          permission-contents: write
-          repositories: |
-            observability-test-environments
+          token-policy: token-policy-oblt-actions-test-oblt-cli-cluster-create-custom
       - uses: ./oblt-cli/cluster-create-custom
         with:
           github-token: ${{ steps.get_token.outputs.token }}
@@ -56,7 +48,6 @@ jobs:
           gitops: false
           dry-run: ${{ github.event.inputs.dry-run != '' && github.event.inputs.dry-run || true }}
           parameters: '{"RemoteClusterName":"release-oblt","StackVersion":"8.7.0","KibanaDockerImage":"docker.elastic.co/observability-ci/kibana-cloud:8.7.0-SNAPSHOT"}'
-
   gitops:
     runs-on: ubuntu-latest
     steps:
@@ -64,13 +55,9 @@ jobs:
       - uses: elastic/oblt-actions/git/setup@v1
       - name: Get token
         id: get_token
-        uses: actions/create-github-app-token@v2
+        uses: elastic/oblt-actions/github/create-token@v1
         with:
-          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
-          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          permission-contents: write
-          repositories: |
-            observability-test-environments
+          token-policy: token-policy-oblt-actions-test-oblt-cli-cluster-create-custom
       - uses: ./oblt-cli/cluster-create-custom
         with:
           github-token: ${{ steps.get_token.outputs.token }}
@@ -79,7 +66,6 @@ jobs:
           gitops: true
           dry-run: ${{ github.event.inputs.dry-run != '' && github.event.inputs.dry-run || true }}
           parameters: '{"RemoteClusterName":"release-oblt","StackVersion":"8.7.0","KibanaDockerImage":"docker.elastic.co/observability-ci/kibana-cloud:8.7.0-SNAPSHOT"}'
-
   multiline:
     runs-on: ubuntu-latest
     steps:
@@ -87,13 +73,9 @@ jobs:
       - uses: elastic/oblt-actions/git/setup@v1
       - name: Get token
         id: get_token
-        uses: actions/create-github-app-token@v2
+        uses: elastic/oblt-actions/github/create-token@v1
         with:
-          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
-          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          permission-contents: write
-          repositories: |
-            observability-test-environments
+          token-policy: token-policy-oblt-actions-test-oblt-cli-cluster-create-custom
       - uses: ./oblt-cli/cluster-create-custom
         with:
           github-token: ${{ steps.get_token.outputs.token }}
