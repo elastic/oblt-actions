@@ -1,0 +1,82 @@
+name: 'pagerduty-alert'
+description: 'Raise a PagerDuty alert and return the incident URL'
+inputs:
+  summary:
+    description: 'The PagerDuty summary of the alert'
+    required: true
+  source:
+    description: 'The PagerDuty source of the alert'
+    required: true
+  api-key:
+    description: 'The PagerDuty API key'
+    required: true
+  component:
+    description: 'The PagerDuty component'
+    required: true
+  routing-key:
+    description: 'The PagerDuty integration key'
+    required: true
+  severity:
+    description: 'The PagerDuty severity'
+    default: 'critical'
+    required: false
+
+outputs:
+  incident-url:
+    description: 'The HTML URL of the PagerDuty incident'
+    value: ${{ steps.get_incident.outputs.result }}
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/github-script@v8
+      id: sanitize
+      env:
+        SUMMARY: ${{ inputs.summary }}
+      with:
+        script: |
+          const sanitizedTitle = JSON.stringify(process.env.SUMMARY).slice(1, -1)
+          console.log(`sanitized summary is: ${sanitizedTitle}`)
+          core.setOutput("summary", sanitizedTitle)
+
+          // Time window (15 minutes) for searching recent incidents, in milliseconds
+          const now = new Date()
+          const fifteenMinutesAgo = new Date(now.getTime() - (15 * 60 * 1000))
+          const isoDate = fifteenMinutesAgo.toISOString()
+          core.setOutput("time-search", isoDate)
+
+    - name: Trigger PagerDuty Alert
+      uses: fjogeleit/http-request-action@1297c6fc63a79b147d1676540a3fd9d2e37817c5 # v1.16.5
+      with:
+        url: 'https://events.pagerduty.com/v2/enqueue'
+        method: 'POST'
+        customHeaders: '{"Accept": "application/json", "Content-Type": "application/json", "Authorization" : "Token token=${{ inputs.api-key }}"}'
+        data: '{"event_action": "trigger", "routing_key": "${{ inputs.routing-key }}", "payload": {"summary": "${{steps.sanitize.outputs.summary}}", "source": "${{ inputs.source }}", "custom_details":"${{ inputs.source }}", "severity": "${{ inputs.severity }}", "component": "${{ inputs.component }}"}}'
+
+    - name: Fetch PagerDuty Incidents
+      id: pagerduty_incident
+      uses: fjogeleit/http-request-action@1297c6fc63a79b147d1676540a3fd9d2e37817c5 # v1.16.5
+      with:
+        url: 'https://api.pagerduty.com/incidents?since=${{steps.sanitize.outputs.time-search}}&statuses[]=triggered&statuses[]=acknowledged'
+        method: 'GET'
+        customHeaders: '{"Accept": "application/json", "Content-Type": "application/json", "Authorization" : "Token token=${{ inputs.api-key }}"}'
+
+    - name: Search the incident
+      uses: actions/github-script@v8
+      id: get_incident
+      env:
+        SUMMARY: ${{ steps.sanitize.outputs.summary }}
+      with:
+        script: |
+          const responseData = `${{ steps.pagerduty_incident.outputs.response }}`
+          const parsedData = JSON.parse(responseData)
+          const summary = process.env.SUMMARY
+          const specificIncident = parsedData.incidents.find(incident => incident.title === summary)
+          if (specificIncident) {
+            console.log(`Found HTML URL: ${specificIncident.html_url}`)
+            return specificIncident.html_url
+          } else {
+            console.log('No incident found.')
+            return ''
+          }
+        result-encoding: string
