@@ -1,14 +1,14 @@
 // https://github.com/kandhavivekraj/git-changed-files
-const gitChangedFiles = require("./git-changed-files");
-const core = require("@actions/core");
+import gitChangedFiles from "./git-changed-files/index.js";
+import * as core from "@actions/core";
 
 async function run() {
-  added = [];
-  modified = [];
-  deleted = [];
-  baseBranch = core.getInput("base-ref") || "main";
-  head = core.getInput("ref") || "HEAD";
-  filter = JSON.parse(core.getInput("filter")||'["*.*"]');
+  let added = [];
+  let modified = [];
+  let deleted = [];
+  let baseBranch = core.getInput("base-ref") || "main";
+  let head = core.getInput("ref") || "HEAD";
+  let filter = JSON.parse(core.getInput("filter")||'["*.*"]');
   try {
     let committedGitFiles = await gitChangedFiles({
       baseBranch: baseBranch,
@@ -48,4 +48,4 @@ async function run() {
 
 run();
 
-module.exports = run;
+export default run;
