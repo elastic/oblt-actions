@@ -29,3 +29,12 @@ runs:
         vault-instance: ${{ inputs.vault-instance }}
         vault-role: ${{ inputs.token-policy }}
         skip-token-revoke: ${{ inputs.skip-token-revoke }}
+
+    - name: Print rate limit for debugging
+      continue-on-error: true
+      if: runner.os != 'Windows'
+      shell: bash
+      run: gh api /rate_limit | jq .
+      env:
+        GH_TOKEN: ${{ steps.fetch-token.outputs.token }}
+        GH_PAGER: ''
