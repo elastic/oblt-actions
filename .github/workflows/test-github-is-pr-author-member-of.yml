@@ -1,5 +1,4 @@
 name: test-github-is-pr-author-member-of
-
 on:
   merge_group: ~
   workflow_dispatch:
@@ -21,10 +20,8 @@ on:
     paths:
       - '.github/workflows/test-github-is-pr-author-member-of.yml'
       - 'github/is-pr-author-member-of/**'
-
 permissions:
   contents: read
-
 jobs:
   test:
     if: always()
@@ -38,20 +35,18 @@ jobs:
         with:
           jobs: ${{ toJSON(needs) }}
       - run: ${{ steps.check.outputs.is-success }}
-
   is-member:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v6
       - uses: elastic/oblt-actions/git/setup@v1
       - name: Get token
         id: get_token
-        uses: actions/create-github-app-token@v2
+        uses: elastic/oblt-actions/github/create-token@v1
         with:
-          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
-          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          permission-members: read
-          permission-pull-requests: read
+          token-policy: token-policy-oblt-actions-test-github-is-pr-author-member-of
       - uses: ./github/is-pr-author-member-of
         id: validation
         with:
@@ -59,22 +54,20 @@ jobs:
           github-org: "elastic"
           repository: "oblt-actions"
           pull-request: "59"
-
       - name: Assert is member
         run: test "${{steps.validation.outputs.result}}" = "true"
-
   is-not-member:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v6
       - uses: elastic/oblt-actions/git/setup@v1
       - name: Get token
         id: get_token
-        uses: actions/create-github-app-token@v2
+        uses: elastic/oblt-actions/github/create-token@v1
         with:
-          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
-          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          permission-members: read
+          token-policy: token-policy-oblt-actions-test-github-is-pr-author-member-of
       - uses: ./github/is-pr-author-member-of
         id: validation
         with:
@@ -83,6 +76,5 @@ jobs:
           repository: "oblt-actions"
           ## use dependabot PR
           pull-request: "145"
-
       - name: Assert is not member
         run: test "${{steps.validation.outputs.result}}" = "false"
