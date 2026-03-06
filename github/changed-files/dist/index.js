@@ -28672,14 +28672,6 @@ function isShallowRepository() {
   return result.stdout && result.stdout.toString().trim() === 'true';
 }
 
-function unshallowRepository() {
-  let result = (0,external_child_process_namespaceObject.spawnSync)('git', ['fetch', '--unshallow'], { stdio: 'pipe' });
-  if (result.status !== 0) {
-    let stderr = result.stderr ? result.stderr.toString() : '';
-    console.warn(`Warning: git fetch --unshallow failed: ${stderr}`);
-  }
-}
-
 function findError(error) {
   error = error.toString();
   if (error.includes('Not a git repository')) {
@@ -28765,8 +28757,11 @@ function fetchGitStatus(options) {
     try {
 
       if (isShallowRepository()) {
-        console.log('Shallow repository detected, fetching full history...');
-        unshallowRepository();
+        return reject(new Error(
+          'Shallow clone detected. The changed-files action requires full git history to compare refs. ' +
+          'Please set `fetch-depth: 0` in your actions/checkout step. ' +
+          'See https://github.com/elastic/oblt-actions/issues/470 for details.'
+        ));
       }
 
       if (showCommitted) {
