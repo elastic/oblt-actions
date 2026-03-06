@@ -3,6 +3,19 @@ import chalk from 'chalk';
 import { filterFiles } from '../src/filterFiles.js';
 import { formatOutput } from '../src/formatOutput.js';
 
+function isShallowRepository() {
+  let result = spawnSync('git', ['rev-parse', '--is-shallow-repository']);
+  return result.stdout && result.stdout.toString().trim() === 'true';
+}
+
+function unshallowRepository() {
+  let result = spawnSync('git', ['fetch', '--unshallow'], { stdio: 'pipe' });
+  if (result.status !== 0) {
+    let stderr = result.stderr ? result.stderr.toString() : '';
+    console.warn(`Warning: git fetch --unshallow failed: ${stderr}`);
+  }
+}
+
 function findError(error) {
   error = error.toString();
   if (error.includes('Not a git repository')) {
@@ -86,6 +99,11 @@ function fetchGitStatus(options) {
     });
 
     try {
+
+      if (isShallowRepository()) {
+        console.log('Shallow repository detected, fetching full history...');
+        unshallowRepository();
+      }
 
       if (showCommitted) {
         committedFiles = findFiles(commitedCmd, formats, showStatus);
