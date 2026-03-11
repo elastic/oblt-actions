@@ -27,6 +27,7 @@ updates:
       - 'changelog:dependencies'
 
   - package-ecosystem: pre-commit
+    directory: "/"
     schedule:
       interval: 'weekly'
       day: 'sunday'
