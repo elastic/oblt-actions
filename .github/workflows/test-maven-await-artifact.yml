@@ -27,6 +27,6 @@ jobs:
       - uses: ./maven/await-artifact
         timeout-minutes: 1
         with:
-          artifact-id: 'ecs-logging-core'
-          group-id: 'co.elastic.logging'
-          version: "1.7.0"
+          artifact-id: "elastic-apm-agent"
+          group-id: "co.elastic.apm"
+          version: "1.50.0"
