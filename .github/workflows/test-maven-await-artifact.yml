@@ -29,4 +29,6 @@ jobs:
         with:
           artifact-id: "elastic-apm-agent"
           group-id: "co.elastic.apm"
-          version: "1.50.0"
+group-id: 'co.elastic.logging'
+artifact-id: 'ecs-logging-core'
+version: "1.7.0"
