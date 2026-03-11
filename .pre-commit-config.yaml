@@ -19,7 +19,7 @@ repos:
       - id: trailing-whitespace
         exclude: *common-exclude
   - repo: https://github.com/reakaleek/gh-action-readme
-    rev: v0.4.0
+    rev: v0.7.0
     hooks:
       - id: action-readme
         verbose: true
