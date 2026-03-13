@@ -5,7 +5,9 @@
 # Parameters:
 #  $1 -> the Buildkite Build URL. Mandatory.
 #  $2 -> the Buildkite Build Web URL. Mandatory.
-#  $3 -> the BK token. Mandatory.
+#
+# Environment variables:
+#  BK_TOKEN -> the BK token. Mandatory.
 #
 
 set -euo pipefail
@@ -13,7 +15,7 @@ set -euo pipefail
 MSG="parameter missing."
 URL=${1:?$MSG}
 WEB_URL=${2:?$MSG}
-BK_TOKEN=${3:?$MSG}
+BK_TOKEN=${BK_TOKEN:?$MSG}
 
 echo "::group::WaitFor"
 STATE="running"
