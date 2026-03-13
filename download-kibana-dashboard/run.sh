@@ -78,7 +78,7 @@ while true; do
   elif [[ "$http_code" == "503" ]]; then
     # Check for Retry-After header
     retry_after=$(curl -sI -u "$KIBANA_USER:$KIBANA_PASSWORD" -H 'kbn-xsrf: true' "$KIBANA_HOST$png_url_path" | grep -i 'Retry-After:' | awk '{print $2}' | tr -d '\r')
-    if [[ -n "$retry_after" ]]; then
+    if [[ -n "$retry_after" ]] && [[ "$retry_after" =~ ^[0-9]+$ ]] && (( retry_after >= 1 && retry_after <= 300 )); then
       echo "Report not ready, waiting $retry_after seconds (from Retry-After header)..."
       sleep "$retry_after"
     else
