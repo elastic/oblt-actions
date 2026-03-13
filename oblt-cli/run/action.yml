@@ -23,8 +23,20 @@ runs:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
         username: ${{ inputs.username }}
+    - name: validate command
+      run: |
+        SUBCMD="${COMMAND%% *}"
+        case "${SUBCMD}" in
+          cluster|configure|version|help) ;;
+          *) echo "::error::Unknown oblt-cli subcommand '${SUBCMD}'. Allowed subcommands: cluster, configure, version, help." && exit 1 ;;
+        esac
+      shell: bash
+      env:
+        COMMAND: ${{ inputs.command }}
     - name: run oblt-cli
-      run: oblt-cli --verbose ${COMMAND}
+      run: |
+        read -ra CMD_ARGS <<< "${COMMAND}"
+        oblt-cli --verbose "${CMD_ARGS[@]}"
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}

@@ -8,6 +8,9 @@
 Run the oblt-cli wrapper.
 <!--/description-->
 
+> [!WARNING]
+> This action must **never** be used in workflows triggered by untrusted events (e.g. `pull_request` from forks, `issue_comment`, `pull_request_target`). The `command` input is validated against an allowlist of known subcommands (`cluster`, `configure`, `version`, `help`), but callers must ensure the input is not derived from untrusted user data.
+
 ## Inputs
 <!--inputs-->
 | Name            | Description                                                         | Required | Default            |
