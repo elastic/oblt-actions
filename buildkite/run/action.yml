@@ -77,11 +77,13 @@ runs:
       name: Wait for
       run: |
         ${{ github.action_path }}/wait-for.sh \
-          '${{ steps.trigger-buildkite.outputs.url }}' \
-          '${{ steps.trigger-buildkite.outputs.build }}' \
+          "${URL}" \
+          "${BUILD}" \
           "${BK_TOKEN}"
       env:
         BK_TOKEN: ${{ inputs.token }}
+        URL: ${{ steps.trigger-buildkite.outputs.url }}
+        BUILD: ${{ steps.trigger-buildkite.outputs.build }}
       shell: bash
 
     - name: Cancel Buildkite pipeline
