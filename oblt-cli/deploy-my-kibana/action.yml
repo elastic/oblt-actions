@@ -60,7 +60,9 @@ runs:
 
     - if: ${{ inputs.github-token == '' }}
       name: If ephemeral GitHub token app generated
-      run: echo "GH_TOKEN=${{ steps.get_token.outputs.token }}" >> "$GITHUB_ENV"
+      run: echo "GH_TOKEN=${GH_TOKEN}" >> "$GITHUB_ENV"
+      env:
+        GH_TOKEN: ${{ steps.get_token.outputs.token }}
       shell: bash
 
     - if: ${{ inputs.github-token != '' }}
