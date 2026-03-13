@@ -92,5 +92,4 @@ runs:
       env:
         PR: ${{ inputs.pull-request }}
         REPO: ${{ inputs.repository }}
-        PR_AUTHOR: ${{ env.PR_AUTHOR }}
       shell: bash

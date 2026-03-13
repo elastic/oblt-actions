@@ -134,8 +134,6 @@ runs:
       env:
         GITHUB_USER: ${{ inputs.user }}
         COMMENT_URL: ${{ inputs.comment-url }}
-        CLUSTER: ${{ env.CLUSTER }}
-        PR: ${{ env.PR }}
       shell: bash
 
     - name: Notify with a reaction if a non-elastician comment
