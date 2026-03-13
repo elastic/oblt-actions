@@ -55,7 +55,7 @@ runs:
     - name: Trigger Buildkite pipeline
       id: trigger-buildkite
       run: |
-        ${{ github.action_path }}/run.sh \
+        "$GITHUB_ACTION_PATH/run.sh" \
           "${BK_TOKEN}" \
           "${ORG}" \
           "${PIPELINE}" \
@@ -76,7 +76,7 @@ runs:
     - if: ${{ inputs.wait-for == 'true' }}
       name: Wait for
       run: |
-        ${{ github.action_path }}/wait-for.sh \
+        "$GITHUB_ACTION_PATH/wait-for.sh" \
           "${URL}" \
           "${BUILD}" \
           "${BK_TOKEN}"

@@ -52,7 +52,7 @@ runs:
   using: composite
   steps:
     - name: Fetch Kibana Dashboard
-      run: ${{ github.action_path }}/run.sh
+      run: "$GITHUB_ACTION_PATH/run.sh"
       shell: bash
       env:
         KIBANA_HOST: ${{ inputs.kibana-host }}

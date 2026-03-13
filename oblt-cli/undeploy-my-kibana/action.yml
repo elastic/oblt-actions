@@ -73,17 +73,17 @@ runs:
         cat <<EOT >> .body-content
         ### Kibana pull request
 
-        ${{ env.PR }}
+        ${PR}
 
         ### Further details
 
-        Caused by @${{ env.PR_AUTHOR }} in https://github.com/${{ env.REPO }}/pull/${{ env.PR }} via this [GitHub workflow build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }})
+        Caused by @${PR_AUTHOR} in https://github.com/${REPO}/pull/${PR} via this [GitHub workflow build](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/attempts/${GITHUB_RUN_ATTEMPT})
         EOT
 
         gh issue \
           create \
           --label 'destroy-custom-kibana-serverless' \
-          --title "[Undeploy Kibana] ${{ env.REPO }}@pr-${{ env.PR }}" \
+          --title "[Undeploy Kibana] ${REPO}@pr-${PR}" \
           --body-file .body-content \
           --repo elastic/observability-test-environments | tee .issue
         echo "issue=$(cat .issue)" >> "$GITHUB_OUTPUT"
@@ -92,4 +92,5 @@ runs:
       env:
         PR: ${{ inputs.pull-request }}
         REPO: ${{ inputs.repository }}
+        PR_AUTHOR: ${{ env.PR_AUTHOR }}
       shell: bash

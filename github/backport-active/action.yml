@@ -33,5 +33,5 @@ runs:
         REPOSITORY: ${{ github.repository }}
         PR_LABELS: ${{ toJSON(github.event.pull_request.labels) }}
         BACKPORTS_URL: ${{ inputs.backports-url }}
-      run: python ${{ github.action_path }}/backport_script.py
+      run: python "$GITHUB_ACTION_PATH/backport_script.py"
       shell: bash
