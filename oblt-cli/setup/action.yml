@@ -21,6 +21,10 @@ inputs:
   version-file:
     description: "The file to read the version from. E.g. `.oblt-cli-version` or `.tool-versions` (asdf-vm)."
     required: false
+  require-checksum:
+    description: "Fail the action if checksums.txt is not found in the release. When false, a warning is issued instead."
+    required: false
+    default: "false"
 
 runs:
   using: composite
@@ -31,6 +35,7 @@ runs:
         GH_TOKEN: ${{ inputs.github-token }}
         OBLT_CLI_VERSION: ${{ inputs.version }}
         OBLT_CLI_VERSION_FILE: ${{ inputs.version-file }}
+        OBLT_CLI_REQUIRE_CHECKSUM: ${{ inputs.require-checksum }}
       shell: bash
     - name: Configure oblt-cli
       run: >

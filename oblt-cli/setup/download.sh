@@ -80,11 +80,56 @@ else
   fi
 fi
 
+TEMP_DIR=$(mktemp -d)
+trap 'rm -rf "${TEMP_DIR}"' EXIT
+
 retry 3 gh release download "${version}" \
   --skip-existing \
   --repo elastic/observability-test-environments \
   -p "${PATTERN}" \
-  --output - | tar -xz -C "${BIN_DIR}"
+  --dir "${TEMP_DIR}"
+
+TARBALL=$(find "${TEMP_DIR}" -name "*.tar.gz" | head -1)
+if [[ -z "${TARBALL}" ]]; then
+  echo "::error title=elastic/oblt-actions/oblt-cli/setup::No tarball found for oblt-cli ${version} matching pattern '${PATTERN}'."
+  exit 1
+fi
+
+require_checksum="${OBLT_CLI_REQUIRE_CHECKSUM:-false}"
+
+if retry 3 gh release download "${version}" \
+  --skip-existing \
+  --repo elastic/observability-test-environments \
+  -p "checksums.txt" \
+  --dir "${TEMP_DIR}" 2>/dev/null; then
+  CHECKSUMS_FILE="${TEMP_DIR}/checksums.txt"
+  TARBALL_BASENAME=$(basename "${TARBALL}")
+  if grep -qF "${TARBALL_BASENAME}" "${CHECKSUMS_FILE}"; then
+    EXPECTED_CHECKSUM=$(grep -F "${TARBALL_BASENAME}" "${CHECKSUMS_FILE}" | awk '{print $1}')
+    ACTUAL_CHECKSUM=$(sha256sum "${TARBALL}" | awk '{print $1}')
+    if [[ "${EXPECTED_CHECKSUM}" != "${ACTUAL_CHECKSUM}" ]]; then
+      echo "::error title=elastic/oblt-actions/oblt-cli/setup::Checksum verification failed for oblt-cli ${version}. Expected: ${EXPECTED_CHECKSUM}, Got: ${ACTUAL_CHECKSUM}"
+      exit 1
+    fi
+    echo "::notice title=elastic/oblt-actions/oblt-cli/setup::Checksum verification passed for oblt-cli ${version}."
+  else
+    if [[ "${require_checksum}" == "true" ]]; then
+      echo "::error title=elastic/oblt-actions/oblt-cli/setup::No checksum entry found in checksums.txt for '${TARBALL_BASENAME}' and require-checksum is enabled."
+      exit 1
+    else
+      echo "::warning title=elastic/oblt-actions/oblt-cli/setup::Could not find matching checksum entry in checksums.txt for '${TARBALL_BASENAME}'."
+    fi
+  fi
+else
+  if [[ "${require_checksum}" == "true" ]]; then
+    echo "::error title=elastic/oblt-actions/oblt-cli/setup::checksums.txt not found for oblt-cli ${version} and require-checksum is enabled."
+    exit 1
+  else
+    echo "::warning title=elastic/oblt-actions/oblt-cli/setup::checksums.txt not found for oblt-cli ${version}. Skipping checksum verification."
+  fi
+fi
+
+tar -xz -C "${BIN_DIR}" -f "${TARBALL}"
 
 echo "::notice title=elastic/oblt-actions/oblt-cli/setup::Downloaded oblt-cli version: ${version}"
 echo "${BIN_DIR}" >> "${GITHUB_PATH}"
