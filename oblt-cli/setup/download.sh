@@ -87,6 +87,12 @@ retry 3 gh release download "${version}" \
   --skip-existing \
   --repo elastic/observability-test-environments \
   -p "${PATTERN}" \
+  -p "checksums.txt" \
+  --dir "${TEMP_DIR}" 2>/dev/null || \
+retry 3 gh release download "${version}" \
+  --skip-existing \
+  --repo elastic/observability-test-environments \
+  -p "${PATTERN}" \
   --dir "${TEMP_DIR}"
 
 TARBALL=$(find "${TEMP_DIR}" -name "*.tar.gz" | head -1)
@@ -96,13 +102,9 @@ if [[ -z "${TARBALL}" ]]; then
 fi
 
 require_checksum="${OBLT_CLI_REQUIRE_CHECKSUM:-false}"
+CHECKSUMS_FILE="${TEMP_DIR}/checksums.txt"
 
-if retry 3 gh release download "${version}" \
-  --skip-existing \
-  --repo elastic/observability-test-environments \
-  -p "checksums.txt" \
-  --dir "${TEMP_DIR}" 2>/dev/null; then
-  CHECKSUMS_FILE="${TEMP_DIR}/checksums.txt"
+if [[ -f "${CHECKSUMS_FILE}" ]]; then
   TARBALL_BASENAME=$(basename "${TARBALL}")
   if grep -qF "${TARBALL_BASENAME}" "${CHECKSUMS_FILE}"; then
     EXPECTED_CHECKSUM=$(grep -F "${TARBALL_BASENAME}" "${CHECKSUMS_FILE}" | awk '{print $1}')
