@@ -25,6 +25,7 @@ runs:
 
     - name: run oblt-cli
       run: |
+        trap 'rm -f "${ENV_FILE}"' EXIT
         oblt-cli cluster secrets env --cluster-name "${CLUSTER_NAME}" --output-file "${ENV_FILE}"
         while IFS= read -r line || [[ -n "${line}" ]]; do
           key="${line%%=*}"
