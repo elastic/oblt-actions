@@ -34,8 +34,13 @@ runs:
         git config --global user.email "${GIT_EMAIL}"
         gh auth setup-git
 
-        echo "GIT_USER=${GIT_USER}" >> $GITHUB_ENV
-        echo "GIT_EMAIL=${GIT_EMAIL}" >> $GITHUB_ENV
+        append_env() {
+          local name="$1" value="$2" delimiter
+          delimiter=$(openssl rand -hex 16)
+          printf '%s<<%s\n%s\n%s\n' "$name" "$delimiter" "$value" "$delimiter" >> "${GITHUB_ENV}"
+        }
+        append_env "GIT_USER"  "${GIT_USER}"
+        append_env "GIT_EMAIL" "${GIT_EMAIL}"
 
       env:
         GIT_USER: '${{ inputs.username }}'
