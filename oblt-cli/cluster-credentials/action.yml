@@ -25,17 +25,20 @@ runs:
 
     - name: run oblt-cli
       run: |
-        oblt-cli cluster secrets env --cluster-name "${{ steps.validation.outputs.cluster-name }}" --output-file "${{ env.ENV_FILE }}"
-        cat "${{ env.ENV_FILE }}" >> "${GITHUB_ENV}"
-        source "${{ env.ENV_FILE }}"
-        for i in $(cat "${{ env.ENV_FILE }}"|cut -d "=" -f 1); do
-          VALUE=$(eval "echo \${$i}")
-          if [ -n "$VALUE" ] ; then
-            echo "::add-mask::${VALUE}"
+        oblt-cli cluster secrets env --cluster-name "${CLUSTER_NAME}" --output-file "${ENV_FILE}"
+        while IFS= read -r line; do
+          key="${line%%=*}"
+          value="${line#*=}"
+          # skip empty lines and comments
+          [[ -z "${key}" || "${key}" == \#* ]] && continue
+          if [ -n "${value}" ]; then
+            echo "::add-mask::${value}"
           fi
-        done
-        rm -f "${{ env.ENV_FILE }}"
+          printf '%s=%s\n' "${key}" "${value}" >> "${GITHUB_ENV}"
+        done < "${ENV_FILE}"
+        rm -f "${ENV_FILE}"
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
+        CLUSTER_NAME: ${{ steps.validation.outputs.cluster-name }}
         ENV_FILE: ${{ runner.temp }}/.cluster-credentials
