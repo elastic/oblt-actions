@@ -27,7 +27,8 @@ repos:
           - --env=VERSION=v1
 
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.11
+    # Support https://github.com/rhysd/actionlint/pull/561
+    rev: 0c610de366faf857ef4b33704ee28edcf85778cc
     hooks:
       - id: actionlint
         # actionlint does not yet recognize the "ubuntu-slim" label.
