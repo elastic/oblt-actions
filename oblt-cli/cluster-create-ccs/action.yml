@@ -124,16 +124,23 @@ runs:
 
     - run: |
         oblt-cli cluster create ccs \
-          ${{ steps.flags.outputs.REMOTE_CLUSTER }} \
-          ${{ steps.flags.outputs.CLUSTER_NAME_PREFIX }} \
-          ${{ steps.flags.outputs.CLUSTER_NAME_SUFFIX }} \
-          ${{ steps.flags.outputs.ELASTICSEARCH_DOCKER_IMAGE }} \
-          ${{ steps.flags.outputs.DRY_RUN }} \
-          ${{ steps.flags.outputs.GITOPS }} \
-          ${{ steps.flags.outputs.WAIT }}
+          ${REMOTE_CLUSTER} \
+          ${CLUSTER_NAME_PREFIX} \
+          ${CLUSTER_NAME_SUFFIX} \
+          ${ELASTICSEARCH_DOCKER_IMAGE} \
+          ${DRY_RUN} \
+          ${GITOPS} \
+          ${WAIT}
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
+        REMOTE_CLUSTER: ${{ steps.flags.outputs.REMOTE_CLUSTER }}
+        CLUSTER_NAME_PREFIX: ${{ steps.flags.outputs.CLUSTER_NAME_PREFIX }}
+        CLUSTER_NAME_SUFFIX: ${{ steps.flags.outputs.CLUSTER_NAME_SUFFIX }}
+        ELASTICSEARCH_DOCKER_IMAGE: ${{ steps.flags.outputs.ELASTICSEARCH_DOCKER_IMAGE }}
+        DRY_RUN: ${{ steps.flags.outputs.DRY_RUN }}
+        GITOPS: ${{ steps.flags.outputs.GITOPS }}
+        WAIT: ${{ steps.flags.outputs.WAIT }}
 
     - run: |
         cluster_name=""
