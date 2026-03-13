@@ -64,25 +64,26 @@ runs:
         SAVE_TO_FILE: ${{ inputs.save-to-file }}
         FAIL_ON_EMPTY: ${{ inputs.fail-on-empty }}
       run: |
-        COMMAND="oblt-cli cluster list"
+        ARGS=()
         if [ "${VERBOSE}" == "true" ] || [ -n "${RUNNER_DEBUG}" ]; then
-          COMMAND="${COMMAND} --verbose"
+          ARGS+=(--verbose)
         fi
         if [ "${ALL}" == "true" ]; then
-          COMMAND="${COMMAND} --all"
+          ARGS+=(--all)
         fi
         if [ -n "${FILTER_KEY}" ] && [ -n "${FILTER_VALUE}" ]; then
-          COMMAND="${COMMAND} --filter \"${FILTER_KEY}=${FILTER_VALUE}\""
+          ARGS+=(--filter "${FILTER_KEY}=${FILTER_VALUE}")
         fi
         if [ -n "${FILTER_EXPIRY_DATE_BEFORE_THAN}" ]; then
-          COMMAND="${COMMAND} --expiry-date-before-than \"${FILTER_EXPIRY_DATE_BEFORE_THAN}\""
+          ARGS+=(--expiry-date-before-than "${FILTER_EXPIRY_DATE_BEFORE_THAN}")
         fi
         if [ -n "${SAVE_TO_FILE}" ]; then
-          COMMAND="${COMMAND} --output-file \"${SAVE_TO_FILE}\""
+          ARGS+=(--output-file "${SAVE_TO_FILE}")
         fi
+        echo "Running command: $(printf '%q ' oblt-cli cluster list "${ARGS[@]}")"
         if [ "${FAIL_ON_EMPTY}" == "false" ]; then
-          COMMAND="${COMMAND} || true"
+          oblt-cli cluster list "${ARGS[@]}" || true
+        else
+          oblt-cli cluster list "${ARGS[@]}"
         fi
-        echo "Running command: ${COMMAND}"
-        eval "${COMMAND}"
       shell: bash
