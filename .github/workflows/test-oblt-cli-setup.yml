@@ -1,5 +1,4 @@
 name: test-oblt-cli-setup
-
 on:
   merge_group: ~
   workflow_dispatch: ~
@@ -15,10 +14,8 @@ on:
     paths:
       - '.github/workflows/test-oblt-cli-setup.yml'
       - 'oblt-cli/setup/**'
-
 permissions:
   contents: read
-
 jobs:
   test:
     needs:
@@ -35,20 +32,17 @@ jobs:
         with:
           jobs: ${{ toJSON(needs) }}
       - run: ${{ steps.check.outputs.is-success }}
-
   version:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v6
       - name: Get token
         id: get_token
-        uses: actions/create-github-app-token@v2
+        uses: elastic/oblt-actions/github/create-token@v1
         with:
-          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
-          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          permission-contents: read
-          repositories: |
-            observability-test-environments
+          token-policy: token-policy-oblt-actions-test-oblt-cli-setup
       - uses: ./oblt-cli/setup
         with:
           version: 7.2.2
@@ -57,20 +51,17 @@ jobs:
         run: |
           version=$(oblt-cli version 2>&1)
           [[ "$version" == *"version 7.2.2"* ]]
-
   version-file:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v6
       - name: Get token
         id: get_token
-        uses: actions/create-github-app-token@v2
+        uses: elastic/oblt-actions/github/create-token@v1
         with:
-          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
-          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          permission-contents: read
-          repositories: |
-            observability-test-environments
+          token-policy: token-policy-oblt-actions-test-oblt-cli-setup
       - name: Setup version file
         run: |
           echo "7.2.5" > .oblt-cli-version
@@ -82,20 +73,17 @@ jobs:
         run: |
           version=$(oblt-cli version 2>&1)
           [[ "$version" == *"version 7.2.5"* ]]
-
   default-version:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v6
       - name: Get token
         id: get_token
-        uses: actions/create-github-app-token@v2
+        uses: elastic/oblt-actions/github/create-token@v1
         with:
-          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
-          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          permission-contents: read
-          repositories: |
-            observability-test-environments
+          token-policy: token-policy-oblt-actions-test-oblt-cli-setup
       - uses: ./oblt-cli/setup
         with:
           github-token: ${{ steps.get_token.outputs.token }}
@@ -104,20 +92,17 @@ jobs:
           version=$(oblt-cli version 2>&1)
           default_version=$(cat ./oblt-cli/setup/.default-oblt-cli-version)
           [[ "$version" == *"version ${default_version}"* ]]
-
   tools-versions:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v6
       - name: Get token
         id: get_token
-        uses: actions/create-github-app-token@v2
+        uses: elastic/oblt-actions/github/create-token@v1
         with:
-          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
-          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          permission-contents: read
-          repositories: |
-            observability-test-environments
+          token-policy: token-policy-oblt-actions-test-oblt-cli-setup
       - name: Setup version file
         run: |
           cat <<EOF > .tool-versions
@@ -134,20 +119,17 @@ jobs:
         run: |
           version=$(oblt-cli version 2>&1)
           [[ "$version" == *"version 7.2.5"* ]]
-
   non-existing-file:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v6
       - name: Get token
         id: get_token
-        uses: actions/create-github-app-token@v2
+        uses: elastic/oblt-actions/github/create-token@v1
         with:
-          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
-          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          permission-contents: read
-          repositories: |
-            observability-test-environments
+          token-policy: token-policy-oblt-actions-test-oblt-cli-setup
       - uses: ./oblt-cli/setup
         id: oblt-cli-setup
         continue-on-error: true
@@ -157,20 +139,17 @@ jobs:
       - name: Verify step failed
         if: steps.oblt-cli-setup.outcome != 'failure'
         run: exit 1
-
   both-version-and-version-file:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v6
       - name: Get token
         id: get_token
-        uses: actions/create-github-app-token@v2
+        uses: elastic/oblt-actions/github/create-token@v1
         with:
-          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
-          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          permission-contents: read
-          repositories: |
-            observability-test-environments
+          token-policy: token-policy-oblt-actions-test-oblt-cli-setup
       - uses: ./oblt-cli/setup
         id: oblt-cli-setup
         with:

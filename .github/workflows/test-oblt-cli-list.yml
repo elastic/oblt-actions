@@ -1,5 +1,4 @@
 name: test-oblt-cli-list
-
 on:
   merge_group: ~
   workflow_dispatch: ~
@@ -15,24 +14,20 @@ on:
     paths:
       - '.github/workflows/test-oblt-cli-list.yml'
       - 'oblt-cli/list/**'
-
 permissions:
   contents: read
-
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v6
       - name: Get token
         id: get_token
-        uses: actions/create-github-app-token@v2
+        uses: elastic/oblt-actions/github/create-token@v1
         with:
-          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
-          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-          permission-contents: read
-          repositories: |
-            observability-test-environments
+          token-policy: token-policy-oblt-actions-test-oblt-cli-list
       - uses: ./oblt-cli/list
         with:
           github-token: ${{ steps.get_token.outputs.token }}
