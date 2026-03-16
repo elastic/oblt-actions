@@ -52,7 +52,7 @@ jobs:
 
       # IMPORTANT: the secrets below are managed through IASC (contact robots if you need further assistance)
       - name: Log in to the Elastic Container registry
-        if: ${{ github.event_name != 'merge_group' }}
+        if: ${{ github.event_name != 'merge_group' && github.actor != 'dependabot[bot]' }}
         uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
         with:
           registry: ${{ secrets.ELASTIC_DOCKER_REGISTRY }}
@@ -60,13 +60,13 @@ jobs:
           password: ${{ secrets.ELASTIC_DOCKER_PASSWORD }}
 
       - uses: ./kibana-docker-image
-        if: ${{ github.event_name != 'merge_group' }}
+        if: ${{ github.event_name != 'merge_group' && github.actor != 'dependabot[bot]' }}
         id: kibana-docker-image
         with:
           serverless: ${{ matrix.serverless }}
 
       - name: validate
-        if: ${{ github.event_name != 'merge_group' }}
+        if: ${{ github.event_name != 'merge_group' && github.actor != 'dependabot[bot]' }}
         run: |
           echo "${STACK_VERSION:?}"
           echo "${GIT_COMMIT_SHA:?}"
