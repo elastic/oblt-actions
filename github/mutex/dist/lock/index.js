@@ -33868,6 +33868,8 @@ const simpleGit = __nccwpck_require__(9065);
 
 const ENQUEUE_PUSH_RETRY_DELAY_MS = 1000;
 const LOCK_POLL_DELAY_MS = 5000;
+const SYNC_MAX_RETRIES = 10;
+const SYNC_RETRY_BACKOFF_MS = 200; // Start at 200ms, exponential backoff
 
 function createDeadline(timeoutMinutes) {
   const startTime = Date.now();
@@ -33912,30 +33914,83 @@ async function setUpRepo(repoUrl, cwd) {
   await git.addRemote("origin", repoUrl);
 }
 
-async function updateBranch(branch, git) {
-  const tempBranch = `mutex/temp-branch-${Date.now()}`;
-  // Clear any uncommitted changes in working directory before checkout
-  await git.reset(["--hard", "-q"]);
-  await git.checkout(["-q", "--orphan", tempBranch]);
+/**
+ * Robustly synchronize local branch with remote.
+ * Retries with exponential backoff until success or deadline.
+ * Used by all operations (enqueue, waitForLock, dequeue) to safely switch branches.
+ */
+async function syncBranch(branch, git, deadline, ticketId) {
+  let retryCount = 0;
 
-  try {
-    await git.branch(["-D", branch]);
-  } catch (e) {
-    core.debug(`Branch delete failed (expected if branch doesn't exist): ${e.message}`);
-  }
+  while (true) {
+    try {
+      // Check deadline
+      if (Date.now() >= deadline.endTime) {
+        const elapsed = Math.round((Date.now() - deadline.startTime) / 60000);
+        throw new Error(`[${ticketId}] Branch sync timeout after ${elapsed} minutes`);
+      }
 
-  try {
-    await git.fetch(["origin", branch, "-q"]);
-  } catch (e) {
-    core.debug(`Fetch failed (expected for new mutex): ${e.message}`);
-  }
+      // Clean working directory: discard changes and remove untracked files
+      try {
+        await git.reset(["--hard", "-q"]);
+        await git.clean(["-fd", "-q"]);
+      } catch (e) {
+        core.debug(`[${ticketId}] Cleanup failed: ${e.message}`);
+      }
 
-  try {
-    await git.checkout([branch, "-q"]);
-  } catch {
-    // If branch doesn't exist locally, create a proper tracking branch from remote
-    await git.checkout(["-b", branch, `origin/${branch}`, "-q"]);
+      // Delete local branch to force fresh checkout from remote
+      try {
+        await git.branch(["-D", branch, "-q"]);
+      } catch (e) {
+        core.debug(`[${ticketId}] Delete branch failed: ${e.message}`);
+      }
+
+      // Fetch latest from remote
+      try {
+        await git.fetch(["origin", branch, "-q"]);
+      } catch (e) {
+        core.debug(`[${ticketId}] Fetch failed: ${e.message}`);
+      }
+
+      // Checkout the branch - try tracking first, then orphan for new mutex
+      try {
+        await git.checkout(["-b", branch, `origin/${branch}`, "-q"]);
+        core.debug(`[${ticketId}] Created tracking branch ${branch}`);
+      } catch (trackingErr) {
+        try {
+          // Fallback: create orphan for brand new mutex (no remote yet)
+          await git.checkout(["-q", "--orphan", branch]);
+          core.debug(`[${ticketId}] Created orphan branch ${branch}`);
+        } catch (orphanErr) {
+          throw new Error(
+            `Checkout failed: tracking (${trackingErr.message}), orphan (${orphanErr.message})`
+          );
+        }
+      }
+
+      core.debug(`[${ticketId}] Branch ${branch} synced after ${retryCount} retries`);
+      return;
+
+    } catch (error) {
+      retryCount++;
+
+      if (retryCount >= SYNC_MAX_RETRIES) {
+        core.error(`[${ticketId}] Branch sync failed after ${SYNC_MAX_RETRIES} retries: ${error.message}`);
+        throw error;
+      }
+
+      const delayMs = SYNC_RETRY_BACKOFF_MS * Math.pow(2, retryCount - 1);
+      core.warning(
+        `[${ticketId}] Sync attempt ${retryCount} failed: ${error.message}. Retrying in ${delayMs}ms...`
+      );
+      sleep(delayMs);
+    }
   }
+}
+
+async function updateBranch(branch, git, deadline, ticketId) {
+  // Wrapper for backward compatibility - delegates to syncBranch
+  await syncBranch(branch, git, deadline, ticketId);
 }
 
 async function enqueue(branch, queueFile, ticketId, cwd, timeoutMinutes) {
@@ -33947,7 +34002,7 @@ async function enqueue(branch, queueFile, ticketId, cwd, timeoutMinutes) {
 
   while (true) {
     checkTimeout(deadline, ticketId, "Enqueue");
-    await updateBranch(branch, git);
+    await updateBranch(branch, git, deadline, ticketId);
 
     const lines = readQueue(queuePath);
     if (lines.includes(ticketId)) break;
@@ -33983,7 +34038,7 @@ async function waitForLock(branch, queueFile, ticketId, cwd, timeoutMinutes) {
 
   while (true) {
     checkTimeout(deadline, ticketId, "WaitForLock");
-    await updateBranch(branch, git);
+    await updateBranch(branch, git, deadline, ticketId);
 
     const stat = fs.statSync(queuePath, { throwIfNoEntry: false });
     if (!stat || stat.size === 0) {
@@ -34007,7 +34062,7 @@ async function dequeue(branch, queueFile, ticketId, cwd, timeoutMinutes) {
 
   while (true) {
     checkTimeout(deadline, ticketId, "Dequeue");
-    await updateBranch(branch, git);
+    await updateBranch(branch, git, deadline, ticketId);
 
     const lines = readQueue(queuePath);
     let message;
@@ -34055,6 +34110,7 @@ function sleep(ms) {
 
 module.exports = {
   setUpRepo,
+  syncBranch,
   updateBranch,
   enqueue,
   waitForLock,
