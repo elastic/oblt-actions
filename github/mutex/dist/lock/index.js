@@ -33914,6 +33914,8 @@ async function setUpRepo(repoUrl, cwd) {
 
 async function updateBranch(branch, git) {
   const tempBranch = `mutex/temp-branch-${Date.now()}`;
+  // Clear any uncommitted changes in working directory before checkout
+  await git.reset(["--hard", "-q"]);
   await git.checkout(["-q", "--orphan", tempBranch]);
 
   try {
@@ -33931,7 +33933,8 @@ async function updateBranch(branch, git) {
   try {
     await git.checkout([branch, "-q"]);
   } catch {
-    await git.checkout(["-q", "--orphan", branch]);
+    // If branch doesn't exist locally, create a proper tracking branch from remote
+    await git.checkout(["-b", branch, `origin/${branch}`, "-q"]);
   }
 }
 
