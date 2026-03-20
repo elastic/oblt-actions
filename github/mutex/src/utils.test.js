@@ -6,6 +6,7 @@ jest.mock("@actions/core", () => ({
   info: jest.fn(),
   error: jest.fn(),
   debug: jest.fn(),
+  warning: jest.fn(),
 }));
 
 jest.mock("simple-git", () => jest.fn());
@@ -23,6 +24,8 @@ function createGitMock() {
     checkout: jest.fn().mockResolvedValue(undefined),
     branch: jest.fn().mockResolvedValue(undefined),
     fetch: jest.fn().mockResolvedValue(undefined),
+    reset: jest.fn().mockResolvedValue(undefined),
+    clean: jest.fn().mockResolvedValue(undefined),
     add: jest.fn().mockResolvedValue(undefined),
     commit: jest.fn().mockResolvedValue(undefined),
     push: jest.fn().mockResolvedValue(undefined),
@@ -56,35 +59,43 @@ describe("utils", () => {
     expect(git.addRemote).toHaveBeenCalledWith("origin", "https://example/repo");
   });
 
-  test("updateBranch logs debug when fetch fails", async () => {
+  test("updateBranch syncs tracking branch then creates orphan if tracking fails", async () => {
     const git = createGitMock();
-    git.fetch.mockRejectedValueOnce(new Error("missing remote branch"));
-
-    await updateBranch("mutex", git);
-
-    expect(git.checkout).toHaveBeenNthCalledWith(
-      1,
-      expect.arrayContaining(["-q", "--orphan", expect.stringMatching(/^mutex\/temp-branch-/)])
-    );
-    expect(git.branch).toHaveBeenCalledWith(["-D", "mutex"]);
-    expect(git.fetch).toHaveBeenCalledWith(["origin", "mutex", "-q"]);
-    expect(core.debug).toHaveBeenCalledWith(
-      "Fetch failed (expected for new mutex): missing remote branch"
-    );
-    expect(git.checkout).toHaveBeenNthCalledWith(2, ["mutex", "-q"]);
-  });
-
-  test("updateBranch creates orphan target branch when checkout fails", async () => {
-    const git = createGitMock();
+    // First checkout (tracking) fails, second checkout (orphan) succeeds
     git.checkout
-      .mockResolvedValueOnce(undefined)
-      .mockRejectedValueOnce(new Error("branch missing"))
+      .mockRejectedValueOnce(new Error("branch not found"))
       .mockResolvedValueOnce(undefined);
 
-    await updateBranch("mutex", git);
+    const deadline = { endTime: Date.now() + 60000, startTime: Date.now(), timeoutMinutes: 1 };
+    await updateBranch("mutex", git, deadline, "test-job");
 
-    expect(git.checkout).toHaveBeenNthCalledWith(2, ["mutex", "-q"]);
-    expect(git.checkout).toHaveBeenNthCalledWith(3, ["-q", "--orphan", "mutex"]);
+    // Should attempt reset/clean
+    expect(git.reset).toHaveBeenCalledWith(["--hard", "-q"]);
+    expect(git.clean).toHaveBeenCalledWith(["-fd", "-q"]);
+    // Should delete local branch
+    expect(git.branch).toHaveBeenCalledWith(["-D", "mutex", "-q"]);
+    // Should fetch from remote
+    expect(git.fetch).toHaveBeenCalledWith(["origin", "mutex", "-q"]);
+    // Should try tracking branch first (fails)
+    expect(git.checkout).toHaveBeenNthCalledWith(1, ["-B", "mutex", "origin/mutex", "-q"]);
+    // Should fall back to orphan when tracking fails
+    expect(git.checkout).toHaveBeenNthCalledWith(2, ["-q", "--orphan", "mutex"]);
+  });
+
+  test("updateBranch successfully checks out tracking branch", async () => {
+    const git = createGitMock();
+    const deadline = { endTime: Date.now() + 60000, startTime: Date.now(), timeoutMinutes: 1 };
+    await updateBranch("mutex", git, deadline, "test-job");
+
+    // Should attempt reset/clean
+    expect(git.reset).toHaveBeenCalledWith(["--hard", "-q"]);
+    expect(git.clean).toHaveBeenCalledWith(["-fd", "-q"]);
+    // Should delete local branch
+    expect(git.branch).toHaveBeenCalledWith(["-D", "mutex", "-q"]);
+    // Should fetch from remote
+    expect(git.fetch).toHaveBeenCalledWith(["origin", "mutex", "-q"]);
+    // Should checkout tracking branch (only checkout call)
+    expect(git.checkout).toHaveBeenNthCalledWith(1, ["-B", "mutex", "origin/mutex", "-q"]);
   });
 
   test("enqueue appends ticket and pushes commit", async () => {

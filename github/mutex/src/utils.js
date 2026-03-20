@@ -91,8 +91,8 @@ async function syncBranch(branch, git, deadline, ticketId) {
 
       // Checkout the branch - try tracking first, then orphan for new mutex
       try {
-        await git.checkout(["-b", branch, `origin/${branch}`, "-q"]);
-        core.debug(`[${ticketId}] Created tracking branch ${branch}`);
+        await git.checkout(["-B", branch, `origin/${branch}`, "-q"]);
+        core.debug(`[${ticketId}] Created/reset tracking branch ${branch}`);
       } catch (trackingErr) {
         try {
           // Fallback: create orphan for brand new mutex (no remote yet)

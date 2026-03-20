@@ -122,7 +122,8 @@ describe("Mutex Integration - Enqueue/Dequeue with 3 jobs", () => {
     // Verify queue from job1's perspective after fetch
     const git1 = simpleGit(job1Ws);
     await git1.fetch(["origin", branch, "-q"]);
-    let queue = fs
+    await git1.reset(["--hard", `origin/${branch}`, "-q"]);
+    queue = fs
       .readFileSync(path.join(job1Ws, queueFile), "utf8")
       .trim()
       .split("\n")
@@ -134,6 +135,7 @@ describe("Mutex Integration - Enqueue/Dequeue with 3 jobs", () => {
 
     // Verify job-1 is gone
     await git1.fetch(["origin", branch, "-q"]);
+    await git1.reset(["--hard", `origin/${branch}`, "-q"]);
     queue = fs
       .readFileSync(path.join(job1Ws, queueFile), "utf8")
       .trim()
@@ -144,10 +146,12 @@ describe("Mutex Integration - Enqueue/Dequeue with 3 jobs", () => {
     // Job 2 dequeues (has lock at position 0)
     const git2 = simpleGit(job2Ws);
     await git2.fetch(["origin", branch, "-q"]);
+    await git2.reset(["--hard", `origin/${branch}`, "-q"]);
     await dequeue(branch, queueFile, "job-2", job2Ws, 5);
 
     // Verify job-2 is gone
     await git2.fetch(["origin", branch, "-q"]);
+    await git2.reset(["--hard", `origin/${branch}`, "-q"]);
     queue = fs
       .readFileSync(path.join(job2Ws, queueFile), "utf8")
       .trim()
