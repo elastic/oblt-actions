@@ -97,6 +97,13 @@ async function enqueue(branch, queueFile, ticketId, cwd, timeoutMinutes) {
       break;
     } catch (e) {
       core.error(`[${ticketId}] Enqueue push failed: ${e.message}`);
+      core.error(`[${ticketId}] Fetching latest remote state and resetting - queue may have changed during concurrent enqueue`);
+      try {
+        await git.fetch(["origin", branch, "-q"]);
+        await git.reset(["--hard", `origin/${branch}`]);
+      } catch (resetErr) {
+        core.error(`[${ticketId}] Reset failed: ${resetErr.message}`);
+      }
       checkTimeout(deadline, ticketId, "Enqueue push retry");
       sleep(ENQUEUE_PUSH_RETRY_DELAY_MS);
     }
@@ -148,9 +155,10 @@ async function dequeue(branch, queueFile, ticketId, cwd, timeoutMinutes) {
       message = `[${ticketId}] Dequeue`;
       writeQueue(queuePath, lines.filter((l) => l !== ticketId));
     } else {
-      core.error(`[${ticketId}] Not in queue! Mutex file:`);
-      core.error(fs.readFileSync(queuePath, "utf8"));
-      throw new Error(`[${ticketId}] Not in queue!`);
+      // Job not in queue - likely removed by concurrent dequeue operation
+      // This is not an error, just exit successfully
+      core.info(`[${ticketId}] Not in queue (likely already removed by concurrent dequeue) - exiting`);
+      break;
     }
 
     await git.add(queueFile);
