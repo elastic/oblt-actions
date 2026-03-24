@@ -33933,7 +33933,7 @@ async function syncBranch(branch, git, deadline, ticketId) {
       // Clean working directory: discard changes and remove untracked files
       try {
         await git.reset(["--hard", "-q"]);
-        await git.clean(["-fd", "-q"]);
+        await git.clean(["-fd", "-q"]); // Dry-run first to avoid deleting files if something's wrong
       } catch (e) {
         core.debug(`[${ticketId}] Cleanup failed: ${e.message}`);
       }
@@ -34166,9 +34166,9 @@ const { setUpRepo, enqueue, waitForLock } = __nccwpck_require__(269);
 async function run() {
   const branch = core.getInput("branch");
   const checkoutLocation = core.getInput("internal_checkout-location");
-  const githubServer = core.getInput("github_server");
+  const githubServer = "github.com";
   const repository = core.getInput("repository");
-  const repoToken = core.getInput("repo-token");
+  const repoToken = core.getInput("github-token");
   const suffix = core.getInput("suffix");
   const timeoutMinutes = parseInt(core.getInput("timeout-minutes") || "30", 10);
 
@@ -34179,9 +34179,9 @@ async function run() {
 
   const queueFile = "mutex_queue";
   const repoUrl = `https://x-access-token:${repoToken}@${githubServer}/${repository}`;
-  const ticketId = `${process.env.GITHUB_RUN_ID}-${Date.now()}-${Math.floor(Math.random() * 1000)}-${suffix}`;
+  const requesterId = `${process.env.GITHUB_RUN_ID}-${Date.now()}-${Math.floor(Math.random() * 1000)}-${suffix}`;
 
-  core.saveState("ticket_id", ticketId);
+  core.saveState("requester_id", requesterId);
 
   core.info(
     `Cloning and checking out ${repository}:${branch} in ${checkoutLocation}`
@@ -34190,8 +34190,8 @@ async function run() {
   fs.mkdirSync(checkoutLocation, { recursive: true });
 
   await setUpRepo(repoUrl, checkoutLocation);
-  await enqueue(branch, queueFile, ticketId, checkoutLocation, timeoutMinutes);
-  await waitForLock(branch, queueFile, ticketId, checkoutLocation, timeoutMinutes);
+  await enqueue(branch, queueFile, requesterId, checkoutLocation, timeoutMinutes);
+  await waitForLock(branch, queueFile, requesterId, checkoutLocation, timeoutMinutes);
 
   core.info("Lock successfully acquired");
 }

@@ -2,14 +2,10 @@
 name: 'Mutex Action'
 description: 'A simple locking/unlocking mechanism to provide mutual exclusion in Github Actions'
 inputs:
-  repo-token:
+  github-token:
     description: 'The token for accessing the repo.'
     required: false
     default: ${{ github.token }}
-  github_server:
-    description: 'The GitHub server URL without `https`.'
-    required: false
-    default: github.com
   repository:
     description: 'The repository path that stores the lock (e.g `elastic/oblt-actions`).'
     required: false
@@ -31,6 +27,6 @@ inputs:
     required: false
     default: '30'
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'dist/lock/index.js'
   post: 'dist/unlock/index.js'

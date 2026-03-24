@@ -44,8 +44,8 @@ jobs:
 
 | Input | Description | Required | Default |
 |-------|-------------|----------|---------|
-| `repo-token` | The token for accessing the repo. | No | `${{ github.token }}` |
-| `github_server` | The GitHub server URL without `https://`. Useful for GHES. | No | `github.com` |
+| `github-token` | The token for accessing the repo. | No | `${{ github.token }}` |
+
 | `repository` | The repository path that stores the lock. | No | `${{ github.repository }}` |
 | `branch` | The branch to use for the mutex. | No | `mutex` |
 | `suffix` | Suffix to avoid identical values for parallel/matrix jobs in the same workflow run. | No | `default` |
@@ -61,7 +61,7 @@ You can store the mutex state in a different repository. This allows sharing a m
 - name: Set up mutex
   uses: elastic/oblt-actions/mutex@main
   with:
-    repo-token: ${{ secrets.PAT_TOKEN }}
+    github-token: ${{ secrets.PAT_TOKEN }}
     repository: my-org/shared-mutex-repo
 ```
 
@@ -90,17 +90,6 @@ By default, the action will wait up to 30 minutes to acquire the lock. You can c
   uses: elastic/oblt-actions/mutex@main
   with:
     timeout-minutes: 60
-```
-
-### GitHub Enterprise Server
-
-Adjust the GitHub server URL by providing the `github_server` input. Do not include `https://`:
-
-```yaml
-- name: Set up mutex
-  uses: elastic/oblt-actions/mutex@main
-  with:
-    github_server: github.example.com
 ```
 
 ## Developing

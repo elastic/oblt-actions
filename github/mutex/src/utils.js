@@ -70,7 +70,7 @@ async function syncBranch(branch, git, deadline, ticketId) {
       // Clean working directory: discard changes and remove untracked files
       try {
         await git.reset(["--hard", "-q"]);
-        await git.clean(["-fd", "-q"]);
+        await git.clean(["-fd", "-q"]); // Dry-run first to avoid deleting files if something's wrong
       } catch (e) {
         core.debug(`[${ticketId}] Cleanup failed: ${e.message}`);
       }

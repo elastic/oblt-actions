@@ -5,9 +5,9 @@ const { setUpRepo, dequeue } = require("./utils");
 async function run() {
   const branch = core.getInput("branch");
   const checkoutLocation = core.getInput("internal_checkout-location");
-  const githubServer = core.getInput("github_server");
+  const githubServer = "github.com";
   const repository = core.getInput("repository");
-  const repoToken = core.getInput("repo-token");
+  const repoToken = core.getInput("github-token");
   const timeoutMinutes = parseInt(core.getInput("timeout-minutes") || "30", 10);
 
   if (isNaN(timeoutMinutes) || timeoutMinutes <= 0) {
@@ -17,12 +17,12 @@ async function run() {
 
   const queueFile = "mutex_queue";
   const repoUrl = `https://x-access-token:${repoToken}@${githubServer}/${repository}`;
-  const ticketId = core.getState("ticket_id");
+  const requesterId = core.getState("requester_id");
 
   fs.mkdirSync(checkoutLocation, { recursive: true });
 
   await setUpRepo(repoUrl, checkoutLocation);
-  await dequeue(branch, queueFile, ticketId, checkoutLocation, timeoutMinutes);
+  await dequeue(branch, queueFile, requesterId, checkoutLocation, timeoutMinutes);
 
   core.info("Successfully unlocked");
 }
