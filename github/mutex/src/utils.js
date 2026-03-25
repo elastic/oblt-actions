@@ -144,7 +144,7 @@ async function enqueue(branch, queueFile, ticketId, cwd, timeoutMinutes) {
     const lines = readQueue(queuePath);
     if (lines.includes(ticketId)) break;
 
-    core.info(`[${ticketId}] Adding ourself to the queue file ${queueFile}`);
+    core.info(`[${ticketId}] Adding ourselves to the queue file ${queueFile}`);
     writeQueue(queuePath, [...lines, ticketId]);
 
     await git.add(queueFile);
