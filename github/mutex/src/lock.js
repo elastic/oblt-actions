@@ -19,6 +19,7 @@ async function run() {
   const queueFile = "mutex_queue";
   const repoUrl = `https://x-access-token:${repoToken}@${githubServer}/${repository}`;
   const requesterId = `${process.env.GITHUB_RUN_ID}-${Date.now()}-${Math.floor(Math.random() * 1000)}-${suffix}`;
+  const enqueueTimeoutMinutes = 3; // Short timeout for enqueue to fail fast if something is wrong with git setup or repo access
 
   core.saveState("requester_id", requesterId);
 
@@ -29,7 +30,7 @@ async function run() {
   fs.mkdirSync(checkoutLocation, { recursive: true });
 
   await setUpRepo(repoUrl, checkoutLocation);
-  await enqueue(branch, queueFile, requesterId, checkoutLocation, timeoutMinutes);
+  await enqueue(branch, queueFile, requesterId, checkoutLocation, enqueueTimeoutMinutes);
   await waitForLock(branch, queueFile, requesterId, checkoutLocation, timeoutMinutes);
 
   core.info("Lock successfully acquired");

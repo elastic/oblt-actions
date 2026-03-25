@@ -17,9 +17,9 @@ inputs:
   internal_checkout-location:
     description: '[Internal] The location to store the mutex repo'
     required: false
-    default: '/tmp/mutex/repo'
+    default: '${{ runner.temp }}/mutex/${{ github.run_id }}-${{ github.run_attempt }}/repo'
   suffix:
-    description: 'Ticket id suffix to avoid identical values for parallel/matrix jobs in the same workflow run'
+    description: 'Requester id suffix to avoid identical values for parallel/matrix jobs in the same workflow run'
     required: false
     default: 'default'
   timeout-minutes:

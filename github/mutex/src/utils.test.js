@@ -13,7 +13,7 @@ jest.mock("simple-git", () => jest.fn());
 
 const core = require("@actions/core");
 const simpleGit = require("simple-git");
-const { setUpRepo, updateBranch, enqueue, dequeue } = require("./utils");
+const { setUpRepo, syncBranch, enqueue, dequeue } = require("./utils");
 
 function createGitMock() {
   return {
@@ -59,7 +59,7 @@ describe("utils", () => {
     expect(git.addRemote).toHaveBeenCalledWith("origin", "https://example/repo");
   });
 
-  test("updateBranch syncs tracking branch then creates orphan if tracking fails", async () => {
+  test("syncBranch syncs tracking branch then creates orphan if tracking fails", async () => {
     const git = createGitMock();
     // First checkout (tracking) fails, second checkout (orphan) succeeds
     git.checkout
@@ -67,11 +67,11 @@ describe("utils", () => {
       .mockResolvedValueOnce(undefined);
 
     const deadline = { endTime: Date.now() + 60000, startTime: Date.now(), timeoutMinutes: 1 };
-    await updateBranch("mutex", git, deadline, "test-job");
+    await syncBranch("mutex", git, deadline, "test-job");
 
     // Should attempt reset/clean
-    expect(git.reset).toHaveBeenCalledWith(["--hard", "-q"]);
-    expect(git.clean).toHaveBeenCalledWith(["-fd", "-q"]);
+    expect(git.reset).toHaveBeenCalledWith(["--hard", "--quiet"]);
+    expect(git.clean).toHaveBeenCalledWith(["--force", "-d", "--quiet"]);
     // Should delete local branch
     expect(git.branch).toHaveBeenCalledWith(["-D", "mutex", "-q"]);
     // Should fetch from remote
@@ -82,14 +82,14 @@ describe("utils", () => {
     expect(git.checkout).toHaveBeenNthCalledWith(2, ["-q", "--orphan", "mutex"]);
   });
 
-  test("updateBranch successfully checks out tracking branch", async () => {
+  test("syncBranch successfully checks out tracking branch", async () => {
     const git = createGitMock();
     const deadline = { endTime: Date.now() + 60000, startTime: Date.now(), timeoutMinutes: 1 };
-    await updateBranch("mutex", git, deadline, "test-job");
+    await syncBranch("mutex", git, deadline, "test-job");
 
     // Should attempt reset/clean
-    expect(git.reset).toHaveBeenCalledWith(["--hard", "-q"]);
-    expect(git.clean).toHaveBeenCalledWith(["-fd", "-q"]);
+    expect(git.reset).toHaveBeenCalledWith(["--hard", "--quiet"]);
+    expect(git.clean).toHaveBeenCalledWith(["--force", "-d", "--quiet"]);
     // Should delete local branch
     expect(git.branch).toHaveBeenCalledWith(["-D", "mutex", "-q"]);
     // Should fetch from remote
@@ -98,33 +98,33 @@ describe("utils", () => {
     expect(git.checkout).toHaveBeenNthCalledWith(1, ["-B", "mutex", "origin/mutex", "-q"]);
   });
 
-  test("enqueue appends ticket and pushes commit", async () => {
+  test("enqueue appends request and pushes commit", async () => {
     const git = createGitMock();
     simpleGit.mockReturnValue(git);
     const cwd = createTempDir();
 
     try {
-      await enqueue("mutex", "mutex_queue", "ticket-1", cwd, 30);
+      await enqueue("mutex", "mutex_queue", "requester-1", cwd, 30);
 
       const queueContent = fs.readFileSync(path.join(cwd, "mutex_queue"), "utf8");
-      expect(queueContent).toBe("ticket-1\n");
+      expect(queueContent).toBe("requester-1\n");
       expect(git.add).toHaveBeenCalledWith("mutex_queue");
-      expect(git.commit).toHaveBeenCalledWith("[ticket-1] Enqueue ", ["-q"]);
+      expect(git.commit).toHaveBeenCalledWith("[requester-1] Enqueue", ["-q"]);
       expect(git.push).toHaveBeenCalledWith(["--set-upstream", "origin", "mutex", "-q"]);
     } finally {
       fs.rmSync(cwd, { recursive: true, force: true });
     }
   });
 
-  test("enqueue does not append duplicate ticket", async () => {
+  test("enqueue does not append duplicate request", async () => {
     const git = createGitMock();
     simpleGit.mockReturnValue(git);
     const cwd = createTempDir();
 
     try {
-      fs.writeFileSync(path.join(cwd, "mutex_queue"), "ticket-1\n");
+      fs.writeFileSync(path.join(cwd, "mutex_queue"), "requester-1\n");
 
-      await enqueue("mutex", "mutex_queue", "ticket-1", cwd, 30);
+      await enqueue("mutex", "mutex_queue", "requester-1", cwd, 30);
 
       expect(git.add).not.toHaveBeenCalled();
       expect(git.commit).not.toHaveBeenCalled();
@@ -134,19 +134,19 @@ describe("utils", () => {
     }
   });
 
-  test("dequeue removes head ticket and commits unlock", async () => {
+  test("dequeue removes head request and commits unlock", async () => {
     const git = createGitMock();
     simpleGit.mockReturnValue(git);
     const cwd = createTempDir();
 
     try {
-      fs.writeFileSync(path.join(cwd, "mutex_queue"), "ticket-1\nticket-2\n");
+      fs.writeFileSync(path.join(cwd, "mutex_queue"), "requester-1\nrequester-2\n");
 
-      await dequeue("mutex", "mutex_queue", "ticket-1", cwd, 30);
+      await dequeue("mutex", "mutex_queue", "requester-1", cwd, 30);
 
       const queueContent = fs.readFileSync(path.join(cwd, "mutex_queue"), "utf8");
-      expect(queueContent).toBe("ticket-2\n");
-      expect(git.commit).toHaveBeenCalledWith("[ticket-1] Unlock", ["-q"]);
+      expect(queueContent).toBe("requester-2\n");
+      expect(git.commit).toHaveBeenCalledWith("[requester-1] Unlock", ["-q"]);
       expect(git.push).toHaveBeenCalledWith(["--set-upstream", "origin", "mutex", "-q"]);
     } finally {
       fs.rmSync(cwd, { recursive: true, force: true });
@@ -161,7 +161,7 @@ describe("utils", () => {
 
     try {
       // Use 0 timeout (immediately expired)
-      await expect(enqueue("mutex", "mutex_queue", "ticket-1", cwd, 0)).rejects.toThrow(
+      await expect(enqueue("mutex", "mutex_queue", "requester-1", cwd, 0)).rejects.toThrow(
         expect.objectContaining({
           message: expect.stringMatching(/Enqueue.*timed out/),
         })
@@ -171,7 +171,7 @@ describe("utils", () => {
     }
   });
 
-  test("enqueue timeout error includes ticket ID", async () => {
+  test("enqueue timeout error includes requester ID", async () => {
     const git = createGitMock();
     git.push.mockRejectedValue(new Error("push failed"));
     simpleGit.mockReturnValue(git);
@@ -179,9 +179,9 @@ describe("utils", () => {
 
     try {
       // Use 0 timeout (immediately expired)
-      await expect(enqueue("mutex", "mutex_queue", "ticket-123", cwd, 0)).rejects.toThrow(
+      await expect(enqueue("mutex", "mutex_queue", "requester-123", cwd, 0)).rejects.toThrow(
         expect.objectContaining({
-          message: expect.stringMatching(/\[ticket-123\]/),
+          message: expect.stringMatching(/\[requester-123\]/),
         })
       );
     } finally {
@@ -195,14 +195,14 @@ describe("utils", () => {
     const cwd = createTempDir();
 
     try {
-      fs.writeFileSync(path.join(cwd, "mutex_queue"), "ticket-1\n");
+      fs.writeFileSync(path.join(cwd, "mutex_queue"), "requester-1\n");
 
       // Use 0 timeout (immediately expired)
       await expect(
-        dequeue("mutex", "mutex_queue", "ticket-1", cwd, 0)
+        dequeue("mutex", "mutex_queue", "requester-1", cwd, 0)
       ).rejects.toThrow(
         expect.objectContaining({
-          message: expect.stringMatching(/\[ticket-1\].*Dequeue.*timed out/),
+          message: expect.stringMatching(/\[requester-1\].*Dequeue.*timed out/),
         })
       );
     } finally {
