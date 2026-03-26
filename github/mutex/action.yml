@@ -1,6 +1,6 @@
 # action.yml
 name: 'Mutex Action'
-description: 'A simple locking/unlocking mechanism to provide mutual exclusion in Github Actions'
+description: 'A simple locking/unlocking mechanism to provide mutual exclusion in GitHub Actions'
 inputs:
   github-token:
     description: 'The token for accessing the repo.'

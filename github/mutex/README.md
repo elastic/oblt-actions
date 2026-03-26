@@ -5,7 +5,7 @@
 [![test-github-mutex](https://github.com/elastic/oblt-actions/actions/workflows/test-github-mutex.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-github-mutex.yml)
 
 <!--description-->
-A simple locking/unlocking mechanism to provide mutual exclusion in Github Actions
+A simple locking/unlocking mechanism to provide mutual exclusion in GitHub Actions
 <!--/description-->
 
 ## Inputs
