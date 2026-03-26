@@ -33871,6 +33871,15 @@ const LOCK_POLL_DELAY_MS = 5000;
 const SYNC_MAX_RETRIES = 10;
 const SYNC_RETRY_BACKOFF_MS = 200; // Start at 200ms, exponential backoff
 
+
+function getMutexRepoPath() {
+  const runnerTemp = process.env.RUNNER_TEMP ?? '/tmp';
+  const runAttempt = process.env.GITHUB_RUN_ATTEMPT ?? '1';
+  const runId = process.env.GITHUB_RUN_ID ?? 'local';
+
+  return path.join(runnerTemp, 'mutex', `${runId}-${runAttempt}`, 'repo');
+}
+
 function createDeadline(timeoutMinutes) {
   const startTime = Date.now();
   return {
@@ -34002,7 +34011,7 @@ async function enqueue(branch, queueFile, requesterId, cwd, timeoutMinutes) {
     const lines = readQueue(queuePath);
     if (lines.includes(requesterId)) break;
 
-    core.info(`[${requesterId}] Adding ourself to the queue file ${queueFile}`);
+    core.info(`[${requesterId}] Adding ourselves to the queue file ${queueFile}`);
     writeQueue(queuePath, [...lines, requesterId]);
 
     await git.add(queueFile);
@@ -34159,7 +34168,7 @@ const { setUpRepo, dequeue } = __nccwpck_require__(269);
 
 async function run() {
   const branch = core.getInput("branch");
-  const checkoutLocation = core.getInput("internal_checkout-location");
+  const checkoutLocation = getMutexRepoPath();
   const githubServer = "github.com";
   const repository = core.getInput("repository");
   const repoToken = core.getInput("github-token");

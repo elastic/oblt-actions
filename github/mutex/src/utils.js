@@ -8,6 +8,15 @@ const LOCK_POLL_DELAY_MS = 5000;
 const SYNC_MAX_RETRIES = 10;
 const SYNC_RETRY_BACKOFF_MS = 200; // Start at 200ms, exponential backoff
 
+
+function getMutexRepoPath() {
+  const runnerTemp = process.env.RUNNER_TEMP ?? '/tmp';
+  const runAttempt = process.env.GITHUB_RUN_ATTEMPT ?? '1';
+  const runId = process.env.GITHUB_RUN_ID ?? 'local';
+
+  return path.join(runnerTemp, 'mutex', `${runId}-${runAttempt}`, 'repo');
+}
+
 function createDeadline(timeoutMinutes) {
   const startTime = Date.now();
   return {

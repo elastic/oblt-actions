@@ -4,7 +4,7 @@ const { setUpRepo, enqueue, waitForLock } = require("./utils");
 
 async function run() {
   const branch = core.getInput("branch");
-  const checkoutLocation = core.getInput("internal_checkout-location");
+  const checkoutLocation = getMutexRepoPath();
   const githubServer = "github.com";
   const repository = core.getInput("repository");
   const repoToken = core.getInput("github-token");

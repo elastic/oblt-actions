@@ -14,10 +14,6 @@ inputs:
     description: 'The branch to use for the mutex'
     required: false
     default: 'mutex'
-  internal_checkout-location:
-    description: '[Internal] The location to store the mutex repo'
-    required: false
-    default: '${{ runner.temp }}/mutex/${{ github.run_id }}-${{ github.run_attempt }}/repo'
   suffix:
     description: 'Requester id suffix to avoid identical values for parallel/matrix jobs in the same workflow run'
     required: false
