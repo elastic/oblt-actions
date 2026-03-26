@@ -12,9 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Simple mutex test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up mutex
-        uses: elastic/oblt-actions/mutex@main
+        uses: elastic/oblt-actions/mutex@v1
       - run: |
           echo "I am protected!"
           sleep 5
@@ -59,7 +59,7 @@ You can store the mutex state in a different repository. This allows sharing a m
 
 ```yaml
 - name: Set up mutex
-  uses: elastic/oblt-actions/mutex@main
+  uses: elastic/oblt-actions/mutex@v1
   with:
     github-token: ${{ secrets.PAT_TOKEN }}
     repository: my-org/shared-mutex-repo
@@ -74,9 +74,9 @@ strategy:
   matrix:
     env: [staging, production]
 steps:
-  - uses: actions/checkout@v4
+  - uses: actions/checkout@v6
   - name: Set up mutex
-    uses: elastic/oblt-actions/mutex@main
+    uses: elastic/oblt-actions/mutex@v1
     with:
       suffix: ${{ matrix.env }}
 ```
@@ -87,7 +87,7 @@ By default, the action will wait up to 30 minutes to acquire the lock. You can c
 
 ```yaml
 - name: Set up mutex with custom timeout
-  uses: elastic/oblt-actions/mutex@main
+  uses: elastic/oblt-actions/mutex@v1
   with:
     timeout-minutes: 60
 ```
