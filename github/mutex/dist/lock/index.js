@@ -34118,6 +34118,7 @@ module.exports = {
   enqueue,
   waitForLock,
   dequeue,
+  getMutexRepoPath,
 };
 
 
@@ -34164,7 +34165,7 @@ module.exports = {
 var __webpack_exports__ = {};
 const core = __nccwpck_require__(7484);
 const fs = __nccwpck_require__(9896);
-const { setUpRepo, enqueue, waitForLock } = __nccwpck_require__(269);
+const { setUpRepo, enqueue, waitForLock, getMutexRepoPath } = __nccwpck_require__(269);
 
 async function run() {
   const branch = core.getInput("branch");

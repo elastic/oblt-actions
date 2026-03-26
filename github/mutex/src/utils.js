@@ -255,4 +255,5 @@ module.exports = {
   enqueue,
   waitForLock,
   dequeue,
+  getMutexRepoPath,
 };

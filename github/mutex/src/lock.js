@@ -1,6 +1,6 @@
 const core = require("@actions/core");
 const fs = require("fs");
-const { setUpRepo, enqueue, waitForLock } = require("./utils");
+const { setUpRepo, enqueue, waitForLock, getMutexRepoPath } = require("./utils");
 
 async function run() {
   const branch = core.getInput("branch");
