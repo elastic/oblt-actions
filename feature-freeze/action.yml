@@ -30,7 +30,7 @@ runs:
 
     - name: Check release freeze
       id: check
-      run: ${{ github.action_path }}/check-release-freeze.sh
+      run: "$GITHUB_ACTION_PATH/check-release-freeze.sh"
       shell: bash
       env:
         FEATURE_FREEZE_FILE: ${{ inputs.feature-freeze-file }}

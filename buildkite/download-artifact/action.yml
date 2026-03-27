@@ -25,7 +25,7 @@ runs:
     - name: Download artifacts
       run: |
         pip install globber==0.2.1
-        python ${{ github.action_path }}/download_artifacts.py
+        python "$GITHUB_ACTION_PATH/download_artifacts.py"
       env:
         ARTIFACT_PATH: ${{ inputs.path }}
         BUILD_NUMBER: ${{ inputs.build-number }}

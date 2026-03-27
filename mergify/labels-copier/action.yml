@@ -35,4 +35,4 @@ runs:
         PR_URL: ${{ github.server_url }}/${{ inputs.repository }}/pull/${{ inputs.pull-request }}
         GH_TOKEN: ${{ inputs.github-token}}
         EXCLUDED_LABEL: ${{ inputs.excluded-labels-regex }}
-      run: ${{ github.action_path }}/copy.sh
+      run: "$GITHUB_ACTION_PATH/copy.sh"

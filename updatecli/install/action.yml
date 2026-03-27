@@ -18,8 +18,8 @@ runs:
       id: set-version
       run: |
         if [[ -z "${VERSION}" && -z "${VERSION_FILE}" ]]; then
-          if [[ -f "${{ github.action_path }}/.default-updatecli-version" ]]; then
-            newversion=$(cat "${{ github.action_path }}/.default-updatecli-version")
+          if [[ -f "$GITHUB_ACTION_PATH/.default-updatecli-version" ]]; then
+            newversion=$(cat "$GITHUB_ACTION_PATH/.default-updatecli-version")
             echo "version=${newversion}" >> $GITHUB_OUTPUT
           else
             echo "::error title=updatecli/install::Default version file not found."

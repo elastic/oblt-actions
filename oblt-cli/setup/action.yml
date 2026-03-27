@@ -26,7 +26,7 @@ runs:
   using: composite
   steps:
     - name: Download oblt-cli and append to PATH
-      run: ${{ github.action_path }}/download.sh
+      run: "$GITHUB_ACTION_PATH/download.sh"
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         OBLT_CLI_VERSION: ${{ inputs.version }}
