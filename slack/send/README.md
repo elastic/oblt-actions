@@ -14,6 +14,14 @@
 | `thread-timestamp` | If you want to post a message as a threaded reply                                                                                                                                                                                                                                                                                                                     | `false`  | ` `     |
 <!--/inputs-->
 
+## Outputs
+
+<!--outputs-->
+| Name               | Description                                                                  |
+|--------------------|------------------------------------------------------------------------------|
+| `thread-timestamp` | The timestamp on the message that was posted into Slack when using bot token |
+<!--/outputs-->
+
 ## Usage
 
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
