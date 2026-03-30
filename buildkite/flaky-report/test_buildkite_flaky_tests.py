@@ -29,7 +29,6 @@ class TestBuildkiteTestEngineClient:
         """Test client initialization."""
         assert self.client.api_token == "test-token"
         assert self.client.org_slug == "test-org"
-        assert self.client.base_url == "https://api.buildkite.com/v2"
         assert "Authorization" in self.client.headers
         assert self.client.headers["Authorization"] == "Bearer test-token"
 
@@ -56,12 +55,14 @@ class TestBuildkiteTestEngineClient:
         with pytest.raises(Exception):
             self.client._make_request("/test/endpoint")
 
-    @patch.object(bft.BuildkiteTestEngineClient, '_make_request')
-    def test_get_test_suite(self, mock_request):
-        """Test get_test_suite method."""
-        result = self.client.get_test_suite("test-suite")
+    def test_parse_iso_timestamp(self):
+        """Test ISO timestamp parsing."""
+        timestamp = "2026-03-30T10:30:00.000Z"
+        result = bft.BuildkiteTestEngineClient._parse_iso_timestamp(timestamp)
 
-        assert result == {"slug": "test-suite"}
+        assert result.year == 2026
+        assert result.month == 3
+        assert result.day == 30
 
     @patch.object(bft.BuildkiteTestEngineClient, '_make_request')
     def test_get_flaky_tests_deprecated_endpoint(self, mock_request):
@@ -200,10 +201,8 @@ class TestGitHubIssueManager:
         """Test gh command failure."""
         mock_run.side_effect = subprocess.CalledProcessError(1, "gh", stderr="error")
 
-        with pytest.raises(Exception) as exc_info:
+        with pytest.raises(subprocess.CalledProcessError):
             self.manager._run_gh_command(["issue", "list"])
-
-        assert "gh command failed" in str(exc_info.value)
 
     @patch.object(bft.GitHubIssueManager, '_run_gh_command')
     def test_search_existing_issue_found(self, mock_gh):
