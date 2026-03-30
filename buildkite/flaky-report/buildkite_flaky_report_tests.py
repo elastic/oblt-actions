@@ -10,7 +10,7 @@ import pytest
 import subprocess
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock, call
+from unittest.mock import Mock, patch
 import tempfile
 import os
 
