@@ -55,7 +55,7 @@ python buildkite_flaky_report.py YOUR_SUITE_ID
 ```bash
 python buildkite_flaky_report.py YOUR_SUITE_ID \
   --branch main \
-  --days 7 \
+  --days 1 \
   --output-dir ./my_flaky_tests \
   --org my-organization \
   --api-token your-token \
