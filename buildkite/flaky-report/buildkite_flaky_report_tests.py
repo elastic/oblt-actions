@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Unit tests for buildkite_flaky_tests.py
+Unit tests for buildkite_flaky_report.py
 
-Run with: pytest test_buildkite_flaky_tests.py -v
+Run with: pytest buildkite_flaky_report_tests.py -v
 """
 
 import json

@@ -29,6 +29,7 @@ API_BASE_URL = "https://api.buildkite.com/v2"
 FLAKY_TESTS_ENDPOINT = "/analytics/organizations/{org}/suites/{suite}/flaky-tests"
 TESTS_ENDPOINT = "/analytics/organizations/{org}/suites/{suite}/tests"
 FLAKY_LABEL = "flaky"
+DEFAULT_TIMEOUT = 30  # seconds
 
 # Default values
 DEFAULT_UNKNOWN = "Unknown"
@@ -39,14 +40,15 @@ DEFAULT_EMPTY = ""
 class BuildkiteTestEngineClient:
     """Client for interacting with Buildkite Test Engine REST API."""
 
-    def __init__(self, api_token: str, org_slug: str):
+    def __init__(self, api_token: str, org_slug: str, timeout: int = DEFAULT_TIMEOUT):
         self.api_token = api_token
         self.org_slug = org_slug
+        self.timeout = timeout
         self.headers = {"Authorization": f"Bearer {api_token}"}
 
     def _make_request(self, endpoint: str, params: Optional[Dict] = None) -> Any:
         url = f"{API_BASE_URL}{endpoint}"
-        response = requests.get(url, headers=self.headers, params=params or {})
+        response = requests.get(url, headers=self.headers, params=params or {}, timeout=self.timeout)
         response.raise_for_status()
         return response.json()
 
@@ -466,7 +468,7 @@ def main():
 
                 if was_created:
                     issues_created += 1
-                    if args.max_issues and issues_created >= args.max_issues:
+                    if args.max_issues is not None and issues_created >= args.max_issues:
                         print(f"\nReached maximum of {args.max_issues} issue(s) created. Stopping.")
                         print(f"Processed {idx} of {len(flaky_tests)} flaky tests.")
                         break
@@ -477,7 +479,7 @@ def main():
         if github_manager and issues_created > 0:
             print(f"\nGitHub Summary:")
             print(f"  New issues created: {issues_created}")
-            if args.max_issues:
+            if args.max_issues is not None:
                 print(f"  Issue creation limit: {args.max_issues}")
 
     except requests.exceptions.HTTPError as e:

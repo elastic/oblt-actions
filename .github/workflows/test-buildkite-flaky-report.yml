@@ -45,7 +45,7 @@ jobs:
           github-repo: ${{ github.repository }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           days: '7'
-          max-issues: '0'
+          max-issues: '1'
           org: 'elastic'
           test-suite-id: 'beats'
           token: ${{ secrets.BUILDKITE_TEST_SUITE_TOKEN }}
@@ -62,10 +62,11 @@ jobs:
         with:
           github-repo: ${{ github.repository }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          days: '0'
           max-issues: '0'
           org: 'elastic'
           test-suite-id: 'beats'
           token: ${{ secrets.BUILDKITE_TEST_SUITE_TOKEN }}
 
-      - name: Assert is oblt-hello-world
+      - name: Assert flaky-test-count is 0
         run: test "${{ steps.buildkite.outputs.flaky-test-count }}" = "0"
