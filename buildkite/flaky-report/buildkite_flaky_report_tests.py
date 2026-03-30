@@ -449,6 +449,120 @@ class TestMaxIssuesLimit:
             json_files = list(Path(tmpdir).glob("*.json"))
             assert len(json_files) == 3
 
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
+    @patch.object(bft.GitHubIssueManager, 'process_flaky_test')
+    @patch('builtins.print')
+    def test_max_issues_mixed_creates_and_updates(self, mock_print, mock_process, mock_get_tests):
+        """Test max-issues counts only new issues created, not updates."""
+        # Return multiple flaky tests
+        mock_get_tests.return_value = [
+            {"name": "Test1", "scope": "scope1", "location": "test1.py:1"},
+            {"name": "Test2", "scope": "scope2", "location": "test2.py:2"},
+            {"name": "Test3", "scope": "scope3", "location": "test3.py:3"},
+            {"name": "Test4", "scope": "scope4", "location": "test4.py:4"},
+        ]
+        # First creates new issue, second updates existing, third creates new, fourth would be skipped
+        mock_process.side_effect = [
+            ("Created new issue", True),
+            ("Added comment to existing issue", False),
+            ("Created new issue", True),
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch('sys.argv', [
+                'buildkite_flaky_report.py', 'test-suite-id',
+                '--org', 'test-org', '--api-token', 'test-token',
+                '--create-github-issues', '--github-repo', 'test/repo',
+                '--max-issues', '2', '--output-dir', tmpdir
+            ]):
+                bft.main()
+
+            # First creates (count=1), second updates (count=1), third creates (count=2), fourth skipped
+            assert mock_process.call_count == 3
+
+            # All 4 tests should have JSON files
+            json_files = list(Path(tmpdir).glob("*.json"))
+            assert len(json_files) == 4
+
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
+    @patch.object(bft.GitHubIssueManager, 'process_flaky_test')
+    @patch('builtins.print')
+    def test_max_issues_limit_on_first_test(self, mock_print, mock_process, mock_get_tests):
+        """Test max-issues=1 stops issue creation after first test."""
+        mock_get_tests.return_value = [
+            {"name": "Test1", "scope": "scope1", "location": "test1.py:1"},
+            {"name": "Test2", "scope": "scope2", "location": "test2.py:2"},
+        ]
+        mock_process.return_value = ("Created new issue", True)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch('sys.argv', [
+                'buildkite_flaky_report.py', 'test-suite-id',
+                '--org', 'test-org', '--api-token', 'test-token',
+                '--create-github-issues', '--github-repo', 'test/repo',
+                '--max-issues', '1', '--output-dir', tmpdir
+            ]):
+                bft.main()
+
+            # Only first test should create issue
+            assert mock_process.call_count == 1
+
+            # Both tests should have JSON files
+            json_files = list(Path(tmpdir).glob("*.json"))
+            assert len(json_files) == 2
+
+            # Verify skip message was printed
+            print_calls = [str(call) for call in mock_print.call_args_list]
+            assert any('Skipping GitHub issue' in call for call in print_calls)
+
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
+    @patch.object(bft.GitHubIssueManager, 'process_flaky_test')
+    @patch('builtins.print')
+    def test_max_issues_summary_output(self, mock_print, mock_process, mock_get_tests):
+        """Test that summary correctly shows skipped count."""
+        mock_get_tests.return_value = [
+            {"name": "Test1", "scope": "scope1", "location": "test1.py:1"},
+            {"name": "Test2", "scope": "scope2", "location": "test2.py:2"},
+            {"name": "Test3", "scope": "scope3", "location": "test3.py:3"},
+        ]
+        mock_process.return_value = ("Created new issue", True)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch('sys.argv', [
+                'buildkite_flaky_report.py', 'test-suite-id',
+                '--org', 'test-org', '--api-token', 'test-token',
+                '--create-github-issues', '--github-repo', 'test/repo',
+                '--max-issues', '1', '--output-dir', tmpdir
+            ]):
+                bft.main()
+
+            # Check summary output
+            print_calls = [str(call) for call in mock_print.call_args_list]
+            assert any('New issues created: 1' in call for call in print_calls)
+            assert any('Issue creation limit: 1' in call for call in print_calls)
+            assert any('Tests skipped (limit reached): 2' in call for call in print_calls)
+
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
+    @patch('builtins.print')
+    def test_no_github_manager_processes_all_tests(self, mock_print, mock_get_tests):
+        """Test that without GitHub manager, all tests are processed."""
+        mock_get_tests.return_value = [
+            {"name": "Test1", "scope": "scope1", "location": "test1.py:1"},
+            {"name": "Test2", "scope": "scope2", "location": "test2.py:2"},
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch('sys.argv', [
+                'buildkite_flaky_report.py', 'test-suite-id',
+                '--org', 'test-org', '--api-token', 'test-token',
+                '--output-dir', tmpdir
+            ]):
+                bft.main()
+
+            # Both tests should have JSON files
+            json_files = list(Path(tmpdir).glob("*.json"))
+            assert len(json_files) == 2
+
 
 class TestHelperFunctions:
     """Tests for helper functions."""
