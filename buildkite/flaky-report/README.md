@@ -42,9 +42,15 @@ Detects flaky tests from Buildkite Test Engine and creates/updates GitHub issues
 jobs:
   run-buildkite:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     steps:
       - uses: elastic/oblt-actions/buildkite/flaky-report@v1
         with:
           token: ${{ secrets.BUILDKITE_TOKEN }}
+          test-suite-id: 'your-test-suite-uuid'
+          github-repo: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 <!--/usage-->
