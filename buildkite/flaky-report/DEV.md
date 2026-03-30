@@ -77,7 +77,8 @@ python buildkite_flaky_report.py YOUR_SUITE_ID \
 - `--per-page`: Number of results per page for pagination (default: 100)
 - `--create-github-issues`: Enable GitHub issue creation/updates for flaky tests
 - `--github-repo`: GitHub repository in format `owner/repo` (required if `--create-github-issues` is used)
-- `--max-issues`: Maximum number of new GitHub issues to create before stopping (default: no limit, e.g., `--max-issues 2`)
+- `--max-issues`: Maximum number of new GitHub issues to create (default: no limit, e.g., `--max-issues 2`)
+  - Note: This limits only GitHub issue creation; all flaky tests are still detected and saved as JSON files
 - `--github-issue-title-prefix`: Prefix for GitHub issue titles (default: empty, no prefix)
 - `--github-label`: Label to apply to GitHub issues (default: none)
 

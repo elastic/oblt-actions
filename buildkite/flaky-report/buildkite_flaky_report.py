@@ -357,7 +357,7 @@ def main():
     )
     parser.add_argument(
         "--max-issues",
-        help="Maximum number of new GitHub issues to create before stopping (default: no limit)",
+        help="Maximum number of new GitHub issues to create (limits issue creation only, not test detection; default: no limit)",
         type=int,
         default=None
     )
@@ -472,25 +472,26 @@ def main():
             if github_manager:
                 # Check limit before processing
                 if args.max_issues is not None and issues_created >= args.max_issues:
-                    print(f"\nReached maximum of {args.max_issues} issue(s) created. Stopping.")
-                    print(f"Processed {idx - 1} of {len(flaky_tests)} flaky tests.")
-                    break
+                    print(f"  Skipping GitHub issue (limit of {args.max_issues} reached)")
+                else:
+                    print(f"  Processing GitHub issue...", end=" ")
+                    status, was_created = github_manager.process_flaky_test(test_data)
+                    print(status)
 
-                print(f"  Processing GitHub issue...", end=" ")
-                status, was_created = github_manager.process_flaky_test(test_data)
-                print(status)
-
-                if was_created:
-                    issues_created += 1
+                    if was_created:
+                        issues_created += 1
 
         print("\n" + "-" * 80)
         print(f"\nAll flaky test reports saved to: {output_dir}")
 
-        if github_manager and issues_created > 0:
+        if github_manager:
             print(f"\nGitHub Summary:")
             print(f"  New issues created: {issues_created}")
             if args.max_issues is not None:
                 print(f"  Issue creation limit: {args.max_issues}")
+                if issues_created >= args.max_issues and len(flaky_tests) > issues_created:
+                    skipped = len(flaky_tests) - issues_created
+                    print(f"  Tests skipped (limit reached): {skipped}")
 
     except requests.exceptions.HTTPError as e:
         print(f"HTTP Error: {e}", file=sys.stderr)

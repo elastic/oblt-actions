@@ -392,17 +392,11 @@ class TestGitHubIssueManager:
 class TestMaxIssuesLimit:
     """Tests for max-issues limit functionality."""
 
-    @patch('sys.argv', [
-        'buildkite_flaky_report.py', 'test-suite-id',
-        '--org', 'test-org', '--api-token', 'test-token',
-        '--create-github-issues', '--github-repo', 'test/repo',
-        '--max-issues', '0'
-    ])
     @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
     @patch.object(bft.GitHubIssueManager, 'process_flaky_test')
     @patch('builtins.print')
     def test_max_issues_zero_creates_no_issues(self, mock_print, mock_process, mock_get_tests):
-        """Test that max-issues=0 creates no GitHub issues."""
+        """Test that max-issues=0 creates no GitHub issues but still writes JSON files."""
         # Return some flaky tests
         mock_get_tests.return_value = [
             {"name": "Test1", "scope": "scope1", "location": "test1.py:1"},
@@ -418,20 +412,18 @@ class TestMaxIssuesLimit:
             ]):
                 bft.main()
 
-        # process_flaky_test should never be called because max-issues is 0
-        mock_process.assert_not_called()
+            # process_flaky_test should never be called because max-issues is 0
+            mock_process.assert_not_called()
 
-    @patch('sys.argv', [
-        'buildkite_flaky_report.py', 'test-suite-id',
-        '--org', 'test-org', '--api-token', 'test-token',
-        '--create-github-issues', '--github-repo', 'test/repo',
-        '--max-issues', '2'
-    ])
+            # But JSON files should still be written for all tests
+            json_files = list(Path(tmpdir).glob("*.json"))
+            assert len(json_files) == 2
+
     @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
     @patch.object(bft.GitHubIssueManager, 'process_flaky_test')
     @patch('builtins.print')
     def test_max_issues_limit_enforced(self, mock_print, mock_process, mock_get_tests):
-        """Test that max-issues limit stops processing after limit reached."""
+        """Test that max-issues limits GitHub issue creation but processes all tests."""
         # Return multiple flaky tests
         mock_get_tests.return_value = [
             {"name": "Test1", "scope": "scope1", "location": "test1.py:1"},
@@ -450,8 +442,12 @@ class TestMaxIssuesLimit:
             ]):
                 bft.main()
 
-        # Should only process 2 tests, not all 3
-        assert mock_process.call_count == 2
+            # Should only create 2 GitHub issues (the limit)
+            assert mock_process.call_count == 2
+
+            # But should still write JSON files for all 3 tests
+            json_files = list(Path(tmpdir).glob("*.json"))
+            assert len(json_files) == 3
 
 
 class TestHelperFunctions:
