@@ -7,9 +7,10 @@ inputs:
   token:
     description: 'Buildkite API token'
     required: true
-  buildkite-org-slug:
-    description: 'Buildkite organization slug'
-    required: true
+  org:
+    description: 'Buildkite org to interact with.'
+    default: elastic
+    required: false
   test-suite-id:
     description: 'Buildkite test suite ID (UUID)'
     required: true
@@ -50,7 +51,7 @@ inputs:
   python-version:
     description: 'Python version to use'
     required: false
-    default: '3.11'
+    default: '3.13'
 
 outputs:
   flaky-test-count:
@@ -77,7 +78,7 @@ runs:
       env:
         BRANCH: ${{ inputs.branch }}
         BUILDKITE_API_TOKEN: ${{ inputs.token }}
-        BUILDKITE_ORG_SLUG: ${{ inputs.buildkite-org-slug }}
+        BUILDKITE_ORG_SLUG: ${{ inputs.org }}
         DAYS: ${{ inputs.days }}
         ENDPOINT: ${{ inputs.endpoint }}
         GH_TOKEN: ${{ inputs.github-token }}
