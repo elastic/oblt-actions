@@ -81,9 +81,9 @@ class BuildkiteTestEngineClient:
 
         all_tests = self._fetch_paginated(endpoint, params, per_page)
 
-        if days and use_deprecated_endpoint:
+        if days is not None and use_deprecated_endpoint:
             return self._filter_by_days(all_tests, days)
-        elif days and not use_deprecated_endpoint:
+        elif days is not None and not use_deprecated_endpoint:
             print("Warning: Cannot filter by days with current endpoint (no timestamp fields)")
 
         return all_tests
@@ -383,11 +383,19 @@ def main():
         print("Error: Organization slug is required. Set BUILDKITE_ORG_SLUG or use --org", file=sys.stderr)
         sys.exit(1)
 
+    if args.days is not None and args.days < 0:
+        print("Error: --days must be >= 0", file=sys.stderr)
+        sys.exit(1)
+
+    if args.max_issues is not None and args.max_issues < 0:
+        print("Error: --max-issues must be >= 0", file=sys.stderr)
+        sys.exit(1)
+
     if args.create_github_issues and not args.github_repo:
         print("Error: --github-repo is required when --create-github-issues is specified", file=sys.stderr)
         sys.exit(1)
 
-    if args.days and args.endpoint == "current":
+    if args.days is not None and args.endpoint == "current":
         print("Warning: --days filtering is not supported with --endpoint current", file=sys.stderr)
         print("         The 'current' endpoint doesn't provide timestamp fields.", file=sys.stderr)
         print("         Use --endpoint deprecated (default) for date-based filtering.", file=sys.stderr)
@@ -423,7 +431,7 @@ def main():
         print(f"Using endpoint: {args.endpoint}")
         if args.branch:
             print(f"Branch filter: {args.branch}")
-        if args.days:
+        if args.days is not None:
             print(f"Time filter: Last {args.days} days")
 
         flaky_tests = client.get_flaky_tests(
@@ -436,7 +444,7 @@ def main():
 
         if not flaky_tests:
             print("\nNo flaky tests detected!")
-            if args.days:
+            if args.days is not None:
                 print(f"(No tests were flaky in the last {args.days} days)")
             return
 
@@ -462,16 +470,18 @@ def main():
             print(f"  Saved to: {filepath}")
 
             if github_manager:
+                # Check limit before processing
+                if args.max_issues is not None and issues_created >= args.max_issues:
+                    print(f"\nReached maximum of {args.max_issues} issue(s) created. Stopping.")
+                    print(f"Processed {idx - 1} of {len(flaky_tests)} flaky tests.")
+                    break
+
                 print(f"  Processing GitHub issue...", end=" ")
                 status, was_created = github_manager.process_flaky_test(test_data)
                 print(status)
 
                 if was_created:
                     issues_created += 1
-                    if args.max_issues is not None and issues_created >= args.max_issues:
-                        print(f"\nReached maximum of {args.max_issues} issue(s) created. Stopping.")
-                        print(f"Processed {idx} of {len(flaky_tests)} flaky tests.")
-                        break
 
         print("\n" + "-" * 80)
         print(f"\nAll flaky test reports saved to: {output_dir}")

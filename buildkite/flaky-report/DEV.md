@@ -66,7 +66,7 @@ python buildkite_flaky_report.py YOUR_SUITE_ID \
 
 - `suite_id` (required): The test suite ID (UUID from your suite URL)
 - `--branch`: Branch to filter tests by
-- `--days`: Only include tests that were flaky in the last N days (e.g., `--days 7` for last week, default: 7)
+- `--days`: Only include tests that were flaky in the last N days (e.g., `--days 7` for last week, default: 1)
   - ⚠️ **Only works with `--endpoint deprecated`** (current endpoint has no timestamp fields)
 - `--endpoint`: API endpoint to use (default: `deprecated`)
   - `deprecated` - Uses `/flaky-tests` endpoint with richer data (instances, timestamps, resolution status)
@@ -224,10 +224,11 @@ The script can automatically create and manage GitHub issues for flaky tests usi
 
 When you enable `--create-github-issues`, the script will:
 
-1. **Search for existing issues** - Looks for issues with matching test name and the `flaky-test` label
+1. **Search for existing issues** - Looks for issues with matching test name (optionally filtered by label if `--github-label` is provided)
 2. **If no issue exists** - Creates a new issue with:
    - Title: `{scope} {test_name}`
    - Body: Test details, location, Buildkite link, flaky instances, timestamps
+   - Label: Applied if `--github-label` is provided
 3. **If closed issue exists** - Creates a new issue (test became flaky again)
 4. **If open issue exists** - Adds a comment with updated information
 
