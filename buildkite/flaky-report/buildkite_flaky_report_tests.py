@@ -554,42 +554,38 @@ class TestDateFiltering:
 class TestCLIValidation:
     """Tests for CLI argument validation."""
 
-    @patch('sys.exit')
     @patch('builtins.print')
-    def test_negative_days_validation(self, mock_print, mock_exit):
+    def test_negative_days_validation(self, mock_print):
         """Test that negative days value is rejected."""
         with patch('sys.argv', ['buildkite_flaky_report.py', 'test-suite-id', '--org', 'test-org', '--api-token', 'test-token', '--days', '-1']):
-            bft.main()
+            with pytest.raises(SystemExit) as exc_info:
+                bft.main()
 
-            mock_exit.assert_called_with(1)
+            assert exc_info.value.code == 1
             # Check that error message was printed to stderr
             print_calls = [str(call) for call in mock_print.call_args_list]
             assert any('--days must be >= 0' in call for call in print_calls)
 
-    @patch('sys.exit')
     @patch('builtins.print')
-    def test_negative_max_issues_validation(self, mock_print, mock_exit):
+    def test_negative_max_issues_validation(self, mock_print):
         """Test that negative max-issues value is rejected."""
         with patch('sys.argv', ['buildkite_flaky_report.py', 'test-suite-id', '--org', 'test-org', '--api-token', 'test-token', '--max-issues', '-5']):
-            bft.main()
+            with pytest.raises(SystemExit) as exc_info:
+                bft.main()
 
-            mock_exit.assert_called_with(1)
+            assert exc_info.value.code == 1
             # Check that error message was printed to stderr
             print_calls = [str(call) for call in mock_print.call_args_list]
             assert any('--max-issues must be >= 0' in call for call in print_calls)
 
-    @patch('sys.exit')
     @patch('builtins.print')
-    def test_days_zero_is_valid(self, mock_print, mock_exit):
+    def test_days_zero_is_valid(self, mock_print):
         """Test that days=0 is accepted (not treated as falsy)."""
-        with patch('sys.argv', ['buildkite_flaky_report.py', 'test-suite-id', '--org', 'test-org', '--api-token', 'test-token', '--days', '0']):
-            with patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests', return_value=[]):
-                with tempfile.TemporaryDirectory() as tmpdir:
-                    with patch('sys.argv', ['buildkite_flaky_report.py', 'test-suite-id', '--org', 'test-org', '--api-token', 'test-token', '--days', '0', '--output-dir', tmpdir]):
-                        bft.main()
-
-                        # Should not exit with error
-                        mock_exit.assert_not_called()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch('sys.argv', ['buildkite_flaky_report.py', 'test-suite-id', '--org', 'test-org', '--api-token', 'test-token', '--days', '0', '--output-dir', tmpdir]):
+                with patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests', return_value=[]):
+                    # Should not raise SystemExit - if it completes, days=0 was accepted
+                    bft.main()
 
 
 class TestEdgeCases:
