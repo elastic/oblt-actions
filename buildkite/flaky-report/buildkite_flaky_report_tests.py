@@ -174,6 +174,48 @@ class TestBuildkiteTestEngineClient:
         assert len(result) == 101
         assert mock_request.call_count == 2
 
+    @patch.object(bft.BuildkiteTestEngineClient, '_make_request')
+    @patch.object(bft.BuildkiteTestEngineClient, '_filter_by_days')
+    def test_get_flaky_tests_with_days_zero(self, mock_filter, mock_request):
+        """Test get_flaky_tests with days=0 calls filter (not treated as falsy)."""
+        mock_request.return_value = [
+            {"id": "1", "name": "test1"},
+            {"id": "2", "name": "test2"},
+        ]
+        mock_filter.return_value = [{"id": "1", "name": "test1"}]
+
+        result = self.client.get_flaky_tests(
+            "suite-id",
+            days=0,
+            use_deprecated_endpoint=True
+        )
+
+        # The key test: _filter_by_days should be called even when days=0
+        # (Previously it wasn't called because "if days" treated 0 as falsy)
+        mock_filter.assert_called_once()
+        call_args = mock_filter.call_args[0]
+        assert call_args[1] == 0  # days parameter should be 0
+
+    @patch.object(bft.BuildkiteTestEngineClient, '_make_request')
+    @patch.object(bft.BuildkiteTestEngineClient, '_filter_by_days')
+    def test_get_flaky_tests_with_days_none_skips_filter(self, mock_filter, mock_request):
+        """Test get_flaky_tests with days=None skips filtering."""
+        mock_request.return_value = [
+            {"id": "1", "name": "test1"},
+            {"id": "2", "name": "test2"},
+        ]
+
+        result = self.client.get_flaky_tests(
+            "suite-id",
+            days=None,
+            use_deprecated_endpoint=True
+        )
+
+        # _filter_by_days should NOT be called when days=None
+        mock_filter.assert_not_called()
+        # Should return all tests unfiltered
+        assert len(result) == 2
+
 
 class TestGitHubIssueManager:
     """Tests for GitHubIssueManager class."""
@@ -349,6 +391,71 @@ class TestGitHubIssueManager:
         mock_comment.assert_called_once()
 
 
+class TestMaxIssuesLimit:
+    """Tests for max-issues limit functionality."""
+
+    @patch('sys.argv', [
+        'buildkite_flaky_report.py', 'test-suite-id',
+        '--org', 'test-org', '--api-token', 'test-token',
+        '--create-github-issues', '--github-repo', 'test/repo',
+        '--max-issues', '0'
+    ])
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
+    @patch.object(bft.GitHubIssueManager, 'process_flaky_test')
+    @patch('builtins.print')
+    def test_max_issues_zero_creates_no_issues(self, mock_print, mock_process, mock_get_tests):
+        """Test that max-issues=0 creates no GitHub issues."""
+        # Return some flaky tests
+        mock_get_tests.return_value = [
+            {"name": "Test1", "scope": "scope1", "location": "test1.py:1"},
+            {"name": "Test2", "scope": "scope2", "location": "test2.py:2"}
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch('sys.argv', [
+                'buildkite_flaky_report.py', 'test-suite-id',
+                '--org', 'test-org', '--api-token', 'test-token',
+                '--create-github-issues', '--github-repo', 'test/repo',
+                '--max-issues', '0', '--output-dir', tmpdir
+            ]):
+                bft.main()
+
+        # process_flaky_test should never be called because max-issues is 0
+        mock_process.assert_not_called()
+
+    @patch('sys.argv', [
+        'buildkite_flaky_report.py', 'test-suite-id',
+        '--org', 'test-org', '--api-token', 'test-token',
+        '--create-github-issues', '--github-repo', 'test/repo',
+        '--max-issues', '2'
+    ])
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
+    @patch.object(bft.GitHubIssueManager, 'process_flaky_test')
+    @patch('builtins.print')
+    def test_max_issues_limit_enforced(self, mock_print, mock_process, mock_get_tests):
+        """Test that max-issues limit stops processing after limit reached."""
+        # Return multiple flaky tests
+        mock_get_tests.return_value = [
+            {"name": "Test1", "scope": "scope1", "location": "test1.py:1"},
+            {"name": "Test2", "scope": "scope2", "location": "test2.py:2"},
+            {"name": "Test3", "scope": "scope3", "location": "test3.py:3"},
+        ]
+        # Each call creates a new issue
+        mock_process.return_value = ("Created new issue", True)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch('sys.argv', [
+                'buildkite_flaky_report.py', 'test-suite-id',
+                '--org', 'test-org', '--api-token', 'test-token',
+                '--create-github-issues', '--github-repo', 'test/repo',
+                '--max-issues', '2', '--output-dir', tmpdir
+            ]):
+                bft.main()
+
+        # Should only process 2 tests, not all 3
+        assert mock_process.call_count == 2
+
+
 class TestHelperFunctions:
     """Tests for helper functions."""
 
@@ -444,6 +551,47 @@ class TestDateFiltering:
 
         # Both tests should be included
         assert len(result) == 2
+
+
+class TestCLIValidation:
+    """Tests for CLI argument validation."""
+
+    @patch('sys.exit')
+    @patch('builtins.print')
+    def test_negative_days_validation(self, mock_print, mock_exit):
+        """Test that negative days value is rejected."""
+        with patch('sys.argv', ['buildkite_flaky_report.py', 'test-suite-id', '--org', 'test-org', '--api-token', 'test-token', '--days', '-1']):
+            bft.main()
+
+            mock_exit.assert_called_with(1)
+            # Check that error message was printed to stderr
+            print_calls = [str(call) for call in mock_print.call_args_list]
+            assert any('--days must be >= 0' in call for call in print_calls)
+
+    @patch('sys.exit')
+    @patch('builtins.print')
+    def test_negative_max_issues_validation(self, mock_print, mock_exit):
+        """Test that negative max-issues value is rejected."""
+        with patch('sys.argv', ['buildkite_flaky_report.py', 'test-suite-id', '--org', 'test-org', '--api-token', 'test-token', '--max-issues', '-5']):
+            bft.main()
+
+            mock_exit.assert_called_with(1)
+            # Check that error message was printed to stderr
+            print_calls = [str(call) for call in mock_print.call_args_list]
+            assert any('--max-issues must be >= 0' in call for call in print_calls)
+
+    @patch('sys.exit')
+    @patch('builtins.print')
+    def test_days_zero_is_valid(self, mock_print, mock_exit):
+        """Test that days=0 is accepted (not treated as falsy)."""
+        with patch('sys.argv', ['buildkite_flaky_report.py', 'test-suite-id', '--org', 'test-org', '--api-token', 'test-token', '--days', '0']):
+            with patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests', return_value=[]):
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    with patch('sys.argv', ['buildkite_flaky_report.py', 'test-suite-id', '--org', 'test-org', '--api-token', 'test-token', '--days', '0', '--output-dir', tmpdir]):
+                        bft.main()
+
+                        # Should not exit with error
+                        mock_exit.assert_not_called()
 
 
 class TestEdgeCases:
