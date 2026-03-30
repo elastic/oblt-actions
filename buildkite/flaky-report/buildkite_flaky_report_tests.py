@@ -660,6 +660,89 @@ class TestDateFiltering:
         # Both tests should be included
         assert len(result) == 2
 
+    @patch.object(bft.BuildkiteTestEngineClient, '_make_request')
+    @patch('builtins.print')
+    def test_filter_by_days_actual_filtering(self, mock_print, mock_request):
+        """Test actual date filtering with different timestamps."""
+        client = bft.BuildkiteTestEngineClient("token", "org")
+        now = datetime.now(timezone.utc)
+
+        # Create tests with various ages
+        tests = [
+            {"id": "1", "name": "very_old", "latest_occurrence_at": (now - timedelta(days=30)).isoformat()},
+            {"id": "2", "name": "old", "latest_occurrence_at": (now - timedelta(days=10)).isoformat()},
+            {"id": "3", "name": "recent", "latest_occurrence_at": (now - timedelta(days=3)).isoformat()},
+            {"id": "4", "name": "today", "latest_occurrence_at": (now - timedelta(hours=2)).isoformat()},
+        ]
+
+        mock_request.return_value = tests
+
+        # Filter to last 7 days
+        result = client.get_flaky_tests("suite-id", days=7, use_deprecated_endpoint=True)
+
+        # Should only get tests from last 7 days (recent and today)
+        assert len(result) == 2
+        names = [t["name"] for t in result]
+        assert "recent" in names
+        assert "today" in names
+        assert "old" not in names
+        assert "very_old" not in names
+
+    @patch.object(bft.BuildkiteTestEngineClient, '_make_request')
+    @patch('builtins.print')
+    def test_filter_with_invalid_date_format(self, mock_print, mock_request):
+        """Test that invalid date formats are handled gracefully."""
+        client = bft.BuildkiteTestEngineClient("token", "org")
+        now = datetime.now(timezone.utc)
+
+        tests = [
+            {"id": "1", "name": "invalid_date", "latest_occurrence_at": "not-a-date"},
+            {"id": "2", "name": "valid_date", "latest_occurrence_at": (now - timedelta(days=1)).isoformat()},
+        ]
+
+        mock_request.return_value = tests
+
+        # Should not crash, should include test with invalid date
+        result = client.get_flaky_tests("suite-id", days=7, use_deprecated_endpoint=True)
+
+        assert len(result) == 2  # Both included (invalid dates are preserved)
+
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
+    @patch('builtins.print')
+    def test_days_zero_message_output(self, mock_print, mock_get_tests):
+        """Test that days=0 shows correct message in output."""
+        mock_get_tests.return_value = []
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch('sys.argv', [
+                'buildkite_flaky_report.py', 'test-suite-id',
+                '--org', 'test-org', '--api-token', 'test-token',
+                '--days', '0', '--output-dir', tmpdir
+            ]):
+                bft.main()
+
+            # Check that "Last 0 days" appears in output
+            print_calls = [str(call) for call in mock_print.call_args_list]
+            assert any('Last 0 days' in call for call in print_calls)
+
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
+    @patch('builtins.print')
+    def test_days_default_shows_time_filter(self, mock_print, mock_get_tests):
+        """Test that default days value (1) shows time filter message."""
+        mock_get_tests.return_value = []
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch('sys.argv', [
+                'buildkite_flaky_report.py', 'test-suite-id',
+                '--org', 'test-org', '--api-token', 'test-token',
+                '--output-dir', tmpdir
+            ]):
+                bft.main()
+
+            # Default days=1 should show "Time filter: Last 1 days"
+            print_calls = [str(call) for call in mock_print.call_args_list]
+            assert any('Time filter: Last 1 days' in call for call in print_calls)
+
 
 class TestCLIValidation:
     """Tests for CLI argument validation."""
@@ -697,6 +780,35 @@ class TestCLIValidation:
                     # Should not raise SystemExit - if it completes, days=0 was accepted
                     bft.main()
 
+
+class TestOutputValidation:
+    """Tests for output count and file generation."""
+
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
+    @patch('builtins.print')
+    def test_output_count_matches_detected_tests(self, mock_print, mock_get_tests):
+        """Test that output count reflects all detected tests, not just issues created."""
+        mock_get_tests.return_value = [
+            {"name": "Test1", "scope": "scope1", "location": "test1.py:1"},
+            {"name": "Test2", "scope": "scope2", "location": "test2.py:2"},
+            {"name": "Test3", "scope": "scope3", "location": "test3.py:3"},
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch('sys.argv', [
+                'buildkite_flaky_report.py', 'test-suite-id',
+                '--org', 'test-org', '--api-token', 'test-token',
+                '--output-dir', tmpdir
+            ]):
+                bft.main()
+
+            # Should have 3 JSON files
+            json_files = list(Path(tmpdir).glob("*.json"))
+            assert len(json_files) == 3
+
+            # Output should mention 3 tests found
+            print_calls = [str(call) for call in mock_print.call_args_list]
+            assert any('Found 3 flaky test' in call for call in print_calls)
 
 class TestEdgeCases:
     """Tests for edge cases and error handling."""
@@ -738,6 +850,80 @@ class TestEdgeCases:
             filename = os.path.basename(filepath)
             assert len(filename) < 250
             assert os.path.exists(filepath)
+
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
+    @patch.object(bft.GitHubIssueManager, 'process_flaky_test')
+    @patch('builtins.print')
+    def test_all_updates_no_creates_with_max_issues(self, mock_print, mock_process, mock_get_tests):
+        """Test that max-issues doesn't apply when all tests update existing issues."""
+        mock_get_tests.return_value = [
+            {"name": "Test1", "scope": "scope1", "location": "test1.py:1"},
+            {"name": "Test2", "scope": "scope2", "location": "test2.py:2"},
+            {"name": "Test3", "scope": "scope3", "location": "test3.py:3"},
+        ]
+        # All tests update existing issues (was_created=False)
+        mock_process.return_value = ("Added comment", False)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch('sys.argv', [
+                'buildkite_flaky_report.py', 'test-suite-id',
+                '--org', 'test-org', '--api-token', 'test-token',
+                '--create-github-issues', '--github-repo', 'test/repo',
+                '--max-issues', '1', '--output-dir', tmpdir
+            ]):
+                bft.main()
+
+            # All 3 should be processed since none create new issues
+            assert mock_process.call_count == 3
+
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
+    @patch('builtins.print')
+    def test_deprecated_endpoint_with_instances(self, mock_print, mock_get_tests):
+        """Test that deprecated endpoint shows instance info."""
+        mock_get_tests.return_value = [
+            {
+                "name": "Test1",
+                "scope": "scope1",
+                "location": "test1.py:1",
+                "instances": 5,
+                "latest_occurrence_at": "2026-03-30T10:00:00Z",
+                "last_resolved_at": "2026-03-29T10:00:00Z"
+            }
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch('sys.argv', [
+                'buildkite_flaky_report.py', 'test-suite-id',
+                '--org', 'test-org', '--api-token', 'test-token',
+                '--endpoint', 'deprecated', '--output-dir', tmpdir
+            ]):
+                bft.main()
+
+            # Check that instance info is printed
+            print_calls = [str(call) for call in mock_print.call_args_list]
+            assert any('Flaky instances: 5' in call for call in print_calls)
+            assert any('Latest occurrence' in call for call in print_calls)
+            assert any('Last resolved' in call for call in print_calls)
+
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
+    @patch('builtins.print')
+    def test_current_endpoint_no_instances(self, mock_print, mock_get_tests):
+        """Test that current endpoint doesn't show instance info."""
+        mock_get_tests.return_value = [
+            {"name": "Test1", "scope": "scope1", "location": "test1.py:1"}
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch('sys.argv', [
+                'buildkite_flaky_report.py', 'test-suite-id',
+                '--org', 'test-org', '--api-token', 'test-token',
+                '--endpoint', 'current', '--output-dir', tmpdir
+            ]):
+                bft.main()
+
+            # Instance info should not be printed
+            print_calls = [str(call) for call in mock_print.call_args_list]
+            assert not any('Flaky instances' in call for call in print_calls)
 
 
 if __name__ == "__main__":
