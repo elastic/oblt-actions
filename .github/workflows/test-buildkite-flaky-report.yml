@@ -48,7 +48,7 @@ jobs:
           max-issues: '0'
           org: 'elastic'
           test-suite-id: 'beats'
-          token: ${{ secrets.BUILDKITE_TOKEN }}
+          token: ${{ secrets.BUILDKITE_TEST_SUITE_TOKEN }}
 
   test-max-issues-0:
     runs-on: ubuntu-latest
@@ -65,7 +65,7 @@ jobs:
           max-issues: '0'
           org: 'elastic'
           test-suite-id: 'beats'
-          token: ${{ secrets.BUILDKITE_TOKEN }}
+          token: ${{ secrets.BUILDKITE_TEST_SUITE_TOKEN }}
 
       - name: Assert is oblt-hello-world
         run: test "${{ steps.buildkite.outputs.flaky-test-count }}" = "0"
