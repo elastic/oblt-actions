@@ -11,19 +11,21 @@ Detects flaky tests from Buildkite Test Engine and creates/updates GitHub issues
 ## Inputs
 
 <!--inputs-->
-| Name                  | Description                                                  | Required | Default         |
-|-----------------------|--------------------------------------------------------------|----------|-----------------|
-| `buildkite-api-token` | Buildkite API token                                          | `true`   | ` `             |
-| `buildkite-org-slug`  | Buildkite organization slug                                  | `true`   | ` `             |
-| `test-suite-id`       | Buildkite test suite ID (UUID)                               | `true`   | ` `             |
-| `github-repo`         | GitHub repository in format owner/repo (e.g., elastic/beats) | `true`   | ` `             |
-| `github-token`        | GitHub token for creating issues (GITHUB_TOKEN or PAT)       | `true`   | ` `             |
-| `branch`              | Branch to filter tests by                                    | `false`  | `main`          |
-| `days`                | Only include tests that were flaky in the last N days        | `false`  | `7`             |
-| `output-dir`          | Directory to save JSON files                                 | `false`  | `./flaky_tests` |
-| `max-issues`          | Maximum number of new GitHub issues to create                | `false`  | ` `             |
-| `endpoint`            | API endpoint to use (deprecated or current)                  | `false`  | `deprecated`    |
-| `python-version`      | Python version to use                                        | `false`  | `3.11`          |
+| Name                        | Description                                                  | Required | Default         |
+|-----------------------------|--------------------------------------------------------------|----------|-----------------|
+| `token`                     | Buildkite API token                                          | `true`   | ` `             |
+| `buildkite-org-slug`        | Buildkite organization slug                                  | `true`   | ` `             |
+| `test-suite-id`             | Buildkite test suite ID (UUID)                               | `true`   | ` `             |
+| `github-repo`               | GitHub repository in format owner/repo (e.g., elastic/beats) | `true`   | ` `             |
+| `github-token`              | GitHub token for creating issues (GITHUB_TOKEN or PAT)       | `true`   | ` `             |
+| `github-issue-title-prefix` | Prefix for GitHub issue titles                               | `false`  | ` `             |
+| `github-label`              | Label to apply to GitHub issues                              | `false`  | ` `             |
+| `branch`                    | Branch to filter tests by                                    | `false`  | `main`          |
+| `days`                      | Only include tests that were flaky in the last N days        | `false`  | `1`             |
+| `output-dir`                | Directory to save JSON files                                 | `false`  | `./flaky_tests` |
+| `max-issues`                | Maximum number of new GitHub issues to create                | `false`  | ` `             |
+| `endpoint`                  | API endpoint to use (deprecated or current)                  | `false`  | `deprecated`    |
+| `python-version`            | Python version to use                                        | `false`  | `3.11`          |
 <!--/inputs-->
 
 ## Outputs

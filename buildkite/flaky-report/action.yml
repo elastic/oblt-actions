@@ -4,7 +4,7 @@ description: 'Detects flaky tests from Buildkite Test Engine and creates/updates
 author: 'Elastic'
 
 inputs:
-  buildkite-api-token:
+  token:
     description: 'Buildkite API token'
     required: true
   buildkite-org-slug:
@@ -19,6 +19,14 @@ inputs:
   github-token:
     description: 'GitHub token for creating issues (GITHUB_TOKEN or PAT)'
     required: true
+  github-issue-title-prefix:
+    description: 'Prefix for GitHub issue titles'
+    required: false
+    default: ""
+  github-label:
+    description: 'Label to apply to GitHub issues'
+    required: false
+    default: ""
   branch:
     description: 'Branch to filter tests by'
     required: false
@@ -26,7 +34,7 @@ inputs:
   days:
     description: 'Only include tests that were flaky in the last N days'
     required: false
-    default: '7'
+    default: '1'
   output-dir:
     description: 'Directory to save JSON files'
     required: false
@@ -67,17 +75,18 @@ runs:
       id: detect
       shell: bash
       env:
-        BUILDKITE_API_TOKEN: ${{ inputs.buildkite-api-token }}
-        BUILDKITE_ORG_SLUG: ${{ inputs.buildkite-org-slug }}
-        TEST_SUITE_ID: ${{ inputs.test-suite-id }}
         BRANCH: ${{ inputs.branch }}
+        BUILDKITE_API_TOKEN: ${{ inputs.token }}
+        BUILDKITE_ORG_SLUG: ${{ inputs.buildkite-org-slug }}
         DAYS: ${{ inputs.days }}
-        OUTPUT_DIR: ${{ inputs.output-dir }}
-        GITHUB_REPO: ${{ inputs.github-repo }}
-        MAX_ISSUES: ${{ inputs.max-issues }}
         ENDPOINT: ${{ inputs.endpoint }}
-        ACTION_PATH: ${{ github.action_path }}
         GH_TOKEN: ${{ inputs.github-token }}
+        GITHUB_REPO: ${{ inputs.github-repo }}
+        GITHUB_ISSUE_TITLE_PREFIX: ${{ inputs.github-issue-title-prefix }}
+        GITHUB_LABEL: ${{ inputs.github-label }}
+        MAX_ISSUES: ${{ inputs.max-issues }}
+        OUTPUT_DIR: ${{ inputs.output-dir }}
+        TEST_SUITE_ID: ${{ inputs.test-suite-id }}
       run: |
         echo "========================================"
         echo "Flaky Test Detection - $(date)"
@@ -100,6 +109,8 @@ runs:
           --api-token "${BUILDKITE_API_TOKEN}"
           --create-github-issues
           --github-repo "${GITHUB_REPO}"
+          --github-issue-title-prefix "${GITHUB_ISSUE_TITLE_PREFIX}"
+          --github-label "${GITHUB_LABEL}"
           --endpoint "${ENDPOINT}"
         )
 
@@ -109,7 +120,7 @@ runs:
         fi
 
         # Run the script
-        python "$GITHUB_ACTION_PATH/buildkite_flaky_tests.py" "${CMD_ARGS[@]}"
+        python "$GITHUB_ACTION_PATH/buildkite_flaky_report.py" "${CMD_ARGS[@]}"
 
         # Count flaky tests (if output directory exists)
         if [[ -d "${OUTPUT_DIR}" ]]; then

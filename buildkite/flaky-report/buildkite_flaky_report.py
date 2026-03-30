@@ -6,7 +6,7 @@ This script queries the Buildkite Test Engine API to detect flaky tests
 for a given test suite and creates a JSON file for each flaky test found.
 
 Requirements:
-- Python 3.10+
+- Python 3.13+
 - requests library (pip install requests)
 
 Environment Variables:
@@ -29,8 +29,6 @@ API_BASE_URL = "https://api.buildkite.com/v2"
 FLAKY_TESTS_ENDPOINT = "/analytics/organizations/{org}/suites/{suite}/flaky-tests"
 TESTS_ENDPOINT = "/analytics/organizations/{org}/suites/{suite}/tests"
 FLAKY_LABEL = "flaky"
-GITHUB_FLAKY_LABEL = "flaky-test"
-ISSUE_TITLE_PREFIX = "[Flaky Test]"
 
 # Default values
 DEFAULT_UNKNOWN = "Unknown"
@@ -128,8 +126,10 @@ class BuildkiteTestEngineClient:
 class GitHubIssueManager:
     """Manages GitHub issues for flaky tests."""
 
-    def __init__(self, repo: str):
+    def __init__(self, repo: str, issue_title_prefix: str = "", github_label: Optional[str] = None):
         self.repo = repo
+        self.issue_title_prefix = issue_title_prefix
+        self.github_label = github_label
         self._existing_issues_cache = None
 
     def _run_gh_command(self, args: List[str]) -> str:
@@ -141,10 +141,11 @@ class GitHubIssueManager:
         )
         return result.stdout.strip()
 
-    @staticmethod
-    def _format_issue_title(test_name: str, scope: str) -> str:
+    def _format_issue_title(self, test_name: str, scope: str) -> str:
         """Format standardized issue title."""
-        return f"{ISSUE_TITLE_PREFIX} {scope} {test_name}"
+        if self.issue_title_prefix:
+            return f"{self.issue_title_prefix} {scope} {test_name}"
+        return f"{scope} {test_name}"
 
     @staticmethod
     def _extract_test_info(test_data: Dict[str, Any]) -> tuple[str, str, str, str]:
@@ -170,13 +171,18 @@ class GitHubIssueManager:
             return
 
         try:
-            output = self._run_gh_command([
+            cmd = [
                 "issue", "list",
                 "--repo", self.repo,
-                "--label", GITHUB_FLAKY_LABEL,
                 "--json", "number,title,state,url",
                 "--limit", "1000"
-            ])
+            ]
+
+            # Only add label filter if label is provided
+            if self.github_label:
+                cmd.extend(["--label", self.github_label])
+
+            output = self._run_gh_command(cmd)
             self._existing_issues_cache = json.loads(output) if output else []
         except Exception as e:
             print(f"Warning: Could not load existing issues: {e}", file=sys.stderr)
@@ -212,13 +218,18 @@ class GitHubIssueManager:
         body = self._build_markdown("Flaky Test", fields, test_data)
 
         try:
-            return self._run_gh_command([
+            cmd = [
                 "issue", "create",
                 "--repo", self.repo,
                 "--title", title,
-                "--body", body,
-                "--label", GITHUB_FLAKY_LABEL
-            ])
+                "--body", body
+            ]
+
+            # Only add label if provided
+            if self.github_label:
+                cmd.extend(["--label", self.github_label])
+
+            return self._run_gh_command(cmd)
         except Exception as e:
             print(f"Error creating GitHub issue: {e}", file=sys.stderr)
             return None
@@ -324,7 +335,7 @@ def main():
         "--days",
         help="Only include tests that were flaky in the last N days (e.g., --days 7 for last week)",
         type=int,
-        default=7
+        default=1
     )
     parser.add_argument(
         "--endpoint",
@@ -347,6 +358,16 @@ def main():
         help="Maximum number of new GitHub issues to create before stopping (default: no limit)",
         type=int,
         default=None
+    )
+    parser.add_argument(
+        "--github-issue-title-prefix",
+        help="Prefix for GitHub issue titles (default: empty, no prefix)",
+        default=""
+    )
+    parser.add_argument(
+        "--github-label",
+        help="Label to apply to GitHub issues (default: none)",
+        default=""
     )
 
     args = parser.parse_args()
@@ -371,10 +392,26 @@ def main():
         print("", file=sys.stderr)
 
     output_dir = Path(args.output_dir)
-    github_manager = GitHubIssueManager(args.github_repo) if args.create_github_issues else None
 
-    if github_manager:
+    # Create GitHub manager with custom settings
+    github_manager = None
+    if args.create_github_issues:
+        # Treat empty string as None for label
+        github_label = args.github_label if args.github_label else None
+        github_manager = GitHubIssueManager(
+            args.github_repo,
+            issue_title_prefix=args.github_issue_title_prefix,
+            github_label=github_label
+        )
         print(f"GitHub integration enabled for repository: {args.github_repo}")
+        if args.github_issue_title_prefix:
+            print(f"  Issue title prefix: '{args.github_issue_title_prefix}'")
+        else:
+            print(f"  Issue title prefix: (none)")
+        if github_label:
+            print(f"  GitHub label: '{github_label}'")
+        else:
+            print(f"  GitHub label: (none)")
 
     try:
         print(f"Connecting to Buildkite Test Engine for organization: {args.org}")

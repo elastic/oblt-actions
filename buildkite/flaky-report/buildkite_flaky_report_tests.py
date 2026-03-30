@@ -15,7 +15,7 @@ import tempfile
 import os
 
 # Import the module to test
-import buildkite_flaky_tests as bft
+import buildkite_flaky_report as bft
 
 
 class TestBuildkiteTestEngineClient:
@@ -183,8 +183,31 @@ class TestGitHubIssueManager:
         self.manager = bft.GitHubIssueManager("test-org/test-repo")
 
     def test_initialization(self):
-        """Test GitHub manager initialization."""
+        """Test GitHub manager initialization with defaults."""
         assert self.manager.repo == "test-org/test-repo"
+        assert self.manager.issue_title_prefix == ""
+        assert self.manager.github_label is None
+
+    def test_initialization_with_custom_settings(self):
+        """Test GitHub manager initialization with custom settings."""
+        manager = bft.GitHubIssueManager(
+            "test-org/test-repo",
+            issue_title_prefix="[FLAKY]",
+            github_label="custom-label"
+        )
+        assert manager.issue_title_prefix == "[FLAKY]"
+        assert manager.github_label == "custom-label"
+
+    def test_format_issue_title_with_prefix(self):
+        """Test issue title formatting with prefix."""
+        manager = bft.GitHubIssueManager("test-org/test-repo", issue_title_prefix="[Flaky Test]")
+        title = manager._format_issue_title("TestFoo", "my.scope")
+        assert title == "[Flaky Test] my.scope TestFoo"
+
+    def test_format_issue_title_without_prefix(self):
+        """Test issue title formatting without prefix (default)."""
+        title = self.manager._format_issue_title("TestBar", "another.scope")
+        assert title == "another.scope TestBar"
 
     @patch('subprocess.run')
     def test_run_gh_command_success(self, mock_run):
