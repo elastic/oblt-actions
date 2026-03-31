@@ -25,6 +25,8 @@ Detects flaky tests from Buildkite Test Engine and creates/updates GitHub issues
 | `output-dir`                | Directory to save JSON files                                 | `false`  | `./flaky_tests` |
 | `max-issues`                | Maximum number of new GitHub issues to create                | `false`  | ` `             |
 | `endpoint`                  | API endpoint to use (deprecated or current)                  | `false`  | `deprecated`    |
+| `max-runs`                  | Maximum number of recent runs to check for failure details   | `false`  | `50`            |
+| `debug`                     | Enable debug logging to see API response details             | `false`  | `false`         |
 | `python-version`            | Python version to use                                        | `false`  | `3.13`          |
 <!--/inputs-->
 
