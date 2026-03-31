@@ -1,0 +1,141 @@
+---
+name: 'Buildkite Flaky Test Detection'
+description: 'Detects flaky tests from Buildkite Test Engine and creates/updates GitHub issues'
+author: 'Elastic'
+
+inputs:
+  token:
+    description: 'Buildkite API token'
+    required: true
+  org:
+    description: 'Buildkite org to interact with.'
+    default: elastic
+    required: false
+  test-suite-id:
+    description: 'Buildkite test suite ID (UUID)'
+    required: true
+  github-repo:
+    description: 'GitHub repository in format owner/repo (e.g., elastic/beats)'
+    required: true
+  github-token:
+    description: 'GitHub token for creating issues (GITHUB_TOKEN or PAT)'
+    required: true
+  github-issue-title-prefix:
+    description: 'Prefix for GitHub issue titles'
+    required: false
+    default: ""
+  github-label:
+    description: 'Label to apply to GitHub issues'
+    required: false
+    default: ""
+  branch:
+    description: 'Branch to filter tests by'
+    required: false
+    default: 'main'
+  days:
+    description: 'Only include tests that were flaky in the last N days'
+    required: false
+    default: '1'
+  output-dir:
+    description: 'Directory to save JSON files'
+    required: false
+    default: './flaky_tests'
+  max-issues:
+    description: 'Maximum number of new GitHub issues to create'
+    required: false
+    default: ''
+  endpoint:
+    description: 'API endpoint to use (deprecated or current)'
+    required: false
+    default: 'deprecated'
+  python-version:
+    description: 'Python version to use'
+    required: false
+    default: '3.13'
+
+outputs:
+  flaky-test-count:
+    description: 'Number of flaky tests detected'
+    value: ${{ steps.detect.outputs.count }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+
+    - name: Run flaky test detection
+      id: detect
+      shell: bash
+      env:
+        BRANCH: ${{ inputs.branch }}
+        BUILDKITE_API_TOKEN: ${{ inputs.token }}
+        BUILDKITE_ORG_SLUG: ${{ inputs.org }}
+        DAYS: ${{ inputs.days }}
+        ENDPOINT: ${{ inputs.endpoint }}
+        GH_TOKEN: ${{ inputs.github-token }}
+        GITHUB_REPO: ${{ inputs.github-repo }}
+        GITHUB_ISSUE_TITLE_PREFIX: ${{ inputs.github-issue-title-prefix }}
+        GITHUB_LABEL: ${{ inputs.github-label }}
+        MAX_ISSUES: ${{ inputs.max-issues }}
+        OUTPUT_DIR: ${{ inputs.output-dir }}
+        TEST_SUITE_ID: ${{ inputs.test-suite-id }}
+      run: |
+        echo "========================================"
+        echo "Flaky Test Detection - $(date)"
+        echo "========================================"
+        echo "Organization: ${BUILDKITE_ORG_SLUG}"
+        echo "Suite ID: ${TEST_SUITE_ID}"
+        echo "Branch: ${BRANCH}"
+        echo "Days: ${DAYS}"
+        echo "GitHub Repo: ${GITHUB_REPO}"
+        echo "========================================"
+        echo ""
+
+        # Build command arguments
+        CMD_ARGS=(
+          "${TEST_SUITE_ID}"
+          --branch "${BRANCH}"
+          --days "${DAYS}"
+          --output-dir "${OUTPUT_DIR}"
+          --org "${BUILDKITE_ORG_SLUG}"
+          --api-token "${BUILDKITE_API_TOKEN}"
+          --create-github-issues
+          --github-repo "${GITHUB_REPO}"
+          --github-issue-title-prefix "${GITHUB_ISSUE_TITLE_PREFIX}"
+          --github-label "${GITHUB_LABEL}"
+          --endpoint "${ENDPOINT}"
+        )
+
+        # Add max-issues if specified
+        if [[ -n "${MAX_ISSUES}" ]]; then
+          CMD_ARGS+=(--max-issues "${MAX_ISSUES}")
+        fi
+
+        # Run the script
+        python "$GITHUB_ACTION_PATH/buildkite_flaky_report.py" "${CMD_ARGS[@]}"
+
+        # Count flaky tests (if output directory exists)
+        if [[ -d "${OUTPUT_DIR}" ]]; then
+          COUNT=$(find "${OUTPUT_DIR}" -name "*.json" | wc -l | tr -d ' ')
+          echo "count=${COUNT}" >> $GITHUB_OUTPUT
+        else
+          echo "count=0" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Upload flaky test reports
+      uses: actions/upload-artifact@v7
+      if: always()
+      with:
+        name: flaky-test-reports
+        path: ${{ inputs.output-dir }}
+        if-no-files-found: ignore
+        retention-days: 1

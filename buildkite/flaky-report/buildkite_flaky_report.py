@@ -1,0 +1,522 @@
+#!/usr/bin/env python3
+"""
+Buildkite Test Engine Flaky Test Detector
+
+This script queries the Buildkite Test Engine API to detect flaky tests
+for a given test suite and creates a JSON file for each flaky test found.
+
+Requirements:
+- Python 3.13+
+- requests library (pip install requests)
+
+Environment Variables:
+- BUILDKITE_API_TOKEN: Your Buildkite API access token
+- BUILDKITE_ORG_SLUG: Your organization slug
+"""
+
+import logging
+import os
+import sys
+import json
+import argparse
+import subprocess
+from typing import List, Dict, Any, Optional
+from pathlib import Path
+import requests
+from datetime import datetime, timedelta, timezone
+
+logger = logging.getLogger(__name__)
+
+# API Constants
+API_BASE_URL = "https://api.buildkite.com/v2"
+FLAKY_TESTS_ENDPOINT = "/analytics/organizations/{org}/suites/{suite}/flaky-tests"
+TESTS_ENDPOINT = "/analytics/organizations/{org}/suites/{suite}/tests"
+FLAKY_LABEL = "flaky"
+DEFAULT_TIMEOUT = 30  # seconds
+
+# Default values
+DEFAULT_UNKNOWN = "Unknown"
+DEFAULT_NA = "N/A"
+DEFAULT_EMPTY = ""
+
+
+class BuildkiteTestEngineClient:
+    """Client for interacting with Buildkite Test Engine REST API."""
+
+    def __init__(self, api_token: str, org_slug: str, timeout: int = DEFAULT_TIMEOUT):
+        self.api_token = api_token
+        self.org_slug = org_slug
+        self.timeout = timeout
+        self.headers = {"Authorization": f"Bearer {api_token}"}
+
+    def _make_request(self, endpoint: str, params: Optional[Dict] = None) -> Any:
+        url = f"{API_BASE_URL}{endpoint}"
+        response = requests.get(url, headers=self.headers, params=params or {}, timeout=self.timeout)
+        response.raise_for_status()
+        return response.json()
+
+    @staticmethod
+    def _parse_iso_timestamp(timestamp: str) -> datetime:
+        """Parse ISO 8601 timestamp, handling Z suffix."""
+        return datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+
+    def get_flaky_tests(
+        self,
+        suite_id: str,
+        branch: Optional[str] = None,
+        per_page: int = 100,
+        days: Optional[int] = None,
+        use_deprecated_endpoint: bool = True
+    ) -> List[Dict[str, Any]]:
+        """
+        Get flaky tests for a test suite.
+
+        Note: Date filtering only works with deprecated endpoint (has timestamp fields).
+        """
+        endpoint_template = FLAKY_TESTS_ENDPOINT if use_deprecated_endpoint else TESTS_ENDPOINT
+        endpoint = endpoint_template.format(org=self.org_slug, suite=suite_id)
+
+        params = {
+            "per_page": per_page,
+            **({} if use_deprecated_endpoint else {"label": FLAKY_LABEL}),
+            **({"branch": branch} if branch else {})
+        }
+
+        all_tests = self._fetch_paginated(endpoint, params, per_page)
+
+        if days is not None and use_deprecated_endpoint:
+            return self._filter_by_days(all_tests, days)
+        elif days is not None and not use_deprecated_endpoint:
+            logger.warning("Cannot filter by days with current endpoint (no timestamp fields)")
+
+        return all_tests
+
+    def _fetch_paginated(self, endpoint: str, params: Dict, per_page: int) -> List[Dict[str, Any]]:
+        """Fetch all pages of results from API."""
+        all_tests = []
+        page = 1
+
+        while True:
+            params["page"] = page
+            tests = self._make_request(endpoint, params)
+            if not tests or len(tests) < per_page:
+                all_tests.extend(tests)
+                break
+            all_tests.extend(tests)
+            page += 1
+
+        return all_tests
+
+    def _filter_by_days(self, tests: List[Dict[str, Any]], days: int) -> List[Dict[str, Any]]:
+        """Filter tests to those occurring in the last N days."""
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
+        filtered = []
+
+        for test in tests:
+            if latest_occurrence := test.get("latest_occurrence_at"):
+                try:
+                    if self._parse_iso_timestamp(latest_occurrence) >= cutoff_date:
+                        filtered.append(test)
+                except (ValueError, AttributeError):
+                    filtered.append(test)  # Include on parse error
+            else:
+                filtered.append(test)  # Include if no timestamp
+
+        if len(tests) > len(filtered):
+            logger.info("Filtered %d test(s) older than %d days (showing %d recent)",
+                        len(tests) - len(filtered), days, len(filtered))
+
+        return filtered
+
+
+class GitHubIssueManager:
+    """Manages GitHub issues for flaky tests."""
+
+    def __init__(self, repo: str, issue_title_prefix: str = "", github_label: Optional[str] = None):
+        self.repo = repo
+        self.issue_title_prefix = issue_title_prefix
+        self.github_label = github_label
+        self._existing_issues_cache = None
+
+    def _run_gh_command(self, args: List[str]) -> str:
+        result = subprocess.run(
+            ["gh"] + args,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return result.stdout.strip()
+
+    def _format_issue_title(self, test_name: str, scope: str) -> str:
+        """Format standardized issue title."""
+        if self.issue_title_prefix:
+            return f"{self.issue_title_prefix} {scope} {test_name}"
+        return f"{scope} {test_name}"
+
+    @staticmethod
+    def _extract_test_info(test_data: Dict[str, Any]) -> tuple[str, str, str, str]:
+        """Extract common test fields with defaults."""
+        return (
+            test_data.get("name", DEFAULT_UNKNOWN),
+            test_data.get("scope", DEFAULT_EMPTY),
+            test_data.get("location", DEFAULT_NA),
+            test_data.get("web_url", DEFAULT_EMPTY)
+        )
+
+    @staticmethod
+    def _build_markdown(heading: str, fields: Dict[str, Any], test_data: Dict[str, Any]) -> str:
+        """Build markdown with fields and JSON data."""
+        lines = [f"## {heading}\n"]
+        lines.extend(f"* **{k}:** {v}" for k, v in fields.items())
+        lines.extend(["\n### Details\n", "```json", json.dumps(test_data, indent=2), "```"])
+        return "\n".join(lines)
+
+    def _load_existing_issues(self) -> None:
+        """Load all existing flaky-test issues once to avoid N+1 queries."""
+        if self._existing_issues_cache is not None:
+            return
+
+        try:
+            cmd = [
+                "issue", "list",
+                "--repo", self.repo,
+                "--json", "number,title,state,url",
+                "--limit", "1000"
+            ]
+
+            # Only add label filter if label is provided
+            if self.github_label:
+                cmd.extend(["--label", self.github_label])
+
+            output = self._run_gh_command(cmd)
+            self._existing_issues_cache = json.loads(output) if output else []
+        except Exception as e:
+            logger.warning("Could not load existing issues: %s", e)
+            self._existing_issues_cache = []
+
+    def search_existing_issue(self, test_name: str, scope: str) -> Optional[Dict[str, Any]]:
+        """Search for an existing GitHub issue for this test in cached issues."""
+        self._load_existing_issues()
+        title = self._format_issue_title(test_name, scope)
+
+        for issue in self._existing_issues_cache:
+            if issue["title"] == title or test_name in issue["title"]:
+                return issue
+
+        return None
+
+    def create_issue(self, test_data: Dict[str, Any]) -> Optional[str]:
+        """Create a new GitHub issue for a flaky test."""
+        test_name, scope, location, web_url = self._extract_test_info(test_data)
+        title = self._format_issue_title(test_name, scope)
+
+        fields = {
+            "Test Name": test_name,
+            "Scope": scope,
+            "Location": location,
+            "Buildkite Link": web_url
+        }
+
+        if "instances" in test_data:
+            fields["Flaky Instances"] = test_data['instances']
+            fields["Latest Occurrence"] = test_data.get('latest_occurrence_at', DEFAULT_NA)
+
+        body = self._build_markdown("Flaky Test", fields, test_data)
+
+        try:
+            cmd = [
+                "issue", "create",
+                "--repo", self.repo,
+                "--title", title,
+                "--body", body
+            ]
+
+            # Only add label if provided
+            if self.github_label:
+                cmd.extend(["--label", self.github_label])
+
+            return self._run_gh_command(cmd)
+        except Exception as e:
+            logger.error("Error creating GitHub issue: %s", e)
+            return None
+
+    def add_comment(self, issue_number: int, test_data: Dict[str, Any]) -> bool:
+        """Add a comment to an existing GitHub issue."""
+        fields = {
+            "Latest Occurrence": test_data.get("latest_occurrence_at", DEFAULT_NA),
+            "Total Instances": test_data.get("instances", DEFAULT_NA),
+            "Buildkite Link": test_data.get("web_url", DEFAULT_EMPTY)
+        }
+
+        comment = self._build_markdown("Flaky Test Still Occurring", fields, test_data)
+
+        try:
+            self._run_gh_command([
+                "issue", "comment", str(issue_number),
+                "--repo", self.repo,
+                "--body", comment
+            ])
+            return True
+        except Exception as e:
+            logger.error("Error adding comment to issue #%d: %s", issue_number, e)
+            return False
+
+    def process_flaky_test(self, test_data: Dict[str, Any]) -> tuple[str, bool]:
+        """Process a flaky test: create issue or add comment to existing."""
+        test_name, scope, _, _ = self._extract_test_info(test_data)
+        existing = self.search_existing_issue(test_name, scope)
+
+        if not existing or existing["state"] == "CLOSED":
+            issue_url = self.create_issue(test_data)
+            if issue_url:
+                msg = f"Created new issue: {issue_url}"
+                if existing:
+                    msg = f"Created new issue (previous #{existing['number']} was closed): {issue_url}"
+                return (msg, True)
+            return ("Failed to create issue", False)
+
+        # Issue is open, add comment
+        if self.add_comment(existing["number"], test_data):
+            return (f"Added comment to existing issue #{existing['number']}: {existing['url']}", False)
+        return (f"Failed to add comment to issue #{existing['number']}", False)
+
+
+def _sanitize_filename(name: str, max_length: int = 200) -> str:
+    """Sanitize filename by replacing unsafe characters."""
+    allowed_chars = {'-', '_', '.'}
+    safe = "".join(c if c.isalnum() or c in allowed_chars else '_' for c in name)
+    return safe[:max_length]
+
+
+def save_flaky_test_to_file(test_data: Dict[str, Any], output_dir: Path, index: int) -> str:
+    """Save flaky test data to a JSON file."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    test_identifier = test_data.get("identifier") or test_data.get("name") or f"test_{index}"
+    safe_name = _sanitize_filename(test_identifier)
+    filepath = output_dir / f"flaky_test_{index:03d}_{safe_name}.json"
+
+    with open(filepath, 'w') as f:
+        json.dump(test_data, f, indent=2)
+
+    return str(filepath)
+
+
+def create_arg_parser() -> argparse.ArgumentParser:
+    """Create and return the argument parser for the CLI."""
+    parser = argparse.ArgumentParser(
+        description="Detect flaky tests in Buildkite Test Engine and save them as JSON files"
+    )
+    parser.add_argument(
+        "suite_id",
+        help="Test suite ID (e.g., the UUID from your suite URL)"
+    )
+    parser.add_argument(
+        "--branch",
+        help="Branch to filter tests by",
+        default=None
+    )
+    parser.add_argument(
+        "--output-dir",
+        help="Directory to save JSON files (default: ./flaky_tests)",
+        default="./flaky_tests"
+    )
+    parser.add_argument(
+        "--org",
+        help="Organization slug (can also be set via BUILDKITE_ORG_SLUG env var)",
+        default=os.getenv("BUILDKITE_ORG_SLUG")
+    )
+    parser.add_argument(
+        "--api-token",
+        help="Buildkite API token (can also be set via BUILDKITE_API_TOKEN env var)",
+        default=os.getenv("BUILDKITE_API_TOKEN")
+    )
+    parser.add_argument(
+        "--per-page",
+        help="Number of results per page (default: 100)",
+        type=int,
+        default=100
+    )
+    parser.add_argument(
+        "--days",
+        help="Only include tests that were flaky in the last N days (e.g., --days 7 for last week)",
+        type=int,
+        default=1
+    )
+    parser.add_argument(
+        "--endpoint",
+        help="API endpoint to use: 'deprecated' (default, richer data) or 'current' (minimal data)",
+        choices=["deprecated", "current"],
+        default="deprecated"
+    )
+    parser.add_argument(
+        "--create-github-issues",
+        help="Create or update GitHub issues for flaky tests",
+        action="store_true"
+    )
+    parser.add_argument(
+        "--github-repo",
+        help="GitHub repository in format 'owner/repo' (e.g., 'elastic/beats'). Required when --create-github-issues is specified.",
+        default=None
+    )
+    parser.add_argument(
+        "--max-issues",
+        help="Maximum number of new GitHub issues to create (limits issue creation only, not test detection; default: no limit)",
+        type=int,
+        default=None
+    )
+    parser.add_argument(
+        "--github-issue-title-prefix",
+        help="Prefix for GitHub issue titles (default: empty, no prefix)",
+        default=""
+    )
+    parser.add_argument(
+        "--github-label",
+        help="Label to apply to GitHub issues (default: none)",
+        default=""
+    )
+    return parser
+
+
+def validate_args(args: argparse.Namespace) -> None:
+    """Validate parsed arguments, exiting with error messages on invalid input."""
+    if not args.api_token:
+        logger.error("API token is required. Set BUILDKITE_API_TOKEN or use --api-token")
+        sys.exit(1)
+
+    if not args.org:
+        logger.error("Organization slug is required. Set BUILDKITE_ORG_SLUG or use --org")
+        sys.exit(1)
+
+    if args.days is not None and args.days < 0:
+        logger.error("--days must be >= 0")
+        sys.exit(1)
+
+    if args.max_issues is not None and args.max_issues < 0:
+        logger.error("--max-issues must be >= 0")
+        sys.exit(1)
+
+    if args.create_github_issues and not args.github_repo:
+        logger.error("--github-repo is required when --create-github-issues is specified")
+        sys.exit(1)
+
+    if args.days is not None and args.endpoint == "current":
+        logger.warning("--days filtering is not supported with --endpoint current")
+        logger.warning("The 'current' endpoint doesn't provide timestamp fields.")
+        logger.warning("Use --endpoint deprecated (default) for date-based filtering.")
+
+
+def main():
+    """Main entry point for the script."""
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+
+    parser = create_arg_parser()
+    args = parser.parse_args()
+    validate_args(args)
+
+    output_dir = Path(args.output_dir)
+
+    # Create GitHub manager with custom settings
+    github_manager = None
+    if args.create_github_issues:
+        # Treat empty string as None for label
+        github_label = args.github_label if args.github_label else None
+        github_manager = GitHubIssueManager(
+            args.github_repo,
+            issue_title_prefix=args.github_issue_title_prefix,
+            github_label=github_label
+        )
+        logger.info("GitHub integration enabled for repository: %s", args.github_repo)
+        if args.github_issue_title_prefix:
+            logger.info("  Issue title prefix: '%s'", args.github_issue_title_prefix)
+        else:
+            logger.info("  Issue title prefix: (none)")
+        if github_label:
+            logger.info("  GitHub label: '%s'", github_label)
+        else:
+            logger.info("  GitHub label: (none)")
+
+    try:
+        logger.info("Connecting to Buildkite Test Engine for organization: %s", args.org)
+        client = BuildkiteTestEngineClient(args.api_token, args.org)
+
+        logger.info("Fetching flaky tests from suite: %s", args.suite_id)
+        logger.info("Using endpoint: %s", args.endpoint)
+        if args.branch:
+            logger.info("Branch filter: %s", args.branch)
+        if args.days is not None:
+            logger.info("Time filter: Last %d days", args.days)
+
+        flaky_tests = client.get_flaky_tests(
+            args.suite_id,
+            args.branch,
+            args.per_page,
+            args.days,
+            args.endpoint == "deprecated"
+        )
+
+        if not flaky_tests:
+            logger.info("\nNo flaky tests detected!")
+            if args.days is not None:
+                logger.info("(No tests were flaky in the last %d days)", args.days)
+            return
+
+        logger.info("\nFound %d flaky test(s):", len(flaky_tests))
+        logger.info("-" * 80)
+
+        issues_created = 0
+        use_deprecated = args.endpoint == "deprecated"
+
+        for idx, test_data in enumerate(flaky_tests, start=1):
+            filepath = save_flaky_test_to_file(test_data, output_dir, idx)
+
+            test_name = test_data.get("name") or test_data.get("identifier", DEFAULT_UNKNOWN)
+            logger.info("\n[%d/%d] Test: %s", idx, len(flaky_tests), test_name)
+            logger.info("  Location: %s", test_data.get('location', DEFAULT_NA))
+
+            if use_deprecated and 'instances' in test_data:
+                logger.info("  Flaky instances: %s", test_data.get('instances', DEFAULT_NA))
+                logger.info("  Latest occurrence: %s", test_data.get('latest_occurrence_at', DEFAULT_NA))
+                if resolved := test_data.get('last_resolved_at'):
+                    logger.info("  Last resolved: %s", resolved)
+
+            logger.info("  Saved to: %s", filepath)
+
+            if github_manager:
+                # Check limit before processing
+                if args.max_issues is not None and issues_created >= args.max_issues:
+                    logger.info("  Skipping GitHub issue (limit of %d reached)", args.max_issues)
+                else:
+                    status, was_created = github_manager.process_flaky_test(test_data)
+                    logger.info("  Processing GitHub issue... %s", status)
+
+                    if was_created:
+                        issues_created += 1
+
+        logger.info("\n" + "-" * 80)
+        logger.info("\nAll flaky test reports saved to: %s", output_dir)
+
+        if github_manager:
+            logger.info("\nGitHub Summary:")
+            logger.info("  New issues created: %d", issues_created)
+            if args.max_issues is not None:
+                logger.info("  Issue creation limit: %d", args.max_issues)
+                if issues_created >= args.max_issues and len(flaky_tests) > issues_created:
+                    skipped = len(flaky_tests) - issues_created
+                    logger.info("  Tests skipped (limit reached): %d", skipped)
+
+    except requests.exceptions.HTTPError as e:
+        logger.error("HTTP Error: %s", e)
+        if hasattr(e, 'response'):
+            logger.error("Response Status: %s", e.response.status_code)
+            logger.error("Response: %s", e.response.text)
+        sys.exit(1)
+    except Exception as e:
+        logger.error("Error: %s", e)
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
