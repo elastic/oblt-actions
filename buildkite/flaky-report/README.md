@@ -40,6 +40,7 @@ Detects flaky tests from Buildkite Test Engine and creates/updates GitHub issues
 
 ## Usage
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
+### Basic Usage
 ```yaml
 jobs:
   run-buildkite:
@@ -54,5 +55,28 @@ jobs:
           test-suite-id: 'your-test-suite-uuid'
           github-repo: ${{ github.repository }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### Advanced Usage
+```yaml
+jobs:
+  run-buildkite:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: elastic/oblt-actions/buildkite/flaky-report@v1
+        with:
+          token: ${{ secrets.BUILDKITE_TOKEN }}
+          test-suite-id: 'your-test-suite-uuid'
+          github-repo: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          days: 7                              # Check last 7 days
+          max-issues: 10                       # Create max 10 new issues
+          max-runs: 100                        # Check last 100 runs for failure details
+          github-label: 'flaky-test'           # Add label to issues
+          github-issue-title-prefix: '[Flaky]' # Add prefix to issue titles
+          debug: true                          # Enable debug logging
 ```
 <!--/usage-->
