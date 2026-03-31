@@ -14,6 +14,7 @@ Environment Variables:
 - BUILDKITE_ORG_SLUG: Your organization slug
 """
 
+import logging
 import os
 import sys
 import json
@@ -23,6 +24,8 @@ from typing import List, Dict, Any, Optional
 from pathlib import Path
 import requests
 from datetime import datetime, timedelta, timezone
+
+logger = logging.getLogger(__name__)
 
 # API Constants
 API_BASE_URL = "https://api.buildkite.com/v2"
@@ -84,7 +87,7 @@ class BuildkiteTestEngineClient:
         if days is not None and use_deprecated_endpoint:
             return self._filter_by_days(all_tests, days)
         elif days is not None and not use_deprecated_endpoint:
-            print("Warning: Cannot filter by days with current endpoint (no timestamp fields)")
+            logger.warning("Cannot filter by days with current endpoint (no timestamp fields)")
 
         return all_tests
 
@@ -120,7 +123,8 @@ class BuildkiteTestEngineClient:
                 filtered.append(test)  # Include if no timestamp
 
         if len(tests) > len(filtered):
-            print(f"Filtered {len(tests) - len(filtered)} test(s) older than {days} days (showing {len(filtered)} recent)")
+            logger.info("Filtered %d test(s) older than %d days (showing %d recent)",
+                        len(tests) - len(filtered), days, len(filtered))
 
         return filtered
 
@@ -187,7 +191,7 @@ class GitHubIssueManager:
             output = self._run_gh_command(cmd)
             self._existing_issues_cache = json.loads(output) if output else []
         except Exception as e:
-            print(f"Warning: Could not load existing issues: {e}", file=sys.stderr)
+            logger.warning("Could not load existing issues: %s", e)
             self._existing_issues_cache = []
 
     def search_existing_issue(self, test_name: str, scope: str) -> Optional[Dict[str, Any]]:
@@ -233,7 +237,7 @@ class GitHubIssueManager:
 
             return self._run_gh_command(cmd)
         except Exception as e:
-            print(f"Error creating GitHub issue: {e}", file=sys.stderr)
+            logger.error("Error creating GitHub issue: %s", e)
             return None
 
     def add_comment(self, issue_number: int, test_data: Dict[str, Any]) -> bool:
@@ -254,7 +258,7 @@ class GitHubIssueManager:
             ])
             return True
         except Exception as e:
-            print(f"Error adding comment to issue #{issue_number}: {e}", file=sys.stderr)
+            logger.error("Error adding comment to issue #%d: %s", issue_number, e)
             return False
 
     def process_flaky_test(self, test_data: Dict[str, Any]) -> tuple[str, bool]:
@@ -298,8 +302,8 @@ def save_flaky_test_to_file(test_data: Dict[str, Any], output_dir: Path, index: 
     return str(filepath)
 
 
-def main():
-    """Main entry point for the script."""
+def create_arg_parser() -> argparse.ArgumentParser:
+    """Create and return the argument parser for the CLI."""
     parser = argparse.ArgumentParser(
         description="Detect flaky tests in Buildkite Test Engine and save them as JSON files"
     )
@@ -352,7 +356,7 @@ def main():
     )
     parser.add_argument(
         "--github-repo",
-        help="GitHub repository in format 'owner/repo' (e.g., 'elastic/beats')",
+        help="GitHub repository in format 'owner/repo' (e.g., 'elastic/beats'). Required when --create-github-issues is specified.",
         default=None
     )
     parser.add_argument(
@@ -371,35 +375,44 @@ def main():
         help="Label to apply to GitHub issues (default: none)",
         default=""
     )
+    return parser
 
-    args = parser.parse_args()
 
-    # Validate required parameters
+def validate_args(args: argparse.Namespace) -> None:
+    """Validate parsed arguments, exiting with error messages on invalid input."""
     if not args.api_token:
-        print("Error: API token is required. Set BUILDKITE_API_TOKEN or use --api-token", file=sys.stderr)
+        logger.error("API token is required. Set BUILDKITE_API_TOKEN or use --api-token")
         sys.exit(1)
 
     if not args.org:
-        print("Error: Organization slug is required. Set BUILDKITE_ORG_SLUG or use --org", file=sys.stderr)
+        logger.error("Organization slug is required. Set BUILDKITE_ORG_SLUG or use --org")
         sys.exit(1)
 
     if args.days is not None and args.days < 0:
-        print("Error: --days must be >= 0", file=sys.stderr)
+        logger.error("--days must be >= 0")
         sys.exit(1)
 
     if args.max_issues is not None and args.max_issues < 0:
-        print("Error: --max-issues must be >= 0", file=sys.stderr)
+        logger.error("--max-issues must be >= 0")
         sys.exit(1)
 
     if args.create_github_issues and not args.github_repo:
-        print("Error: --github-repo is required when --create-github-issues is specified", file=sys.stderr)
+        logger.error("--github-repo is required when --create-github-issues is specified")
         sys.exit(1)
 
     if args.days is not None and args.endpoint == "current":
-        print("Warning: --days filtering is not supported with --endpoint current", file=sys.stderr)
-        print("         The 'current' endpoint doesn't provide timestamp fields.", file=sys.stderr)
-        print("         Use --endpoint deprecated (default) for date-based filtering.", file=sys.stderr)
-        print("", file=sys.stderr)
+        logger.warning("--days filtering is not supported with --endpoint current")
+        logger.warning("The 'current' endpoint doesn't provide timestamp fields.")
+        logger.warning("Use --endpoint deprecated (default) for date-based filtering.")
+
+
+def main():
+    """Main entry point for the script."""
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+
+    parser = create_arg_parser()
+    args = parser.parse_args()
+    validate_args(args)
 
     output_dir = Path(args.output_dir)
 
@@ -413,26 +426,26 @@ def main():
             issue_title_prefix=args.github_issue_title_prefix,
             github_label=github_label
         )
-        print(f"GitHub integration enabled for repository: {args.github_repo}")
+        logger.info("GitHub integration enabled for repository: %s", args.github_repo)
         if args.github_issue_title_prefix:
-            print(f"  Issue title prefix: '{args.github_issue_title_prefix}'")
+            logger.info("  Issue title prefix: '%s'", args.github_issue_title_prefix)
         else:
-            print(f"  Issue title prefix: (none)")
+            logger.info("  Issue title prefix: (none)")
         if github_label:
-            print(f"  GitHub label: '{github_label}'")
+            logger.info("  GitHub label: '%s'", github_label)
         else:
-            print(f"  GitHub label: (none)")
+            logger.info("  GitHub label: (none)")
 
     try:
-        print(f"Connecting to Buildkite Test Engine for organization: {args.org}")
+        logger.info("Connecting to Buildkite Test Engine for organization: %s", args.org)
         client = BuildkiteTestEngineClient(args.api_token, args.org)
 
-        print(f"Fetching flaky tests from suite: {args.suite_id}")
-        print(f"Using endpoint: {args.endpoint}")
+        logger.info("Fetching flaky tests from suite: %s", args.suite_id)
+        logger.info("Using endpoint: %s", args.endpoint)
         if args.branch:
-            print(f"Branch filter: {args.branch}")
+            logger.info("Branch filter: %s", args.branch)
         if args.days is not None:
-            print(f"Time filter: Last {args.days} days")
+            logger.info("Time filter: Last %d days", args.days)
 
         flaky_tests = client.get_flaky_tests(
             args.suite_id,
@@ -443,13 +456,13 @@ def main():
         )
 
         if not flaky_tests:
-            print("\nNo flaky tests detected!")
+            logger.info("\nNo flaky tests detected!")
             if args.days is not None:
-                print(f"(No tests were flaky in the last {args.days} days)")
+                logger.info("(No tests were flaky in the last %d days)", args.days)
             return
 
-        print(f"\nFound {len(flaky_tests)} flaky test(s):")
-        print("-" * 80)
+        logger.info("\nFound %d flaky test(s):", len(flaky_tests))
+        logger.info("-" * 80)
 
         issues_created = 0
         use_deprecated = args.endpoint == "deprecated"
@@ -458,49 +471,48 @@ def main():
             filepath = save_flaky_test_to_file(test_data, output_dir, idx)
 
             test_name = test_data.get("name") or test_data.get("identifier", DEFAULT_UNKNOWN)
-            print(f"\n[{idx}/{len(flaky_tests)}] Test: {test_name}")
-            print(f"  Location: {test_data.get('location', DEFAULT_NA)}")
+            logger.info("\n[%d/%d] Test: %s", idx, len(flaky_tests), test_name)
+            logger.info("  Location: %s", test_data.get('location', DEFAULT_NA))
 
             if use_deprecated and 'instances' in test_data:
-                print(f"  Flaky instances: {test_data.get('instances', DEFAULT_NA)}")
-                print(f"  Latest occurrence: {test_data.get('latest_occurrence_at', DEFAULT_NA)}")
+                logger.info("  Flaky instances: %s", test_data.get('instances', DEFAULT_NA))
+                logger.info("  Latest occurrence: %s", test_data.get('latest_occurrence_at', DEFAULT_NA))
                 if resolved := test_data.get('last_resolved_at'):
-                    print(f"  Last resolved: {resolved}")
+                    logger.info("  Last resolved: %s", resolved)
 
-            print(f"  Saved to: {filepath}")
+            logger.info("  Saved to: %s", filepath)
 
             if github_manager:
                 # Check limit before processing
                 if args.max_issues is not None and issues_created >= args.max_issues:
-                    print(f"  Skipping GitHub issue (limit of {args.max_issues} reached)")
+                    logger.info("  Skipping GitHub issue (limit of %d reached)", args.max_issues)
                 else:
-                    print(f"  Processing GitHub issue...", end=" ")
                     status, was_created = github_manager.process_flaky_test(test_data)
-                    print(status)
+                    logger.info("  Processing GitHub issue... %s", status)
 
                     if was_created:
                         issues_created += 1
 
-        print("\n" + "-" * 80)
-        print(f"\nAll flaky test reports saved to: {output_dir}")
+        logger.info("\n" + "-" * 80)
+        logger.info("\nAll flaky test reports saved to: %s", output_dir)
 
         if github_manager:
-            print(f"\nGitHub Summary:")
-            print(f"  New issues created: {issues_created}")
+            logger.info("\nGitHub Summary:")
+            logger.info("  New issues created: %d", issues_created)
             if args.max_issues is not None:
-                print(f"  Issue creation limit: {args.max_issues}")
+                logger.info("  Issue creation limit: %d", args.max_issues)
                 if issues_created >= args.max_issues and len(flaky_tests) > issues_created:
                     skipped = len(flaky_tests) - issues_created
-                    print(f"  Tests skipped (limit reached): {skipped}")
+                    logger.info("  Tests skipped (limit reached): %d", skipped)
 
     except requests.exceptions.HTTPError as e:
-        print(f"HTTP Error: {e}", file=sys.stderr)
+        logger.error("HTTP Error: %s", e)
         if hasattr(e, 'response'):
-            print(f"Response Status: {e.response.status_code}", file=sys.stderr)
-            print(f"Response: {e.response.text}", file=sys.stderr)
+            logger.error("Response Status: %s", e.response.status_code)
+            logger.error("Response: %s", e.response.text)
         sys.exit(1)
     except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
+        logger.error("Error: %s", e)
         import traceback
         traceback.print_exc()
         sys.exit(1)

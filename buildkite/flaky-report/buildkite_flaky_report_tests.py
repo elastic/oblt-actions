@@ -6,6 +6,7 @@ Run with: pytest buildkite_flaky_report_tests.py -v
 """
 
 import json
+import logging
 import pytest
 import subprocess
 from datetime import datetime, timedelta, timezone
@@ -117,8 +118,7 @@ class TestBuildkiteTestEngineClient:
         assert params["branch"] == "develop"
 
     @patch.object(bft.BuildkiteTestEngineClient, '_make_request')
-    @patch('builtins.print')
-    def test_get_flaky_tests_with_date_filter(self, mock_print, mock_request):
+    def test_get_flaky_tests_with_date_filter(self, mock_request):
         """Test get_flaky_tests with date filtering."""
         now = datetime.now(timezone.utc)
         old_date = (now - timedelta(days=10)).isoformat()
@@ -142,23 +142,22 @@ class TestBuildkiteTestEngineClient:
         assert result[1]["name"] == "no_date_test"
 
     @patch.object(bft.BuildkiteTestEngineClient, '_make_request')
-    @patch('builtins.print')
-    def test_get_flaky_tests_date_filter_with_current_endpoint(self, mock_print, mock_request):
+    def test_get_flaky_tests_date_filter_with_current_endpoint(self, mock_request, caplog):
         """Test that date filtering warns with current endpoint."""
         mock_request.return_value = [
             {"id": "1", "name": "test1", "labels": ["flaky"]}
         ]
 
-        result = self.client.get_flaky_tests(
-            "suite-id",
-            days=7,
-            use_deprecated_endpoint=False
-        )
+        with caplog.at_level(logging.WARNING, logger='buildkite_flaky_report'):
+            result = self.client.get_flaky_tests(
+                "suite-id",
+                days=7,
+                use_deprecated_endpoint=False
+            )
 
         # Should return all tests with a warning
         assert len(result) == 1
-        mock_print.assert_called_once()
-        assert "Cannot filter by days" in mock_print.call_args[0][0]
+        assert "Cannot filter by days" in caplog.text
 
     @patch.object(bft.BuildkiteTestEngineClient, '_make_request')
     def test_get_flaky_tests_pagination(self, mock_request):
@@ -394,8 +393,7 @@ class TestMaxIssuesLimit:
 
     @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
     @patch.object(bft.GitHubIssueManager, 'process_flaky_test')
-    @patch('builtins.print')
-    def test_max_issues_zero_creates_no_issues(self, mock_print, mock_process, mock_get_tests):
+    def test_max_issues_zero_creates_no_issues(self, mock_process, mock_get_tests):
         """Test that max-issues=0 creates no GitHub issues but still writes JSON files."""
         # Return some flaky tests
         mock_get_tests.return_value = [
@@ -421,8 +419,7 @@ class TestMaxIssuesLimit:
 
     @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
     @patch.object(bft.GitHubIssueManager, 'process_flaky_test')
-    @patch('builtins.print')
-    def test_max_issues_limit_enforced(self, mock_print, mock_process, mock_get_tests):
+    def test_max_issues_limit_enforced(self, mock_process, mock_get_tests):
         """Test that max-issues limits GitHub issue creation but processes all tests."""
         # Return multiple flaky tests
         mock_get_tests.return_value = [
@@ -451,8 +448,7 @@ class TestMaxIssuesLimit:
 
     @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
     @patch.object(bft.GitHubIssueManager, 'process_flaky_test')
-    @patch('builtins.print')
-    def test_max_issues_mixed_creates_and_updates(self, mock_print, mock_process, mock_get_tests):
+    def test_max_issues_mixed_creates_and_updates(self, mock_process, mock_get_tests):
         """Test max-issues counts only new issues created, not updates."""
         # Return multiple flaky tests
         mock_get_tests.return_value = [
@@ -486,8 +482,7 @@ class TestMaxIssuesLimit:
 
     @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
     @patch.object(bft.GitHubIssueManager, 'process_flaky_test')
-    @patch('builtins.print')
-    def test_max_issues_limit_on_first_test(self, mock_print, mock_process, mock_get_tests):
+    def test_max_issues_limit_on_first_test(self, mock_process, mock_get_tests, caplog):
         """Test max-issues=1 stops issue creation after first test."""
         mock_get_tests.return_value = [
             {"name": "Test1", "scope": "scope1", "location": "test1.py:1"},
@@ -496,13 +491,14 @@ class TestMaxIssuesLimit:
         mock_process.return_value = ("Created new issue", True)
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            with patch('sys.argv', [
-                'buildkite_flaky_report.py', 'test-suite-id',
-                '--org', 'test-org', '--api-token', 'test-token',
-                '--create-github-issues', '--github-repo', 'test/repo',
-                '--max-issues', '1', '--output-dir', tmpdir
-            ]):
-                bft.main()
+            with caplog.at_level(logging.INFO, logger='buildkite_flaky_report'):
+                with patch('sys.argv', [
+                    'buildkite_flaky_report.py', 'test-suite-id',
+                    '--org', 'test-org', '--api-token', 'test-token',
+                    '--create-github-issues', '--github-repo', 'test/repo',
+                    '--max-issues', '1', '--output-dir', tmpdir
+                ]):
+                    bft.main()
 
             # Only first test should create issue
             assert mock_process.call_count == 1
@@ -511,14 +507,12 @@ class TestMaxIssuesLimit:
             json_files = list(Path(tmpdir).glob("*.json"))
             assert len(json_files) == 2
 
-            # Verify skip message was printed
-            print_calls = [str(call) for call in mock_print.call_args_list]
-            assert any('Skipping GitHub issue' in call for call in print_calls)
+            # Verify skip message was logged
+            assert 'Skipping GitHub issue' in caplog.text
 
     @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
     @patch.object(bft.GitHubIssueManager, 'process_flaky_test')
-    @patch('builtins.print')
-    def test_max_issues_summary_output(self, mock_print, mock_process, mock_get_tests):
+    def test_max_issues_summary_output(self, mock_process, mock_get_tests, caplog):
         """Test that summary correctly shows skipped count."""
         mock_get_tests.return_value = [
             {"name": "Test1", "scope": "scope1", "location": "test1.py:1"},
@@ -528,23 +522,22 @@ class TestMaxIssuesLimit:
         mock_process.return_value = ("Created new issue", True)
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            with patch('sys.argv', [
-                'buildkite_flaky_report.py', 'test-suite-id',
-                '--org', 'test-org', '--api-token', 'test-token',
-                '--create-github-issues', '--github-repo', 'test/repo',
-                '--max-issues', '1', '--output-dir', tmpdir
-            ]):
-                bft.main()
+            with caplog.at_level(logging.INFO, logger='buildkite_flaky_report'):
+                with patch('sys.argv', [
+                    'buildkite_flaky_report.py', 'test-suite-id',
+                    '--org', 'test-org', '--api-token', 'test-token',
+                    '--create-github-issues', '--github-repo', 'test/repo',
+                    '--max-issues', '1', '--output-dir', tmpdir
+                ]):
+                    bft.main()
 
             # Check summary output
-            print_calls = [str(call) for call in mock_print.call_args_list]
-            assert any('New issues created: 1' in call for call in print_calls)
-            assert any('Issue creation limit: 1' in call for call in print_calls)
-            assert any('Tests skipped (limit reached): 2' in call for call in print_calls)
+            assert 'New issues created: 1' in caplog.text
+            assert 'Issue creation limit: 1' in caplog.text
+            assert 'Tests skipped (limit reached): 2' in caplog.text
 
     @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
-    @patch('builtins.print')
-    def test_no_github_manager_processes_all_tests(self, mock_print, mock_get_tests):
+    def test_no_github_manager_processes_all_tests(self, mock_get_tests):
         """Test that without GitHub manager, all tests are processed."""
         mock_get_tests.return_value = [
             {"name": "Test1", "scope": "scope1", "location": "test1.py:1"},
@@ -661,8 +654,7 @@ class TestDateFiltering:
         assert len(result) == 2
 
     @patch.object(bft.BuildkiteTestEngineClient, '_make_request')
-    @patch('builtins.print')
-    def test_filter_by_days_actual_filtering(self, mock_print, mock_request):
+    def test_filter_by_days_actual_filtering(self, mock_request):
         """Test actual date filtering with different timestamps."""
         client = bft.BuildkiteTestEngineClient("token", "org")
         now = datetime.now(timezone.utc)
@@ -689,8 +681,7 @@ class TestDateFiltering:
         assert "very_old" not in names
 
     @patch.object(bft.BuildkiteTestEngineClient, '_make_request')
-    @patch('builtins.print')
-    def test_filter_with_invalid_date_format(self, mock_print, mock_request):
+    def test_filter_with_invalid_date_format(self, mock_request):
         """Test that invalid date formats are handled gracefully."""
         client = bft.BuildkiteTestEngineClient("token", "org")
         now = datetime.now(timezone.utc)
@@ -708,71 +699,64 @@ class TestDateFiltering:
         assert len(result) == 2  # Both included (invalid dates are preserved)
 
     @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
-    @patch('builtins.print')
-    def test_days_zero_message_output(self, mock_print, mock_get_tests):
+    def test_days_zero_message_output(self, mock_get_tests, caplog):
         """Test that days=0 shows correct message in output."""
         mock_get_tests.return_value = []
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            with patch('sys.argv', [
-                'buildkite_flaky_report.py', 'test-suite-id',
-                '--org', 'test-org', '--api-token', 'test-token',
-                '--days', '0', '--output-dir', tmpdir
-            ]):
-                bft.main()
+            with caplog.at_level(logging.INFO, logger='buildkite_flaky_report'):
+                with patch('sys.argv', [
+                    'buildkite_flaky_report.py', 'test-suite-id',
+                    '--org', 'test-org', '--api-token', 'test-token',
+                    '--days', '0', '--output-dir', tmpdir
+                ]):
+                    bft.main()
 
             # Check that "Last 0 days" appears in output
-            print_calls = [str(call) for call in mock_print.call_args_list]
-            assert any('Last 0 days' in call for call in print_calls)
+            assert 'Last 0 days' in caplog.text
 
     @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
-    @patch('builtins.print')
-    def test_days_default_shows_time_filter(self, mock_print, mock_get_tests):
+    def test_days_default_shows_time_filter(self, mock_get_tests, caplog):
         """Test that default days value (1) shows time filter message."""
         mock_get_tests.return_value = []
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            with patch('sys.argv', [
-                'buildkite_flaky_report.py', 'test-suite-id',
-                '--org', 'test-org', '--api-token', 'test-token',
-                '--output-dir', tmpdir
-            ]):
-                bft.main()
+            with caplog.at_level(logging.INFO, logger='buildkite_flaky_report'):
+                with patch('sys.argv', [
+                    'buildkite_flaky_report.py', 'test-suite-id',
+                    '--org', 'test-org', '--api-token', 'test-token',
+                    '--output-dir', tmpdir
+                ]):
+                    bft.main()
 
             # Default days=1 should show "Time filter: Last 1 days"
-            print_calls = [str(call) for call in mock_print.call_args_list]
-            assert any('Time filter: Last 1 days' in call for call in print_calls)
+            assert 'Time filter: Last 1 days' in caplog.text
 
 
 class TestCLIValidation:
     """Tests for CLI argument validation."""
 
-    @patch('builtins.print')
-    def test_negative_days_validation(self, mock_print):
+    def test_negative_days_validation(self, caplog):
         """Test that negative days value is rejected."""
-        with patch('sys.argv', ['buildkite_flaky_report.py', 'test-suite-id', '--org', 'test-org', '--api-token', 'test-token', '--days', '-1']):
-            with pytest.raises(SystemExit) as exc_info:
-                bft.main()
+        with caplog.at_level(logging.ERROR, logger='buildkite_flaky_report'):
+            with patch('sys.argv', ['buildkite_flaky_report.py', 'test-suite-id', '--org', 'test-org', '--api-token', 'test-token', '--days', '-1']):
+                with pytest.raises(SystemExit) as exc_info:
+                    bft.main()
 
-            assert exc_info.value.code == 1
-            # Check that error message was printed to stderr
-            print_calls = [str(call) for call in mock_print.call_args_list]
-            assert any('--days must be >= 0' in call for call in print_calls)
+        assert exc_info.value.code == 1
+        assert '--days must be >= 0' in caplog.text
 
-    @patch('builtins.print')
-    def test_negative_max_issues_validation(self, mock_print):
+    def test_negative_max_issues_validation(self, caplog):
         """Test that negative max-issues value is rejected."""
-        with patch('sys.argv', ['buildkite_flaky_report.py', 'test-suite-id', '--org', 'test-org', '--api-token', 'test-token', '--max-issues', '-5']):
-            with pytest.raises(SystemExit) as exc_info:
-                bft.main()
+        with caplog.at_level(logging.ERROR, logger='buildkite_flaky_report'):
+            with patch('sys.argv', ['buildkite_flaky_report.py', 'test-suite-id', '--org', 'test-org', '--api-token', 'test-token', '--max-issues', '-5']):
+                with pytest.raises(SystemExit) as exc_info:
+                    bft.main()
 
-            assert exc_info.value.code == 1
-            # Check that error message was printed to stderr
-            print_calls = [str(call) for call in mock_print.call_args_list]
-            assert any('--max-issues must be >= 0' in call for call in print_calls)
+        assert exc_info.value.code == 1
+        assert '--max-issues must be >= 0' in caplog.text
 
-    @patch('builtins.print')
-    def test_days_zero_is_valid(self, mock_print):
+    def test_days_zero_is_valid(self):
         """Test that days=0 is accepted (not treated as falsy)."""
         with tempfile.TemporaryDirectory() as tmpdir:
             with patch('sys.argv', ['buildkite_flaky_report.py', 'test-suite-id', '--org', 'test-org', '--api-token', 'test-token', '--days', '0', '--output-dir', tmpdir]):
@@ -780,13 +764,48 @@ class TestCLIValidation:
                     # Should not raise SystemExit - if it completes, days=0 was accepted
                     bft.main()
 
+    def test_missing_api_token_exits(self, caplog):
+        """Test that missing API token exits with an error."""
+        with caplog.at_level(logging.ERROR, logger='buildkite_flaky_report'):
+            with patch('sys.argv', ['buildkite_flaky_report.py', 'test-suite-id', '--org', 'test-org']):
+                with patch.dict(os.environ, {}, clear=True):
+                    with pytest.raises(SystemExit) as exc_info:
+                        bft.main()
+
+        assert exc_info.value.code == 1
+        assert 'API token is required' in caplog.text
+
+    def test_missing_org_exits(self, caplog):
+        """Test that missing organization slug exits with an error."""
+        with caplog.at_level(logging.ERROR, logger='buildkite_flaky_report'):
+            with patch('sys.argv', ['buildkite_flaky_report.py', 'test-suite-id', '--api-token', 'test-token']):
+                with patch.dict(os.environ, {}, clear=True):
+                    with pytest.raises(SystemExit) as exc_info:
+                        bft.main()
+
+        assert exc_info.value.code == 1
+        assert 'Organization slug is required' in caplog.text
+
+    def test_missing_github_repo_with_create_issues_exits(self, caplog):
+        """Test that --create-github-issues without --github-repo exits with an error."""
+        with caplog.at_level(logging.ERROR, logger='buildkite_flaky_report'):
+            with patch('sys.argv', [
+                'buildkite_flaky_report.py', 'test-suite-id',
+                '--org', 'test-org', '--api-token', 'test-token',
+                '--create-github-issues'
+            ]):
+                with pytest.raises(SystemExit) as exc_info:
+                    bft.main()
+
+        assert exc_info.value.code == 1
+        assert '--github-repo is required' in caplog.text
+
 
 class TestOutputValidation:
     """Tests for output count and file generation."""
 
     @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
-    @patch('builtins.print')
-    def test_output_count_matches_detected_tests(self, mock_print, mock_get_tests):
+    def test_output_count_matches_detected_tests(self, mock_get_tests, caplog):
         """Test that output count reflects all detected tests, not just issues created."""
         mock_get_tests.return_value = [
             {"name": "Test1", "scope": "scope1", "location": "test1.py:1"},
@@ -795,20 +814,20 @@ class TestOutputValidation:
         ]
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            with patch('sys.argv', [
-                'buildkite_flaky_report.py', 'test-suite-id',
-                '--org', 'test-org', '--api-token', 'test-token',
-                '--output-dir', tmpdir
-            ]):
-                bft.main()
+            with caplog.at_level(logging.INFO, logger='buildkite_flaky_report'):
+                with patch('sys.argv', [
+                    'buildkite_flaky_report.py', 'test-suite-id',
+                    '--org', 'test-org', '--api-token', 'test-token',
+                    '--output-dir', tmpdir
+                ]):
+                    bft.main()
 
             # Should have 3 JSON files
             json_files = list(Path(tmpdir).glob("*.json"))
             assert len(json_files) == 3
 
             # Output should mention 3 tests found
-            print_calls = [str(call) for call in mock_print.call_args_list]
-            assert any('Found 3 flaky test' in call for call in print_calls)
+            assert 'Found 3 flaky test' in caplog.text
 
 class TestEdgeCases:
     """Tests for edge cases and error handling."""
@@ -853,8 +872,7 @@ class TestEdgeCases:
 
     @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
     @patch.object(bft.GitHubIssueManager, 'process_flaky_test')
-    @patch('builtins.print')
-    def test_all_updates_no_creates_with_max_issues(self, mock_print, mock_process, mock_get_tests):
+    def test_all_updates_no_creates_with_max_issues(self, mock_process, mock_get_tests):
         """Test that max-issues doesn't apply when all tests update existing issues."""
         mock_get_tests.return_value = [
             {"name": "Test1", "scope": "scope1", "location": "test1.py:1"},
@@ -877,8 +895,7 @@ class TestEdgeCases:
             assert mock_process.call_count == 3
 
     @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
-    @patch('builtins.print')
-    def test_deprecated_endpoint_with_instances(self, mock_print, mock_get_tests):
+    def test_deprecated_endpoint_with_instances(self, mock_get_tests, caplog):
         """Test that deprecated endpoint shows instance info."""
         mock_get_tests.return_value = [
             {
@@ -892,38 +909,37 @@ class TestEdgeCases:
         ]
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            with patch('sys.argv', [
-                'buildkite_flaky_report.py', 'test-suite-id',
-                '--org', 'test-org', '--api-token', 'test-token',
-                '--endpoint', 'deprecated', '--output-dir', tmpdir
-            ]):
-                bft.main()
+            with caplog.at_level(logging.INFO, logger='buildkite_flaky_report'):
+                with patch('sys.argv', [
+                    'buildkite_flaky_report.py', 'test-suite-id',
+                    '--org', 'test-org', '--api-token', 'test-token',
+                    '--endpoint', 'deprecated', '--output-dir', tmpdir
+                ]):
+                    bft.main()
 
-            # Check that instance info is printed
-            print_calls = [str(call) for call in mock_print.call_args_list]
-            assert any('Flaky instances: 5' in call for call in print_calls)
-            assert any('Latest occurrence' in call for call in print_calls)
-            assert any('Last resolved' in call for call in print_calls)
+            # Check that instance info is logged
+            assert 'Flaky instances: 5' in caplog.text
+            assert 'Latest occurrence' in caplog.text
+            assert 'Last resolved' in caplog.text
 
     @patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests')
-    @patch('builtins.print')
-    def test_current_endpoint_no_instances(self, mock_print, mock_get_tests):
+    def test_current_endpoint_no_instances(self, mock_get_tests, caplog):
         """Test that current endpoint doesn't show instance info."""
         mock_get_tests.return_value = [
             {"name": "Test1", "scope": "scope1", "location": "test1.py:1"}
         ]
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            with patch('sys.argv', [
-                'buildkite_flaky_report.py', 'test-suite-id',
-                '--org', 'test-org', '--api-token', 'test-token',
-                '--endpoint', 'current', '--output-dir', tmpdir
-            ]):
-                bft.main()
+            with caplog.at_level(logging.INFO, logger='buildkite_flaky_report'):
+                with patch('sys.argv', [
+                    'buildkite_flaky_report.py', 'test-suite-id',
+                    '--org', 'test-org', '--api-token', 'test-token',
+                    '--endpoint', 'current', '--output-dir', tmpdir
+                ]):
+                    bft.main()
 
-            # Instance info should not be printed
-            print_calls = [str(call) for call in mock_print.call_args_list]
-            assert not any('Flaky instances' in call for call in print_calls)
+            # Instance info should not be logged
+            assert 'Flaky instances' not in caplog.text
 
 
 if __name__ == "__main__":
