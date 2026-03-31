@@ -182,7 +182,7 @@ class BuildkiteTestEngineClient:
             max_runs: Maximum number of runs to check (default: 50)
 
         Returns:
-            Flaky tests enriched with failure_examples field
+            Flaky tests enriched with failure_examples field (list of dicts with 'message', 'run_url', 'run_time')
         """
         logger.info("Fetching failure details from recent runs...")
 
@@ -226,30 +226,27 @@ class BuildkiteTestEngineClient:
                     # If we have any failure information
                     if failure_parts:
                         # Combine all parts (in case there are multiple fields)
-                        failure_info = "\n\n".join(failure_parts)
+                        failure_message = "\n\n".join(failure_parts)
 
-                        # Add metadata if available
-                        metadata = []
-                        if run_url := run.get("url"):
-                            metadata.append(f"Run: {run_url}")
-                        if run_time := run.get("created_at"):
-                            metadata.append(f"Time: {run_time}")
+                        # Create failure example with separate metadata
+                        failure_example = {
+                            "message": failure_message,
+                            "run_url": run.get("url"),
+                            "run_time": run.get("created_at")
+                        }
 
-                        if metadata:
-                            failure_info = "\n".join(metadata) + "\n\n" + failure_info
-
-                        # Add failure example if not already present (check first 500 chars to avoid exact duplicates)
+                        # Add failure example if not already present (check message signature to avoid exact duplicates)
                         test = test_map[test_id]
-                        failure_signature = failure_info[:500]
+                        failure_signature = failure_message[:500]
 
                         # Check if we already have a similar failure
                         is_duplicate = any(
-                            existing[:500] == failure_signature
+                            existing.get("message", "")[:500] == failure_signature
                             for existing in test["failure_examples"]
                         )
 
                         if not is_duplicate:
-                            test["failure_examples"].append(failure_info)
+                            test["failure_examples"].append(failure_example)
 
         # Log summary
         tests_with_failures = sum(1 for t in flaky_tests if t.get("failure_examples"))
@@ -357,9 +354,27 @@ class GitHubIssueManager:
 
         # Add failure examples if available
         if failure_examples := test_data.get("failure_examples"):
-            body_parts.append("\n### Failure Examples\n")
-            for idx, failure in enumerate(failure_examples[:3], 1):  # Limit to 3 examples
-                body_parts.append(f"\n**Example {idx}:**\n```\n{failure}\n```")
+            if failure_examples:  # Check it's not an empty list
+                logger.debug("Adding %d failure examples to issue", len(failure_examples))
+                body_parts.append("\n\n### Failure Examples\n")
+                for idx, failure in enumerate(failure_examples[:3], 1):  # Limit to 3 examples
+                    body_parts.append(f"\n**Example {idx}:**\n")
+
+                    # Add metadata (run URL and time) outside code block
+                    if isinstance(failure, dict):
+                        if run_url := failure.get("run_url"):
+                            body_parts.append(f"**Run:** {run_url}\n")
+                        if run_time := failure.get("run_time"):
+                            body_parts.append(f"**Time:** {run_time}\n")
+                        failure_msg = failure.get("message", "")
+                    else:
+                        # Backward compatibility if failure is still a string
+                        failure_msg = failure
+
+                    # Add failure message in code block
+                    body_parts.append(f"\n```\n{failure_msg}\n```\n")
+        else:
+            logger.debug("No failure examples found for test: %s", test_name)
 
         body = "".join(body_parts)
 
