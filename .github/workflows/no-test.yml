@@ -11,6 +11,7 @@ on:
       - '!.github/workflows/test-*'
       - '!aws/auth/**'
       - '!azure/auth/**'
+      - '!buildkite/flaky-report/**'
       - '!buildkite/run/**'
       - '!check-dependent-jobs/**'
       - '!download-kibana-dashboard/**'
