@@ -1268,6 +1268,105 @@ class TestFailureEnrichment:
         # Should have no failure examples
         assert len(result[0]["failure_examples"]) == 0
 
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_recent_runs')
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_failed_executions')
+    def test_enrich_respects_max_examples_per_test(self, mock_get_executions, mock_get_runs):
+        """Test that enrichment caps failure examples per test."""
+        # Mock runs
+        mock_get_runs.return_value = [
+            {"id": f"run-{i}", "url": f"http://example.com/run/{i}", "created_at": "2024-01-01"}
+            for i in range(10)
+        ]
+
+        # Mock executions - many failures for the same test
+        mock_get_executions.return_value = [
+            {
+                "test_id": "test-123",
+                "failure_reason": f"Failure {i}"
+            }
+            for i in range(10)
+        ]
+
+        flaky_tests = [{"id": "test-123", "name": "test_foo"}]
+        result = self.client.enrich_flaky_tests_with_failures(
+            "suite-id", flaky_tests, max_runs=10, max_examples_per_test=3
+        )
+
+        # Should cap at 3 examples even though more were available
+        assert len(result[0]["failure_examples"]) == 3
+
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_recent_runs')
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_failed_executions')
+    def test_enrich_stops_early_when_all_tests_have_max_examples(self, mock_get_executions, mock_get_runs):
+        """Test that enrichment short-circuits when all tests reach max examples."""
+        # Mock 100 runs
+        mock_get_runs.return_value = [
+            {"id": f"run-{i}", "url": f"http://example.com/run/{i}", "created_at": "2024-01-01"}
+            for i in range(100)
+        ]
+
+        # Mock executions - each run has one failure
+        call_count = 0
+        def mock_executions_side_effect(suite_id, run_id):
+            nonlocal call_count
+            call_count += 1
+            return [{
+                "test_id": "test-123",
+                "failure_reason": f"Failure {call_count}"
+            }]
+
+        mock_get_executions.side_effect = mock_executions_side_effect
+
+        flaky_tests = [{"id": "test-123", "name": "test_foo"}]
+        result = self.client.enrich_flaky_tests_with_failures(
+            "suite-id", flaky_tests, max_runs=100, max_examples_per_test=3
+        )
+
+        # Should have capped at 3 examples
+        assert len(result[0]["failure_examples"]) == 3
+
+        # Should have stopped early (only 3 API calls, not 100)
+        assert call_count == 3
+
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_recent_runs')
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_failed_executions')
+    def test_enrich_continues_until_all_tests_have_examples(self, mock_get_executions, mock_get_runs):
+        """Test that enrichment continues for tests that still need examples."""
+        # Mock runs
+        mock_get_runs.return_value = [
+            {"id": f"run-{i}", "url": f"http://example.com/run/{i}", "created_at": "2024-01-01"}
+            for i in range(10)
+        ]
+
+        # Mock executions - alternate between two tests
+        call_count = 0
+        def mock_executions_side_effect(suite_id, run_id):
+            nonlocal call_count
+            call_count += 1
+            # First 3 calls return test-123, rest return test-456
+            test_id = "test-123" if call_count <= 3 else "test-456"
+            return [{
+                "test_id": test_id,
+                "failure_reason": f"Failure {call_count}"
+            }]
+
+        mock_get_executions.side_effect = mock_executions_side_effect
+
+        flaky_tests = [
+            {"id": "test-123", "name": "test_foo"},
+            {"id": "test-456", "name": "test_bar"}
+        ]
+        result = self.client.enrich_flaky_tests_with_failures(
+            "suite-id", flaky_tests, max_runs=10, max_examples_per_test=3
+        )
+
+        # Both tests should have 3 examples
+        assert len(result[0]["failure_examples"]) == 3
+        assert len(result[1]["failure_examples"]) == 3
+
+        # Should have made 6 calls total (3 for each test)
+        assert call_count == 6
+
 
 class TestNullFieldHandling:
     """Tests for handling null file_name and location fields."""
