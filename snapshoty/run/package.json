@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Snapshoty Github Action",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "lint": "eslint .",
     "prepare": "ncc build index.js -m -o dist --no-source-map-register --license licenses.txt",
