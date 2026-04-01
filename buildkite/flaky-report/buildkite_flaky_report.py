@@ -426,6 +426,50 @@ class GitHubIssueManager:
 
         return None
 
+    @staticmethod
+    def _format_failure_examples_markdown(failure_examples: List, max_examples: int = 3) -> str:
+        """
+        Format failure examples as markdown for GitHub issue.
+
+        Args:
+            failure_examples: List of failure examples (dicts or strings)
+            max_examples: Maximum number of examples to include (default: 3)
+
+        Returns:
+            Formatted markdown string for failure examples section
+        """
+        if not failure_examples:
+            return ""
+
+        parts = ["\n\n### Failure Examples\n"]
+
+        for idx, failure in enumerate(failure_examples[:max_examples], 1):
+            parts.append(f"\n**Example {idx}:**\n")
+
+            # Extract metadata and message
+            if isinstance(failure, dict):
+                if run_url := failure.get("run_url"):
+                    parts.append(f"**Run:** {run_url}\n")
+                if run_time := failure.get("run_time"):
+                    parts.append(f"**Time:** {run_time}\n")
+                failure_msg = failure.get("message", "")
+            else:
+                # Backward compatibility if failure is a string
+                failure_msg = failure
+
+            # Add failure message in code block
+            parts.append("**Stacktrace:**\n")
+            parts.append("\n```\n")
+            if isinstance(failure_msg, list):
+                # List of strings - join with newlines
+                parts.append("\n".join(failure_msg))
+            else:
+                # String (backward compatibility)
+                parts.append(str(failure_msg))
+            parts.append("\n```\n")
+
+        return "".join(parts)
+
     def create_issue(self, test_data: Dict[str, Any]) -> Optional[str]:
         """Create a new GitHub issue for a flaky test."""
         test_name, scope, location, file_name, web_url = self._extract_test_info(test_data)
@@ -448,33 +492,8 @@ class GitHubIssueManager:
 
         # Add failure examples if available
         if failure_examples := test_data.get("failure_examples"):
-            if failure_examples:  # Check it's not an empty list
-                logger.debug("Adding %d failure examples to issue", len(failure_examples))
-                body_parts.append("\n\n### Failure Examples\n")
-                for idx, failure in enumerate(failure_examples[:3], 1):  # Limit to 3 examples
-                    body_parts.append(f"\n**Example {idx}:**\n")
-
-                    # Add metadata (run URL and time) outside code block
-                    if isinstance(failure, dict):
-                        if run_url := failure.get("run_url"):
-                            body_parts.append(f"**Run:** {run_url}\n")
-                        if run_time := failure.get("run_time"):
-                            body_parts.append(f"**Time:** {run_time}\n")
-                        failure_msg = failure.get("message", "")
-                    else:
-                        # Backward compatibility if failure is still a string
-                        failure_msg = failure
-
-                    # Add failure message in code block
-                    body_parts.append(f"**Stacktrace:**\n")
-                    body_parts.append("\n```\n")
-                    if isinstance(failure_msg, list):
-                        # List of strings - join with newlines for proper multiline formatting
-                        body_parts.append("\n".join(failure_msg))
-                    else:
-                        # String (backward compatibility)
-                        body_parts.append(str(failure_msg))
-                    body_parts.append("\n```\n")
+            logger.debug("Adding %d failure examples to issue", len(failure_examples))
+            body_parts.append(self._format_failure_examples_markdown(failure_examples))
         else:
             logger.debug("No failure examples found for test: %s", test_name)
 

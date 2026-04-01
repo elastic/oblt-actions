@@ -1637,6 +1637,80 @@ class TestHelperMethods:
 
         assert result is False
 
+    def test_format_failure_examples_with_list_messages(self):
+        """Test formatting failure examples with list messages."""
+        failures = [
+            {
+                "message": ["Line 1", "Line 2", "Line 3"],
+                "run_url": "http://example.com/run/1",
+                "run_time": "2024-01-01T10:00:00Z"
+            }
+        ]
+
+        result = bft.GitHubIssueManager._format_failure_examples_markdown(failures)
+
+        assert "### Failure Examples" in result
+        assert "Example 1:" in result
+        assert "http://example.com/run/1" in result
+        assert "2024-01-01T10:00:00Z" in result
+        assert "Line 1" in result
+        assert "Line 2" in result
+        assert "Line 3" in result
+        assert "```" in result
+
+    def test_format_failure_examples_with_string_messages(self):
+        """Test formatting failure examples with string messages (backward compatibility)."""
+        failures = [
+            {
+                "message": "Single line error",
+                "run_url": "http://example.com/run/1"
+            }
+        ]
+
+        result = bft.GitHubIssueManager._format_failure_examples_markdown(failures)
+
+        assert "### Failure Examples" in result
+        assert "Single line error" in result
+
+    def test_format_failure_examples_respects_max_limit(self):
+        """Test that only max_examples are included."""
+        failures = [
+            {"message": ["Error 1"], "run_url": "http://example.com/1"},
+            {"message": ["Error 2"], "run_url": "http://example.com/2"},
+            {"message": ["Error 3"], "run_url": "http://example.com/3"},
+            {"message": ["Error 4"], "run_url": "http://example.com/4"},
+            {"message": ["Error 5"], "run_url": "http://example.com/5"},
+        ]
+
+        result = bft.GitHubIssueManager._format_failure_examples_markdown(failures, max_examples=3)
+
+        # Should only include first 3
+        assert "Example 1:" in result
+        assert "Example 2:" in result
+        assert "Example 3:" in result
+        assert "Example 4:" not in result
+        assert "Example 5:" not in result
+
+    def test_format_failure_examples_empty_list(self):
+        """Test formatting returns empty string for empty list."""
+        result = bft.GitHubIssueManager._format_failure_examples_markdown([])
+
+        assert result == ""
+
+    def test_format_failure_examples_without_metadata(self):
+        """Test formatting works without run_url and run_time."""
+        failures = [
+            {"message": ["Error occurred"]}
+        ]
+
+        result = bft.GitHubIssueManager._format_failure_examples_markdown(failures)
+
+        assert "### Failure Examples" in result
+        assert "Error occurred" in result
+        # Should not have Run: or Time: sections
+        assert "**Run:**" not in result
+        assert "**Time:**" not in result
+
 
 class TestNewFixes:
     """Tests for recent bug fixes and improvements."""
