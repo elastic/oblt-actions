@@ -48,6 +48,14 @@ inputs:
     description: 'API endpoint to use (deprecated or current)'
     required: false
     default: 'deprecated'
+  max-runs:
+    description: 'Maximum number of recent runs to check for failure details'
+    required: false
+    default: '50'
+  debug:
+    description: 'Enable debug logging for detailed execution information'
+    required: false
+    default: 'false'
   python-version:
     description: 'Python version to use'
     required: false
@@ -80,12 +88,14 @@ runs:
         BUILDKITE_API_TOKEN: ${{ inputs.token }}
         BUILDKITE_ORG_SLUG: ${{ inputs.org }}
         DAYS: ${{ inputs.days }}
+        DEBUG: ${{ inputs.debug }}
         ENDPOINT: ${{ inputs.endpoint }}
         GH_TOKEN: ${{ inputs.github-token }}
         GITHUB_REPO: ${{ inputs.github-repo }}
         GITHUB_ISSUE_TITLE_PREFIX: ${{ inputs.github-issue-title-prefix }}
         GITHUB_LABEL: ${{ inputs.github-label }}
         MAX_ISSUES: ${{ inputs.max-issues }}
+        MAX_RUNS: ${{ inputs.max-runs }}
         OUTPUT_DIR: ${{ inputs.output-dir }}
         TEST_SUITE_ID: ${{ inputs.test-suite-id }}
       run: |
@@ -115,9 +125,18 @@ runs:
           --endpoint "${ENDPOINT}"
         )
 
+        # Add max-runs if specified
+        if [[ -n "${MAX_RUNS}" ]]; then
+          CMD_ARGS+=(--max-runs "${MAX_RUNS}")
+        fi
         # Add max-issues if specified
         if [[ -n "${MAX_ISSUES}" ]]; then
           CMD_ARGS+=(--max-issues "${MAX_ISSUES}")
+        fi
+
+        # Add debug flag if enabled
+        if [[ "${DEBUG}" == "true" ]]; then
+          CMD_ARGS+=(--debug)
         fi
 
         # Run the script
