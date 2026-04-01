@@ -53,7 +53,7 @@ inputs:
     required: false
     default: '50'
   debug:
-    description: 'Enable debug logging to see API response details'
+    description: 'Enable debug logging for detailed execution information'
     required: false
     default: 'false'
   python-version:

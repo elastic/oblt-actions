@@ -26,7 +26,7 @@ Detects flaky tests from Buildkite Test Engine and creates/updates GitHub issues
 | `max-issues`                | Maximum number of new GitHub issues to create                | `false`  | ` `             |
 | `endpoint`                  | API endpoint to use (deprecated or current)                  | `false`  | `deprecated`    |
 | `max-runs`                  | Maximum number of recent runs to check for failure details   | `false`  | `50`            |
-| `debug`                     | Enable debug logging to see API response details             | `false`  | `false`         |
+| `debug`                     | Enable debug logging for detailed execution information      | `false`  | `false`         |
 | `python-version`            | Python version to use                                        | `false`  | `3.13`          |
 <!--/inputs-->
 
@@ -39,8 +39,19 @@ Detects flaky tests from Buildkite Test Engine and creates/updates GitHub issues
 <!--/outputs-->
 
 ## Usage
+
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
-### Basic Usage
+```yaml
+- uses: elastic/oblt-actions/buildkite/flaky-report@v1
+  with:
+    token: ${{ secrets.BUILDKITE_TOKEN }}
+    test-suite-id: 'your-test-suite-uuid'
+    github-repo: ${{ github.repository }}
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+<!--/usage-->
+
+### Basic Example
 ```yaml
 jobs:
   run-buildkite:
@@ -57,7 +68,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-### Advanced Usage
+### Advanced Example
 ```yaml
 jobs:
   run-buildkite:
@@ -79,4 +90,3 @@ jobs:
           github-issue-title-prefix: '[Flaky]' # Add prefix to issue titles
           debug: true                          # Enable debug logging
 ```
-<!--/usage-->
