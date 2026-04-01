@@ -123,9 +123,12 @@ runs:
           --github-issue-title-prefix "${GITHUB_ISSUE_TITLE_PREFIX}"
           --github-label "${GITHUB_LABEL}"
           --endpoint "${ENDPOINT}"
-          --max-runs "${MAX_RUNS}"
         )
 
+        # Add max-runs if specified
+        if [[ -n "${MAX_RUNS}" ]]; then
+          CMD_ARGS+=(--max-runs "${MAX_RUNS}")
+        fi
         # Add max-issues if specified
         if [[ -n "${MAX_ISSUES}" ]]; then
           CMD_ARGS+=(--max-issues "${MAX_ISSUES}")
