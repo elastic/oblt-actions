@@ -219,11 +219,18 @@ class BuildkiteTestEngineClient:
                     # Build failure message - prefer failure_expanded (full trace) over failure_reason (truncated)
                     failure_message = None
 
-                    # Priority 1: failure_expanded (array of strings with full stack trace)
+                    # Priority 1: failure_expanded (array of objects with backtrace and expanded fields)
                     if failure_expanded := execution.get("failure_expanded"):
                         if isinstance(failure_expanded, list) and failure_expanded:
-                            # Join array of lines into full stack trace
-                            failure_message = "\n".join(str(line) for line in failure_expanded)
+                            # failure_expanded is an array of objects like:
+                            # [{"backtrace": [...], "expanded": [...]}]
+                            # Extract the backtrace from the first item
+                            first_item = failure_expanded[0]
+                            if isinstance(first_item, dict):
+                                if backtrace := first_item.get("backtrace"):
+                                    if isinstance(backtrace, list):
+                                        # Join backtrace lines into full stack trace
+                                        failure_message = "\n".join(str(line) for line in backtrace)
 
                     # Priority 2: failure_reason (truncated to 1024 chars)
                     if not failure_message:

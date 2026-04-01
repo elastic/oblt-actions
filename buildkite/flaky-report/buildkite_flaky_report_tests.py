@@ -1127,15 +1127,20 @@ class TestFailureEnrichment:
             {"id": "run-1", "url": "https://example.com/run-1", "created_at": "2026-04-01T10:00:00Z"}
         ]
 
-        # Mock execution with failure_expanded (array of strings)
+        # Mock execution with failure_expanded (real API format: array of objects with backtrace)
         mock_get_executions.return_value = [
             {
                 "test_id": "test-123",
                 "failure_reason": "Got 1 failure",  # Truncated version
                 "failure_expanded": [
-                    "AssertionError: Expected 5 but got 4",
-                    "  File 'test.py', line 42, in test_foo",
-                    "    assert result == 5"
+                    {
+                        "backtrace": [
+                            "AssertionError: Expected 5 but got 4",
+                            "  File 'test.py', line 42, in test_foo",
+                            "    assert result == 5"
+                        ],
+                        "expanded": ["AssertionError: Expected 5 but got 4"]
+                    }
                 ]
             }
         ]
