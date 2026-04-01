@@ -154,15 +154,17 @@ class BuildkiteTestEngineClient:
             run_id: Run ID
 
         Returns:
-            List of failed execution objects with failure_reason and test_id
+            List of failed execution objects with failure_reason, failure_expanded, and test_id
         """
         endpoint = FAILED_EXECUTIONS_ENDPOINT.format(
             org=self.org_slug,
             suite=suite_id,
             run_id=run_id
         )
+        # Request expanded failures to get full stack traces
+        params = {"include_failure_expanded": "true"}
         try:
-            return self._make_request(endpoint)
+            return self._make_request(endpoint, params)
         except Exception as e:
             logger.debug("Failed to fetch executions for run %s: %s", run_id, e)
             return []
@@ -214,19 +216,23 @@ class BuildkiteTestEngineClient:
 
                 test_id = execution.get("test_id")
                 if test_id in test_map:
-                    # Build comprehensive failure message from available fields
-                    failure_parts = []
+                    # Build failure message - prefer failure_expanded (full trace) over failure_reason (truncated)
+                    failure_message = None
 
-                    # Check various fields that might contain failure details
-                    for field in ["failure_reason", "failure_message", "failure_expanded", "output", "message"]:
-                        if value := execution.get(field):
-                            if isinstance(value, str) and value.strip() and value not in failure_parts:
-                                failure_parts.append(value.strip())
+                    # Priority 1: failure_expanded (array of strings with full stack trace)
+                    if failure_expanded := execution.get("failure_expanded"):
+                        if isinstance(failure_expanded, list) and failure_expanded:
+                            # Join array of lines into full stack trace
+                            failure_message = "\n".join(str(line) for line in failure_expanded)
+
+                    # Priority 2: failure_reason (truncated to 1024 chars)
+                    if not failure_message:
+                        if failure_reason := execution.get("failure_reason"):
+                            if isinstance(failure_reason, str) and failure_reason.strip():
+                                failure_message = failure_reason.strip()
 
                     # If we have any failure information
-                    if failure_parts:
-                        # Combine all parts (in case there are multiple fields)
-                        failure_message = "\n\n".join(failure_parts)
+                    if failure_message:
 
                         # Create failure example with separate metadata
                         failure_example = {
@@ -281,12 +287,17 @@ class GitHubIssueManager:
 
     @staticmethod
     def _extract_test_info(test_data: Dict[str, Any]) -> tuple[str, str, str, str, str]:
-        """Extract common test fields with defaults."""
+        """
+        Extract common test fields with defaults.
+
+        Note: file_name and location may be null for tests recorded by older collector versions.
+        They should backfill automatically on the next run.
+        """
         return (
             test_data.get("name", DEFAULT_UNKNOWN),
             test_data.get("scope", DEFAULT_EMPTY),
-            test_data.get("location", DEFAULT_NA),
-            test_data.get("file_name", DEFAULT_NA),
+            test_data.get("location") or DEFAULT_NA,
+            test_data.get("file_name") or DEFAULT_NA,
             test_data.get("web_url", DEFAULT_EMPTY)
         )
 

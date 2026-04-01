@@ -983,6 +983,9 @@ class TestFailureEnrichment:
         args = mock_request.call_args[0]
         assert "failed_executions" in args[0]
         assert "run-1" in args[0]
+        # Check that include_failure_expanded parameter is passed
+        params = mock_request.call_args[0][1]
+        assert params["include_failure_expanded"] == "true"
 
     @patch.object(bft.BuildkiteTestEngineClient, '_make_request')
     def test_get_failed_executions_error_handling(self, mock_request):
@@ -1115,6 +1118,181 @@ class TestFailureEnrichment:
 
         # Check that get_recent_runs was called with correct limit
         mock_get_runs.assert_called_once_with("suite-id", limit=25)
+
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_recent_runs')
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_failed_executions')
+    def test_enrich_with_failure_expanded(self, mock_get_executions, mock_get_runs):
+        """Test enrichment uses failure_expanded when available."""
+        mock_get_runs.return_value = [
+            {"id": "run-1", "url": "https://example.com/run-1", "created_at": "2026-04-01T10:00:00Z"}
+        ]
+
+        # Mock execution with failure_expanded (array of strings)
+        mock_get_executions.return_value = [
+            {
+                "test_id": "test-123",
+                "failure_reason": "Got 1 failure",  # Truncated version
+                "failure_expanded": [
+                    "AssertionError: Expected 5 but got 4",
+                    "  File 'test.py', line 42, in test_foo",
+                    "    assert result == 5"
+                ]
+            }
+        ]
+
+        flaky_tests = [{"id": "test-123", "name": "test_foo"}]
+        result = self.client.enrich_flaky_tests_with_failures("suite-id", flaky_tests)
+
+        # Should use failure_expanded (full trace), not failure_reason (truncated)
+        assert len(result[0]["failure_examples"]) == 1
+        failure = result[0]["failure_examples"][0]
+        assert "AssertionError: Expected 5 but got 4" in failure["message"]
+        assert "File 'test.py', line 42" in failure["message"]
+        # Should be joined with newlines
+        assert "\n" in failure["message"]
+
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_recent_runs')
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_failed_executions')
+    def test_enrich_fallback_to_failure_reason(self, mock_get_executions, mock_get_runs):
+        """Test enrichment falls back to failure_reason when failure_expanded is null."""
+        mock_get_runs.return_value = [
+            {"id": "run-1", "url": "https://example.com/run-1", "created_at": "2026-04-01T10:00:00Z"}
+        ]
+
+        # Mock execution with null failure_expanded (older executions)
+        mock_get_executions.return_value = [
+            {
+                "test_id": "test-123",
+                "failure_reason": "Got 1 failure and 0 errors.",
+                "failure_expanded": None
+            }
+        ]
+
+        flaky_tests = [{"id": "test-123", "name": "test_foo"}]
+        result = self.client.enrich_flaky_tests_with_failures("suite-id", flaky_tests)
+
+        # Should use failure_reason as fallback
+        assert len(result[0]["failure_examples"]) == 1
+        failure = result[0]["failure_examples"][0]
+        assert failure["message"] == "Got 1 failure and 0 errors."
+
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_recent_runs')
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_failed_executions')
+    def test_enrich_empty_failure_expanded_array(self, mock_get_executions, mock_get_runs):
+        """Test enrichment handles empty failure_expanded array."""
+        mock_get_runs.return_value = [
+            {"id": "run-1", "url": "https://example.com/run-1", "created_at": "2026-04-01T10:00:00Z"}
+        ]
+
+        # Mock execution with empty failure_expanded array
+        mock_get_executions.return_value = [
+            {
+                "test_id": "test-123",
+                "failure_reason": "Test failed",
+                "failure_expanded": []
+            }
+        ]
+
+        flaky_tests = [{"id": "test-123", "name": "test_foo"}]
+        result = self.client.enrich_flaky_tests_with_failures("suite-id", flaky_tests)
+
+        # Should fall back to failure_reason
+        assert len(result[0]["failure_examples"]) == 1
+        failure = result[0]["failure_examples"][0]
+        assert failure["message"] == "Test failed"
+
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_recent_runs')
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_failed_executions')
+    def test_enrich_no_failure_info(self, mock_get_executions, mock_get_runs):
+        """Test enrichment when no failure info is available."""
+        mock_get_runs.return_value = [
+            {"id": "run-1", "url": "https://example.com/run-1", "created_at": "2026-04-01T10:00:00Z"}
+        ]
+
+        # Mock execution with no failure info
+        mock_get_executions.return_value = [
+            {
+                "test_id": "test-123",
+                "failure_reason": None,
+                "failure_expanded": None
+            }
+        ]
+
+        flaky_tests = [{"id": "test-123", "name": "test_foo"}]
+        result = self.client.enrich_flaky_tests_with_failures("suite-id", flaky_tests)
+
+        # Should have no failure examples
+        assert len(result[0]["failure_examples"]) == 0
+
+
+class TestNullFieldHandling:
+    """Tests for handling null file_name and location fields."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.manager = bft.GitHubIssueManager("test-org/test-repo")
+
+    @patch.object(bft.GitHubIssueManager, '_run_gh_command')
+    def test_create_issue_with_null_file_name(self, mock_gh):
+        """Test creating issue when file_name is null."""
+        mock_gh.return_value = "https://github.com/test-org/test-repo/issues/999"
+
+        test_data = {
+            "name": "TestFetch",
+            "scope": "github.com/elastic/beats/module",
+            "location": None,
+            "file_name": None,  # Null file_name from older collector
+            "web_url": "https://buildkite.com/test",
+            "instances": 6,
+            "failure_examples": []
+        }
+
+        result = self.manager.create_issue(test_data)
+
+        assert result == "https://github.com/test-org/test-repo/issues/999"
+        args = mock_gh.call_args[0][0]
+        body_index = args.index("--body") + 1
+        body = args[body_index]
+
+        # Should show N/A for null fields
+        assert "**File:** N/A" in body or "**File:** None" in body
+        assert "**Location:** N/A" in body or "**Location:** None" in body
+
+    def test_extract_test_info_with_nulls(self):
+        """Test _extract_test_info handles null values correctly."""
+        test_data = {
+            "name": "test_foo",
+            "scope": "module.Test",
+            "location": None,
+            "file_name": None,
+            "web_url": "https://example.com"
+        }
+
+        name, scope, location, file_name, web_url = bft.GitHubIssueManager._extract_test_info(test_data)
+
+        assert name == "test_foo"
+        assert scope == "module.Test"
+        assert location == "N/A"  # Should default to N/A
+        assert file_name == "N/A"  # Should default to N/A
+        assert web_url == "https://example.com"
+
+    def test_extract_test_info_with_values(self):
+        """Test _extract_test_info with valid values."""
+        test_data = {
+            "name": "test_foo",
+            "scope": "module.Test",
+            "location": "test.py:42",
+            "file_name": "test.py",
+            "web_url": "https://example.com"
+        }
+
+        name, scope, location, file_name, web_url = bft.GitHubIssueManager._extract_test_info(test_data)
+
+        assert name == "test_foo"
+        assert scope == "module.Test"
+        assert location == "test.py:42"
+        assert file_name == "test.py"
+        assert web_url == "https://example.com"
 
 
 class TestGitHubIssueWithFailures:
