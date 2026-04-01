@@ -10,11 +10,11 @@ Automatically backport changes to specified branches based on PR labels
 
 ## Inputs
 <!--inputs-->
-| Name            | Description                                           | Required | Default                                                                |
-|-----------------|-------------------------------------------------------|----------|------------------------------------------------------------------------|
-| `github-token`  | GitHub token for authentication                       | `false`  | `${{ github.token }}`                                                  |
-| `backports-url` | URL to fetch the backport branches configuration JSON | `false`  | `https://storage.googleapis.com/artifacts-api/snapshots/branches.json` |
-| `pr-number`     | PR number to use (needed for tests)                   | `false`  | `${{ github.event.pull_request.number }}`                              |
+| Name            | Description                         | Required | Default                                                                             |
+|-----------------|-------------------------------------|----------|-------------------------------------------------------------------------------------|
+| `github-token`  | GitHub token for authentication     | `false`  | `${{ github.token }}`                                                               |
+| `backports-url` | URL to fetch the active branches    | `false`  | `https://elastic-release-api.s3.us-west-2.amazonaws.com/public/active-branches.txt` |
+| `pr-number`     | PR number to use (needed for tests) | `false`  | `${{ github.event.pull_request.number }}`                                           |
 <!--/inputs-->
 
 ## Usage
@@ -41,8 +41,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: elastic/oblt-action/github/backport-action@v1
-        with:
-          backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
 ```
 <!--/usage-->
 
@@ -56,28 +54,24 @@ The action recognizes the following labels:
 
 You can also combine labels (e.g., having both `backport-active-8` and `backport-active-9`).
 
-## Configuration JSON
+## Active Branches Format
 
-The action requires a JSON configuration file with the available branches:
+The action fetches active branches from a plain text URL (one branch per line):
 
-```json
-{
-  "branches": [
-    "7.17",
-    "8.x",
-    "8.16",
-    "8.17",
-    "8.18",
-    "9.0",
-    "main"
-  ]
-}
+```
+7.17
+8.x
+8.16
+8.17
+8.18
+9.0
+main
 ```
 
 ## How It Works
 
 1. When a PR is merged, the action checks for backport labels
-2. It fetches the branch configuration from the specified URL
+2. It fetches the active branches list from the specified URL
 3. Based on the labels, it filters which branches should receive the backport
 4. It adds a comment with the format `@mergifyio backport branch1 branch2 ...`
 5. Mergify then handles the actual backporting process

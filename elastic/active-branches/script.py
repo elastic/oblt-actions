@@ -2,22 +2,18 @@
 
 import json
 import os
-import requests
+import urllib.request
 
 def fails(msg):
     print(msg)
     exit(1)
 
-req = requests.get(url='https://storage.googleapis.com/artifacts-api/snapshots/branches.json')
-if req.status_code != requests.codes.ok:
-    fails("Failed to fetch active branches")
-
 try:
-    payload = req.json()
-except requests.exceptions.JSONDecodeError:
-    fails("Failed to decode json payload")
+    with urllib.request.urlopen('https://elastic-release-api.s3.us-west-2.amazonaws.com/public/active-branches.txt') as response:
+        branches = [line.strip() for line in response.read().decode('utf-8').splitlines() if line.strip()]
+except Exception as e:
+    fails(f"Failed to fetch active branches: {e}")
 
-branches = payload.get('branches')
 if not branches:
     fails("Failed to retrieve active branches")
 
