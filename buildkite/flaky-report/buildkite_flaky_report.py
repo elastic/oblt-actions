@@ -139,11 +139,35 @@ class BuildkiteTestEngineClient:
             limit: Maximum number of runs to fetch (default: 50)
 
         Returns:
-            List of run objects
+            List of run objects (up to limit)
         """
         endpoint = RUNS_ENDPOINT.format(org=self.org_slug, suite=suite_id)
-        params = {"per_page": limit}
-        return self._make_request(endpoint, params)
+
+        # Use pagination to fetch up to limit runs
+        # API page size is typically capped at 100
+        per_page = min(limit, 100)
+
+        all_runs = []
+        page = 1
+
+        while len(all_runs) < limit:
+            # Create new params dict for each request to avoid mutation issues
+            params = {"per_page": per_page, "page": page}
+            runs = self._make_request(endpoint, params)
+
+            if not runs:
+                break
+
+            all_runs.extend(runs)
+
+            # Stop if we got fewer results than requested (last page)
+            if len(runs) < per_page:
+                break
+
+            page += 1
+
+        # Return only up to limit
+        return all_runs[:limit]
 
     def get_failed_executions(self, suite_id: str, run_id: str) -> List[Dict[str, Any]]:
         """
@@ -181,19 +205,24 @@ class BuildkiteTestEngineClient:
         Args:
             suite_id: Test suite ID
             flaky_tests: List of flaky test objects
-            max_runs: Maximum number of runs to check (default: 50)
+            max_runs: Maximum number of runs to check (default: 50, 0 to disable)
 
         Returns:
             Flaky tests enriched with failure_examples field (list of dicts with 'message', 'run_url', 'run_time')
         """
+        # Initialize failure_examples field for each test
+        for test in flaky_tests:
+            test["failure_examples"] = []
+
+        # Skip enrichment if max_runs is 0
+        if max_runs == 0:
+            logger.info("Skipping failure enrichment (max_runs=0)")
+            return flaky_tests
+
         logger.info("Fetching failure details from recent runs...")
 
         # Create a map of test_id -> test for quick lookup
         test_map = {test.get("id"): test for test in flaky_tests if test.get("id")}
-
-        # Initialize failure_examples field for each test
-        for test in flaky_tests:
-            test["failure_examples"] = []
 
         # Fetch recent runs
         runs = self.get_recent_runs(suite_id, limit=max_runs)
@@ -210,14 +239,14 @@ class BuildkiteTestEngineClient:
             # Match failures to flaky tests
             for idx, execution in enumerate(failed_executions):
                 # Debug: log available fields in first execution
-                if idx == 0 and failed_executions:
+                if idx == 0 and failed_executions and logger.isEnabledFor(logging.DEBUG):
                     logger.debug("Failed execution fields available: %s", list(execution.keys()))
                     logger.debug("Sample execution data: %s", json.dumps(execution, indent=2))
 
                 test_id = execution.get("test_id")
                 if test_id in test_map:
                     # Build failure message - prefer failure_expanded (full trace) over failure_reason (truncated)
-                    failure_message = None
+                    failure_message_lines = None
 
                     # Priority 1: failure_expanded (array of objects with backtrace and expanded fields)
                     if failure_expanded := execution.get("failure_expanded"):
@@ -229,32 +258,34 @@ class BuildkiteTestEngineClient:
                             if isinstance(first_item, dict):
                                 if backtrace := first_item.get("backtrace"):
                                     if isinstance(backtrace, list):
-                                        # Join backtrace lines into full stack trace
-                                        failure_message = "\n".join(str(line) for line in backtrace)
+                                        # Keep as list of strings (no joining)
+                                        failure_message_lines = [str(line) for line in backtrace]
 
                     # Priority 2: failure_reason (truncated to 1024 chars)
-                    if not failure_message:
+                    if not failure_message_lines:
                         if failure_reason := execution.get("failure_reason"):
                             if isinstance(failure_reason, str) and failure_reason.strip():
-                                failure_message = failure_reason.strip()
+                                # Split into lines for consistency
+                                failure_message_lines = failure_reason.strip().split('\n')
 
                     # If we have any failure information
-                    if failure_message:
+                    if failure_message_lines:
 
                         # Create failure example with separate metadata
                         failure_example = {
-                            "message": failure_message,
+                            "message": failure_message_lines,  # List of strings
                             "run_url": run.get("url"),
                             "run_time": run.get("created_at")
                         }
 
-                        # Add failure example if not already present (check message signature to avoid exact duplicates)
+                        # Add failure example if not already present (check first few lines to avoid duplicates)
                         test = test_map[test_id]
-                        failure_signature = failure_message[:500]
+                        # Create signature from first few lines
+                        failure_signature = '\n'.join(failure_message_lines[:10])[:500]
 
                         # Check if we already have a similar failure
                         is_duplicate = any(
-                            existing.get("message", "")[:500] == failure_signature
+                            '\n'.join(existing.get("message", [])[:10])[:500] == failure_signature
                             for existing in test["failure_examples"]
                         )
 
@@ -310,10 +341,22 @@ class GitHubIssueManager:
 
     @staticmethod
     def _build_markdown(heading: str, fields: Dict[str, Any], test_data: Dict[str, Any]) -> str:
-        """Build markdown with fields and JSON data."""
+        """Build markdown with fields and JSON data (sanitized to prevent huge bodies)."""
         lines = [f"## {heading}\n"]
         lines.extend(f"* **{k}:** {v}" for k, v in fields.items())
-        lines.extend(["\n### Details\n", "```json", json.dumps(test_data, indent=2), "```"])
+
+        # Sanitize test_data to prevent huge issue bodies
+        sanitized_data = test_data.copy()
+
+        # Remove or truncate failure_examples to avoid bloat
+        if "failure_examples" in sanitized_data:
+            examples = sanitized_data["failure_examples"]
+            if isinstance(examples, list) and len(examples) > 0:
+                # Keep only count in the JSON details section
+                sanitized_data["failure_examples_count"] = len(examples)
+                del sanitized_data["failure_examples"]
+
+        lines.extend(["\n### Details\n", "```json", json.dumps(sanitized_data, indent=2), "```"])
         return "\n".join(lines)
 
     def _load_existing_issues(self) -> None:
@@ -390,7 +433,15 @@ class GitHubIssueManager:
                         failure_msg = failure
 
                     # Add failure message in code block
-                    body_parts.append(f"\n```\n{failure_msg}\n```\n")
+                    body_parts.append(f"**Stacktrace:**\n")
+                    body_parts.append("\n```\n")
+                    if isinstance(failure_msg, list):
+                        # List of strings - join with newlines for proper multiline formatting
+                        body_parts.append("\n".join(failure_msg))
+                    else:
+                        # String (backward compatibility)
+                        body_parts.append(str(failure_msg))
+                    body_parts.append("\n```\n")
         else:
             logger.debug("No failure examples found for test: %s", test_name)
 
@@ -580,7 +631,7 @@ def validate_args(args: argparse.Namespace) -> None:
         logger.error("--max-issues must be >= 0")
         sys.exit(1)
 
-    if args.max_runs is not None and args.max_runs < 0:
+    if args.max_runs < 0:
         logger.error("--max-runs must be >= 0")
         sys.exit(1)
 

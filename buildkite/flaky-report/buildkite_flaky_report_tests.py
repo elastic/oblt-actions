@@ -1036,7 +1036,9 @@ class TestFailureEnrichment:
         assert "message" in failure
         assert "run_url" in failure
         assert "run_time" in failure
-        assert failure["message"] == "AssertionError: Expected 5 but got 4"
+        # Message should be a list of strings
+        assert isinstance(failure["message"], list)
+        assert "AssertionError: Expected 5 but got 4" in failure["message"]
         assert failure["run_url"] == "https://example.com/run-1"
 
     @patch.object(bft.BuildkiteTestEngineClient, 'get_recent_runs')
@@ -1083,9 +1085,10 @@ class TestFailureEnrichment:
 
         # Should have both failures
         assert len(result[0]["failure_examples"]) == 2
+        # Each message is now a list of strings
         messages = [f["message"] for f in result[0]["failure_examples"]]
-        assert "Error A" in messages
-        assert "Error B" in messages
+        assert any("Error A" in msg for msg in messages[0])
+        assert any("Error B" in msg for msg in messages[1])
 
     @patch.object(bft.BuildkiteTestEngineClient, 'get_recent_runs')
     @patch.object(bft.BuildkiteTestEngineClient, 'get_failed_executions')
@@ -1151,10 +1154,11 @@ class TestFailureEnrichment:
         # Should use failure_expanded (full trace), not failure_reason (truncated)
         assert len(result[0]["failure_examples"]) == 1
         failure = result[0]["failure_examples"][0]
-        assert "AssertionError: Expected 5 but got 4" in failure["message"]
-        assert "File 'test.py', line 42" in failure["message"]
-        # Should be joined with newlines
-        assert "\n" in failure["message"]
+        # Message should be a list of strings
+        assert isinstance(failure["message"], list)
+        assert len(failure["message"]) == 3
+        assert failure["message"][0] == "AssertionError: Expected 5 but got 4"
+        assert "File 'test.py', line 42" in failure["message"][1]
 
     @patch.object(bft.BuildkiteTestEngineClient, 'get_recent_runs')
     @patch.object(bft.BuildkiteTestEngineClient, 'get_failed_executions')
@@ -1179,7 +1183,9 @@ class TestFailureEnrichment:
         # Should use failure_reason as fallback
         assert len(result[0]["failure_examples"]) == 1
         failure = result[0]["failure_examples"][0]
-        assert failure["message"] == "Got 1 failure and 0 errors."
+        # Should be list even for simple string (split by newlines)
+        assert isinstance(failure["message"], list)
+        assert "Got 1 failure and 0 errors." in failure["message"]
 
     @patch.object(bft.BuildkiteTestEngineClient, 'get_recent_runs')
     @patch.object(bft.BuildkiteTestEngineClient, 'get_failed_executions')
@@ -1204,7 +1210,9 @@ class TestFailureEnrichment:
         # Should fall back to failure_reason
         assert len(result[0]["failure_examples"]) == 1
         failure = result[0]["failure_examples"][0]
-        assert failure["message"] == "Test failed"
+        # Should be a list even for simple string
+        assert isinstance(failure["message"], list)
+        assert "Test failed" in failure["message"]
 
     @patch.object(bft.BuildkiteTestEngineClient, 'get_recent_runs')
     @patch.object(bft.BuildkiteTestEngineClient, 'get_failed_executions')
@@ -1322,7 +1330,7 @@ class TestGitHubIssueWithFailures:
             "latest_occurrence_at": "2026-03-31T10:00:00Z",
             "failure_examples": [
                 {
-                    "message": "AssertionError: Expected 5 but got 4",
+                    "message": ["AssertionError: Expected 5 but got 4", "  File 'test.py', line 42"],
                     "run_url": "https://example.com/run-1",
                     "run_time": "2026-03-31T10:00:00Z"
                 }
@@ -1344,6 +1352,7 @@ class TestGitHubIssueWithFailures:
         assert "AssertionError: Expected 5 but got 4" in body
         # Check that run URL is NOT inside code block (should be before it)
         assert "**Run:**" in body
+        assert "**Stacktrace:**" in body
 
     @patch.object(bft.GitHubIssueManager, '_run_gh_command')
     def test_create_issue_with_multiple_failure_examples(self, mock_gh):
@@ -1358,24 +1367,24 @@ class TestGitHubIssueWithFailures:
             "web_url": "https://buildkite.com/test",
             "failure_examples": [
                 {
-                    "message": "Error A",
+                    "message": ["Error A"],
                     "run_url": "https://example.com/run-1",
                     "run_time": "2026-03-31T10:00:00Z"
                 },
                 {
-                    "message": "Error B",
+                    "message": ["Error B"],
                     "run_url": "https://example.com/run-2",
                     "run_time": "2026-03-31T09:00:00Z"
                 },
                 {
-                    "message": "Error C",
+                    "message": ["Error C"],
                     "run_url": "https://example.com/run-3",
                     "run_time": "2026-03-31T08:00:00Z"
                 }
             ]
         }
 
-        result = self.manager.create_issue(test_data)
+        self.manager.create_issue(test_data)
 
         args = mock_gh.call_args[0][0]
         body_index = args.index("--body") + 1
@@ -1404,6 +1413,7 @@ class TestGitHubIssueWithFailures:
         }
 
         result = self.manager.create_issue(test_data)
+        assert result == "https://github.com/test-org/test-repo/issues/999"
 
         args = mock_gh.call_args[0][0]
         body_index = args.index("--body") + 1
@@ -1513,6 +1523,92 @@ class TestCLIArgumentsNew:
         mock_enrich.assert_called_once()
         call_kwargs = mock_enrich.call_args[1]
         assert call_kwargs.get('max_runs') == 50
+
+
+class TestNewFixes:
+    """Tests for recent bug fixes and improvements."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.client = bft.BuildkiteTestEngineClient("test-token", "test-org")
+        self.manager = bft.GitHubIssueManager("test-org/test-repo")
+
+    @patch.object(bft.BuildkiteTestEngineClient, '_make_request')
+    def test_get_recent_runs_pagination(self, mock_request):
+        """Test that get_recent_runs paginates correctly for large limits."""
+        # Mock pagination: 3 pages of 100, then partial page
+        mock_request.side_effect = [
+            [{"id": f"run-{i}"} for i in range(100)],  # Page 1: 100 items
+            [{"id": f"run-{i}"} for i in range(100, 200)],  # Page 2: 100 items
+            [{"id": f"run-{i}"} for i in range(200, 250)],  # Page 3: 50 items (partial)
+        ]
+
+        result = self.client.get_recent_runs("suite-id", limit=250)
+
+        assert len(result) == 250
+        assert mock_request.call_count == 3
+        # Verify pagination was used - check the params dict (second arg)
+        # call_args_list[i][0] is positional args tuple, [0][1] is second positional arg (params)
+        assert mock_request.call_args_list[0][0][1]["page"] == 1
+        assert mock_request.call_args_list[1][0][1]["page"] == 2
+        assert mock_request.call_args_list[2][0][1]["page"] == 3
+
+    @patch.object(bft.BuildkiteTestEngineClient, '_make_request')
+    def test_get_recent_runs_respects_limit(self, mock_request):
+        """Test that get_recent_runs returns only up to limit."""
+        # Return more than requested
+        mock_request.return_value = [{"id": f"run-{i}"} for i in range(100)]
+
+        result = self.client.get_recent_runs("suite-id", limit=50)
+
+        # Should return only 50 even though 100 were available
+        assert len(result) == 50
+
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_recent_runs')
+    @patch.object(bft.BuildkiteTestEngineClient, 'get_failed_executions')
+    def test_enrich_with_max_runs_zero_skips_enrichment(self, mock_get_executions, mock_get_runs):
+        """Test that max_runs=0 skips enrichment entirely."""
+        flaky_tests = [{"id": "test-123", "name": "test_foo"}]
+
+        result = self.client.enrich_flaky_tests_with_failures("suite-id", flaky_tests, max_runs=0)
+
+        # Should not call any API methods
+        mock_get_runs.assert_not_called()
+        mock_get_executions.assert_not_called()
+
+        # Should still initialize failure_examples as empty
+        assert result[0]["failure_examples"] == []
+
+    def test_build_markdown_sanitizes_failure_examples(self):
+        """Test that _build_markdown removes failure_examples from JSON details."""
+        test_data = {
+            "id": "test-123",
+            "name": "test_foo",
+            "failure_examples": [
+                {"message": "A" * 10000, "run_url": "http://example.com"},  # Huge message
+                {"message": "B" * 10000, "run_url": "http://example.com"},
+            ]
+        }
+
+        fields = {"Test Name": "test_foo"}
+        markdown = self.manager._build_markdown("Test", fields, test_data)
+
+        # Should not contain the huge failure_examples in JSON
+        assert "failure_examples" not in markdown or "failure_examples_count" in markdown
+        # Should have count instead
+        assert "failure_examples_count" in markdown or "failure_examples" not in markdown
+
+    def test_max_runs_validation_zero_is_valid(self):
+        """Test that max_runs=0 is accepted (disables enrichment)."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch('sys.argv', [
+                'buildkite_flaky_report.py', 'test-suite-id',
+                '--org', 'test-org', '--api-token', 'test-token',
+                '--max-runs', '0', '--output-dir', tmpdir
+            ]):
+                with patch.object(bft.BuildkiteTestEngineClient, 'get_flaky_tests', return_value=[]):
+                    # Should not raise - max_runs=0 is valid
+                    bft.main()
 
 
 if __name__ == "__main__":
