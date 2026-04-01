@@ -193,6 +193,65 @@ class BuildkiteTestEngineClient:
             logger.debug("Failed to fetch executions for run %s: %s", run_id, e)
             return []
 
+    @staticmethod
+    def _extract_failure_message(execution: Dict[str, Any]) -> Optional[List[str]]:
+        """
+        Extract failure message from a failed execution.
+
+        Prioritizes failure_expanded (full trace) over failure_reason (truncated).
+
+        Args:
+            execution: Failed execution object from API
+
+        Returns:
+            List of strings (one per line) or None if no failure info available
+        """
+        # Priority 1: failure_expanded (array of objects with backtrace field)
+        if failure_expanded := execution.get("failure_expanded"):
+            if isinstance(failure_expanded, list) and failure_expanded:
+                first_item = failure_expanded[0]
+                if isinstance(first_item, dict):
+                    if backtrace := first_item.get("backtrace"):
+                        if isinstance(backtrace, list):
+                            # Keep as list of strings
+                            return [str(line) for line in backtrace]
+
+        # Priority 2: failure_reason (truncated to 1024 chars)
+        if failure_reason := execution.get("failure_reason"):
+            if isinstance(failure_reason, str) and failure_reason.strip():
+                # Split into lines for consistency
+                return failure_reason.strip().split('\n')
+
+        return None
+
+    @staticmethod
+    def _is_duplicate_failure(
+        failure_lines: List[str],
+        existing_failures: List[Dict[str, Any]],
+        signature_lines: int = 10,
+        signature_chars: int = 500
+    ) -> bool:
+        """
+        Check if a failure is a duplicate of existing failures.
+
+        Args:
+            failure_lines: New failure message as list of strings
+            existing_failures: List of existing failure examples
+            signature_lines: Number of lines to use for signature (default: 10)
+            signature_chars: Number of chars to use for signature (default: 500)
+
+        Returns:
+            True if duplicate, False otherwise
+        """
+        # Create signature from first few lines
+        failure_signature = '\n'.join(failure_lines[:signature_lines])[:signature_chars]
+
+        # Check if we already have a similar failure
+        return any(
+            '\n'.join(existing.get("message", [])[:signature_lines])[:signature_chars] == failure_signature
+            for existing in existing_failures
+        )
+
     def enrich_flaky_tests_with_failures(
         self,
         suite_id: str,
@@ -244,53 +303,27 @@ class BuildkiteTestEngineClient:
                     logger.debug("Sample execution data: %s", json.dumps(execution, indent=2))
 
                 test_id = execution.get("test_id")
-                if test_id in test_map:
-                    # Build failure message - prefer failure_expanded (full trace) over failure_reason (truncated)
-                    failure_message_lines = None
+                if test_id not in test_map:
+                    continue
 
-                    # Priority 1: failure_expanded (array of objects with backtrace and expanded fields)
-                    if failure_expanded := execution.get("failure_expanded"):
-                        if isinstance(failure_expanded, list) and failure_expanded:
-                            # failure_expanded is an array of objects like:
-                            # [{"backtrace": [...], "expanded": [...]}]
-                            # Extract the backtrace from the first item
-                            first_item = failure_expanded[0]
-                            if isinstance(first_item, dict):
-                                if backtrace := first_item.get("backtrace"):
-                                    if isinstance(backtrace, list):
-                                        # Keep as list of strings (no joining)
-                                        failure_message_lines = [str(line) for line in backtrace]
+                # Extract failure message using helper method
+                failure_message_lines = self._extract_failure_message(execution)
+                if not failure_message_lines:
+                    continue
 
-                    # Priority 2: failure_reason (truncated to 1024 chars)
-                    if not failure_message_lines:
-                        if failure_reason := execution.get("failure_reason"):
-                            if isinstance(failure_reason, str) and failure_reason.strip():
-                                # Split into lines for consistency
-                                failure_message_lines = failure_reason.strip().split('\n')
+                test = test_map[test_id]
 
-                    # If we have any failure information
-                    if failure_message_lines:
+                # Skip if duplicate using helper method
+                if self._is_duplicate_failure(failure_message_lines, test["failure_examples"]):
+                    continue
 
-                        # Create failure example with separate metadata
-                        failure_example = {
-                            "message": failure_message_lines,  # List of strings
-                            "run_url": run.get("url"),
-                            "run_time": run.get("created_at")
-                        }
-
-                        # Add failure example if not already present (check first few lines to avoid duplicates)
-                        test = test_map[test_id]
-                        # Create signature from first few lines
-                        failure_signature = '\n'.join(failure_message_lines[:10])[:500]
-
-                        # Check if we already have a similar failure
-                        is_duplicate = any(
-                            '\n'.join(existing.get("message", [])[:10])[:500] == failure_signature
-                            for existing in test["failure_examples"]
-                        )
-
-                        if not is_duplicate:
-                            test["failure_examples"].append(failure_example)
+                # Create and add failure example
+                failure_example = {
+                    "message": failure_message_lines,
+                    "run_url": run.get("url"),
+                    "run_time": run.get("created_at")
+                }
+                test["failure_examples"].append(failure_example)
 
         # Log summary
         tests_with_failures = sum(1 for t in flaky_tests if t.get("failure_examples"))

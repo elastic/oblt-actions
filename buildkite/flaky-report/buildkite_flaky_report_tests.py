@@ -1525,6 +1525,119 @@ class TestCLIArgumentsNew:
         assert call_kwargs.get('max_runs') == 50
 
 
+class TestHelperMethods:
+    """Tests for refactored helper methods."""
+
+    def test_extract_failure_message_from_expanded(self):
+        """Test extracting failure message from failure_expanded."""
+        execution = {
+            "test_id": "test-123",
+            "failure_reason": "Got 1 failure",
+            "failure_expanded": [
+                {
+                    "backtrace": [
+                        "Line 1",
+                        "Line 2",
+                        "Line 3"
+                    ],
+                    "expanded": ["Summary"]
+                }
+            ]
+        }
+
+        result = bft.BuildkiteTestEngineClient._extract_failure_message(execution)
+
+        assert result is not None
+        assert isinstance(result, list)
+        assert len(result) == 3
+        assert result[0] == "Line 1"
+        assert result[1] == "Line 2"
+
+    def test_extract_failure_message_from_reason(self):
+        """Test extracting failure message from failure_reason as fallback."""
+        execution = {
+            "test_id": "test-123",
+            "failure_reason": "Error line 1\nError line 2",
+            "failure_expanded": None
+        }
+
+        result = bft.BuildkiteTestEngineClient._extract_failure_message(execution)
+
+        assert result is not None
+        assert isinstance(result, list)
+        assert len(result) == 2
+        assert result[0] == "Error line 1"
+        assert result[1] == "Error line 2"
+
+    def test_extract_failure_message_empty_expanded(self):
+        """Test fallback when failure_expanded is empty."""
+        execution = {
+            "test_id": "test-123",
+            "failure_reason": "Fallback error",
+            "failure_expanded": []
+        }
+
+        result = bft.BuildkiteTestEngineClient._extract_failure_message(execution)
+
+        assert result is not None
+        assert "Fallback error" in result
+
+    def test_extract_failure_message_no_info(self):
+        """Test returns None when no failure info available."""
+        execution = {
+            "test_id": "test-123",
+            "failure_reason": None,
+            "failure_expanded": None
+        }
+
+        result = bft.BuildkiteTestEngineClient._extract_failure_message(execution)
+
+        assert result is None
+
+    def test_is_duplicate_failure_exact_match(self):
+        """Test duplicate detection with exact match."""
+        failure_lines = ["Line 1", "Line 2", "Line 3"]
+        existing_failures = [
+            {"message": ["Line 1", "Line 2", "Line 3"], "run_url": "http://example.com"}
+        ]
+
+        result = bft.BuildkiteTestEngineClient._is_duplicate_failure(failure_lines, existing_failures)
+
+        assert result is True
+
+    def test_is_duplicate_failure_partial_match(self):
+        """Test duplicate detection uses only first N lines."""
+        failure_lines = ["Same 1", "Same 2", "Different 3"]
+        existing_failures = [
+            {"message": ["Same 1", "Same 2", "Different X"], "run_url": "http://example.com"}
+        ]
+
+        # Should match based on first 10 lines (even though line 3 differs)
+        result = bft.BuildkiteTestEngineClient._is_duplicate_failure(failure_lines, existing_failures, signature_lines=2)
+
+        assert result is True
+
+    def test_is_duplicate_failure_no_match(self):
+        """Test duplicate detection returns False for different failures."""
+        failure_lines = ["Different 1", "Different 2"]
+        existing_failures = [
+            {"message": ["Line 1", "Line 2"], "run_url": "http://example.com"}
+        ]
+
+        result = bft.BuildkiteTestEngineClient._is_duplicate_failure(failure_lines, existing_failures)
+
+        assert result is False
+
+    def test_is_duplicate_failure_empty_existing(self):
+        """Test duplicate detection with no existing failures."""
+        failure_lines = ["Line 1", "Line 2"]
+        existing_failures = []
+
+        result = bft.BuildkiteTestEngineClient._is_duplicate_failure(failure_lines, existing_failures)
+
+        assert result is False
+
+
 class TestNewFixes:
     """Tests for recent bug fixes and improvements."""
 
