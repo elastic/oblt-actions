@@ -256,7 +256,8 @@ class BuildkiteTestEngineClient:
         self,
         suite_id: str,
         flaky_tests: List[Dict[str, Any]],
-        max_runs: int = 50
+        max_runs: int = 50,
+        max_examples_per_test: int = 5
     ) -> List[Dict[str, Any]]:
         """
         Enrich flaky test data with failure reasons from recent runs.
@@ -265,6 +266,7 @@ class BuildkiteTestEngineClient:
             suite_id: Test suite ID
             flaky_tests: List of flaky test objects
             max_runs: Maximum number of runs to check (default: 50, 0 to disable)
+            max_examples_per_test: Maximum failure examples to collect per test (default: 5)
 
         Returns:
             Flaky tests enriched with failure_examples field (list of dicts with 'message', 'run_url', 'run_time')
@@ -288,7 +290,13 @@ class BuildkiteTestEngineClient:
         logger.info("Checking %d recent runs for failure details", len(runs))
 
         # For each run, fetch failed executions
-        for run in runs:
+        for run_idx, run in enumerate(runs):
+            # Check if all tests have reached their cap - short circuit to avoid unnecessary API calls
+            if all(len(test.get("failure_examples", [])) >= max_examples_per_test for test in flaky_tests):
+                logger.info("All tests have %d examples, stopping early after %d runs",
+                           max_examples_per_test, run_idx)
+                break
+
             run_id = run.get("id")
             if not run_id:
                 continue
@@ -306,12 +314,16 @@ class BuildkiteTestEngineClient:
                 if test_id not in test_map:
                     continue
 
+                test = test_map[test_id]
+
+                # Skip if test already has max examples
+                if len(test["failure_examples"]) >= max_examples_per_test:
+                    continue
+
                 # Extract failure message using helper method
                 failure_message_lines = self._extract_failure_message(execution)
                 if not failure_message_lines:
                     continue
-
-                test = test_map[test_id]
 
                 # Skip if duplicate using helper method
                 if self._is_duplicate_failure(failure_message_lines, test["failure_examples"]):
@@ -324,6 +336,9 @@ class BuildkiteTestEngineClient:
                     "run_time": run.get("created_at")
                 }
                 test["failure_examples"].append(failure_example)
+
+                logger.debug("Added failure example for %s (%d/%d)",
+                           test.get("name"), len(test["failure_examples"]), max_examples_per_test)
 
         # Log summary
         tests_with_failures = sum(1 for t in flaky_tests if t.get("failure_examples"))
@@ -524,7 +539,14 @@ class GitHubIssueManager:
             "Buildkite Link": test_data.get("web_url", DEFAULT_EMPTY)
         }
 
-        comment = self._build_markdown("Flaky Test Still Occurring", fields, test_data)
+        comment_parts = [self._build_markdown("Flaky Test Still Occurring", fields, test_data)]
+
+        # Add recent failure examples if available (limit to 1 for comments to avoid huge updates)
+        if failure_examples := test_data.get("failure_examples"):
+            logger.debug("Adding recent failure example to comment")
+            comment_parts.append(self._format_failure_examples_markdown(failure_examples, max_examples=1))
+
+        comment = "".join(comment_parts)
 
         try:
             self._run_gh_command([

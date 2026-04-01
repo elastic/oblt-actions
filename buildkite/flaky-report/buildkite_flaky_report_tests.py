@@ -335,6 +335,37 @@ class TestGitHubIssueManager:
         assert "comment" in args
         assert "123" in args
 
+    @patch.object(bft.GitHubIssueManager, '_run_gh_command')
+    def test_add_comment_with_failure_examples(self, mock_gh):
+        """Test adding a comment includes recent failure examples."""
+        mock_gh.return_value = ""
+
+        test_data = {
+            "name": "TestFoo",
+            "web_url": "https://buildkite.com/test",
+            "latest_occurrence_at": "2026-03-29T10:00:00Z",
+            "instances": 7,
+            "failure_examples": [
+                {
+                    "message": ["Error line 1", "Error line 2"],
+                    "run_url": "http://example.com/run/1",
+                    "run_time": "2026-03-29T10:00:00Z"
+                }
+            ]
+        }
+
+        result = self.manager.add_comment(123, test_data)
+
+        assert result is True
+        mock_gh.assert_called_once()
+        args = mock_gh.call_args[0][0]
+        body_index = args.index("--body") + 1
+        body = args[body_index]
+
+        # Should include failure examples in comment
+        assert "Failure Examples" in body
+        assert "Error line 1" in body
+
     @patch.object(bft.GitHubIssueManager, 'search_existing_issue')
     @patch.object(bft.GitHubIssueManager, 'create_issue')
     def test_process_flaky_test_no_existing_issue(self, mock_create, mock_search):
