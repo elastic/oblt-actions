@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: elastic/oblt-actions/google-auth@v1
+      - uses: elastic/oblt-actions/google/auth@v1
       - uses: elastic/oblt-actions/git/setup@v1
       - uses: elastic/oblt-actions/oblt-cli/setup@v1
         with:
