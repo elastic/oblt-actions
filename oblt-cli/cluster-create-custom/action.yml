@@ -87,7 +87,7 @@ runs:
           }
           parameters.EphemeralCluster = 'true'
           parameters = { ...parameters, ...JSON.parse(input_parameters) }
-          core.setOutput('PARAMETERS', `--parameters='${JSON.stringify(parameters)}'`)
+          core.setOutput('PARAMETERS', JSON.stringify(parameters))
 
 
           if (template) {
@@ -119,7 +119,7 @@ runs:
             core.setOutput('WAIT', waitFlags.join(' '))
           }
 
-    - uses: elastic/oblt-actions/oblt-cli/setup@v1.36.8
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.38.1
       with:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
@@ -127,16 +127,23 @@ runs:
 
     - run: |
         oblt-cli cluster create custom \
-            ${{ steps.flags.outputs.TEMPLATE }} \
-            ${{ steps.flags.outputs.DRY_RUN }} \
-            ${{ steps.flags.outputs.CLUSTER_NAME_PREFIX }} \
-            ${{ steps.flags.outputs.CLUSTER_NAME_SUFFIX }} \
-            ${{ steps.flags.outputs.PARAMETERS }} \
-            ${{ steps.flags.outputs.SKIP_RANDOM_NAME }} \
-            ${{ steps.flags.outputs.WAIT }}
+            ${TEMPLATE} \
+            ${DRY_RUN} \
+            ${CLUSTER_NAME_PREFIX} \
+            ${CLUSTER_NAME_SUFFIX} \
+            --parameters="${PARAMETERS}" \
+            ${SKIP_RANDOM_NAME} \
+            ${WAIT}
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
+        TEMPLATE: ${{ steps.flags.outputs.TEMPLATE }}
+        DRY_RUN: ${{ steps.flags.outputs.DRY_RUN }}
+        CLUSTER_NAME_PREFIX: ${{ steps.flags.outputs.CLUSTER_NAME_PREFIX }}
+        CLUSTER_NAME_SUFFIX: ${{ steps.flags.outputs.CLUSTER_NAME_SUFFIX }}
+        PARAMETERS: ${{ steps.flags.outputs.PARAMETERS }}
+        SKIP_RANDOM_NAME: ${{ steps.flags.outputs.SKIP_RANDOM_NAME }}
+        WAIT: ${{ steps.flags.outputs.WAIT }}
 
     - run: |
         cluster_name=""

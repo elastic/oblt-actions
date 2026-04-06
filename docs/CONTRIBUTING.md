@@ -109,6 +109,16 @@ Add `!<action-path>/**` in the `paths` section at `.github/workflows/no-test.yml
 
 **NOTE**: replace `<action-path>` with the path to the action directory.
 
+## Pull request labels
+
+Pull requests are validated by `.github/workflows/required-labels.yml`.
+This check requires exactly one label from the release-drafter label set (including excluded labels) defined in `.github/release-drafter.yml`.
+
+If the `required-labels` check fails:
+- ensure one and only one release-drafter category label is applied to the PR
+- remove extra release labels so only a single matching label remains
+- if no matching label exists yet, add the appropriate release label for your change type
+
 ## Action Documentation
 Every action should have a `README.md` file in its directory.
 The `README.md` file is generated and updated with the `action-readme`

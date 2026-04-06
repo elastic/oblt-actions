@@ -18,8 +18,8 @@ runs:
       id: set-version
       run: |
         if [[ -z "${VERSION}" && -z "${VERSION_FILE}" ]]; then
-          if [[ -f "${{ github.action_path }}/.default-updatecli-version" ]]; then
-            newversion=$(cat "${{ github.action_path }}/.default-updatecli-version")
+          if [[ -f "$GITHUB_ACTION_PATH/.default-updatecli-version" ]]; then
+            newversion=$(cat "$GITHUB_ACTION_PATH/.default-updatecli-version")
             echo "version=${newversion}" >> $GITHUB_OUTPUT
           else
             echo "::error title=updatecli/install::Default version file not found."
@@ -35,7 +35,7 @@ runs:
         VERSION_FILE: ${{ inputs.version-file }}
 
     - name: Install Updatecli in the runner
-      uses: updatecli/updatecli-action@4fd2c16d992120bd5355264a03ad0cddec013e1b # v2.99.0
+      uses: updatecli/updatecli-action@2cc8e6d8e356d76b0280cdd03766c36596a0614e # v3.0.0
       with:
         version: "${{ steps.set-version.outputs.version }}"
         version-file: "${{ steps.set-version.outputs.version_file }}"

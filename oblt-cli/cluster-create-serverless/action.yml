@@ -91,7 +91,7 @@ runs:
           }
           parameters.EphemeralCluster = "true"
           console.log(`Create PARAMETERS env variable`)
-          core.setOutput('PARAMETERS', `--parameters='${JSON.stringify(parameters)}'`)
+          core.setOutput('PARAMETERS', JSON.stringify(parameters))
 
           cluster_json_file = `${RUNNER_TEMP}/cluster.json`
           core.setOutput('cluster-json-file', `${cluster_json_file}`)
@@ -110,7 +110,7 @@ runs:
         project_type: ${{ inputs.project-type }}
         wait_time: ${{ inputs.wait }}
 
-    - uses: elastic/oblt-actions/oblt-cli/setup@v1.36.8
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.38.1
       with:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
@@ -118,14 +118,19 @@ runs:
     - run: |
         oblt-cli cluster create custom \
           --template serverless \
-          ${{ steps.flags.outputs.DRY_RUN }} \
-          ${{ steps.flags.outputs.CLUSTER_NAME_PREFIX }} \
-          ${{ steps.flags.outputs.CLUSTER_NAME_SUFFIX }} \
-          ${{ steps.flags.outputs.PARAMETERS }} \
-          ${{ steps.flags.outputs.WAIT }}
+          ${DRY_RUN} \
+          ${CLUSTER_NAME_PREFIX} \
+          ${CLUSTER_NAME_SUFFIX} \
+          --parameters="${PARAMETERS}" \
+          ${WAIT}
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
+        DRY_RUN: ${{ steps.flags.outputs.DRY_RUN }}
+        CLUSTER_NAME_PREFIX: ${{ steps.flags.outputs.CLUSTER_NAME_PREFIX }}
+        CLUSTER_NAME_SUFFIX: ${{ steps.flags.outputs.CLUSTER_NAME_SUFFIX }}
+        PARAMETERS: ${{ steps.flags.outputs.PARAMETERS }}
+        WAIT: ${{ steps.flags.outputs.WAIT }}
 
     - run: |
         cluster_name=""

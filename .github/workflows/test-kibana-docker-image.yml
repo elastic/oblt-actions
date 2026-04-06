@@ -35,6 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Free Disk Space (Ubuntu)
+        if: ${{ github.event_name != 'merge_group' }}
         uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
         with:
           tool-cache: false
@@ -51,18 +52,21 @@ jobs:
 
       # IMPORTANT: the secrets below are managed through IASC (contact robots if you need further assistance)
       - name: Log in to the Elastic Container registry
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        if: ${{ github.event_name != 'merge_group' }}
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           registry: ${{ secrets.ELASTIC_DOCKER_REGISTRY }}
           username: ${{ secrets.ELASTIC_DOCKER_USERNAME }}
           password: ${{ secrets.ELASTIC_DOCKER_PASSWORD }}
 
       - uses: ./kibana-docker-image
+        if: ${{ github.event_name != 'merge_group' }}
         id: kibana-docker-image
         with:
           serverless: ${{ matrix.serverless }}
 
       - name: validate
+        if: ${{ github.event_name != 'merge_group' }}
         run: |
           echo "${STACK_VERSION:?}"
           echo "${GIT_COMMIT_SHA:?}"

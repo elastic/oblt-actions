@@ -22,15 +22,18 @@ runs:
   steps:
     - uses: actions/github-script@v8
       id: prepare
+      env:
+        JOB_STATUS: ${{ job.status }}
+        INPUT_STATUS: ${{ inputs.status }}
       with:
         script: |
-          var color = '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning'
-          if ('${{ inputs.status }}' !== 'auto') {
-            color = '${{ inputs.status }}' === 'success' ? 'good' : '${{ inputs.status }}' === 'failure' ? 'danger' : 'warning'
+          var color = process.env.JOB_STATUS === 'success' ? 'good' : process.env.JOB_STATUS === 'failure' ? 'danger' : 'warning'
+          if (process.env.INPUT_STATUS !== 'auto') {
+            color = process.env.INPUT_STATUS === 'success' ? 'good' : process.env.INPUT_STATUS === 'failure' ? 'danger' : 'warning'
           }
           core.setOutput('slack-color', color)
 
-    - uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
+    - uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
       with:
         method: chat.postMessage
         token: ${{ inputs.bot-token }}

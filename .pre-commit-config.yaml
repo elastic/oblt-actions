@@ -1,7 +1,7 @@
 ---
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
       - id: check-merge-conflict
       - id: check-yaml
@@ -19,7 +19,7 @@ repos:
       - id: trailing-whitespace
         exclude: *common-exclude
   - repo: https://github.com/reakaleek/gh-action-readme
-    rev: v0.4.0
+    rev: v0.7.1
     hooks:
       - id: action-readme
         verbose: true
@@ -27,7 +27,7 @@ repos:
           - --env=VERSION=v1
 
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.10
+    rev: v1.7.12
     hooks:
       - id: actionlint
         # actionlint does not yet recognize the "ubuntu-slim" label.

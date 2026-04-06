@@ -45,7 +45,7 @@ runs:
         if command -v python3 >/dev/null 2>&1; then
           PYTHON=python3
         fi
-        ${PYTHON} "${{ github.action_path }}/script.py"
+        ${PYTHON} "$GITHUB_ACTION_PATH/script.py"
       env:
         EXCLUDE_BRANCHES: ${{ inputs.exclude-branches }}
         FILTER: ${{ inputs.filter-branches }}
@@ -54,4 +54,6 @@ runs:
     - id: debug
       shell: bash
       run: |
-        echo 'Matrix: ${{ steps.generator.outputs.matrix }}'
+        echo "Matrix: $MATRIX"
+      env:
+        MATRIX: ${{ steps.generator.outputs.matrix }}

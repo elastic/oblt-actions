@@ -33,3 +33,26 @@ jobs:
         run: test "${GIT_USER}" = "obltmachine"
       - name: validate GIT_EMAIL env
         run: test "${GIT_EMAIL}" = "obltmachine@users.noreply.github.com"
+
+  test-newline-injection:
+    runs-on: ubuntu-slim
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./git/setup
+        with:
+          username: "obltmachine\nINJECTED_VAR=injected"
+          email: "obltmachine@users.noreply.github.com\nINJECTED_EMAIL_VAR=injected"
+      - name: assert no env var injection via username
+        run: |
+          if [ -n "${INJECTED_VAR}" ]; then
+            echo "FAIL: INJECTED_VAR was set, newline injection succeeded"
+            exit 1
+          fi
+          echo "PASS: INJECTED_VAR is not set"
+      - name: assert no env var injection via email
+        run: |
+          if [ -n "${INJECTED_EMAIL_VAR}" ]; then
+            echo "FAIL: INJECTED_EMAIL_VAR was set, newline injection succeeded"
+            exit 1
+          fi
+          echo "PASS: INJECTED_EMAIL_VAR is not set"

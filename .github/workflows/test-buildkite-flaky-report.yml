@@ -1,0 +1,96 @@
+name: test-buildkite-flaky-report
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-buildkite-flaky-report.yml'
+      - 'buildkite/flaky-report/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-buildkite-flaky-report.yml'
+      - 'buildkite/flaky-report/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: always()
+    needs:
+      - test-max-issues-1
+      - test-max-issues-0
+      - pytest
+    runs-on: ubuntu-slim
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  test-max-issues-1:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./buildkite/flaky-report
+        with:
+          github-repo: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          days: '7'
+          max-issues: '1'
+          github-issue-title-prefix: "[FLAKY TEST]"
+          github-label: "flaky-test"
+          org: 'elastic'
+          test-suite-id: 'beats'
+          token: ${{ secrets.BUILDKITE_TEST_SUITE_TOKEN }}
+
+  test-max-issues-0:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - id: buildkite
+        uses: ./buildkite/flaky-report
+        with:
+          github-repo: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          days: '0'
+          max-issues: '0'
+          org: 'elastic'
+          test-suite-id: 'beats'
+          token: ${{ secrets.BUILDKITE_TEST_SUITE_TOKEN }}
+
+      - name: Assert flaky-test-count is 0
+        run: test "${{ steps.buildkite.outputs.flaky-test-count }}" = "0"
+
+  pytest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.13
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pytest
+
+      - name: Run pytest
+        run: |
+          pytest buildkite/flaky-report/buildkite_flaky_report_tests.py
