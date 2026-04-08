@@ -2,7 +2,7 @@
 # <!--name-->maven/await-artifact<!--/name-->
 
 [![usages](https://img.shields.io/badge/usages-white?logo=githubactions&logoColor=blue)](https://github.com/search?q=elastic%2Foblt-actions%2Fmaven%2Fawait-artifact+%28path%3A.github%2Fworkflows+OR+path%3A**%2Faction.yml+OR+path%3A**%2Faction.yaml%29&type=code)
-[![test-maven-await-artifact](https://github.com/elastic/oblt-actions/actions/workflows/test-elastic-active-branches.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-maven-await-artifact.yml)
+[![test-maven-await-artifact](https://github.com/elastic/oblt-actions/actions/workflows/test-maven-await-artifact.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-maven-await-artifact.yml)
 
 <!--description-->
 Waits for an artifact to be available on maven central or the sonatype proxy maven central.
