@@ -19,6 +19,16 @@ It runs on:
 
 This workflow requires the repository secret `COPILOT_GITHUB_TOKEN`.
 
+### updatecli automation
+
+The repository includes the `.github/workflows/updatecli.yml` workflow, which runs Updatecli compose automation against `oblt-actions` and `observability-test-environments`.
+
+It runs on:
+- a weekly schedule (`0 6 * * 6`)
+- manual dispatch (`workflow_dispatch`)
+
+This workflow requires the repository secrets `OBS_AUTOMATION_APP_ID` and `OBS_AUTOMATION_APP_PEM` to generate a GitHub App token with write access to contents and pull requests for the target repositories.
+
 ## Releasing
 
 See [RELEASE.md](docs/RELEASE.md) for the release process.
