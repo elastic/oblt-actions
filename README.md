@@ -14,8 +14,8 @@ It runs on:
 - a daily schedule (`0 6 * * *`)
 - manual dispatch (`workflow_dispatch`)
 - issue events (`opened`, `labeled`)
-- pull request events (`opened`, `synchronize`, `reopened`)
-- pull request review submissions (`submitted`)
+- issue comment events (`created`)
+- pull request events (`opened`, `synchronize`, `reopened`, `labeled`)
 
 This workflow requires the repository secret `COPILOT_GITHUB_TOKEN`.
 
