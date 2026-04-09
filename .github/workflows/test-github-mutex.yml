@@ -1,0 +1,89 @@
+name: test-github-mutex
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-github-mutex.yml'
+      - 'github/mutex/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-github-mutex.yml'
+      - 'github/mutex/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: always()
+    needs:
+      - unit-tests
+      - build
+      - mutex-lock-unlock
+    runs-on: ubuntu-slim
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: |
+          cd github/mutex
+          npm install
+          npm test
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: |
+          cd github/mutex
+          npm install
+          npm run build
+
+  mutex-lock-unlock-one-job:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up mutex
+        uses: ./github/mutex
+        with:
+          suffix: one-job
+      - name: Critical section
+        run: |
+          echo "Job one-job acquired lock"
+          sleep 2
+          echo "Job one-job releasing lock"
+
+  mutex-lock-unlock:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs: mutex-lock-unlock-one-job
+    strategy:
+      matrix:
+        job: [1, 2]
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up mutex
+        uses: ./github/mutex
+        with:
+          suffix: ${{ matrix.job }}
+      - name: Critical section
+        run: |
+          echo "Job ${{ matrix.job }} acquired lock"
+          sleep 2
+          echo "Job ${{ matrix.job }} releasing lock"
