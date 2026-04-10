@@ -45,8 +45,26 @@ if filter and repository:
         response = requests.get(branch_url, headers=headers)
         if response.status_code == 200:
             existing_branches.append(branch)
+        elif response.status_code == 404:
+            print(f"Not found (HTTP 404) when checking branch {branch} in repository {repository}. The branch or repository may not exist, or the token may lack access.")
+        elif response.status_code == 401:
+            print(f"Authentication failed for branch {branch} (HTTP 401). Check GITHUB_TOKEN.")
+        elif response.status_code == 403:
+            rate_limit_remaining = response.headers.get("X-RateLimit-Remaining")
+            rate_limit_reset = response.headers.get("X-RateLimit-Reset")
+            print(
+                f"Access forbidden for branch {branch} (HTTP 403)."
+                f"This may be due to rate limiting or missing permissions."
+            )
+            if rate_limit_remaining is not None or rate_limit_reset is not None:
+                print(
+                    f"X-RateLimit-Remaining={rate_limit_remaining}"
+                    f"X-RateLimit-Reset={rate_limit_reset}"
+                )
+        elif response.status_code >= 500:
+            print(f"Server error while checking branch {branch} (HTTP {response.status_code}). GitHub API may be experiencing issues.")
         else:
-            print(f"Branch {branch} does not exist in the repository")
+            print(f"Unexpected error while checking branch {branch} (HTTP {response.status_code})")
 
     branches = existing_branches
 
