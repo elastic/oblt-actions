@@ -52,17 +52,14 @@ if filter and repository:
         elif response.status_code == 403:
             rate_limit_remaining = response.headers.get("X-RateLimit-Remaining")
             rate_limit_reset = response.headers.get("X-RateLimit-Reset")
+            print(
+                f"Access forbidden for branch {branch} (HTTP 403)."
+                f"This may be due to rate limiting or missing permissions."
+            )
             if rate_limit_remaining is not None or rate_limit_reset is not None:
                 print(
-                    f"Access forbidden for branch {branch} (HTTP 403). "
-                    f"This may be due to rate limiting. "
-                    f"X-RateLimit-Remaining={rate_limit_remaining}, "
-                    f"X-RateLimit-Reset={rate_limit_reset}."
-                )
-            else:
-                print(
-                    f"Access forbidden for branch {branch} (HTTP 403). "
-                    f"Check permissions and possible rate limiting."
+                    f"X-RateLimit-Remaining={rate_limit_remaining}"
+                    f"X-RateLimit-Reset={rate_limit_reset}"
                 )
         elif response.status_code >= 500:
             print(f"Server error while checking branch {branch} (HTTP {response.status_code}). GitHub API may be experiencing issues.")
