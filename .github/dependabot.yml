@@ -27,6 +27,18 @@ updates:
       - 'changelog:dependencies'
 
   - package-ecosystem: npm
+    directory: "/github/mutex"
+    schedule:
+      interval: 'weekly'
+      day: 'sunday'
+      time: '22:00'
+    cooldown:
+      default-days: 14
+    open-pull-requests-limit: 10
+    labels:
+      - 'changelog:dependencies'
+
+  - package-ecosystem: npm
     directory: "/snapshoty/run"
     schedule:
       interval: 'weekly'
