@@ -5,12 +5,12 @@
   "main": "index.js",
   "scripts": {
     "build": "ncc build src/lock.js -o dist/lock && ncc build src/unlock.js -o dist/unlock",
-    "test": "jest --runInBand"
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --runInBand"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@actions/core": "^3.0.0",
     "simple-git": "^3.33.0"

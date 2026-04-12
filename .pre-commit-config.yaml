@@ -10,6 +10,8 @@ repos:
         exclude: &common-exclude |
           (?x)^(
               github/changed-files/dist/index.js|
+              github/mutex/dist/lock/index.js|
+              github/mutex/dist/unlock/index.js|
               snapshoty/run/dist/index.js|
               updatecli/install/.default-updatecli-version
           )$
