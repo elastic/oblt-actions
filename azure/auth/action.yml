@@ -24,7 +24,7 @@ runs:
         subscription-id: ${{ inputs.subscription-id }}
 
     - name: Set outputs
-      uses: actions/github-script@v8.0.0
+      uses: actions/github-script@v9.0.0
       env:
         SUBSCRIPTION_ID: ${{ inputs.subscription-id }}
         TENANT_ID: ${{ inputs.tenant-id }}
