@@ -52,7 +52,7 @@ runs:
   steps:
     - name: Configure oblt-cli flags
       id: flags
-      uses: actions/github-script@v8
+      uses: actions/github-script@v9
       env:
         template: ${{ inputs.template }}
         cluster_name_prefix: ${{ inputs.cluster-name-prefix }}
