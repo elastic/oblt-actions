@@ -1,6 +1,6 @@
-const core = require("@actions/core");
-const fs = require("fs");
-const { setUpRepo, dequeue, getMutexRepoPath } = require("./utils");
+import * as core from "@actions/core";
+import fs from "fs";
+import { setUpRepo, dequeue, getMutexRepoPath } from "./utils.js";
 
 async function run() {
   const branch = core.getInput("branch");

@@ -1,8 +1,8 @@
-const fs = require("fs");
-const path = require("path");
-const os = require("os");
-const simpleGit = require("simple-git");
-const { enqueue, dequeue } = require("./utils");
+import fs from "fs";
+import path from "path";
+import os from "os";
+import simpleGit from "simple-git";
+import { enqueue, dequeue } from "./utils.js";
 
 // Helper to create a bare git repo for shared state
 async function createBareRepo() {
