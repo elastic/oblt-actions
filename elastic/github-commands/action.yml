@@ -13,7 +13,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/github-script@v8
+    - uses: actions/github-script@v9
       continue-on-error: true
       with:
         github-token: ${{ inputs.github-token }}
