@@ -20,7 +20,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/github-script@v8
+    - uses: actions/github-script@v9
       id: prepare
       env:
         JOB_STATUS: ${{ job.status }}

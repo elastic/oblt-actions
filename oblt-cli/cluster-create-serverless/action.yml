@@ -48,7 +48,7 @@ runs:
   using: "composite"
   steps:
     - name: Configure oblt-cli flags
-      uses: actions/github-script@v8
+      uses: actions/github-script@v9
       id: flags
       with:
         script: |
