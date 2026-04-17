@@ -268,7 +268,7 @@ class TestGitHubIssueManager:
 
     @patch.object(bft.GitHubIssueManager, '_run_gh_command')
     def test_search_existing_issue_found(self, mock_gh):
-        """Test searching for existing issue - found with exact title match."""
+        """Test searching for existing issue - found when title is a substring of issue title (supports prefixed issues)."""
         mock_gh.return_value = json.dumps([
             {
                 "number": 123,
@@ -294,8 +294,8 @@ class TestGitHubIssueManager:
         assert result is None
 
     @patch.object(bft.GitHubIssueManager, '_run_gh_command')
-    def test_search_existing_issue_substring_not_matched(self, mock_gh):
-        """Test that a substring-only title match does not return an issue."""
+    def test_search_existing_issue_different_scope_not_matched(self, mock_gh):
+        """Test that a title with a different scope does not match an existing issue."""
         mock_gh.return_value = json.dumps([
             {
                 "number": 456,
@@ -305,8 +305,8 @@ class TestGitHubIssueManager:
             }
         ])
 
-        # "my.scope TestFoo" != "[Flaky Test] my.scope TestFoo", so should not match
-        result = self.manager.search_existing_issue("TestFoo", "")
+        # "different.scope TestFoo" is not in "[Flaky Test] my.scope TestFoo", so should not match
+        result = self.manager.search_existing_issue("TestFoo", "different.scope")
 
         assert result is None
 
