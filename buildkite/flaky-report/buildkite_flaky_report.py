@@ -436,7 +436,7 @@ class GitHubIssueManager:
         title = self._format_issue_title(test_name, scope)
 
         for issue in self._existing_issues_cache:
-            if issue["title"] == title or test_name in issue["title"]:
+            if issue["title"] == title:
                 return issue
 
         return None
