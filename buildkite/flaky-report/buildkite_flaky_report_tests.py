@@ -272,7 +272,7 @@ class TestGitHubIssueManager:
         mock_gh.return_value = json.dumps([
             {
                 "number": 123,
-                "title": "my.scope TestFoo",
+                "title": "[Flaky Test] my.scope TestFoo",
                 "state": "OPEN",
                 "url": "https://github.com/test-org/test-repo/issues/123"
             }
@@ -306,7 +306,7 @@ class TestGitHubIssueManager:
         ])
 
         # "my.scope TestFoo" != "[Flaky Test] my.scope TestFoo", so should not match
-        result = self.manager.search_existing_issue("TestFoo", "my.scope")
+        result = self.manager.search_existing_issue("TestFoo", "")
 
         assert result is None
 
