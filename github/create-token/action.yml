@@ -24,7 +24,7 @@ runs:
   using: "composite"
   steps:
     - name: Print GitHub workflow ref (debug only)
-      if: runner.debug == '1'
+      if: runner.debug == '1' && runner.os != 'Windows'
       shell: bash
       run: echo "github.workflow_ref=${{ github.workflow_ref }}"
 
