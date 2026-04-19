@@ -24,6 +24,10 @@ runs:
             commands += `
             - \`run exhaustive tests\` : Run the exhaustive tests Buildkite pipeline.`
           }
+          if ((context.repo.repo === 'beats' || context.repo.repo === 'oblt-actions') && context.repo.owner === 'elastic') {
+            commands += `
+            - \`/test\` : Run the Buildkite pipeline.`
+          }
 
           const body = `
             ### :robot: GitHub comments
