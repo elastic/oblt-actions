@@ -17,7 +17,7 @@ permissions:
 jobs:
   run-aw:
     permissions:
-      actions: read
+      actions: write
       checks: read
       contents: write
       discussions: write
