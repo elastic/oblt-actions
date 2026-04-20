@@ -22,7 +22,11 @@ runs:
           // See https://github.com/elastic/logstash/pull/18383
           if ((context.repo.repo === 'logstash' || context.repo.repo === 'oblt-actions') && context.repo.owner === 'elastic') {
             commands += `
-            - \`run exhaustive tests\` : Run the exhaustive tests Buildkite pipeline.`
+            - \`run\` \`exhaustive tests\` : Run the exhaustive tests Buildkite pipeline.`
+          }
+          if ((context.repo.repo === 'beats' || context.repo.repo === 'oblt-actions') && context.repo.owner === 'elastic') {
+            commands += `
+            - \`/test\` : Run the Buildkite pipeline.`
           }
 
           const body = `
