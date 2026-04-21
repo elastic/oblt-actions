@@ -25,6 +25,8 @@ Detects flaky tests from Buildkite Test Engine and creates/updates GitHub issues
 | `output-dir`                | Directory to save JSON files                                 | `false`  | `./flaky_tests` |
 | `max-issues`                | Maximum number of new GitHub issues to create                | `false`  | ` `             |
 | `endpoint`                  | API endpoint to use (deprecated or current)                  | `false`  | `deprecated`    |
+| `max-runs`                  | Maximum number of recent runs to check for failure details   | `false`  | `50`            |
+| `debug`                     | Enable debug logging for detailed execution information      | `false`  | `false`         |
 | `python-version`            | Python version to use                                        | `false`  | `3.13`          |
 <!--/inputs-->
 
@@ -37,7 +39,19 @@ Detects flaky tests from Buildkite Test Engine and creates/updates GitHub issues
 <!--/outputs-->
 
 ## Usage
+
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
+```yaml
+- uses: elastic/oblt-actions/buildkite/flaky-report@v1
+  with:
+    token: ${{ secrets.BUILDKITE_TOKEN }}
+    test-suite-id: 'your-test-suite-uuid'
+    github-repo: ${{ github.repository }}
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+<!--/usage-->
+
+### Basic Example
 ```yaml
 jobs:
   run-buildkite:
@@ -53,4 +67,26 @@ jobs:
           github-repo: ${{ github.repository }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
-<!--/usage-->
+
+### Advanced Example
+```yaml
+jobs:
+  run-buildkite:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: elastic/oblt-actions/buildkite/flaky-report@v1
+        with:
+          token: ${{ secrets.BUILDKITE_TOKEN }}
+          test-suite-id: 'your-test-suite-uuid'
+          github-repo: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          days: 7                              # Check last 7 days
+          max-issues: 10                       # Create max 10 new issues
+          max-runs: 100                        # Check last 100 runs for failure details
+          github-label: 'flaky-test'           # Add label to issues
+          github-issue-title-prefix: '[Flaky]' # Add prefix to issue titles
+          debug: true                          # Enable debug logging
+```

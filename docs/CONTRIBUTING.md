@@ -15,21 +15,31 @@ pre-commit install
 
 ## Action Naming
 
-Actions should be named using the following convention: `tool/action`.
+This repository supports two action layout patterns:
 
-For example, an action that runs updatecli should be named `updatecli/run`.
+- single-segment actions, for example: `feature-freeze`, `pre-commit`, `test-report`
+- namespaced actions, for example: `updatecli/run`, `slack/send`
 
-So that the usage of the action will be:
+Example usage for a namespaced action:
 
 ```yaml
 steps:
   - uses: elastic/oblt-actions/updatecli/run@v1
 ```
 
-Hence, the directory structure should look like this:
+Example usage for a single-segment action:
+
+```yaml
+steps:
+  - uses: elastic/oblt-actions/feature-freeze@v1
+```
+
+The directory structure can therefore include both styles:
 
 ```
 oblt-actions/
+├── feature-freeze/
+│   └── action.yml
 ├── updatecli/
 │   └── run/
 │       └── action.yml

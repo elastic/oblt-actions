@@ -1,0 +1,22 @@
+{
+  "name": "mutex",
+  "version": "1.0.0",
+  "description": "A simple locking/unlocking mechanism to provide mutual exclusion in Github Actions",
+  "main": "index.js",
+  "scripts": {
+    "build": "ncc build src/lock.js -o dist/lock && ncc build src/unlock.js -o dist/unlock",
+    "test": "jest --runInBand"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "simple-git": "^3.33.0"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.38.4",
+    "jest": "^30.3.0"
+  }
+}

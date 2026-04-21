@@ -46,7 +46,7 @@ runs:
   using: "composite"
   steps:
     - name: Configure oblt-cli flags
-      uses: actions/github-script@v8
+      uses: actions/github-script@v9
       id: flags
       env:
         remote_cluster: ${{ inputs.remote-cluster }}
@@ -116,7 +116,7 @@ runs:
             core.setOutput('WAIT', waitFlags.join(' '))
           }
 
-    - uses: elastic/oblt-actions/oblt-cli/setup@v1.37.2
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.39.0
       with:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
