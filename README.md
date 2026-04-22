@@ -18,6 +18,9 @@ It runs on:
 - pull request events (`opened`, `synchronize`, `reopened`, `labeled`)
 
 This workflow requires the repository secret `COPILOT_GITHUB_TOKEN`.
+It also requires workflow/job permissions:
+`actions: write`, `checks: read`, `contents: write`, `discussions: write`,
+`id-token: write`, `issues: write`, and `pull-requests: write`.
 
 ### updatecli automation
 
