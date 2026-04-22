@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Snapshoty Github Action",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "lint": "eslint .",
     "prepare": "ncc build index.js -m -o dist --no-source-map-register --license licenses.txt",
@@ -17,7 +18,7 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@actions/core": "^1.10.1",
+    "@actions/core": "^3.0.0",
     "@actions/exec": "^1.1.1"
   },
   "devDependencies": {
