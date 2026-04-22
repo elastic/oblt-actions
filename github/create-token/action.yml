@@ -23,6 +23,11 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Print GitHub workflow ref
+      if: runner.os != 'Windows'
+      shell: bash
+      run: echo "github.workflow_ref=${{ github.workflow_ref }}"
+
     - id: fetch-token
       uses: elastic/ci-gh-actions/fetch-github-token@v1.5.0
       with:
