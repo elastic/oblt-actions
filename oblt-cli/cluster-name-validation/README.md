@@ -34,7 +34,7 @@ jobs:
         uses: elastic/oblt-actions/oblt-cli/cluster-name-validation@v1
         with:
           cluster-name: 'edge-oblt'
-      - run: echo "${{ steps.cluster.outputs.cluster-name }}
+      - run: echo "${{ steps.cluster.outputs.cluster-name }}"
 ```
 
 or alternatively if you use `oblt-cli` with `--output-file "${CLUSTER_INFO_FILE}"'` then
@@ -50,6 +50,6 @@ jobs:
         uses: elastic/oblt-actions/oblt-cli/cluster-name-validation@v1
         with:
           cluster-info-file: ${{ github.workspace }}/cluster-info.json
-      - run: echo "${{ steps.cluster.outputs.cluster-name }}
+      - run: echo "${{ steps.cluster.outputs.cluster-name }}"
 ```
 <!--/usage-->
