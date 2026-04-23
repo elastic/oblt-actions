@@ -17,10 +17,11 @@ permissions:
 jobs:
   run-aw:
     permissions:
-      actions: read
+      actions: write
       checks: read
       contents: write
       discussions: write
+      id-token: write
       issues: write
       pull-requests: write
     uses: elastic/oblt-aw/.github/workflows/oblt-aw-ingress.yml@main # ratchet:exclude
