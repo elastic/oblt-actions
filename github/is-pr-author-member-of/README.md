@@ -40,7 +40,7 @@ jobs:
       - uses: elastic/oblt-actions/github/is-pr-author-member-of@v1
         id: is_elastic_pr_author
         with:
-          pull-request: ${{ steps.issue-parser.outputs.issueparser_kibana_pullrequest }}
+          pull-request: ${{ github.event.issue.number }}
           repository: "kibana"
           github-org: "elastic"
           github-token: ${{ secrets.PAT_TOKEN }}
