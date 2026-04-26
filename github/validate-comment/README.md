@@ -13,12 +13,12 @@ Check whether the GitHub comment was triggered by a user with write permissions
 |------|-------------|----------|---------|
 <!--/inputs-->
 
-## Exported Environment Variables
+## Behavior
 
-| name       | description             |
-|------------|-------------------------|
-| `GIT_USER` | <p>Git username</p>     |
-| `GIT_EMAIL`| <p>Git email</p>        |
+- Adds a `+1` reaction to the triggering issue comment.
+- Checks the comment author's repository permission level.
+- Allows execution only for users with `write` or `admin` permission.
+- Posts an explanatory comment and fails the action when the user is not permitted.
 
 ## Usage
 

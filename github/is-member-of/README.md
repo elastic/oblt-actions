@@ -35,7 +35,8 @@ jobs:
   run-action-if-comment:
     runs-on: ubuntu-latest
     steps:
-      - uses: elastic/oblt-actions/github/is-member-of@v1
+      - id: is_elastic_member
+        uses: elastic/oblt-actions/github/is-member-of@v1
         with:
           github-user: ${{ github.event.issue.user.login }}
           github-org: "elastic"
