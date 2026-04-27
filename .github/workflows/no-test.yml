@@ -50,7 +50,7 @@ jobs:
       - name: Warn about fork
         run: echo "::warning::In order to run this workflow you must create a feature branch in the main repo."
       - name: Notify PR about fork
-        uses: edumserrano/find-create-or-update-comment@v3
+        uses: edumserrano/find-create-or-update-comment@82880b65c8a3a6e4c70aa05a204995b6c9696f53 # v3.0.0
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body-includes: '<!-- elastic/oblt-actions/notify-fork -->'
