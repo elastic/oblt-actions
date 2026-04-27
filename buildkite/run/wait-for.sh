@@ -22,7 +22,7 @@ echo "Waiting for build $WEB_URL to run "
 # https://buildkite.com/docs/pipelines/defining-steps#build-states
 while [ "$STATE" == "running" ] || [ "$STATE" == "scheduled" ] || [ "$STATE" == "creating" ]; do
   # use a temporary file for output to only get the latest attempt output
-  # --retry-all-errors may produce duplicated output as indicated in 
+  # --retry-all-errors may produce duplicated output as indicated in
   # https://curl.se/docs/manpage.html#--retry-all-errors
   RESP_FILE=$(mktemp)
   curl \
