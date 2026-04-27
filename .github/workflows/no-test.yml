@@ -48,7 +48,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Warn about fork
-        run: echo "::warning::In order to run this workflow you must create a feature branch in the main repo."
+        run: echo "::warning::Fork pull requests cannot run the e2e tests. Create a feature branch in the main repo to run them."
       - name: Notify PR about fork
         uses: edumserrano/find-create-or-update-comment@82880b65c8a3a6e4c70aa05a204995b6c9696f53 # v3.0.0
         with:
