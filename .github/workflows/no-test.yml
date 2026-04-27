@@ -22,6 +22,7 @@ on:
       - '!github/backport-active/**'
       - '!github/changed-files/**'
       - '!github/create-token/**'
+      - '!github/notify-pr-is-fork/**'
       - '!github/project-add/**'
       - '!github/project-field-set/**'
       - '!github/user-type/**'
