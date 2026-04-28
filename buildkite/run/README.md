@@ -35,6 +35,8 @@ A GitHub Action for triggering a build on a Buildkite pipeline.
 | `url`      | The Buildkite build url     |
 <!--/outputs-->
 
+`state` is currently declared in the action metadata, but `run.sh` only writes `build`, `number`, `pipeline`, and `url` to `$GITHUB_OUTPUT`. Consumers should not rely on `state` being set.
+
 ## Usage
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
