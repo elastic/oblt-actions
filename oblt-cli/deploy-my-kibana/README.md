@@ -25,9 +25,9 @@ Run the deploy my Kibana PR.
 
 ## Output
 <!--outputs-->
-| Name    | Description                                                   |
-|---------|---------------------------------------------------------------|
-| `issue` | The GitHub issue that has been created to destroy the cluster |
+| Name    | Description                                             |
+|---------|---------------------------------------------------------|
+| `issue` | The GitHub issue that has been created to deploy Kibana |
 <!--/outputs-->
 
 ## Usage
