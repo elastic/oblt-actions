@@ -55,10 +55,12 @@ oblt-actions/
 
 ## Action Testing
 
-Every action should have a test workflow in the `.github/workflows` directory.
-If the action name is `my/new-action`, then the test workflow should be named `test-my-new-action.yml.`
+Action changes must keep the required `test` status check green. In this repository, that is done in one of these ways:
 
-The workflow must have a job named `test` because the `test` status check is a required check for the `main` branch.
+1. Add or update a dedicated workflow in `.github/workflows/test-<my-action>.yml`, where `<my-action>` is the action path with `/` replaced by `-` (for example `my/new-action` -> `test-my-new-action.yml`).
+2. If an action intentionally has no dedicated test workflow (for example legacy/deprecated actions), add the action path to `.github/workflows/no-test.yml` so `no-test` is the workflow that provides the required `test` job for those changes.
+
+Dedicated test workflows must include a job named `test` because `test` is a required check for the `main` branch.
 
 If you need to multiple jobs in the workflow you can create a job named `test` which utilizes the [check-dependent-jobs](../check-dependent-jobs) action
 to create a status check that is computed based on the status of the other jobs.
@@ -94,13 +96,13 @@ jobs:
   test-default:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ./<action-path>
 
   test-with-arg:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - id: my-action
         uses: ./<action-path>
@@ -115,7 +117,7 @@ jobs:
 
 ### .github/workflows/no-test.yml
 
-Add `!<action-path>/**` in the `paths` section at `.github/workflows/no-test.yml`
+If an action is intentionally not covered by a dedicated `test-*.yml` workflow, add `!<action-path>/**` in the `paths` section at `.github/workflows/no-test.yml`.
 
 **NOTE**: replace `<action-path>` with the path to the action directory.
 
