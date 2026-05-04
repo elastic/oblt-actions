@@ -40,3 +40,25 @@ jobs:
     runs-on: ubuntu-slim
     steps:
       - run: echo "No test to run"
+
+  notify-fork:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == true
+    runs-on: ubuntu-slim
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Warn about fork
+        run: echo "::warning::Fork pull requests cannot run the e2e tests. Create a feature branch in the main repo to run them."
+      - name: Notify PR about fork
+        uses: edumserrano/find-create-or-update-comment@82880b65c8a3a6e4c70aa05a204995b6c9696f53 # v3.0.0
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body-includes: '<!-- elastic/oblt-actions/notify-fork -->'
+          comment-author: 'github-actions[bot]'
+          edit-mode: replace
+          body: |
+            <!-- elastic/oblt-actions/notify-fork -->
+            ## :warning: Fork detected
+
+            This pull request is from a fork. In order to run the e2e tests, you must create a feature branch in the main repository.
+            Forks are not supported for running the e2e tests.
