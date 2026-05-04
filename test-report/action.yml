@@ -97,7 +97,7 @@ runs:
 
     - name: Report test results
       if: steps.check_artifact.outputs.found == 'true'
-      uses: phoenix-actions/test-reporting@f957cd93fc2d848d556fa0d03c57bc79127b6b5e # v15
+      uses: phoenix-actions/test-reporting@7317eea6e13c47348dd0bb318669485157c518d6 # v16
       with:
         artifact: ${{ inputs.artifact }}
         name: ${{ inputs.name }}
