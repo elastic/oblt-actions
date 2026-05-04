@@ -14,6 +14,7 @@ export BABEL_DISABLE_CACHE=true
 export FORCE_COLOR=1
 export NODE_OPTIONS=" --max-old-space-size=4096"
 export BUILD_TS_REFS_DISABLE="true"
+export KBN_USE_RSPACK=true
 
 echo "::group::Bootstrap"
 time yarn kbn clean
