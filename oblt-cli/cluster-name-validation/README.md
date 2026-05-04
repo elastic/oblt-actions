@@ -45,6 +45,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: elastic/oblt-actions/oblt-cli/setup@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - run: oblt-cli cluster create ... --output-file "${{ github.workspace }}/cluster-info.json" --wait 15
       - id: cluster
         uses: elastic/oblt-actions/oblt-cli/cluster-name-validation@v1
