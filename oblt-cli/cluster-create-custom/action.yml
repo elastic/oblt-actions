@@ -98,8 +98,8 @@ runs:
           parameters.EphemeralCluster = 'true'
           parameters = { ...parameters, ...JSON.parse(input_parameters) }
           if (expire_in_hours) {
-            const hours = parseInt(expire_in_hours)
-            if (isNaN(hours) || hours <= 0) {
+            const hours = Number(expire_in_hours)
+            if (!Number.isInteger(hours) || hours <= 0) {
               throw new Error('expire-in-hours must be a positive integer')
             }
             parameters.ExpireInHours = hours
