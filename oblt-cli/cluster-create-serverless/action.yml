@@ -41,6 +41,9 @@ inputs:
   expiry-date:
     description: 'Expiry date for the cluster in ISO 8601 format (e.g., ''2024-12-31'' or ''2024-12-31T23:59:59Z''). (Optional)'
     required: false
+  expire-in-hours:
+    description: 'Number of hours after which the cluster expires (e.g., 48 for 2 days). (Optional)'
+    required: false
 
 outputs:
   cluster-name:
@@ -65,6 +68,7 @@ runs:
             project_type,
             wait_time,
             expiry_date,
+            expire_in_hours,
             RUNNER_TEMP
           } = process.env
 
@@ -94,6 +98,9 @@ runs:
             }
           }
           parameters.EphemeralCluster = "true"
+          if (expire_in_hours) {
+            parameters.ExpireInHours = parseInt(expire_in_hours)
+          }
           console.log(`Create PARAMETERS env variable`)
           core.setOutput('PARAMETERS', JSON.stringify(parameters))
 
@@ -118,6 +125,7 @@ runs:
         project_type: ${{ inputs.project-type }}
         wait_time: ${{ inputs.wait }}
         expiry_date: ${{ inputs.expiry-date }}
+        expire_in_hours: ${{ inputs.expire-in-hours }}
 
     - uses: elastic/oblt-actions/oblt-cli/setup@v1.39.0
       with:

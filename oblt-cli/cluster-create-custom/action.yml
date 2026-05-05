@@ -44,6 +44,9 @@ inputs:
   expiry-date:
     description: 'Expiry date for the cluster in ISO 8601 format (e.g., ''2024-12-31'' or ''2024-12-31T23:59:59Z''). (Optional)'
     required: false
+  expire-in-hours:
+    description: 'Number of hours after which the cluster expires (e.g., 48 for 2 days). (Optional)'
+    required: false
 
 outputs:
   cluster-name:
@@ -66,6 +69,7 @@ runs:
         skip_random_name: ${{ inputs.skip-random-name }}
         wait_time: ${{ inputs.wait }}
         expiry_date: ${{ inputs.expiry-date }}
+        expire_in_hours: ${{ inputs.expire-in-hours }}
       with:
         script: |
           const {
@@ -78,6 +82,7 @@ runs:
             skip_random_name,
             wait_time,
             expiry_date,
+            expire_in_hours,
             RUNNER_TEMP
           } = process.env
           let parameters = {}
@@ -92,6 +97,9 @@ runs:
           }
           parameters.EphemeralCluster = 'true'
           parameters = { ...parameters, ...JSON.parse(input_parameters) }
+          if (expire_in_hours) {
+            parameters.ExpireInHours = parseInt(expire_in_hours)
+          }
           core.setOutput('PARAMETERS', JSON.stringify(parameters))
 
 

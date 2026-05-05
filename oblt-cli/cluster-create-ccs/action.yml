@@ -39,6 +39,9 @@ inputs:
   expiry-date:
     description: 'Expiry date for the cluster in ISO 8601 format (e.g., ''2024-12-31'' or ''2024-12-31T23:59:59Z''). (Optional)'
     required: false
+  expire-in-hours:
+    description: 'Number of hours after which the cluster expires (e.g., 48 for 2 days). (Optional)'
+    required: false
 
 outputs:
   cluster-name:
@@ -60,6 +63,7 @@ runs:
         gitops: ${{ inputs.gitops }}
         wait_time: ${{ inputs.wait }}
         expiry_date: ${{ inputs.expiry-date }}
+        expire_in_hours: ${{ inputs.expire-in-hours }}
       with:
         script: |
           const {
@@ -71,6 +75,7 @@ runs:
             gitops,
             wait_time,
             expiry_date,
+            expire_in_hours,
             cluster_json,
             RUNNER_TEMP
           } = process.env
@@ -125,6 +130,10 @@ runs:
             core.setOutput('EXPIRY_DATE', `--expiry-date=${expiry_date}`)
           }
 
+          if (expire_in_hours) {
+            core.setOutput('EXPIRE_IN_HOURS', `--parameter ExpireInHours=${expire_in_hours}`)
+          }
+
     - uses: elastic/oblt-actions/oblt-cli/setup@v1.39.0
       with:
         github-token: ${{ inputs.github-token }}
@@ -140,6 +149,7 @@ runs:
           ${DRY_RUN} \
           ${GITOPS} \
           ${EXPIRY_DATE} \
+          ${EXPIRE_IN_HOURS} \
           ${WAIT}
       shell: bash
       env:
@@ -151,6 +161,7 @@ runs:
         DRY_RUN: ${{ steps.flags.outputs.DRY_RUN }}
         GITOPS: ${{ steps.flags.outputs.GITOPS }}
         EXPIRY_DATE: ${{ steps.flags.outputs.EXPIRY_DATE }}
+        EXPIRE_IN_HOURS: ${{ steps.flags.outputs.EXPIRE_IN_HOURS }}
         WAIT: ${{ steps.flags.outputs.WAIT }}
 
     - run: |

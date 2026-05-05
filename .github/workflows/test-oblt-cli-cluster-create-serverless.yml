@@ -57,3 +57,4 @@ jobs:
           dry-run: ${{ github.event.inputs.dry-run != '' && github.event.inputs.dry-run || true }}
           cluster-name-prefix: 'foo'
           expiry-date: ${{ steps.expiry.outputs.date }}
+          expire-in-hours: 1

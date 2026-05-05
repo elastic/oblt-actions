@@ -23,6 +23,7 @@ Run the oblt-cli wrapper to create a CCS cluster.
 | `dry-run`                    | Whether to dryRun                                                                                         | `false`  | `false`            |
 | `wait`                       | it waits N minutes for the operation to finish. (default 0 if no wait time is provided)                   | `false`  | `0`                |
 | `expiry-date`                | Expiry date for the cluster in ISO 8601 format (e.g., '2024-12-31' or '2024-12-31T23:59:59Z'). (Optional) | `false`  | ` `                |
+| `expire-in-hours`            | Number of hours after which the cluster expires (e.g., 48 for 2 days). (Optional)                         | `false`  | ` `                |
 <!--/inputs-->
 
 
