@@ -131,7 +131,11 @@ runs:
           }
 
           if (expire_in_hours) {
-            core.setOutput('EXPIRE_IN_HOURS', `--parameter ExpireInHours=${expire_in_hours}`)
+            const hours = parseInt(expire_in_hours)
+            if (isNaN(hours) || hours <= 0) {
+              throw new Error('expire-in-hours must be a positive integer')
+            }
+            core.setOutput('EXPIRE_IN_HOURS', `--parameter ExpireInHours=${hours}`)
           }
 
     - uses: elastic/oblt-actions/oblt-cli/setup@v1.39.0

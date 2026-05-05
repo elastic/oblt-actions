@@ -99,7 +99,11 @@ runs:
           }
           parameters.EphemeralCluster = "true"
           if (expire_in_hours) {
-            parameters.ExpireInHours = parseInt(expire_in_hours)
+            const hours = parseInt(expire_in_hours)
+            if (isNaN(hours) || hours <= 0) {
+              throw new Error('expire-in-hours must be a positive integer')
+            }
+            parameters.ExpireInHours = hours
           }
           console.log(`Create PARAMETERS env variable`)
           core.setOutput('PARAMETERS', JSON.stringify(parameters))
