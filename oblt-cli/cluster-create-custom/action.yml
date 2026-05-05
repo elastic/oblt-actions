@@ -41,6 +41,9 @@ inputs:
     description: 'it waits N minutes for the operation to finish. (default 0 if no wait time is provided)'
     default: '0'
     required: false
+  expiry-date:
+    description: 'Expiry date for the cluster in ISO 8601 format (e.g., ''2024-12-31'' or ''2024-12-31T23:59:59Z''). (Optional)'
+    required: false
 
 outputs:
   cluster-name:
@@ -62,6 +65,7 @@ runs:
         input_parameters: ${{ inputs.parameters }}
         skip_random_name: ${{ inputs.skip-random-name }}
         wait_time: ${{ inputs.wait }}
+        expiry_date: ${{ inputs.expiry-date }}
       with:
         script: |
           const {
@@ -73,6 +77,7 @@ runs:
             input_parameters,
             skip_random_name,
             wait_time,
+            expiry_date,
             RUNNER_TEMP
           } = process.env
           let parameters = {}
@@ -119,6 +124,10 @@ runs:
             core.setOutput('WAIT', waitFlags.join(' '))
           }
 
+          if (expiry_date) {
+            core.setOutput('EXPIRY_DATE', `--expiry-date=${expiry_date}`)
+          }
+
     - uses: elastic/oblt-actions/oblt-cli/setup@v1.39.0
       with:
         github-token: ${{ inputs.github-token }}
@@ -133,6 +142,7 @@ runs:
             ${CLUSTER_NAME_SUFFIX} \
             --parameters="${PARAMETERS}" \
             ${SKIP_RANDOM_NAME} \
+            ${EXPIRY_DATE} \
             ${WAIT}
       shell: bash
       env:
@@ -143,6 +153,7 @@ runs:
         CLUSTER_NAME_SUFFIX: ${{ steps.flags.outputs.CLUSTER_NAME_SUFFIX }}
         PARAMETERS: ${{ steps.flags.outputs.PARAMETERS }}
         SKIP_RANDOM_NAME: ${{ steps.flags.outputs.SKIP_RANDOM_NAME }}
+        EXPIRY_DATE: ${{ steps.flags.outputs.EXPIRY_DATE }}
         WAIT: ${{ steps.flags.outputs.WAIT }}
 
     - run: |
