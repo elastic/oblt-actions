@@ -122,6 +122,9 @@ runs:
           }
 
           if (expiry_date) {
+            if (!/^[0-9TZ:+.-]+$/.test(expiry_date)) {
+              throw new Error('Invalid expiry-date input. Only ISO-8601 style date characters are allowed.')
+            }
             core.setOutput('EXPIRY_DATE', `--expiry-date=${expiry_date}`)
           }
 
