@@ -55,6 +55,5 @@ jobs:
           cluster-name-prefix: 'testgithubaction'
           gitops: true
           dry-run: ${{ github.event.inputs.dry-run != '' && github.event.inputs.dry-run || true }}
-          expire-in-hours: 1
       - name: Assert is not empty
         run: test -n "${{steps.create.outputs.cluster-name}}"
