@@ -107,6 +107,9 @@ runs:
           }
 
           if (expiry_date) {
+            if (!/^[0-9A-Za-z:._+-]+$/.test(expiry_date)) {
+              throw new Error('expiry-date contains unsupported characters')
+            }
             core.setOutput('EXPIRY_DATE', `--expiry-date=${expiry_date}`)
           }
       env:
