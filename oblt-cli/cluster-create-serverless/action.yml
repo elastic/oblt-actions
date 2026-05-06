@@ -38,6 +38,9 @@ inputs:
     description: 'it waits N minutes for the operation to finish. (default 0 if no wait time is provided)'
     default: '0'
     required: false
+  expiry-date:
+    description: 'Expiry date for the cluster in ISO 8601 format (e.g., ''2024-12-31'' or ''2024-12-31T23:59:59Z''). (Optional)'
+    required: false
 
 outputs:
   cluster-name:
@@ -61,6 +64,7 @@ runs:
             target,
             project_type,
             wait_time,
+            expiry_date,
             RUNNER_TEMP
           } = process.env
 
@@ -101,6 +105,13 @@ runs:
             waitFlags.push(`--output-file=${cluster_json_file}`)
             core.setOutput('WAIT', waitFlags.join(' '))
           }
+
+          if (expiry_date) {
+            if (!/^[0-9A-Za-z:._+-]+$/.test(expiry_date)) {
+              throw new Error('expiry-date contains unsupported characters')
+            }
+            core.setOutput('EXPIRY_DATE', `--expiry-date=${expiry_date}`)
+          }
       env:
         cluster_name_prefix: ${{ inputs.cluster-name-prefix }}
         cluster_name_suffix: ${{ inputs.cluster-name-suffix }}
@@ -109,6 +120,7 @@ runs:
         target: ${{ inputs.target }}
         project_type: ${{ inputs.project-type }}
         wait_time: ${{ inputs.wait }}
+        expiry_date: ${{ inputs.expiry-date }}
 
     - uses: elastic/oblt-actions/oblt-cli/setup@v1.39.0
       with:
@@ -122,6 +134,7 @@ runs:
           ${CLUSTER_NAME_PREFIX} \
           ${CLUSTER_NAME_SUFFIX} \
           --parameters="${PARAMETERS}" \
+          ${EXPIRY_DATE} \
           ${WAIT}
       shell: bash
       env:
@@ -130,6 +143,7 @@ runs:
         CLUSTER_NAME_PREFIX: ${{ steps.flags.outputs.CLUSTER_NAME_PREFIX }}
         CLUSTER_NAME_SUFFIX: ${{ steps.flags.outputs.CLUSTER_NAME_SUFFIX }}
         PARAMETERS: ${{ steps.flags.outputs.PARAMETERS }}
+        EXPIRY_DATE: ${{ steps.flags.outputs.EXPIRY_DATE }}
         WAIT: ${{ steps.flags.outputs.WAIT }}
 
     - run: |

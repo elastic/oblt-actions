@@ -48,6 +48,10 @@ jobs:
           permission-contents: write
           repositories: |
             observability-test-environments
+      - name: Compute expiry date
+        id: expiry
+        run: echo "date=$(date -u -d '+1 hour' '+%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+        shell: bash
       - uses: ./oblt-cli/cluster-create-custom
         with:
           github-token: ${{ steps.get_token.outputs.token }}
@@ -56,6 +60,8 @@ jobs:
           gitops: false
           dry-run: ${{ github.event.inputs.dry-run != '' && github.event.inputs.dry-run || true }}
           parameters: '{"RemoteClusterName":"release-oblt","StackVersion":"8.7.0","KibanaDockerImage":"docker.elastic.co/observability-ci/kibana-cloud:8.7.0-SNAPSHOT"}'
+          expiry-date: ${{ steps.expiry.outputs.date }}
+          expire-in-hours: 1
 
   gitops:
     runs-on: ubuntu-latest
@@ -71,6 +77,10 @@ jobs:
           permission-contents: write
           repositories: |
             observability-test-environments
+      - name: Compute expiry date
+        id: expiry
+        run: echo "date=$(date -u -d '+1 hour' '+%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+        shell: bash
       - uses: ./oblt-cli/cluster-create-custom
         with:
           github-token: ${{ steps.get_token.outputs.token }}
@@ -79,6 +89,8 @@ jobs:
           gitops: true
           dry-run: ${{ github.event.inputs.dry-run != '' && github.event.inputs.dry-run || true }}
           parameters: '{"RemoteClusterName":"release-oblt","StackVersion":"8.7.0","KibanaDockerImage":"docker.elastic.co/observability-ci/kibana-cloud:8.7.0-SNAPSHOT"}'
+          expiry-date: ${{ steps.expiry.outputs.date }}
+          expire-in-hours: 1
 
   multiline:
     runs-on: ubuntu-latest
@@ -94,6 +106,10 @@ jobs:
           permission-contents: write
           repositories: |
             observability-test-environments
+      - name: Compute expiry date
+        id: expiry
+        run: echo "date=$(date -u -d '+1 hour' '+%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+        shell: bash
       - uses: ./oblt-cli/cluster-create-custom
         with:
           github-token: ${{ steps.get_token.outputs.token }}
@@ -107,3 +123,5 @@ jobs:
               "StackVersion": "8.7.0",
               "KibanaDockerImage": "docker.elastic.co/observability-ci/kibana-cloud:8.7.0-SNAPSHOT"
             }
+          expiry-date: ${{ steps.expiry.outputs.date }}
+          expire-in-hours: 1

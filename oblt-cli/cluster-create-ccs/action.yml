@@ -36,6 +36,9 @@ inputs:
     description: 'it waits N minutes for the operation to finish. (default 0 if no wait time is provided)'
     default: '0'
     required: false
+  expiry-date:
+    description: 'Expiry date for the cluster in ISO 8601 format (e.g., ''2024-12-31'' or ''2024-12-31T23:59:59Z''). (Optional)'
+    required: false
 
 outputs:
   cluster-name:
@@ -56,6 +59,7 @@ runs:
         dry_run: ${{ inputs.dry-run }}
         gitops: ${{ inputs.gitops }}
         wait_time: ${{ inputs.wait }}
+        expiry_date: ${{ inputs.expiry-date }}
       with:
         script: |
           const {
@@ -66,6 +70,7 @@ runs:
             dry_run,
             gitops,
             wait_time,
+            expiry_date,
             cluster_json,
             RUNNER_TEMP
           } = process.env
@@ -116,6 +121,13 @@ runs:
             core.setOutput('WAIT', waitFlags.join(' '))
           }
 
+          if (expiry_date) {
+            if (!/^[0-9TZ:+.-]+$/.test(expiry_date)) {
+              throw new Error('Invalid expiry-date input. Only ISO-8601 style date characters are allowed.')
+            }
+            core.setOutput('EXPIRY_DATE', `--expiry-date=${expiry_date}`)
+          }
+
     - uses: elastic/oblt-actions/oblt-cli/setup@v1.39.0
       with:
         github-token: ${{ inputs.github-token }}
@@ -130,6 +142,7 @@ runs:
           ${ELASTICSEARCH_DOCKER_IMAGE} \
           ${DRY_RUN} \
           ${GITOPS} \
+          ${EXPIRY_DATE} \
           ${WAIT}
       shell: bash
       env:
@@ -140,6 +153,7 @@ runs:
         ELASTICSEARCH_DOCKER_IMAGE: ${{ steps.flags.outputs.ELASTICSEARCH_DOCKER_IMAGE }}
         DRY_RUN: ${{ steps.flags.outputs.DRY_RUN }}
         GITOPS: ${{ steps.flags.outputs.GITOPS }}
+        EXPIRY_DATE: ${{ steps.flags.outputs.EXPIRY_DATE }}
         WAIT: ${{ steps.flags.outputs.WAIT }}
 
     - run: |
