@@ -22,8 +22,6 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
     steps:
       - uses: actions/checkout@v6
       - uses: ./slack/send
@@ -34,7 +32,6 @@ jobs:
           message: "Run something"
 
       - name: validate thread-timestamp
-        if: env.SLACK_BOT_TOKEN != ''
         run: test -n "${{ steps.slack-send.outputs.thread-timestamp }}"
 
       - uses: ./slack/send
@@ -46,7 +43,6 @@ jobs:
           thread-timestamp: ${{ steps.slack-send.outputs.thread-timestamp || '' }}
 
       - name: validate thread-timestamp
-        if: env.SLACK_BOT_TOKEN != ''
         run: test -n "${{ steps.slack-reply.outputs.thread-timestamp }}"
 
       - uses: ./slack/send
