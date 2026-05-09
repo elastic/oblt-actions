@@ -42,7 +42,7 @@ jobs:
           github-org: "elastic"
           github-token: ${{ secrets.PAT_TOKEN }}
 
-      - if: steps.is_elastic_member.outputs.result == true
+      - if: steps.is_elastic_member.outputs.result == 'true'
         run: echo '${{ github.event.issue.user.login }} is member'
       # ...
 ```
