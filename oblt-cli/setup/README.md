@@ -20,7 +20,7 @@ Setup oblt-cli for use in GitHub Actions workflows.
 | `github-token`  | The GitHub access token.                                                                                           | `true`   | ` `                |
 | `org`           | The GitHub organization.                                                                                           | `true`   | ` `                |
 | `division`      | The Elastic division.                                                                                              | `true`   | ` `                |
-| `project`       | The project associated with the deployment.                                                                        | `true`   | ` `                |
+| `project`       | The project associated with the deployment. If not set, it will be inferred from the GitHub repository name.       | `false`  | ` `                |
 | `team`          | The team associated with the deployment.                                                                           | `true`   | ` `                |
 | `slack-channel` | The slack channel to notify the status.                                                                            | `false`  | `#observablt-bots` |
 | `username`      | Username to show in the deployments with oblt-cli, format: [a-z0-9]                                                | `false`  | `obltmachine`      |

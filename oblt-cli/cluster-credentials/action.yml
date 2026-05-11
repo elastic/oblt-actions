@@ -17,8 +17,8 @@ inputs:
     description: 'The Elastic division.'
     required: true
   project:
-    description: 'The project associated with the deployment.'
-    required: true
+    description: 'The project associated with the deployment. If not set, it will be inferred from the GitHub repository name.'
+    required: false
   team:
     description: 'The team associated with the deployment.'
     required: true

@@ -10,23 +10,23 @@ Run the oblt-cli wrapper to create a serverless cluster.
 
 ## Inputs
 <!--inputs-->
-| Name                  | Description                                                                                               | Required | Default            |
-|-----------------------|-----------------------------------------------------------------------------------------------------------|----------|--------------------|
-| `cluster-name-prefix` | Prefix to be prepended to the randomised cluster name                                                     | `false`  | ` `                |
-| `cluster-name-suffix` | Suffix to be appended to the randomised cluster name                                                      | `false`  | ` `                |
-| `target`              | The target environment where to deploy the serverless cluster. Default: `qa`                              | `false`  | `qa`               |
-| `project-type`        | The project type. Default: `observability`                                                                | `false`  | `observability`    |
-| `github-token`        | The GitHub access token.                                                                                  | `true`   | ` `                |
-| `org`                 | The GitHub organization.                                                                                  | `true`   | ` `                |
-| `division`            | The Elastic division.                                                                                     | `true`   | ` `                |
-| `project`             | The project associated with the deployment.                                                               | `true`   | ` `                |
-| `team`                | The team associated with the deployment.                                                                  | `true`   | ` `                |
-| `slack-channel`       | The slack channel to notify the status.                                                                   | `false`  | `#observablt-bots` |
-| `username`            | Username to show in the deployments with oblt-cli, format: [a-z0-9]                                       | `false`  | `obltmachine`      |
-| `gitops`              | Whether to provide the GitOps metadata to the oblt-cli                                                    | `false`  | `false`            |
-| `dry-run`             | Whether to dryRun                                                                                         | `false`  | `false`            |
-| `wait`                | it waits N minutes for the operation to finish. (default 0 if no wait time is provided)                   | `false`  | `0`                |
-| `expiry-date`         | Expiry date for the cluster in ISO 8601 format (e.g., '2024-12-31' or '2024-12-31T23:59:59Z'). (Optional) | `false`  | ` `                |
+| Name                  | Description                                                                                                  | Required | Default            |
+|-----------------------|--------------------------------------------------------------------------------------------------------------|----------|--------------------|
+| `cluster-name-prefix` | Prefix to be prepended to the randomised cluster name                                                        | `false`  | ` `                |
+| `cluster-name-suffix` | Suffix to be appended to the randomised cluster name                                                         | `false`  | ` `                |
+| `target`              | The target environment where to deploy the serverless cluster. Default: `qa`                                 | `false`  | `qa`               |
+| `project-type`        | The project type. Default: `observability`                                                                   | `false`  | `observability`    |
+| `github-token`        | The GitHub access token.                                                                                     | `true`   | ` `                |
+| `org`                 | The GitHub organization.                                                                                     | `true`   | ` `                |
+| `division`            | The Elastic division.                                                                                        | `true`   | ` `                |
+| `project`             | The project associated with the deployment. If not set, it will be inferred from the GitHub repository name. | `false`  | ` `                |
+| `team`                | The team associated with the deployment.                                                                     | `true`   | ` `                |
+| `slack-channel`       | The slack channel to notify the status.                                                                      | `false`  | `#observablt-bots` |
+| `username`            | Username to show in the deployments with oblt-cli, format: [a-z0-9]                                          | `false`  | `obltmachine`      |
+| `gitops`              | Whether to provide the GitOps metadata to the oblt-cli                                                       | `false`  | `false`            |
+| `dry-run`             | Whether to dryRun                                                                                            | `false`  | `false`            |
+| `wait`                | it waits N minutes for the operation to finish. (default 0 if no wait time is provided)                      | `false`  | `0`                |
+| `expiry-date`         | Expiry date for the cluster in ISO 8601 format (e.g., '2024-12-31' or '2024-12-31T23:59:59Z'). (Optional)    | `false`  | ` `                |
 <!--/inputs-->
 
 ## Outputs

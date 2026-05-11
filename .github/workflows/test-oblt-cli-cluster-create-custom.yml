@@ -57,7 +57,6 @@ jobs:
           github-token: ${{ steps.get_token.outputs.token }}
           org: elastic
           division: engineering
-          project: observability
           team: obs-ux-management
           template: 'deploy-kibana'
           cluster-name-prefix: 'testgithubaction'
@@ -90,7 +89,6 @@ jobs:
           github-token: ${{ steps.get_token.outputs.token }}
           org: elastic
           division: engineering
-          project: observability
           team: obs-ux-management
           template: 'deploy-kibana'
           cluster-name-prefix: 'testgithubaction'
@@ -123,7 +121,6 @@ jobs:
           github-token: ${{ steps.get_token.outputs.token }}
           org: elastic
           division: engineering
-          project: observability
           team: obs-ux-management
           template: 'deploy-kibana'
           cluster-name-prefix: 'testgithubaction'

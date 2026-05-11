@@ -55,7 +55,6 @@ jobs:
           github-token: ${{ steps.get_token.outputs.token }}
           org: elastic
           division: engineering
-          project: observability
           team: obs-ux-management
       - name: Verify oblt-cli version
         run: |
@@ -83,7 +82,6 @@ jobs:
           github-token: ${{ steps.get_token.outputs.token }}
           org: elastic
           division: engineering
-          project: observability
           team: obs-ux-management
           version-file: .oblt-cli-version
       - name: Verify oblt-cli version
@@ -109,7 +107,6 @@ jobs:
           github-token: ${{ steps.get_token.outputs.token }}
           org: elastic
           division: engineering
-          project: observability
           team: obs-ux-management
       - name: Verify oblt-cli version
         run: |
@@ -143,7 +140,6 @@ jobs:
           github-token: ${{ steps.get_token.outputs.token }}
           org: elastic
           division: engineering
-          project: observability
           team: obs-ux-management
           version-file: .tool-versions
       - name: Verify oblt-cli version
@@ -171,7 +167,6 @@ jobs:
           github-token: ${{ steps.get_token.outputs.token }}
           org: elastic
           division: engineering
-          project: observability
           team: obs-ux-management
           version-file: non-existing-file
       - name: Verify step failed
@@ -197,7 +192,6 @@ jobs:
           github-token: ${{ steps.get_token.outputs.token }}
           org: elastic
           division: engineering
-          project: observability
           team: obs-ux-management
           version: 7.3.0
           version-file: non-existing-file

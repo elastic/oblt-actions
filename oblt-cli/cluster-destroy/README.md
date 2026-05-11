@@ -9,16 +9,16 @@ Run the oblt-cli wrapper to destroy the given cluster
 
 ## Inputs
 <!--inputs-->
-| Name                | Description                                                         | Required | Default       |
-|---------------------|---------------------------------------------------------------------|----------|---------------|
-| `cluster-name`      | The cluster name                                                    | `false`  | ` `           |
-| `cluster-info-file` | The cluster info file (absolute path)                               | `false`  | ` `           |
-| `github-token`      | The GitHub access token.                                            | `true`   | ` `           |
-| `org`               | The GitHub organization.                                            | `true`   | ` `           |
-| `division`          | The Elastic division.                                               | `true`   | ` `           |
-| `project`           | The project associated with the deployment.                         | `true`   | ` `           |
-| `team`              | The team associated with the deployment.                            | `true`   | ` `           |
-| `username`          | Username to show in the deployments with oblt-cli, format: [a-z0-9] | `false`  | `obltmachine` |
+| Name                | Description                                                                                                  | Required | Default       |
+|---------------------|--------------------------------------------------------------------------------------------------------------|----------|---------------|
+| `cluster-name`      | The cluster name                                                                                             | `false`  | ` `           |
+| `cluster-info-file` | The cluster info file (absolute path)                                                                        | `false`  | ` `           |
+| `github-token`      | The GitHub access token.                                                                                     | `true`   | ` `           |
+| `org`               | The GitHub organization.                                                                                     | `true`   | ` `           |
+| `division`          | The Elastic division.                                                                                        | `true`   | ` `           |
+| `project`           | The project associated with the deployment. If not set, it will be inferred from the GitHub repository name. | `false`  | ` `           |
+| `team`              | The team associated with the deployment.                                                                     | `true`   | ` `           |
+| `username`          | Username to show in the deployments with oblt-cli, format: [a-z0-9]                                          | `false`  | `obltmachine` |
 <!--/inputs-->
 
 ## Usage
