@@ -127,7 +127,7 @@ runs:
             core.setOutput('EXPIRY_DATE', `--expiry-date=${expiry_date}`)
           }
 
-    - uses: elastic/oblt-actions/oblt-cli/setup@v1.39.5
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.39.6
       with:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
