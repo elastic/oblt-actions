@@ -35,7 +35,7 @@ runs:
       run: >
         oblt-cli configure
         --git-http-mode
-        --username="${OBLT_CLI_USERNAME:-$(echo "${GITHUB_REPOSITORY##*/}" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9')}"
+        --username="${OBLT_CLI_USERNAME:-$(echo "${GITHUB_REPOSITORY##*/}" | tr '[:upper:]' '[:lower:]')}"
         --slack-channel="${OBLT_CLI_SLACK_CHANNEL}"
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
