@@ -28,6 +28,8 @@ jobs:
       - tools-versions
       - non-existing-file
       - both-version-and-version-file
+      - default-username
+      - explicit-username
     runs-on: ubuntu-slim
     steps:
       - id: check
@@ -181,3 +183,46 @@ jobs:
         run: |
           version=$(oblt-cli version 2>&1)
           [[ "$version" == *"version 7.3.0"* ]]
+
+  default-username:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Get token
+        id: get_token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permission-contents: read
+          repositories: |
+            observability-test-environments
+      - uses: ./oblt-cli/setup
+        with:
+          github-token: ${{ steps.get_token.outputs.token }}
+      - name: Verify default username derived from repository name
+        run: |
+          expected=$(echo "${GITHUB_REPOSITORY##*/}" | tr '[:upper:]' '[:lower:]')
+          echo "Expected username: ${expected}"
+          oblt-cli configure --show 2>&1 | grep -i "username" | grep -i "${expected}"
+
+  explicit-username:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Get token
+        id: get_token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permission-contents: read
+          repositories: |
+            observability-test-environments
+      - uses: ./oblt-cli/setup
+        with:
+          github-token: ${{ steps.get_token.outputs.token }}
+          username: myuser
+      - name: Verify explicit username is used
+        run: |
+          oblt-cli configure --show 2>&1 | grep -i "username" | grep -i "myuser"
