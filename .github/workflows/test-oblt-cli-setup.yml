@@ -202,7 +202,7 @@ jobs:
           github-token: ${{ steps.get_token.outputs.token }}
       - name: Verify default username derived from repository name
         run: |
-          expected=$(echo "${GITHUB_REPOSITORY##*/}" | tr '[:upper:]' '[:lower:]')
+          expected=$(echo "${GITHUB_REPOSITORY##*/}" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9_-')
           echo "Expected username: ${expected}"
           oblt-cli configure --show 2>&1 | grep -i "username" | grep -i "${expected}"
 
@@ -222,7 +222,7 @@ jobs:
       - uses: ./oblt-cli/setup
         with:
           github-token: ${{ steps.get_token.outputs.token }}
-          username: myuser
-      - name: Verify explicit username is used
+          username: MyUser-123
+      - name: Verify explicit username is sanitized and used
         run: |
-          oblt-cli configure --show 2>&1 | grep -i "username" | grep -i "myuser"
+          oblt-cli configure --show 2>&1 | grep -i "username" | grep -i "myuser-123"
