@@ -204,7 +204,7 @@ jobs:
         run: |
           expected=$(echo "${GITHUB_REPOSITORY##*/}" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9_-')
           echo "Expected username: ${expected}"
-          oblt-cli configure --show 2>&1 | grep -i "username" | grep -i "${expected}"
+          grep -i "username" ~/.oblt-cli/config.yaml | grep -i "${expected}"
 
   explicit-username:
     runs-on: ubuntu-latest
@@ -225,4 +225,4 @@ jobs:
           username: MyUser-123
       - name: Verify explicit username is sanitized and used
         run: |
-          oblt-cli configure --show 2>&1 | grep -i "username" | grep -i "myuser-123"
+          grep -i "username" ~/.oblt-cli/config.yaml | grep -i "myuser-123"
