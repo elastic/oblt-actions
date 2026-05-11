@@ -12,8 +12,7 @@ inputs:
     default: '#observablt-bots'
     required: false
   username:
-    description: 'Username to show in the deployments with oblt-cli, format: [a-z0-9]'
-    default: 'obltmachine'
+    description: 'Username to show in the deployments with oblt-cli, format: [a-z0-9]. Defaults to the GitHub repository name (without the owner prefix).'
     required: false
 runs:
   using: "composite"
