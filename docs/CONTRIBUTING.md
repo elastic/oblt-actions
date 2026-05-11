@@ -58,7 +58,7 @@ oblt-actions/
 Action changes must keep the required `test` status check green. In this repository, that is done in one of these ways:
 
 1. Add or update a dedicated workflow in `.github/workflows/test-<my-action>.yml`, where `<my-action>` is the action path with `/` replaced by `-` (for example `my/new-action` -> `test-my-new-action.yml`).
-2. If an action intentionally has no dedicated test workflow (for example legacy/deprecated actions), add the action path to `.github/workflows/no-test.yml` so `no-test` is the workflow that provides the required `test` job for those changes.
+2. If an action intentionally has no dedicated test workflow (for example legacy/deprecated actions), keep its path included in `.github/workflows/no-test.yml` so `no-test` provides the required `test` job for those changes (this is the default behavior via `**`).
 
 Dedicated test workflows must include a job named `test` because `test` is a required check for the `main` branch.
 
@@ -117,7 +117,10 @@ jobs:
 
 ### .github/workflows/no-test.yml
 
-If an action is intentionally not covered by a dedicated `test-*.yml` workflow, add `!<action-path>/**` in the `paths` section at `.github/workflows/no-test.yml`.
+`no-test.yml` starts from `**` (all paths) and then uses `!<action-path>/**` exclusions for actions that already have dedicated `test-*.yml` workflows.
+
+- Add `!<action-path>/**` when an action has a dedicated workflow (for example `!aws/auth/**` pairs with `.github/workflows/test-aws-auth.yml`).
+- Do **not** add an exclusion for actions without a dedicated workflow; they should stay included so the fallback `no-test` workflow runs and provides the required `test` job.
 
 **NOTE**: replace `<action-path>` with the path to the action directory.
 
