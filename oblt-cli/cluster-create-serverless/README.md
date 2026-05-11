@@ -17,6 +17,10 @@ Run the oblt-cli wrapper to create a serverless cluster.
 | `target`              | The target environment where to deploy the serverless cluster. Default: `qa`                              | `false`  | `qa`               |
 | `project-type`        | The project type. Default: `observability`                                                                | `false`  | `observability`    |
 | `github-token`        | The GitHub access token.                                                                                  | `true`   | ` `                |
+| `org`                 | The GitHub organization.                                                                                  | `true`   | ` `                |
+| `division`            | The Elastic division.                                                                                     | `true`   | ` `                |
+| `project`             | The project associated with the deployment.                                                               | `true`   | ` `                |
+| `team`                | The team associated with the deployment.                                                                  | `true`   | ` `                |
 | `slack-channel`       | The slack channel to notify the status.                                                                   | `false`  | `#observablt-bots` |
 | `username`            | Username to show in the deployments with oblt-cli, format: [a-z0-9]                                       | `false`  | `obltmachine`      |
 | `gitops`              | Whether to provide the GitOps metadata to the oblt-cli                                                    | `false`  | `false`            |

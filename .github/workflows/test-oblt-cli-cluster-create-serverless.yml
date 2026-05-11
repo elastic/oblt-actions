@@ -53,6 +53,10 @@ jobs:
       - uses: ./oblt-cli/cluster-create-serverless
         with:
           github-token: ${{ steps.get_token.outputs.token }}
+          org: elastic
+          division: engineering
+          project: observability
+          team: obs-ux-management
           target: 'qa'
           dry-run: ${{ github.event.inputs.dry-run != '' && github.event.inputs.dry-run || true }}
           cluster-name-prefix: 'foo'

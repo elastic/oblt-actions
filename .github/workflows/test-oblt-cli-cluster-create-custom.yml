@@ -55,6 +55,10 @@ jobs:
       - uses: ./oblt-cli/cluster-create-custom
         with:
           github-token: ${{ steps.get_token.outputs.token }}
+          org: elastic
+          division: engineering
+          project: observability
+          team: obs-ux-management
           template: 'deploy-kibana'
           cluster-name-prefix: 'testgithubaction'
           gitops: false
@@ -84,6 +88,10 @@ jobs:
       - uses: ./oblt-cli/cluster-create-custom
         with:
           github-token: ${{ steps.get_token.outputs.token }}
+          org: elastic
+          division: engineering
+          project: observability
+          team: obs-ux-management
           template: 'deploy-kibana'
           cluster-name-prefix: 'testgithubaction'
           gitops: true
@@ -113,6 +121,10 @@ jobs:
       - uses: ./oblt-cli/cluster-create-custom
         with:
           github-token: ${{ steps.get_token.outputs.token }}
+          org: elastic
+          division: engineering
+          project: observability
+          team: obs-ux-management
           template: 'deploy-kibana'
           cluster-name-prefix: 'testgithubaction'
           gitops: true

@@ -53,6 +53,10 @@ jobs:
         with:
           version: 7.2.2
           github-token: ${{ steps.get_token.outputs.token }}
+          org: elastic
+          division: engineering
+          project: observability
+          team: obs-ux-management
       - name: Verify oblt-cli version
         run: |
           version=$(oblt-cli version 2>&1)
@@ -77,6 +81,10 @@ jobs:
       - uses: ./oblt-cli/setup
         with:
           github-token: ${{ steps.get_token.outputs.token }}
+          org: elastic
+          division: engineering
+          project: observability
+          team: obs-ux-management
           version-file: .oblt-cli-version
       - name: Verify oblt-cli version
         run: |
@@ -99,6 +107,10 @@ jobs:
       - uses: ./oblt-cli/setup
         with:
           github-token: ${{ steps.get_token.outputs.token }}
+          org: elastic
+          division: engineering
+          project: observability
+          team: obs-ux-management
       - name: Verify oblt-cli version
         run: |
           version=$(oblt-cli version 2>&1)
@@ -129,6 +141,10 @@ jobs:
       - uses: ./oblt-cli/setup
         with:
           github-token: ${{ steps.get_token.outputs.token }}
+          org: elastic
+          division: engineering
+          project: observability
+          team: obs-ux-management
           version-file: .tool-versions
       - name: Verify oblt-cli version
         run: |
@@ -153,6 +169,10 @@ jobs:
         continue-on-error: true
         with:
           github-token: ${{ steps.get_token.outputs.token }}
+          org: elastic
+          division: engineering
+          project: observability
+          team: obs-ux-management
           version-file: non-existing-file
       - name: Verify step failed
         if: steps.oblt-cli-setup.outcome != 'failure'
@@ -175,6 +195,10 @@ jobs:
         id: oblt-cli-setup
         with:
           github-token: ${{ steps.get_token.outputs.token }}
+          org: elastic
+          division: engineering
+          project: observability
+          team: obs-ux-management
           version: 7.3.0
           version-file: non-existing-file
       - name: Verify oblt-cli version

@@ -7,6 +7,18 @@ inputs:
   github-token:
     description: "The GitHub access token."
     required: true
+  org:
+    description: "The GitHub organization."
+    required: true
+  division:
+    description: "The Elastic division."
+    required: true
+  project:
+    description: "The project associated with the deployment."
+    required: true
+  team:
+    description: "The team associated with the deployment."
+    required: true
   slack-channel:
     description: "The slack channel to notify the status."
     default: "#observablt-bots"
@@ -38,11 +50,19 @@ runs:
         --git-http-mode
         --username="${OBLT_CLI_USERNAME}"
         --slack-channel="${OBLT_CLI_SLACK_CHANNEL}"
+        --org="${OBLT_CLI_ORG}"
+        --division="${OBLT_CLI_DIVISION}"
+        --project="${OBLT_CLI_PROJECT}"
+        --team="${OBLT_CLI_TEAM}"
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         ELASTIC_APM_ENVIRONMENT: ci
         OBLT_CLI_USERNAME: ${{ inputs.username }}
         OBLT_CLI_SLACK_CHANNEL: ${{ inputs.slack-channel }}
+        OBLT_CLI_ORG: ${{ inputs.org }}
+        OBLT_CLI_DIVISION: ${{ inputs.division }}
+        OBLT_CLI_PROJECT: ${{ inputs.project }}
+        OBLT_CLI_TEAM: ${{ inputs.team }}
       shell: bash
     - name: Export env
       run: echo "ELASTIC_APM_ENVIRONMENT=ci" >> $GITHUB_ENV

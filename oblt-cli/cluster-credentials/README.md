@@ -10,11 +10,15 @@ Run the oblt-cli wrapper to retrieve the credentials to connect to the given clu
 
 ## Inputs
 <!--inputs-->
-| Name                | Description                           | Required | Default |
-|---------------------|---------------------------------------|----------|---------|
-| `cluster-name`      | The cluster name                      | `false`  | ` `     |
-| `cluster-info-file` | The cluster info file (absolute path) | `false`  | ` `     |
-| `github-token`      | The GitHub access token.              | `true`   | ` `     |
+| Name                | Description                                 | Required | Default |
+|---------------------|---------------------------------------------|----------|---------|
+| `cluster-name`      | The cluster name                            | `false`  | ` `     |
+| `cluster-info-file` | The cluster info file (absolute path)       | `false`  | ` `     |
+| `github-token`      | The GitHub access token.                    | `true`   | ` `     |
+| `org`               | The GitHub organization.                    | `true`   | ` `     |
+| `division`          | The Elastic division.                       | `true`   | ` `     |
+| `project`           | The project associated with the deployment. | `true`   | ` `     |
+| `team`              | The team associated with the deployment.    | `true`   | ` `     |
 <!--/inputs-->
 
 ## Exported Environment Variables

@@ -4,6 +4,18 @@ inputs:
   github-token:
     description: 'The GitHub access token.'
     required: true
+  org:
+    description: 'The GitHub organization.'
+    required: true
+  division:
+    description: 'The Elastic division.'
+    required: true
+  project:
+    description: 'The project associated with the deployment.'
+    required: true
+  team:
+    description: 'The team associated with the deployment.'
+    required: true
   slack-channel:
     description: 'The slack channel to notify the status.'
     default: '#observablt-bots'
@@ -49,6 +61,10 @@ runs:
     - uses: elastic/oblt-actions/oblt-cli/setup@v1.39.4
       with:
         github-token: ${{ inputs.github-token }}
+        org: ${{ inputs.org }}
+        division: ${{ inputs.division }}
+        project: ${{ inputs.project }}
+        team: ${{ inputs.team }}
         slack-channel: ${{ inputs.slack-channel }}
         username: ${{ inputs.username }}
         version: ${{ inputs.version }}

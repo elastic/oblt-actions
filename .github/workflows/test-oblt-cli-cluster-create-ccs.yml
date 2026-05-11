@@ -51,6 +51,10 @@ jobs:
         id: create
         with:
           github-token: ${{ steps.get_token.outputs.token }}
+          org: elastic
+          division: engineering
+          project: observability
+          team: obs-ux-management
           remote-cluster: 'release-oblt'
           cluster-name-prefix: 'testgithubaction'
           gitops: true

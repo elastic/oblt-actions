@@ -14,6 +14,10 @@ Run the oblt-cli wrapper to create a CCS cluster.
 |------------------------------|-----------------------------------------------------------------------------------------------------------|----------|--------------------|
 | `remote-cluster`             | The Oblt cluster to use                                                                                   | `true`   | ` `                |
 | `github-token`               | The GitHub access token.                                                                                  | `true`   | ` `                |
+| `org`                        | The GitHub organization.                                                                                  | `true`   | ` `                |
+| `division`                   | The Elastic division.                                                                                     | `true`   | ` `                |
+| `project`                    | The project associated with the deployment.                                                               | `true`   | ` `                |
+| `team`                       | The team associated with the deployment.                                                                  | `true`   | ` `                |
 | `cluster-name-prefix`        | Prefix to be prepended to the randomised cluster name                                                     | `false`  | ` `                |
 | `cluster-name-suffix`        | Suffix to be appended to the randomised cluster name                                                      | `false`  | ` `                |
 | `elasticsearch-docker-image` | Force to use a Docker image for the Elasticsearch Deployment                                              | `false`  | ` `                |

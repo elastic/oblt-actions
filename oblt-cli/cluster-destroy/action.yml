@@ -10,6 +10,18 @@ inputs:
   github-token:
     description: 'The GitHub access token.'
     required: true
+  org:
+    description: 'The GitHub organization.'
+    required: true
+  division:
+    description: 'The Elastic division.'
+    required: true
+  project:
+    description: 'The project associated with the deployment.'
+    required: true
+  team:
+    description: 'The team associated with the deployment.'
+    required: true
   username:
     description: 'Username to show in the deployments with oblt-cli, format: [a-z0-9]'
     default: 'obltmachine'
@@ -26,6 +38,10 @@ runs:
     - uses: elastic/oblt-actions/oblt-cli/setup@v1.39.4
       with:
         github-token: ${{ inputs.github-token }}
+        org: ${{ inputs.org }}
+        division: ${{ inputs.division }}
+        project: ${{ inputs.project }}
+        team: ${{ inputs.team }}
         username: ${{ inputs.username }}
     - run: |
         oblt-cli cluster destroy --cluster-name "${{ steps.validation.outputs.cluster-name }}" --force

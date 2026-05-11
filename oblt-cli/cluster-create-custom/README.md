@@ -15,6 +15,10 @@ Run the oblt-cli wrapper to create a custom cluster.
 | `template`            | The Oblt cluster template to use                                                                          | `true`   | ` `                |
 | `parameters`          | The Oblt cluster parameters to use in JSON format.                                                        | `true`   | `{}`               |
 | `github-token`        | The GitHub access token.                                                                                  | `true`   | ` `                |
+| `org`                 | The GitHub organization.                                                                                  | `true`   | ` `                |
+| `division`            | The Elastic division.                                                                                     | `true`   | ` `                |
+| `project`             | The project associated with the deployment.                                                               | `true`   | ` `                |
+| `team`                | The team associated with the deployment.                                                                  | `true`   | ` `                |
 | `cluster-name-prefix` | Prefix to be prepended to the randomised cluster name                                                     | `false`  | ` `                |
 | `cluster-name-suffix` | Suffix to be appended to the randomised cluster name                                                      | `false`  | ` `                |
 | `slack-channel`       | The slack channel to notify the status.                                                                   | `false`  | `#observablt-bots` |
