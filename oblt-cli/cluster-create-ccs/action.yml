@@ -21,8 +21,7 @@ inputs:
     default: '#observablt-bots'
     required: false
   username:
-    description: 'Username to show in the deployments with oblt-cli, format: [a-z0-9]'
-    default: 'obltmachine'
+    description: 'Username to show in the deployments with oblt-cli, format: [a-z0-9_-]. Defaults to the GitHub repository name (without the owner prefix).'
     required: false
   gitops:
     description: 'Whether to provide the GitOps metadata to the oblt-cli'
@@ -128,7 +127,7 @@ runs:
             core.setOutput('EXPIRY_DATE', `--expiry-date=${expiry_date}`)
           }
 
-    - uses: elastic/oblt-actions/oblt-cli/setup@v1.39.4
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.39.5
       with:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
