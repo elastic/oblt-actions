@@ -47,6 +47,10 @@ runs:
     - name: Configure oblt-cli
       run: |
         OBLT_PROJECT="${OBLT_CLI_PROJECT:-${GITHUB_REPOSITORY#*/}}"
+        if [ -z "${OBLT_PROJECT}" ]; then
+          echo "::error::Could not determine project. Please set the 'project' input or ensure GITHUB_REPOSITORY is set."
+          exit 1
+        fi
         oblt-cli configure \
           --git-http-mode \
           --username="${OBLT_CLI_USERNAME}" \
