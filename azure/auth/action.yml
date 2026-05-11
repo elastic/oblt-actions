@@ -1,6 +1,10 @@
 ---
 name: azure-auth
-description: Authenticate to Azure using a service principal with OIDC.
+description: |
+  Authenticate to Azure using a service principal with OIDC.
+
+  The action also exports Terraform-compatible Azure environment variables for downstream
+  steps: ARM_SUBSCRIPTION_ID, ARM_TENANT_ID, ARM_CLIENT_ID, and ARM_USE_OIDC.
 author: Elastic Observability Team
 inputs:
   subscription-id:
@@ -12,6 +16,19 @@ inputs:
   client-id:
     description: The Azure client ID (Service Principal).
     required: true
+outputs:
+  ARM_SUBSCRIPTION_ID:
+    description: Azure subscription ID exported as ARM_SUBSCRIPTION_ID for downstream steps.
+    value: ${{ inputs.subscription-id }}
+  ARM_TENANT_ID:
+    description: Azure tenant ID exported as ARM_TENANT_ID for downstream steps.
+    value: ${{ inputs.tenant-id }}
+  ARM_CLIENT_ID:
+    description: Azure client ID exported as ARM_CLIENT_ID for downstream steps.
+    value: ${{ inputs.client-id }}
+  ARM_USE_OIDC:
+    description: Set to true and exported as ARM_USE_OIDC for downstream OIDC workflows.
+    value: ${{ 'true' }}
 
 runs:
   using: "composite"

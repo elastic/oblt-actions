@@ -2,9 +2,13 @@
 name: 'test-report'
 description: |
   Shows test results in GitHub UI: .NET (xUnit, NUnit, MSTest), Dart, Flutter, Java (JUnit), JavaScript (JEST, Mocha)
+  If no artifact matches the artifact input (name or regex), report generation is skipped
+  and the action exits without publishing a report.
+  Report generation is gated by steps.check_artifact.outputs.found == 'true'.
+  Example regex input: artifact: '^test-results-.*$'. If no artifacts match, the report step is skipped.
 inputs:
   artifact:
-    description: Name or regex of artifact containing test results
+    description: Name or regex of artifact containing test results. If no artifacts match, report generation is skipped.
     default: 'all'
     required: false
   name:

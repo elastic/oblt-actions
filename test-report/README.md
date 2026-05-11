@@ -5,6 +5,10 @@
 
 <!--description-->
 Shows test results in GitHub UI: .NET (xUnit, NUnit, MSTest), Dart, Flutter, Java (JUnit), JavaScript (JEST, Mocha)
+If no artifact matches the artifact input (name or regex), report generation is skipped
+and the action exits without publishing a report.
+Report generation is gated by steps.check_artifact.outputs.found == 'true'.
+Example regex input: artifact: '^test-results-.*$'. If no artifacts match, the report step is skipped.
 <!--/description-->
 
 ## Inputs
@@ -12,7 +16,7 @@ Shows test results in GitHub UI: .NET (xUnit, NUnit, MSTest), Dart, Flutter, Jav
 <!--inputs-->
 | Name            | Description                                                                                                                                                                                                                                           | Required | Default               |
 |-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|-----------------------|
-| `artifact`      | Name or regex of artifact containing test results                                                                                                                                                                                                     | `false`  | `all`                 |
+| `artifact`      | Name or regex of artifact containing test results. If no artifacts match, report generation is skipped.                                                                                                                                               | `false`  | `all`                 |
 | `name`          | Name of the check run                                                                                                                                                                                                                                 | `false`  | `JUnit Tests`         |
 | `path`          | Coma separated list of paths to test results<br>Supports wildcards via [fast-glob](https://github.com/mrmlnc/fast-glob)<br>All matched result files must be of same format<br>                                                                        | `true`   | `**/*.xml`            |
 | `reporter`      | Format of test results. Supported options:<br>  - dart-json<br>  - dotnet-trx<br>  - flutter-json<br>  - java-junit<br>  - jest-junit<br>  - mocha-json<br>  - mochawesome-json<br>                                                                   | `true`   | `java-junit`          |

@@ -5,6 +5,9 @@
 
 <!--description-->
 Authenticate to Azure using a service principal with OIDC.
+
+The action also exports Terraform-compatible Azure environment variables for downstream
+steps: ARM_SUBSCRIPTION_ID, ARM_TENANT_ID, ARM_CLIENT_ID, and ARM_USE_OIDC.
 <!--/description-->
 ## Inputs
 <!--inputs-->
@@ -16,8 +19,12 @@ Authenticate to Azure using a service principal with OIDC.
 <!--/inputs-->
 ## Outputs
 <!--outputs-->
-| Name | Description |
-|------|-------------|
+| Name                  | Description                                                                 |
+|-----------------------|-----------------------------------------------------------------------------|
+| `ARM_SUBSCRIPTION_ID` | Azure subscription ID exported as ARM_SUBSCRIPTION_ID for downstream steps. |
+| `ARM_TENANT_ID`       | Azure tenant ID exported as ARM_TENANT_ID for downstream steps.             |
+| `ARM_CLIENT_ID`       | Azure client ID exported as ARM_CLIENT_ID for downstream steps.             |
+| `ARM_USE_OIDC`        | Set to true and exported as ARM_USE_OIDC for downstream OIDC workflows.     |
 <!--/outputs-->
 ## Usage
 <!--usage action="azure/auth" version="v1"-->
