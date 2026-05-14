@@ -113,13 +113,14 @@ jobs:
         run: test "${{ steps.my-action.outputs.pipeline }}" = "oblt-hello-world"
 ```
 
-**NOTE**: replace `<my-action>` with the action name without `/` and `<action-path>` with the path to the action directory.
+**NOTE**: replace `<my-action>` with the action path where `/` is replaced by `-` (for example `my/new-action` -> `my-new-action`) and `<action-path>` with the path to the action directory.
 
 ### .github/workflows/no-test.yml
 
-`no-test.yml` starts from `**` (all paths) and then uses `!<action-path>/**` exclusions for actions that already have dedicated `test-*.yml` workflows.
+`no-test.yml` starts from `**` (all paths) and then uses explicit `!<action-path>/**` exclusions for a curated set of actions.
 
-- Add `!<action-path>/**` when an action has a dedicated workflow (for example `!aws/auth/**` pairs with `.github/workflows/test-aws-auth.yml`).
+- Exclusions are maintained manually and should reflect the current `no-test.yml` file.
+- Not every action with a dedicated `test-*.yml` workflow is excluded from `no-test.yml`; check both workflows before assuming behavior.
 - Do **not** add an exclusion for actions without a dedicated workflow; they should stay included so the fallback `no-test` workflow runs and provides the required `test` job.
 
 **NOTE**: replace `<action-path>` with the path to the action directory.
@@ -146,7 +147,7 @@ and replace `<action-path>` with the path to the action directory or remove sect
 # <!--name--><!--/name-->
 
 [![usages](https://img.shields.io/badge/usages-white?logo=githubactions&logoColor=blue)](https://github.com/search?q=elastic%2Foblt-actions%2F<action-path>+%28path%3A.github%2Fworkflows+OR+path%3A**%2Faction.yml+OR+path%3A**%2Faction.yaml%29&type=code)
-[![test-<action-path>](https://github.com/elastic/oblt-actions/actions/workflows/test-<action-path>.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-<action-path>.yml)
+[![test-<my-action>](https://github.com/elastic/oblt-actions/actions/workflows/test-<my-action>.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-<my-action>.yml)
 
 <!--description-->
 <!--/description-->
