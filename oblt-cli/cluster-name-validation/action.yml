@@ -2,10 +2,10 @@ name: 'oblt-cli/cluster-name-validation'
 description: 'Get the cluster name based on the parameters'
 inputs:
   cluster-name:
-    description: 'The cluster name'
+    description: 'Cluster name to validate. Provide either cluster-name or cluster-info-file (not both). The resolved cluster name must be non-empty.'
     required: false
   cluster-info-file:
-    description: 'The cluster info file (absolute path)'
+    description: 'Absolute path to a cluster info JSON file with ClusterName. Provide either cluster-info-file or cluster-name (not both). The resolved cluster name must be non-empty.'
     required: false
 outputs:
   cluster-name:

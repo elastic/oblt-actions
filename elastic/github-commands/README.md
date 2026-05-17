@@ -10,10 +10,10 @@ Print the supported GitHub commands
 
 ## Inputs
 <!--inputs-->
-| Name                | Description                   | Required | Default               |
-|---------------------|-------------------------------|----------|-----------------------|
-| `github-token`      | The GitHub access token.      | `false`  | `${{ github.token }}` |
-| `continue-on-error` | Whether to continue on error. | `false`  | `true`                |
+| Name                | Description                                                              | Required | Default               |
+|---------------------|--------------------------------------------------------------------------|----------|-----------------------|
+| `github-token`      | The GitHub access token.                                                 | `false`  | `${{ github.token }}` |
+| `continue-on-error` | Deprecated/ignored input. Execution always uses continue-on-error: true. | `false`  | `true`                |
 <!--/inputs-->
 
 ## Outputs
