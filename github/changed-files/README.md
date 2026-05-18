@@ -50,7 +50,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-        # fetch-depth: 0 is required so that the changed-files action can access the full git history for accurate comparison.
+        # fetch-depth: 0 is required — shallow clones are not supported by this action.
+        # See https://github.com/elastic/oblt-actions/issues/470 for details.
         with:
           fetch-depth: 0
           fetch-tags: false
@@ -71,3 +72,18 @@ jobs:
           echo "count-modified=${{ steps.changed-files.outputs.count-modified }}"
 ```
 <!--/usage-->
+
+## Shallow clone requirement
+
+This action requires **full git history** to compare refs. By default, `actions/checkout` performs a shallow clone (`fetch-depth: 1`), which means the parent commit is not available. This causes the action to fail with an `unknown revision` error (see [#470](https://github.com/elastic/oblt-actions/issues/470)).
+
+To avoid this, set `fetch-depth: 0` in your `actions/checkout` step:
+
+```yaml
+- uses: actions/checkout@v5
+  with:
+    fetch-depth: 0  # required — shallow clones are not supported
+    fetch-tags: false
+```
+
+If a shallow clone is detected at runtime, the action will fail immediately with a clear error message asking you to add `fetch-depth: 0`.
