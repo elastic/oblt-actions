@@ -4,14 +4,15 @@ description: Adds a GitHub issue or pull-request to a GitHub project
 
 inputs:
   item-url:
-    description: 'The GitHub issue/pull-request URL to add'
+    description: 'The GitHub issue/pull-request URL to add. This input is required and the action fails when it is empty.'
     default: ''
+    required: true
   github-org:
     description: 'The GitHub org'
     default: 'elastic'
     required: true
   github-token:
-    description: 'The GitHub access token.'
+    description: 'The GitHub access token with organization project write permission (`permission-organization-projects: write` for app tokens).'
     default: ${{ github.token }}
     required: true
   project-id:
