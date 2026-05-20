@@ -6,7 +6,7 @@ inputs:
     required: false
     default: ${{ github.token }}
   continue-on-error:
-    description: 'Whether to continue on error.'
+    description: 'Deprecated/ignored input. Execution always uses continue-on-error: true.'
     required: false
     default: true
 

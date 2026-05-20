@@ -10,10 +10,10 @@ Get the cluster name based on the parameters
 
 ## Inputs
 <!--inputs-->
-| Name                | Description                           | Required | Default |
-|---------------------|---------------------------------------|----------|---------|
-| `cluster-name`      | The cluster name                      | `false`  | ` `     |
-| `cluster-info-file` | The cluster info file (absolute path) | `false`  | ` `     |
+| Name                | Description                                                                                                                                                           | Required | Default |
+|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|---------|
+| `cluster-name`      | Cluster name to validate. Provide either cluster-name or cluster-info-file (not both). The resolved cluster name must be non-empty.                                   | `false`  | ` `     |
+| `cluster-info-file` | Absolute path to a cluster info JSON file with ClusterName. Provide either cluster-info-file or cluster-name (not both). The resolved cluster name must be non-empty. | `false`  | ` `     |
 <!--/inputs-->
 
 ## Outputs
@@ -22,6 +22,11 @@ Get the cluster name based on the parameters
 |----------------|------------------|
 | `cluster-name` | The cluster name |
 <!--/outputs-->
+
+## Input contract
+
+- Valid: provide exactly one input source (`cluster-name` or `cluster-info-file`).
+- Invalid: provide both inputs, or provide an empty resolved cluster name.
 
 ## Usage
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
