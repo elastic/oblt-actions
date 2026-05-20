@@ -65,8 +65,8 @@ if filter and repository:
                 print(f"Server error while checking branch {branch} (HTTP {response.code}). GitHub API may be experiencing issues.")
             else:
                 print(f"Unexpected error while checking branch {branch} (HTTP {response.code})")
-        except urllib.error.URLError as response:
-            print(f"Error while checking branch {branch}: {response}")
+        except urllib.error.URLError as error:
+            print(f"Error while checking branch {branch}: {error}")
 
     branches = existing_branches
 
