@@ -20,7 +20,7 @@ Note: This file is exempt from the “no new docs” rule below. Proactively edi
 - Write code, tests, and documentation as needed.
 - Create a test GitHub action workflow to validate changes.
 - The test GitHub action workflow should validate that:
-  - All tests pass. Use the existing test framework as a guide (see `tests/` and `.github/workflows/test-*`).
+  - All tests pass. Use the existing test workflows (`.github/workflows/test-*`) and colocated action tests (for example `*.test.js`, `*_tests.py`, `test_*.py`) as a guide.
   - Name of the file should be the name of the github action and starts with `test-` and ends with `.yml`.
 - Open a pull request against `main` with a clear description of changes.
 - Ensure all checks pass before merging.

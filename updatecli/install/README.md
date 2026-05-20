@@ -18,6 +18,10 @@ This is an opinionated GitHub Action to install the updatecli
 | `version-file` | The file to read the version from. E.g. `.updatecli-version` or `.tool-versions` (asdf-vm).                         | `false`  | ` `     |
 <!--/inputs-->
 
+If both `version` and `version-file` are omitted, the action falls back to
+`.default-updatecli-version` from this action directory. If that file is
+missing, the action fails with an error.
+
 ## Usage
 
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->

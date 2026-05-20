@@ -25,9 +25,9 @@ Run the deploy my Kibana PR.
 
 ## Output
 <!--outputs-->
-| Name    | Description                                                   |
-|---------|---------------------------------------------------------------|
-| `issue` | The GitHub issue that has been created to destroy the cluster |
+| Name    | Description                                             |
+|---------|---------------------------------------------------------|
+| `issue` | The GitHub issue that has been created to deploy Kibana |
 <!--/outputs-->
 
 ## Usage
@@ -50,3 +50,36 @@ jobs:
           github-token: ${{ secrets.PAT_TOKEN }}
 ```
 <!--/usage-->
+
+## Authentication
+
+Provide exactly one authentication mode:
+
+- PAT mode: set `github-token`
+- GitHub App mode: set both `github-app-id` and `github-app-private-key`
+
+Invalid combinations (and the action will fail):
+
+- none of these inputs provided
+- all three inputs provided
+
+### Authentication examples
+
+Use a Personal Access Token:
+
+```yaml
+steps:
+  - uses: elastic/oblt-actions/oblt-cli/deploy-my-kibana@v1
+    with:
+      github-token: ${{ secrets.PAT_TOKEN }}
+```
+
+Use a GitHub App:
+
+```yaml
+steps:
+  - uses: elastic/oblt-actions/oblt-cli/deploy-my-kibana@v1
+    with:
+      github-app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+      github-app-private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+```

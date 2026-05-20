@@ -31,8 +31,8 @@ Check whether the given GitHub Pull Request author is a member of the given GitH
 ```yaml
 name: Is GitHub comment allowed
 on:
-  issues:
-    types: [opened, edited]
+  pull_request:
+    types: [opened, synchronize, reopened]
 jobs:
   run-action-if-pr-member-of-elastic-org:
     runs-on: ubuntu-latest
@@ -40,12 +40,12 @@ jobs:
       - uses: elastic/oblt-actions/github/is-pr-author-member-of@v1
         id: is_elastic_pr_author
         with:
-          pull-request: ${{ steps.issue-parser.outputs.issueparser_kibana_pullrequest }}
+          pull-request: ${{ github.event.pull_request.number }}
           repository: "kibana"
           github-org: "elastic"
           github-token: ${{ secrets.PAT_TOKEN }}
 
-      - if: steps.is_elastic_pr_author.outputs.result == true
+      - if: steps.is_elastic_pr_author.outputs.result == 'true'
         run: echo 'PR author is member of'
       # ...
 ```

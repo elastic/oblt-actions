@@ -28,7 +28,7 @@ inputs:
 
 outputs:
   issue:
-    description: 'The GitHub issue that has been created to destroy the cluster'
+    description: 'The GitHub issue that has been created to deploy Kibana'
     value: ${{ steps.deploy-my-kibana.outputs.issue }}
 
 runs:

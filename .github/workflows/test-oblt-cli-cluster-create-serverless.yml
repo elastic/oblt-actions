@@ -46,9 +46,14 @@ jobs:
           permission-contents: write
           repositories: |
             observability-test-environments
+      - name: Compute expiry date
+        id: expiry
+        run: echo "date=$(date -u -d '+1 hour' '+%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+        shell: bash
       - uses: ./oblt-cli/cluster-create-serverless
         with:
           github-token: ${{ steps.get_token.outputs.token }}
           target: 'qa'
           dry-run: ${{ github.event.inputs.dry-run != '' && github.event.inputs.dry-run || true }}
           cluster-name-prefix: 'foo'
+          expiry-date: ${{ steps.expiry.outputs.date }}

@@ -6,23 +6,26 @@ on:
   workflow_dispatch:
   issues:
     types: [opened, labeled]
+  issue_comment:
+    types: [created]
   pull_request:
-    types: [opened, synchronize, reopened]
-  pull_request_review:
-    types: [submitted]
+    types: [opened, synchronize, reopened, labeled]
+  status:
 
 permissions:
-  actions: read
+  contents: read
 
 jobs:
   run-aw:
     permissions:
-      actions: read
+      actions: write
       checks: read
       contents: write
       discussions: write
+      id-token: write
       issues: write
       pull-requests: write
     uses: elastic/oblt-aw/.github/workflows/oblt-aw-ingress.yml@main # ratchet:exclude
     secrets:
       COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+      BUILDKITE_API_TOKEN: ${{ secrets.BUILDKITE_LOGS_API_TOKEN }}

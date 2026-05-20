@@ -22,8 +22,7 @@ inputs:
     default: '#observablt-bots'
     required: false
   username:
-    description: 'Username to show in the deployments with oblt-cli, format: [a-z0-9]'
-    default: 'obltmachine'
+    description: 'Username to show in the deployments with oblt-cli. oblt-cli/setup lowercases the value and strips characters outside [a-z0-9_-]. Defaults to the GitHub repository name (without the owner prefix).'
     required: false
   gitops:
     description: 'Whether to provide the GitOps metadata to the oblt-cli'
@@ -41,6 +40,12 @@ inputs:
     description: 'it waits N minutes for the operation to finish. (default 0 if no wait time is provided)'
     default: '0'
     required: false
+  expiry-date:
+    description: 'Expiry date for the cluster in ISO 8601 format (e.g., ''2024-12-31'' or ''2024-12-31T23:59:59Z''). (Optional)'
+    required: false
+  expire-in-hours:
+    description: 'Number of hours after which the cluster expires (e.g., 48 for 2 days). (Optional)'
+    required: false
 
 outputs:
   cluster-name:
@@ -52,7 +57,7 @@ runs:
   steps:
     - name: Configure oblt-cli flags
       id: flags
-      uses: actions/github-script@v8
+      uses: actions/github-script@v9
       env:
         template: ${{ inputs.template }}
         cluster_name_prefix: ${{ inputs.cluster-name-prefix }}
@@ -62,6 +67,8 @@ runs:
         input_parameters: ${{ inputs.parameters }}
         skip_random_name: ${{ inputs.skip-random-name }}
         wait_time: ${{ inputs.wait }}
+        expiry_date: ${{ inputs.expiry-date }}
+        expire_in_hours: ${{ inputs.expire-in-hours }}
       with:
         script: |
           const {
@@ -73,6 +80,8 @@ runs:
             input_parameters,
             skip_random_name,
             wait_time,
+            expiry_date,
+            expire_in_hours,
             RUNNER_TEMP
           } = process.env
           let parameters = {}
@@ -87,6 +96,13 @@ runs:
           }
           parameters.EphemeralCluster = 'true'
           parameters = { ...parameters, ...JSON.parse(input_parameters) }
+          if (expire_in_hours) {
+            const hours = Number(expire_in_hours)
+            if (!Number.isInteger(hours) || hours <= 0) {
+              throw new Error('expire-in-hours must be a positive integer')
+            }
+            parameters.ExpireInHours = hours
+          }
           core.setOutput('PARAMETERS', JSON.stringify(parameters))
 
 
@@ -119,7 +135,14 @@ runs:
             core.setOutput('WAIT', waitFlags.join(' '))
           }
 
-    - uses: elastic/oblt-actions/oblt-cli/setup@v1.37.2
+          if (expiry_date) {
+            if (!/^[0-9A-Za-z:+.-]+$/.test(expiry_date)) {
+              throw new Error('expiry-date contains invalid characters')
+            }
+            core.setOutput('EXPIRY_DATE', `--expiry-date=${expiry_date}`)
+          }
+
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.39.7
       with:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
@@ -133,6 +156,7 @@ runs:
             ${CLUSTER_NAME_SUFFIX} \
             --parameters="${PARAMETERS}" \
             ${SKIP_RANDOM_NAME} \
+            ${EXPIRY_DATE} \
             ${WAIT}
       shell: bash
       env:
@@ -143,6 +167,7 @@ runs:
         CLUSTER_NAME_SUFFIX: ${{ steps.flags.outputs.CLUSTER_NAME_SUFFIX }}
         PARAMETERS: ${{ steps.flags.outputs.PARAMETERS }}
         SKIP_RANDOM_NAME: ${{ steps.flags.outputs.SKIP_RANDOM_NAME }}
+        EXPIRY_DATE: ${{ steps.flags.outputs.EXPIRY_DATE }}
         WAIT: ${{ steps.flags.outputs.WAIT }}
 
     - run: |

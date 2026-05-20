@@ -31,12 +31,11 @@ Adds a GitHub issue or pull-request to a GitHub project
 <!--usage action="elastic/oblt-actions/github/project-add" version="env:VERSION"-->
 ```yaml
 steps:
-  steps:
-    - uses: elastic/oblt-actions/github/project-add@v1
-      with:
-        github-token: <GITHUB_TOKEN>
-        github-org: elastic
-        project-id: <PROJET_NUMERIC_ID>
-        item-url: "https://github.com/elastic/apm-agent-java/pull/xxx"
+  - uses: elastic/oblt-actions/github/project-add@v1
+    with:
+      github-token: <GITHUB_TOKEN>
+      github-org: elastic
+      project-id: <PROJECT_NUMERIC_ID>
+      item-url: "https://github.com/elastic/apm-agent-java/pull/xxx"
 ```
 <!--/usage-->

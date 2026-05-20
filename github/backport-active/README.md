@@ -40,7 +40,9 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - uses: elastic/oblt-action/github/backport-action@v1
+      - uses: elastic/oblt-actions/github/backport-active@v1
+        with:
+          backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
 ```
 <!--/usage-->
 

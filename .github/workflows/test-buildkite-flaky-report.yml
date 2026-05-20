@@ -23,7 +23,6 @@ jobs:
   test:
     if: always()
     needs:
-      - test-max-issues-1
       - test-max-issues-0
       - pytest
     runs-on: ubuntu-slim
@@ -33,25 +32,6 @@ jobs:
         with:
           jobs: ${{ toJSON(needs) }}
       - run: ${{ steps.check.outputs.is-success }}
-
-  test-max-issues-1:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      issues: write
-    steps:
-      - uses: actions/checkout@v6
-      - uses: ./buildkite/flaky-report
-        with:
-          github-repo: ${{ github.repository }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          days: '7'
-          max-issues: '1'
-          github-issue-title-prefix: "[FLAKY TEST]"
-          github-label: "flaky-test"
-          org: 'elastic'
-          test-suite-id: 'beats'
-          token: ${{ secrets.BUILDKITE_TEST_SUITE_TOKEN }}
 
   test-max-issues-0:
     runs-on: ubuntu-latest

@@ -29,10 +29,9 @@ Get GitHub user type
 <!--usage action="elastic/oblt-actions/github/user-type" version="env:VERSION"-->
 ```yaml
 steps:
-  steps:
-    - uses: elastic/oblt-actions/github/user-type@v1
-      with:
-        github-token: <GITHUB_TOKEN>
-        github-user: octocat
+  - uses: elastic/oblt-actions/github/user-type@v1
+    with:
+      github-token: <GITHUB_TOKEN>
+      github-user: octocat
 ```
 <!--/usage-->
