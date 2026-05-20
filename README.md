@@ -43,6 +43,7 @@ It runs on:
 - issue events (`opened`, `labeled`)
 - issue comment events (`created`)
 - pull request events (`opened`, `synchronize`, `reopened`, `labeled`)
+- status events (`status`)
 
 This workflow requires the repository secret `COPILOT_GITHUB_TOKEN`.
 It also requires workflow/job permissions:
