@@ -44,8 +44,6 @@ if filter and repository:
             with urllib.request.urlopen(request) as response:
                 if response.status == 200:
                     existing_branches.append(branch)
-                else:
-                    print(f"Unexpected error while checking branch {branch} (HTTP {response.status})")
         except urllib.error.HTTPError as response:
             if response.code == 404:
                 print(f"Not found (HTTP 404) when checking branch {branch} in repository {repository}. The branch or repository may not exist, or the token may lack access.")
@@ -60,7 +58,7 @@ if filter and repository:
                 )
                 if rate_limit_remaining is not None or rate_limit_reset is not None:
                     print(
-                        f"X-RateLimit-Remaining={rate_limit_remaining}"
+                        f"X-RateLimit-Remaining={rate_limit_remaining}, "
                         f"X-RateLimit-Reset={rate_limit_reset}"
                     )
             elif response.code >= 500:
