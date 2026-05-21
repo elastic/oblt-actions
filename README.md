@@ -44,7 +44,11 @@ It runs on:
 - issue comment events (`created`)
 - pull request events (`opened`, `synchronize`, `reopened`, `labeled`)
 
-This workflow requires the repository secret `COPILOT_GITHUB_TOKEN`.
+This workflow forwards repository secrets to the reusable ingress workflow:
+- `COPILOT_GITHUB_TOKEN` -> `COPILOT_GITHUB_TOKEN` (currently optional in `elastic/oblt-aw/.github/workflows/oblt-aw-ingress.yml`)
+- `BUILDKITE_LOGS_API_TOKEN` -> `BUILDKITE_API_TOKEN` (currently optional in `elastic/oblt-aw/.github/workflows/oblt-aw-ingress.yml`)
+
+If you want Buildkite log access for downstream Buildkite triage flows, set `BUILDKITE_LOGS_API_TOKEN` in this repository.
 It also requires workflow/job permissions:
 `actions: write`, `checks: read`, `contents: write`, `discussions: write`,
 `id-token: write`, `issues: write`, and `pull-requests: write`.
