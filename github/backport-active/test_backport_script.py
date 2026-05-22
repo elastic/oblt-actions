@@ -11,8 +11,8 @@ class TestBackportScript(unittest.TestCase):
         os.environ['GITHUB_TOKEN'] = 'my-token'
         os.environ['PR_NUMBER'] = '123'
         os.environ['REPOSITORY'] = 'owner/repo'
-        # Default: assume config URL returns valid JSON
-        os.environ['BACKPORTS_URL'] = 'https://branches.json'
+        # Default: assume config URL returns plain text with one branch per line
+        os.environ['BACKPORTS_URL'] = 'https://active-branches.txt'
 
     @patch('backport_script.requests.get')
     @patch('backport_script.requests.post')
@@ -20,9 +20,8 @@ class TestBackportScript(unittest.TestCase):
         # In this scenario, the PR label "backport-active-all" triggers backporting on all branches (except 'main' and '7.17').
         os.environ['PR_LABELS'] = json.dumps([{"name": "backport-active-all"}])
         config_response = MagicMock()
-        config_data = {'branches': ['main', '7.17', '8.16', '8.17', '9.0']}
         config_response.status_code = 200
-        config_response.json.return_value = config_data
+        config_response.text = 'main\n7.17\n8.16\n8.17\n9.0\n'
 
         # Patch requests.get: if the URL matches BACKPORTS_URL, return our dummy config_response.
         def get_side_effect(url, headers=None, timeout=None):
@@ -58,9 +57,8 @@ class TestBackportScript(unittest.TestCase):
         # Change PR_LABELS so that only "backport-active-8" is present.
         os.environ['PR_LABELS'] = json.dumps([{"name": "backport-active-8"}])
         config_response = MagicMock()
-        config_data = {'branches': ['8.0', '8.1', 'main', '7.17']}
         config_response.status_code = 200
-        config_response.json.return_value = config_data
+        config_response.text = '8.0\n8.1\nmain\n7.17\n'
 
         def get_side_effect(url, headers=None, timeout=None):
             if url == os.environ['BACKPORTS_URL']:
@@ -93,9 +91,8 @@ class TestBackportScript(unittest.TestCase):
         # Change PR_LABELS so that only "backport-active-9" is present.
         os.environ['PR_LABELS'] = json.dumps([{"name": "backport-active-9"}])
         config_response = MagicMock()
-        config_data = {'branches': ['9.0', '8.1', 'main', '7.17']}
         config_response.status_code = 200
-        config_response.json.return_value = config_data
+        config_response.text = '9.0\n8.1\nmain\n7.17\n'
 
         def get_side_effect(url, headers=None, timeout=None):
             if url == os.environ['BACKPORTS_URL']:
@@ -128,9 +125,8 @@ class TestBackportScript(unittest.TestCase):
         # If there are no backport-related labels, no backport comment should be posted.
         os.environ['PR_LABELS'] = json.dumps([{"name": "enhancement"}, {"name": "bug"}])
         config_response = MagicMock()
-        config_data = {'branches': ['main', '7.17', '8.16']}
         config_response.status_code = 200
-        config_response.json.return_value = config_data
+        config_response.text = 'main\n7.17\n8.16\n'
 
         def get_side_effect(url, headers=None, timeout=None):
             if url == os.environ['BACKPORTS_URL']:
