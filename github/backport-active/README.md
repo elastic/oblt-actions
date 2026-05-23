@@ -41,8 +41,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: elastic/oblt-actions/github/backport-active@v1
-        with:
-          backports-url: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
 ```
 <!--/usage-->
 
@@ -59,6 +57,8 @@ You can also combine labels (e.g., having both `backport-active-8` and `backport
 ## Active Branches Format
 
 The action fetches active branches from a plain text URL (one branch per line):
+
+Custom `backports-url` values must return the same plain text format (one branch per line).
 
 ```
 7.17
