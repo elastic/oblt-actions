@@ -37,6 +37,8 @@ jobs:
   run_in_mutex:
     runs-on: ubuntu-latest
     name: Simple mutex test
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v6
       - name: Set up mutex
@@ -47,6 +49,8 @@ jobs:
 ```
 
 By default, the `mutex` branch in the current repo is used to store the state of locks.
+The action updates that branch during setup/cleanup, so jobs using the default
+`${{ github.token }}` must grant `contents: write` permissions.
 
 To have multiple mutexes, specify the `branch` input:
 
@@ -55,6 +59,8 @@ jobs:
   two_clients_test_client_1:
     runs-on: ubuntu-latest
     name: Two clients test (client 1)
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - name: Set up mutex
@@ -88,6 +94,8 @@ When running parallel or matrix jobs, use `suffix` to ensure each job gets a uni
 strategy:
   matrix:
     env: [staging, production]
+permissions:
+  contents: write
 steps:
   - uses: actions/checkout@v6
   - name: Set up mutex
