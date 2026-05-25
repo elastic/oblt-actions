@@ -121,7 +121,7 @@ runs:
         wait_time: ${{ inputs.wait }}
         expiry_date: ${{ inputs.expiry-date }}
 
-    - uses: elastic/oblt-actions/oblt-cli/setup@v1.39.6
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.39.7
       with:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
