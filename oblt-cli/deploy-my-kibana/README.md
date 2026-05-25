@@ -63,6 +63,17 @@ Invalid combinations (and the action will fail):
 - none of these inputs provided
 - all three inputs provided
 
+### Minimum token capabilities
+
+- PAT mode (`github-token`): use a classic PAT with `repo` and `read:org` scopes.
+  - `repo` is required to read PR metadata from `${{ inputs.repository }}` and create an issue in `elastic/observability-test-environments`.
+  - `read:org` is required for membership checks against the `elastic` organization.
+- GitHub App mode (`github-app-id` + `github-app-private-key`): the app token is created with:
+  - `contents: read`
+  - `issues: write`
+  - `members: read`
+  - Install the app so it can access both the repository passed in `repository` and `elastic/observability-test-environments`.
+
 ### Authentication examples
 
 Use a Personal Access Token:
@@ -71,6 +82,7 @@ Use a Personal Access Token:
 steps:
   - uses: elastic/oblt-actions/oblt-cli/deploy-my-kibana@v1
     with:
+      # PAT_TOKEN must include classic scopes: repo, read:org
       github-token: ${{ secrets.PAT_TOKEN }}
 ```
 
@@ -80,6 +92,10 @@ Use a GitHub App:
 steps:
   - uses: elastic/oblt-actions/oblt-cli/deploy-my-kibana@v1
     with:
+      # App installation must allow:
+      # - contents: read
+      # - issues: write
+      # - members: read
       github-app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
       github-app-private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
 ```
