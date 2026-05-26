@@ -140,6 +140,17 @@ Every action should have a `README.md` file in its directory.
 The `README.md` file is generated and updated with the `action-readme`
 pre-commit hook provided by [gh-action-readme](https://github.com/reakaleek/gh-action-readme).
 
+Because action READMEs are generated, do not hand-edit generated sections in place.
+Instead, update the source metadata and usage snippets that `gh-action-readme` consumes, then regenerate.
+
+When documenting inputs that are marked `required: true` and also provide a default value,
+keep the input contract and usage examples consistent:
+- include those inputs explicitly in the primary usage example, or
+- add a nearby note that the input is required by contract and defaults to the documented value when omitted.
+
+This avoids contradictory guidance where the Inputs table says an input is required
+but the main usage example appears to treat it as optional.
+
 If you are adding a new action, you can use the following template to create the `README.md` file
 and replace `<action-path>` with the path to the action directory or remove sections that are not applicable:
 
