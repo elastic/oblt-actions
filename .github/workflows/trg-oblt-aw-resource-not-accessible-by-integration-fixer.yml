@@ -1,0 +1,19 @@
+name: Observability Agentic Workflow — Resource Not Accessible Fixer
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: read
+
+jobs:
+  run-aw:
+    permissions:
+      actions: read
+      contents: write
+      discussions: write
+      issues: write
+      pull-requests: write
+    uses: elastic/oblt-aw/.github/workflows/oblt-aw-resource-not-accessible-by-integration-fixer.yml@main # ratchet:exclude
+    secrets: inherit

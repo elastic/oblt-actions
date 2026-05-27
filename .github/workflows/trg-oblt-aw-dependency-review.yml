@@ -1,0 +1,20 @@
+name: Observability Agentic Workflow — Dependency Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  run-aw:
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      issues: write
+      pull-requests: write
+    uses: elastic/oblt-aw/.github/workflows/oblt-aw-dependency-review.yml@main # ratchet:exclude
+    secrets:
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
