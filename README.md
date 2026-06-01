@@ -43,11 +43,21 @@ It runs on:
 - issue events (`opened`, `labeled`)
 - issue comment events (`created`)
 - pull request events (`opened`, `synchronize`, `reopened`, `labeled`)
+- status events (`status`) so commit status updates are also forwarded to ingress
 
 This workflow requires the repository secret `COPILOT_GITHUB_TOKEN`.
 It also requires workflow/job permissions:
 `actions: write`, `checks: read`, `contents: write`, `discussions: write`,
 `id-token: write`, `issues: write`, and `pull-requests: write`.
+
+### Kibana deploy/undeploy side effects
+
+The `oblt-cli/deploy-my-kibana` and `oblt-cli/undeploy-my-kibana` actions create issues in `elastic/observability-test-environments`:
+
+- `deploy-my-kibana` creates an issue labeled `deploy-custom-kibana`
+- `undeploy-my-kibana` creates an issue labeled `destroy-custom-kibana-serverless`
+
+When using these actions, provide credentials with `issues: write` permission on `elastic/observability-test-environments`.
 
 ### updatecli automation
 
