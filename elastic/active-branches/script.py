@@ -2,22 +2,19 @@
 
 import json
 import os
-import requests
+import urllib.error
+import urllib.request
 
 def fails(msg):
     print(msg)
     exit(1)
 
-req = requests.get(url='https://storage.googleapis.com/artifacts-api/snapshots/branches.json')
-if req.status_code != requests.codes.ok:
-    fails("Failed to fetch active branches")
-
 try:
-    payload = req.json()
-except requests.exceptions.JSONDecodeError:
-    fails("Failed to decode json payload")
+    with urllib.request.urlopen('https://elastic-release-api.s3.us-west-2.amazonaws.com/public/active-branches.txt') as response:
+        branches = [line.strip() for line in response.read().decode('utf-8').splitlines() if line.strip()]
+except Exception as e:
+    fails(f"Failed to fetch active branches: {e}")
 
-branches = payload.get('branches')
 if not branches:
     fails("Failed to retrieve active branches")
 
@@ -42,29 +39,34 @@ if filter and repository:
     existing_branches = []
     for branch in branches:
         branch_url = f'https://api.github.com/repos/{repository}/branches/{branch}'
-        response = requests.get(branch_url, headers=headers)
-        if response.status_code == 200:
-            existing_branches.append(branch)
-        elif response.status_code == 404:
-            print(f"Not found (HTTP 404) when checking branch {branch} in repository {repository}. The branch or repository may not exist, or the token may lack access.")
-        elif response.status_code == 401:
-            print(f"Authentication failed for branch {branch} (HTTP 401). Check GITHUB_TOKEN.")
-        elif response.status_code == 403:
-            rate_limit_remaining = response.headers.get("X-RateLimit-Remaining")
-            rate_limit_reset = response.headers.get("X-RateLimit-Reset")
-            print(
-                f"Access forbidden for branch {branch} (HTTP 403)."
-                f"This may be due to rate limiting or missing permissions."
-            )
-            if rate_limit_remaining is not None or rate_limit_reset is not None:
+        request = urllib.request.Request(branch_url, headers=headers, method='GET')
+        try:
+            with urllib.request.urlopen(request) as response:
+                if response.status == 200:
+                    existing_branches.append(branch)
+        except urllib.error.HTTPError as response:
+            if response.code == 404:
+                print(f"Not found (HTTP 404) when checking branch {branch} in repository {repository}. The branch or repository may not exist, or the token may lack access.")
+            elif response.code == 401:
+                print(f"Authentication failed for branch {branch} (HTTP 401). Check GITHUB_TOKEN.")
+            elif response.code == 403:
+                rate_limit_remaining = response.headers.get("X-RateLimit-Remaining")
+                rate_limit_reset = response.headers.get("X-RateLimit-Reset")
                 print(
-                    f"X-RateLimit-Remaining={rate_limit_remaining}"
-                    f"X-RateLimit-Reset={rate_limit_reset}"
+                    f"Access forbidden for branch {branch} (HTTP 403)."
+                    f"This may be due to rate limiting or missing permissions."
                 )
-        elif response.status_code >= 500:
-            print(f"Server error while checking branch {branch} (HTTP {response.status_code}). GitHub API may be experiencing issues.")
-        else:
-            print(f"Unexpected error while checking branch {branch} (HTTP {response.status_code})")
+                if rate_limit_remaining is not None or rate_limit_reset is not None:
+                    print(
+                        f"X-RateLimit-Remaining={rate_limit_remaining}, "
+                        f"X-RateLimit-Reset={rate_limit_reset}"
+                    )
+            elif response.code >= 500:
+                print(f"Server error while checking branch {branch} (HTTP {response.code}). GitHub API may be experiencing issues.")
+            else:
+                print(f"Unexpected error while checking branch {branch} (HTTP {response.code})")
+        except urllib.error.URLError as error:
+            print(f"Error while checking branch {branch}: {error}")
 
     branches = existing_branches
 
