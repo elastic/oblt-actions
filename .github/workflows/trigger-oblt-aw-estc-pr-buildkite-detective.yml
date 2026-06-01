@@ -1,0 +1,22 @@
+name: Observability Agentic Workflow — PR Buildkite Detective
+
+on:
+  status:
+
+permissions:
+  contents: read
+
+jobs:
+  run-aw:
+    if: >-
+      github.event.state == 'failure' &&
+      contains(github.event.context, 'buildkite')
+    permissions:
+      actions: read
+      contents: read
+      issues: read
+      pull-requests: write
+    uses: elastic/oblt-aw/.github/workflows/oblt-aw-estc-pr-buildkite-detective.yml@main # ratchet:exclude
+    secrets:
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+      BUILDKITE_API_TOKEN: ${{ secrets.BUILDKITE_LOGS_API_TOKEN }}
