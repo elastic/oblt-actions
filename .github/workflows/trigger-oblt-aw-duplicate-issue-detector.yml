@@ -1,0 +1,19 @@
+name: Observability Agentic Workflow — Duplicate Issue Detector
+
+on:
+  issues:
+    types: [opened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  run-aw:
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    uses: elastic/oblt-aw/.github/workflows/oblt-aw-duplicate-issue-detector.yml@main # ratchet:exclude
+    secrets:
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
