@@ -50,12 +50,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           RUN_URL: ${{ steps.dispatch.outputs.runUrlHtml }}
-          STATUS_CONTEXT: oblt-aw/entrypoint
+          STATUS_CONTEXT: Observability Agentic Workflow Execution
         run: |
           gh api \
             --method POST \
             "/repos/${GITHUB_REPOSITORY}/statuses/${HEAD_SHA}" \
             -f state=success \
             -f target_url="${RUN_URL}" \
-            -f description='oblt-aw entrypoint dispatched (open run for progress)' \
+            -f description='Observability agentic workflow entrypoint dispatched (open run for progress)' \
             -f context="${STATUS_CONTEXT}"
