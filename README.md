@@ -33,26 +33,30 @@ The repository is organized by action namespace. Each action directory contains 
 
 ## Automation workflows
 
-### Observability Agentic Workflow Entrypoint
+### Observability Agentic Workflow Triggers
 
-The repository includes the `.github/workflows/oblt-aw.yml` workflow, which forwards selected repository events to the centralized `elastic/oblt-aw` ingress workflow.
+The repository uses multiple `.github/workflows/trigger-oblt-aw-*.yml` workflows to forward scoped repository events to reusable workflows in `elastic/oblt-aw`.
 
-It runs on:
-- a daily schedule (`0 6 * * *`)
-- manual dispatch (`workflow_dispatch`)
-- issue events (`opened`, `labeled`)
-- issue comment events (`created`)
-- pull request events (`opened`, `synchronize`, `reopened`, `labeled`)
-- status events (`status`) so commit status updates are also forwarded to ingress
+Current trigger workflows include:
+- `.github/workflows/trigger-oblt-aw-autodoc.yml`
+- `.github/workflows/trigger-oblt-aw-issue-triage.yml`
+- `.github/workflows/trigger-oblt-aw-issue-fixer.yml`
+- `.github/workflows/trigger-oblt-aw-mention-in-issue.yml`
+- `.github/workflows/trigger-oblt-aw-automerge.yml`
+- `.github/workflows/trigger-oblt-aw-dependency-review.yml`
+- `.github/workflows/trigger-oblt-aw-duplicate-issue-detector.yml`
+- `.github/workflows/trigger-oblt-aw-resource-not-accessible-by-integration-detector.yml`
+- `.github/workflows/trigger-oblt-aw-resource-not-accessible-by-integration-triage.yml`
+- `.github/workflows/trigger-oblt-aw-resource-not-accessible-by-integration-fixer.yml`
+- `.github/workflows/trigger-oblt-aw-security-detector.yml`
+- `.github/workflows/trigger-oblt-aw-security-triage.yml`
+- `.github/workflows/trigger-oblt-aw-security-fixer.yml`
+- `.github/workflows/trigger-oblt-aw-agent-suggestions.yml`
+- `.github/workflows/trigger-oblt-aw-estc-pr-buildkite-detective.yml`
 
-This workflow forwards repository secrets to the reusable ingress workflow:
-- `COPILOT_GITHUB_TOKEN` -> `COPILOT_GITHUB_TOKEN` (currently optional in `elastic/oblt-aw/.github/workflows/oblt-aw-ingress.yml`)
-- `BUILDKITE_LOGS_API_TOKEN` -> `BUILDKITE_API_TOKEN` (currently optional in `elastic/oblt-aw/.github/workflows/oblt-aw-ingress.yml`)
-
-If you want Buildkite log access for downstream Buildkite triage flows, set `BUILDKITE_LOGS_API_TOKEN` in this repository.
-It also requires workflow/job permissions:
-`actions: write`, `checks: read`, `contents: write`, `discussions: write`,
-`id-token: write`, `issues: write`, and `pull-requests: write`.
+Secret forwarding currently works as follows:
+- Most trigger workflows pass `COPILOT_GITHUB_TOKEN` through as `COPILOT_GITHUB_TOKEN`.
+- `.github/workflows/trigger-oblt-aw-estc-pr-buildkite-detective.yml` additionally passes `BUILDKITE_LOGS_API_TOKEN` as `BUILDKITE_API_TOKEN` for Buildkite log triage.
 
 ### Kibana deploy/undeploy side effects
 

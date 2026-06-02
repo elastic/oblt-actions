@@ -120,7 +120,7 @@ jobs:
 `no-test.yml` starts from `**` (all paths) and then uses `!<action-path>/**` exclusions for actions that already have dedicated `test-*.yml` workflows.
 
 - Add `!<action-path>/**` when an action has a dedicated workflow **and** you want that dedicated workflow to be the only `test` signal for that path (for example `!aws/auth/**` pairs with `.github/workflows/test-aws-auth.yml`).
-- It is valid to keep an action path in `no-test.yml` even when it has a dedicated `test-*.yml` workflow if you intentionally want fallback `no-test` coverage as well. Current examples: `oblt-cli/setup/**`, `slack/send/**`, and `buildkite/download-artifact/**`.
+- It is valid to keep an action path in `no-test.yml` even when it has a dedicated `test-*.yml` workflow if you intentionally want fallback `no-test` coverage as well. Verify current behavior directly in `.github/workflows/no-test.yml` before documenting concrete path examples.
 - Do **not** add an exclusion for actions without a dedicated workflow; they should stay included so the fallback `no-test` workflow runs and provides the required `test` job.
 
 **NOTE**: replace `<action-path>` with the path to the action directory.
