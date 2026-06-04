@@ -1,0 +1,20 @@
+name: Observability Agentic Workflow — Issue Comment
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+
+jobs:
+  run-aw:
+    permissions:
+      actions: read
+      contents: write
+      discussions: write
+      issues: write
+      pull-requests: write
+    uses: elastic/oblt-aw/.github/workflows/oblt-aw-event-issue-comment.yml@main # ratchet:exclude
+    secrets:
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
