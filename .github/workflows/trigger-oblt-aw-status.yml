@@ -1,4 +1,4 @@
-name: Observability Agentic Workflow — PR Buildkite Detective
+name: Observability Agentic Workflow — Status
 
 on:
   status:
@@ -16,7 +16,7 @@ jobs:
       contents: read
       issues: read
       pull-requests: write
-    uses: elastic/oblt-aw/.github/workflows/oblt-aw-estc-pr-buildkite-detective.yml@main # ratchet:exclude
+    uses: elastic/oblt-aw/.github/workflows/oblt-aw-event-status.yml@main # ratchet:exclude
     secrets:
       COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
       BUILDKITE_API_TOKEN: ${{ secrets.BUILDKITE_LOGS_API_TOKEN }}

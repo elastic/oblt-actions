@@ -1,8 +1,8 @@
-name: Observability Agentic Workflow — Mention in Issue
+name: Observability Agentic Workflow — Pull Request
 
 on:
-  issue_comment:
-    types: [created]
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
 
 permissions:
   contents: read
@@ -13,8 +13,9 @@ jobs:
       actions: read
       contents: write
       discussions: write
+      id-token: write
       issues: write
       pull-requests: write
-    uses: elastic/oblt-aw/.github/workflows/oblt-aw-mention-in-issue.yml@main # ratchet:exclude
+    uses: elastic/oblt-aw/.github/workflows/oblt-aw-event-pull-request.yml@main # ratchet:exclude
     secrets:
       COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}

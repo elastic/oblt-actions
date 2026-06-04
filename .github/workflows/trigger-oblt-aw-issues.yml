@@ -1,8 +1,9 @@
-name: Observability Agentic Workflow — Resource Not Accessible Triage
+name: Observability Agentic Workflow — Issues
 
 on:
   issues:
     types: [opened, labeled]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -11,11 +12,11 @@ jobs:
   run-aw:
     permissions:
       actions: read
-      contents: read
+      contents: write
       discussions: write
       id-token: write
       issues: write
       pull-requests: write
-    uses: elastic/oblt-aw/.github/workflows/oblt-aw-resource-not-accessible-by-integration-triage.yml@main # ratchet:exclude
+    uses: elastic/oblt-aw/.github/workflows/oblt-aw-event-issues.yml@main # ratchet:exclude
     secrets:
       COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
