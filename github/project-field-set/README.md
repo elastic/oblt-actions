@@ -10,15 +10,15 @@ Sets field of an GitHub project item
 
 ## Inputs
 <!--inputs-->
-| Name           | Description                                                                                                 | Required | Default               |
-|----------------|-------------------------------------------------------------------------------------------------------------|----------|-----------------------|
-| `github-token` | The GitHub access token.                                                                                    | `true`   | `${{ github.token }}` |
-| `github-org`   | The GitHub org                                                                                              | `true`   | `elastic`             |
-| `project-id`   | The GitHub project numeric ID.                                                                              | `true`   | ` `                   |
-| `item-id`      | ID of item in the project                                                                                   | `true`   | ` `                   |
-| `field-name`   | Field name                                                                                                  | `true`   | ` `                   |
-| `field-value`  | Field value, when `field-type` = `iteration` then `@current` and `@next` and `@previous` are also supported | `true`   | ` `                   |
-| `field-type`   | Field type, supported values are `single-select` and `iteration`                                            | `true`   | `single-select`       |
+| Name           | Description                                                                                                                                 | Required | Default               |
+|----------------|---------------------------------------------------------------------------------------------------------------------------------------------|----------|-----------------------|
+| `github-token` | The GitHub access token with organization project write permission (`permission-organization-projects: write` for app tokens).              | `true`   | `${{ github.token }}` |
+| `github-org`   | The GitHub org                                                                                                                              | `true`   | `elastic`             |
+| `project-id`   | The GitHub project numeric ID.                                                                                                              | `true`   | ` `                   |
+| `item-id`      | ID of item in the project                                                                                                                   | `true`   | ` `                   |
+| `field-name`   | Field name. Lookup only searches the first 20 project fields (`fields(first:20)`), and the action fails if the field is outside that range. | `true`   | ` `                   |
+| `field-value`  | Field value, when `field-type` = `iteration` then `@current` and `@next` and `@previous` are also supported                                 | `true`   | ` `                   |
+| `field-type`   | Field type, supported values are `single-select` and `iteration`                                                                            | `true`   | `single-select`       |
 <!--/inputs-->
 
 ## Usage
