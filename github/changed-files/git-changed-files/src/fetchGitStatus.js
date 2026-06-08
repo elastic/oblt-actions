@@ -3,6 +3,11 @@ import chalk from 'chalk';
 import { filterFiles } from '../src/filterFiles.js';
 import { formatOutput } from '../src/formatOutput.js';
 
+function isShallowRepository() {
+  let result = spawnSync('git', ['rev-parse', '--is-shallow-repository']);
+  return result.stdout && result.stdout.toString().trim() === 'true';
+}
+
 function findError(error) {
   error = error.toString();
   if (error.includes('Not a git repository')) {
@@ -86,6 +91,14 @@ function fetchGitStatus(options) {
     });
 
     try {
+
+      if (isShallowRepository()) {
+        return reject(new Error(
+          'Shallow clone detected. The changed-files action requires full git history to compare refs. ' +
+          'Please set `fetch-depth: 0` in your actions/checkout step. ' +
+          'See https://github.com/elastic/oblt-actions/issues/470 for details.'
+        ));
+      }
 
       if (showCommitted) {
         committedFiles = findFiles(commitedCmd, formats, showStatus);
