@@ -14,6 +14,7 @@ jobs:
     permissions:
       actions: read
       contents: read
+      id-token: write
       issues: read
       pull-requests: write
     uses: elastic/oblt-aw/.github/workflows/oblt-aw-event-status.yml@main # ratchet:exclude
