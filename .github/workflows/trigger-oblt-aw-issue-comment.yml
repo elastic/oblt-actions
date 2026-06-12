@@ -13,6 +13,7 @@ jobs:
       actions: read
       contents: write
       discussions: write
+      id-token: write
       issues: write
       pull-requests: write
     uses: elastic/oblt-aw/.github/workflows/oblt-aw-event-issue-comment.yml@main # ratchet:exclude
