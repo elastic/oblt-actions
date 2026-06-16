@@ -13,6 +13,7 @@ jobs:
     permissions:
       actions: read
       contents: write
+      copilot-requests: write
       id-token: write
       issues: write
       pull-requests: write

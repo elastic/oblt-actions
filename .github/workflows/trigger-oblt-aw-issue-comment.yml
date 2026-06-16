@@ -12,6 +12,7 @@ jobs:
     permissions:
       actions: read
       contents: write
+      copilot-requests: write
       discussions: write
       id-token: write
       issues: write
