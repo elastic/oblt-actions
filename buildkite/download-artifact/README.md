@@ -10,13 +10,13 @@ A GitHub Action for downloading artifacts from a Buildkite build.
 ## Inputs
 
 <!--inputs-->
-| Name           | Description                                                         | Required | Default   |
-|----------------|---------------------------------------------------------------------|----------|-----------|
-| `token`        | Buildkite token.                                                    | `true`   | ` `       |
-| `org`          | Buildkite org to interact with.                                     | `false`  | `elastic` |
-| `path`         | A file, directory or wildcard pattern that describes what to upload | `true`   | ` `       |
-| `pipeline`     | Buildkite pipeline to interact with.                                | `true`   | ` `       |
-| `build-number` | Buildkite pipeline build to interact with.                          | `true`   | ` `       |
+| Name           | Description                                                           | Required | Default   |
+|----------------|-----------------------------------------------------------------------|----------|-----------|
+| `token`        | Buildkite token.                                                      | `true`   | ` `       |
+| `org`          | Buildkite org to interact with.                                       | `false`  | `elastic` |
+| `path`         | A file, directory or wildcard pattern that describes what to download | `true`   | ` `       |
+| `pipeline`     | Buildkite pipeline to interact with.                                  | `true`   | ` `       |
+| `build-number` | Buildkite pipeline build to interact with.                            | `true`   | ` `       |
 <!--/inputs-->
 
 ## Usage
