@@ -23,7 +23,7 @@ jobs:
   test:
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./maven/await-artifact
         timeout-minutes: 1
         with:
