@@ -29,7 +29,7 @@ runs:
       run: echo "github.workflow_ref=${{ github.workflow_ref }}"
 
     - id: fetch-token
-      uses: elastic/ci-gh-actions/fetch-github-token@v1.5.0
+      uses: elastic/ci-gh-actions/fetch-github-token@v1.5.3
       with:
         vault-instance: ${{ inputs.vault-instance }}
         vault-role: ${{ inputs.token-policy }}
