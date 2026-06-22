@@ -23,7 +23,7 @@ jobs:
   test:
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./git/setup
       - name: validate git user
         run: test "$(git config user.name)" = "obltmachine"
@@ -37,7 +37,7 @@ jobs:
   test-newline-injection:
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./git/setup
         with:
           username: "obltmachine\nINJECTED_VAR=injected"
