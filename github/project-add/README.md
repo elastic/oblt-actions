@@ -11,12 +11,12 @@ Adds a GitHub issue or pull-request to a GitHub project
 ## Inputs
 
 <!--inputs-->
-| Name           | Description                              | Required | Default               |
-|----------------|------------------------------------------|----------|-----------------------|
-| `item-url`     | The GitHub issue/pull-request URL to add | `false`  | ` `                   |
-| `github-org`   | The GitHub org                           | `true`   | `elastic`             |
-| `github-token` | The GitHub access token.                 | `true`   | `${{ github.token }}` |
-| `project-id`   | The GitHub project numeric ID.           | `true`   | ` `                   |
+| Name           | Description                                                                                                                    | Required | Default               |
+|----------------|--------------------------------------------------------------------------------------------------------------------------------|----------|-----------------------|
+| `item-url`     | The GitHub issue/pull-request URL to add. This input is required and the action fails when it is empty.                        | `true`   | ` `                   |
+| `github-org`   | The GitHub org                                                                                                                 | `true`   | `elastic`             |
+| `github-token` | The GitHub access token with organization project write permission (`permission-organization-projects: write` for app tokens). | `true`   | `${{ github.token }}` |
+| `project-id`   | The GitHub project numeric ID.                                                                                                 | `true`   | ` `                   |
 <!--/inputs-->
 
 ## Outputs
