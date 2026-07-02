@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 jobs:
-  run-aw:
+  run-oblt-aw-status:
     if: >-
       github.event.state == 'failure' &&
       contains(github.event.context, 'buildkite')

@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  run-aw:
+  run-oblt-aw-issue-comment:
     permissions:
       actions: read
       contents: write

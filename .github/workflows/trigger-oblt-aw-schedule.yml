@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  run-aw:
+  run-oblt-aw-schedule:
     permissions:
       actions: read
       contents: write
