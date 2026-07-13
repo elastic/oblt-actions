@@ -38,6 +38,8 @@ runs:
       id: prepare
       env:
         MESSAGE: ${{ inputs.message }}
+        CHANNEL_ID: ${{ inputs.channel-id }}
+        THREAD_TS: ${{ inputs.thread-timestamp }}
       run: |
         # Prepare Slack API payload.
         # Documentation about the payload format.
@@ -57,25 +59,37 @@ runs:
           raise Exception("message must be set.")
 
         print("message={}".format(message))
-        sanitizedMessage = json.dumps(message)
-        print("sanitized message={}".format(sanitizedMessage))
+
+        payload = {
+          "unfurl_links": False,
+          "unfurl_media": False,
+          "channel": os.environ.get('CHANNEL_ID'),
+          "text": message,
+          "blocks": [
+            {
+              "type": "section",
+              "text": {
+                "type": "mrkdwn",
+                "text": message
+              }
+            }
+          ]
+        }
+
+        thread_ts = os.environ.get('THREAD_TS', '')
+        if thread_ts:
+          payload["thread_ts"] = thread_ts
+
+        payload_file = os.path.join(os.environ.get('RUNNER_TEMP', '/tmp'), 'slack_payload.json')
+        with open(payload_file, 'w') as f:
+          json.dump(payload, f)
 
         with open(os.environ.get('GITHUB_OUTPUT'), "a") as f:
-          f.write("message={}".format(sanitizedMessage))
+          f.write("payload-file={}\n".format(payload_file))
 
     - uses: slackapi/slack-github-action@0d95c9a7becc1e6e297d76df9bc735c44f4cbcbc # v3.0.5
       id: slack_message
       with:
         method: chat.postMessage
         token: ${{ inputs.bot-token }}
-        payload: |
-          unfurl_links: false
-          unfurl_media: false
-          channel: "${{ inputs.channel-id }}"
-          thread_ts: "${{ inputs.thread-timestamp }}"
-          text: ${{ steps.prepare.outputs.message }}
-          blocks:
-            - type: "section"
-              text:
-                type: mrkdwn
-                text: ${{ steps.prepare.outputs.message }}
+        payload-file-path: ${{ steps.prepare.outputs.payload-file }}
