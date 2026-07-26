@@ -18,7 +18,7 @@ runs:
         # Fetch all the history so the pre-commit/action can compare changes between the target and the git commit
         fetch-depth: 0
 
-    - uses: actions/setup-python@v6
+    - uses: actions/setup-python@v7
       with:
         python-version: ${{ inputs.python-version }}
 
