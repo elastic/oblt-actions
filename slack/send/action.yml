@@ -68,12 +68,13 @@ runs:
           "text": message,
           "blocks": [{"type": "section", "text": {"type": "mrkdwn", "text": message}}],
         }
-        thread_ts = os.environ.get('THREAD_TS', '')
+        thread_ts = (os.environ.get("THREAD_TS") or "").strip()
         if thread_ts:
           payload["thread_ts"] = thread_ts
 
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.json', mode='w') as f:
-          json.dump(payload, f)
+        temp_dir = os.environ.get("RUNNER_TEMP")
+        with tempfile.NamedTemporaryFile(dir=temp_dir, delete=False, suffix=".json", mode="w", encoding="utf-8") as f:
+          json.dump(payload, f, ensure_ascii=False)
           payload_file = f.name
 
         with open(os.environ.get('GITHUB_OUTPUT'), "a") as f:
