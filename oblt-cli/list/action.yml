@@ -32,7 +32,7 @@ inputs:
     required: false
     default: 'false'
   fail-on-empty:
-    description: 'Fail the action if no clusters are found.'
+    description: 'Fail the action if no clusters are found. If false, all oblt-cli failures are suppressed.'
     required: false
     default: 'false'
   save-to-file:
@@ -40,7 +40,7 @@ inputs:
     required: false
     default: 'clusters.json'
   version-file:
-    description: 'File containing the oblt-cli version to use. If set, this overrides the version input.'
+    description: 'File containing the oblt-cli version to use. If both version and version-file are provided, version is used.'
     required: false
 runs:
   using: "composite"

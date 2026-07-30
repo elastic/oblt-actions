@@ -1,10 +1,10 @@
-name: 'github/labels-copier'
+name: 'mergify/labels-copier'
 
 description: 'copies pull request labels to backported PRs'
 
 inputs:
   excluded-labels-regex:
-    description: 'labels to be excluded in regex format'
+    description: 'Labels to be excluded in regex format; blank excludes none.'
     required: false
     default: ''
   github-token:

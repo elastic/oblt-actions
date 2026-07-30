@@ -18,6 +18,20 @@ An Action to check if a repository is currently in a feature freeze period.
 | `feature-freeze-file` | The path to the feature freeze file.                              | `false`  | `release-freezes.json`     |
 <!--/inputs-->
 
+The `feature-freeze-file` must contain a JSON array of objects with `begin`, `end`,
+and `description` fields. Dates must use the `YYYY-MM-DD` format. Freeze periods
+include both their beginning and ending dates.
+
+```json
+[
+  {
+    "begin": "2026-12-20",
+    "end": "2027-01-05",
+    "description": "Holiday feature freeze"
+  }
+]
+```
+
 ## Outputs
 
 <!--outputs-->

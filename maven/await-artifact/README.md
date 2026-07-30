@@ -5,9 +5,7 @@
 [![test-maven-await-artifact](https://github.com/elastic/oblt-actions/actions/workflows/test-maven-await-artifact.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-maven-await-artifact.yml)
 
 <!--description-->
-Waits for an artifact to be available on maven central or the sonatype proxy maven central.
-With default values, we just wait for the publication to complete on `sonatype`, but the actual availability in maven central might not be ready yet.
-With `true`, we wait for the artifact to be published in maven central, this should be used when building other artifacts by downloading from maven central, which is for example quite common for docker images.
+Waits for an artifact to be available on Maven Central by polling its repository URL.
 <!--/description-->
 
 NOTE: this action does not timeout, hence you need to configure your GitHub workflow accordingly.

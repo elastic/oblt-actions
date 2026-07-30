@@ -48,7 +48,7 @@ jobs:
 
 The action recognizes the following labels:
 
-- `backport-active-all`: Backport to all configured branches (except main)
+- `backport-active-all`: Backport to all configured branches (except `main` and `7.17`)
 - `backport-active-8`: Backport only to 8.x branches
 - `backport-active-9`: Backport only to 9.x branches
 
