@@ -38,6 +38,8 @@ runs:
       id: prepare
       env:
         MESSAGE: ${{ inputs.message }}
+        CHANNEL_ID: ${{ inputs.channel-id }}
+        THREAD_TS: ${{ inputs.thread-timestamp }}
       run: |
         # Prepare Slack API payload.
         # Documentation about the payload format.
@@ -46,6 +48,7 @@ runs:
         # https://api.slack.com/reference/surfaces/formatting
         # https://api.slack.com/reference/surfaces/formatting#escaping
         import os
+        import tempfile
         from urllib.parse import unquote
         import json
 
@@ -57,25 +60,29 @@ runs:
           raise Exception("message must be set.")
 
         print("message={}".format(message))
-        sanitizedMessage = json.dumps(message)
-        print("sanitized message={}".format(sanitizedMessage))
+
+        payload = {
+          "unfurl_links": False,
+          "unfurl_media": False,
+          "channel": os.environ.get('CHANNEL_ID'),
+          "text": message,
+          "blocks": [{"type": "section", "text": {"type": "mrkdwn", "text": message}}],
+        }
+        thread_ts = (os.environ.get("THREAD_TS") or "").strip()
+        if thread_ts:
+          payload["thread_ts"] = thread_ts
+
+        temp_dir = os.environ.get("RUNNER_TEMP")
+        with tempfile.NamedTemporaryFile(dir=temp_dir, delete=False, suffix=".json", mode="w", encoding="utf-8") as f:
+          json.dump(payload, f, ensure_ascii=False)
+          payload_file = f.name
 
         with open(os.environ.get('GITHUB_OUTPUT'), "a") as f:
-          f.write("message={}".format(sanitizedMessage))
+          f.write("payload-file={}\n".format(payload_file))
 
-    - uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
+    - uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
       id: slack_message
       with:
         method: chat.postMessage
         token: ${{ inputs.bot-token }}
-        payload: |
-          unfurl_links: false
-          unfurl_media: false
-          channel: "${{ inputs.channel-id }}"
-          thread_ts: "${{ inputs.thread-timestamp }}"
-          text: ${{ steps.prepare.outputs.message }}
-          blocks:
-            - type: "section"
-              text:
-                type: mrkdwn
-                text: ${{ steps.prepare.outputs.message }}
+        payload-file-path: ${{ steps.prepare.outputs.payload-file }}
