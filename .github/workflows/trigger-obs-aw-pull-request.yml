@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  run-oblt-aw-pull-request:
+  run-obs-aw-pull-request:
     permissions:
       actions: read
       contents: write
@@ -17,4 +17,4 @@ jobs:
       id-token: write
       issues: write
       pull-requests: write
-    uses: elastic/oblt-aw/.github/workflows/oblt-aw-event-pull-request.yml@main # ratchet:exclude
+    uses: elastic/oblt-aw/.github/workflows/obs-aw-event-pull-request.yml@main # ratchet:exclude

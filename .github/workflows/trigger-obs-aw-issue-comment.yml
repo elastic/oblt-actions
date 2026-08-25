@@ -1,15 +1,14 @@
-name: Observability Agentic Workflow — Issues
+name: Observability Agentic Workflow — Issue Comment
 
 on:
-  issues:
-    types: [opened, labeled]
-  workflow_dispatch:
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: read
 
 jobs:
-  run-oblt-aw-issues:
+  run-obs-aw-issue-comment:
     permissions:
       actions: read
       contents: write
@@ -18,4 +17,4 @@ jobs:
       id-token: write
       issues: write
       pull-requests: write
-    uses: elastic/oblt-aw/.github/workflows/oblt-aw-event-issues.yml@main # ratchet:exclude
+    uses: elastic/oblt-aw/.github/workflows/obs-aw-event-issue-comment.yml@main # ratchet:exclude
