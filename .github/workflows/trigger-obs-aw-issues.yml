@@ -2,7 +2,7 @@ name: Observability Agentic Workflow — Issues
 
 on:
   issues:
-    types: [opened, labeled]
+    types: [opened, labeled, edited]
   workflow_dispatch:
 
 permissions:
