@@ -38,25 +38,17 @@ The repository is organized by action namespace. Each action directory contains 
 The repository uses multiple `.github/workflows/trigger-oblt-aw-*.yml` workflows to forward scoped repository events to reusable workflows in `elastic/oblt-aw`.
 
 Current trigger workflows include:
-- `.github/workflows/trigger-oblt-aw-autodoc.yml`
-- `.github/workflows/trigger-oblt-aw-issue-triage.yml`
-- `.github/workflows/trigger-oblt-aw-issue-fixer.yml`
-- `.github/workflows/trigger-oblt-aw-mention-in-issue.yml`
-- `.github/workflows/trigger-oblt-aw-automerge.yml`
-- `.github/workflows/trigger-oblt-aw-dependency-review.yml`
-- `.github/workflows/trigger-oblt-aw-duplicate-issue-detector.yml`
-- `.github/workflows/trigger-oblt-aw-resource-not-accessible-by-integration-detector.yml`
-- `.github/workflows/trigger-oblt-aw-resource-not-accessible-by-integration-triage.yml`
-- `.github/workflows/trigger-oblt-aw-resource-not-accessible-by-integration-fixer.yml`
-- `.github/workflows/trigger-oblt-aw-security-detector.yml`
-- `.github/workflows/trigger-oblt-aw-security-triage.yml`
-- `.github/workflows/trigger-oblt-aw-security-fixer.yml`
-- `.github/workflows/trigger-oblt-aw-agent-suggestions.yml`
-- `.github/workflows/trigger-oblt-aw-estc-pr-buildkite-detective.yml`
+- `.github/workflows/trigger-oblt-aw-issue-comment.yml`
+- `.github/workflows/trigger-oblt-aw-issues.yml`
+- `.github/workflows/trigger-oblt-aw-pull-request.yml`
+- `.github/workflows/trigger-oblt-aw-schedule.yml`
+- `.github/workflows/trigger-oblt-aw-status.yml`
 
 Secret forwarding currently works as follows:
-- Most trigger workflows pass `COPILOT_GITHUB_TOKEN` through as `COPILOT_GITHUB_TOKEN`.
-- `.github/workflows/trigger-oblt-aw-estc-pr-buildkite-detective.yml` additionally passes `BUILDKITE_LOGS_API_TOKEN` as `BUILDKITE_API_TOKEN` for Buildkite log triage.
+- These trigger workflows do not explicitly forward `COPILOT_GITHUB_TOKEN`.
+- `.github/workflows/trigger-oblt-aw-status.yml` maps `BUILDKITE_LOGS_API_TOKEN` to `BUILDKITE_API_TOKEN`.
+
+Keep this inventory and the secret mappings synchronized when trigger workflows are added or removed.
 
 ### Kibana deploy/undeploy side effects
 
