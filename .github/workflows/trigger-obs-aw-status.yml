@@ -16,7 +16,7 @@ jobs:
       contents: read
       copilot-requests: write
       id-token: write
-      issues: read
+      issues: write
       pull-requests: write
     uses: elastic/oblt-aw/.github/workflows/obs-aw-event-status.yml@main # ratchet:exclude
     secrets:
