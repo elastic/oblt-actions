@@ -185,5 +185,5 @@ steps:
 Then run the following command to update the `README.md` file:
 
 ```bash
-VERSION=v1 gh action-readme update
+VERSION=v1 pre-commit run action-readme --all-files
 ```
