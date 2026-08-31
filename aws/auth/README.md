@@ -34,7 +34,13 @@ AWS role ARN we use for Elastic Observability repositories.
 
 ## Usage
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
+> OIDC-based role assumption requires the job to grant `id-token: write` and `contents: read` permissions.
+
 ```yaml
+permissions:
+  contents: read
+  id-token: write
+
 steps:
   - uses: elastic/oblt-actions/aws/auth@v1
     with:
