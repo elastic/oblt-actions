@@ -21,9 +21,9 @@ List clusters using a filter
 | `filter-value`                   | The filter value to use.                                                                                                                                                                            | `false`  | ` `                |
 | `filter-expiry-date-before-than` | Filter clusters with expiry date before the given date (format: ISO or YYYY-MM-DD). Only for versions >= 7.27.0                                                                                     | `false`  | ` `                |
 | `all`                            | List all clusters.                                                                                                                                                                                  | `false`  | `false`            |
-| `fail-on-empty`                  | Fail the action if no clusters are found.                                                                                                                                                           | `false`  | `false`            |
+| `fail-on-empty`                  | Fail the action if no clusters are found. If false, all oblt-cli failures are suppressed.                                                                                                           | `false`  | `false`            |
 | `save-to-file`                   | File path to save the output to.                                                                                                                                                                    | `false`  | `clusters.json`    |
-| `version-file`                   | File containing the oblt-cli version to use. If set, this overrides the version input.                                                                                                              | `false`  | ` `                |
+| `version-file`                   | File containing the oblt-cli version to use. If both version and version-file are provided, version is used.                                                                                        | `false`  | ` `                |
 <!--/inputs-->
 
 ## Usage

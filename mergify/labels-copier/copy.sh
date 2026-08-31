@@ -27,7 +27,7 @@ pr_number=$(gh pr view --json body -q ".body" "$PR_URL" --repo "$REPOSITORY" \
   | cut -d" " -f1)
 
 # Get the labels from the PR and filter out the excluded labels.
-labels=$(gh pr view --json labels "${REPOSITORY_URL}/pull/$pr_number" --repo "$REPOSITORY" | jq -r --arg regex "$EXCLUDED_LABEL" '.labels | map(select(.name | test($regex) | not)) | map(.name) | join(",")')
+labels=$(gh pr view --json labels "${REPOSITORY_URL}/pull/$pr_number" --repo "$REPOSITORY" | jq -r --arg regex "$EXCLUDED_LABEL" 'if $regex == "" then [.labels[].name] | join(",") else [.labels[] | select(.name | test($regex) | not) | .name] | join(",") end')
 if [ -n "$CI" ] ; then
   echo "labels=$labels" >> "$GITHUB_OUTPUT"
 fi
