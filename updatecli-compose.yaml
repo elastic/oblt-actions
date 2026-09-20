@@ -7,7 +7,7 @@ policies:
       - .ci/updatecli/values.d/scm.yml
       - .ci/updatecli/values.d/oblt-cli.yml
   - name: Handle updatecli bumps
-    policy: ghcr.io/elastic/oblt-updatecli-policies/updatecli/version:0.2.1@sha256:6fd23ee6800e330fb6aa60ae3597dceb5dde919d3562dfcf559f6e0cb87cf998
+    policy: ghcr.io/elastic/oblt-updatecli-policies/updatecli/version:0.2.2@sha256:3c884a6a1004d383ac3747a5d400001be355ebca5d3e12749247a000b2221139
     values:
       - .ci/updatecli/values.d/scm.yml
       - .ci/updatecli/values.d/updatecli.yml
