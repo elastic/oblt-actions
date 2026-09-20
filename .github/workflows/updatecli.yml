@@ -25,7 +25,7 @@ jobs:
           owner: ${{ github.repository_owner }}
           repositories: |
             oblt-actions
-            observability-test-environments
+            oblt-cli
           permission-contents: write
           permission-pull-requests: write
 
