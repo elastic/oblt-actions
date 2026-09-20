@@ -46,3 +46,12 @@ jobs:
           command: compose apply
         env:
           GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
+
+      - if: ${{ failure()  }}
+        uses: elastic/oblt-actions/slack/send@v1
+        env:
+          JOB_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        with:
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#observablt-bots"
+          message: ":traffic_cone: updatecli failed for `${{ github.repository }}@${{ github.ref_name }}`, please look what's going on <${{ env.JOB_URL }}|here>"
