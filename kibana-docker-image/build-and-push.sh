@@ -17,8 +17,32 @@ export BUILD_TS_REFS_DISABLE="true"
 export KBN_USE_RSPACK=true
 
 echo "::group::Bootstrap"
-time yarn kbn clean
-time yarn kbn bootstrap
+if [ -f pnpm-lock.yaml ]; then
+  if ! command -v corepack > /dev/null 2>&1; then
+    if ! command -v npm > /dev/null 2>&1; then
+      echo "::error::corepack is not installed and npm is unavailable"
+      exit 1
+    fi
+    npm install -g corepack
+  fi
+  corepack enable
+  if ! command -v pnpm > /dev/null 2>&1; then
+    echo "::error::pnpm is required to bootstrap Kibana"
+    exit 1
+  fi
+  time pnpm kbn clean
+  time pnpm kbn bootstrap
+elif [ -f yarn.lock ]; then
+  if ! command -v yarn > /dev/null 2>&1; then
+    echo "::error::yarn is required to bootstrap legacy Kibana branches"
+    exit 1
+  fi
+  time yarn kbn clean
+  time yarn kbn bootstrap
+else
+  echo "::error::Kibana checkout contains neither pnpm-lock.yaml nor yarn.lock"
+  exit 1
+fi
 echo "::endgroup::"
 
 # https://github.com/elastic/kibana/blob/main/.buildkite/scripts/build_kibana.sh#L11-L19
