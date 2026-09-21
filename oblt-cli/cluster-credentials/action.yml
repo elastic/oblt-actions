@@ -26,7 +26,26 @@ runs:
     - name: run oblt-cli
       run: |
         trap 'rm -f "${ENV_FILE}"' EXIT
-        oblt-cli cluster secrets env --cluster-name "${CLUSTER_NAME}" --output-file "${ENV_FILE}"
+
+        max_attempts=3
+        attempt=1
+
+        while [ "${attempt}" -le "${max_attempts}" ]; do
+          if oblt-cli cluster secrets env --cluster-name "${CLUSTER_NAME}" --output-file "${ENV_FILE}"; then
+            break
+          fi
+
+          if [ "${attempt}" -eq "${max_attempts}" ]; then
+            echo "::error::Failed to retrieve cluster credentials after ${max_attempts} attempts."
+            exit 1
+          fi
+
+          backoff_seconds=$((attempt * 2))
+          echo "::warning::oblt-cli cluster secrets env failed (attempt ${attempt}/${max_attempts}). Retrying in ${backoff_seconds}s..."
+          sleep "${backoff_seconds}"
+          attempt=$((attempt + 1))
+        done
+
         while IFS= read -r line || [[ -n "${line}" ]]; do
           key="${line%%=*}"
           value="${line#*=}"
