@@ -50,8 +50,6 @@ runs:
     - uses: actions/setup-node@v7
       with:
         node-version-file: ${{ inputs.checkout-path }}/.node-version
-        cache: yarn
-        cache-dependency-path: ${{ inputs.checkout-path }}/yarn.lock
 
     - name: Set up variables
       id: vars
