@@ -38,3 +38,8 @@ jobs:
           "${{ steps.google-auth.outputs.workload-identity-provider }}"
       - run: test "elastic-observability-test" = "${{ steps.google-auth.outputs.project-id }}"
       - run: test "123456789012" = "${{ steps.google-auth.outputs.project-number }}"
+      - uses: ./google/auth
+        id: default-google-auth
+        continue-on-error: true
+      - run: test "elastic-observability" = "${{ steps.default-google-auth.outputs.project-id }}"
+      - run: test "8560181848" = "${{ steps.default-google-auth.outputs.project-number }}"
