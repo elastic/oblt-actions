@@ -1,0 +1,50 @@
+name: elastic/gscm-secrets
+description: Retrieve a Google Secret Manager dotenv secret, mask its values, and export them as environment variables.
+
+inputs:
+  oblt-cluster:
+    description: The Observability cluster name.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: elastic/oblt-actions/google/auth@v1
+
+    - name: Retrieve and export secret
+      shell: bash
+      env:
+        OBLT_CLUSTER: ${{ inputs.oblt-cluster }}
+        # TODO: Use the project ID output from google/auth when it becomes available.
+        PROJECT_ID: elastic-observability
+      run: |
+        set -euo pipefail
+
+        env_file="$(mktemp "${RUNNER_TEMP}/gscm-secret.XXXXXX")"
+        trap 'rm -f "${env_file}"' EXIT
+
+        gcloud secrets versions access latest \
+          --project "${PROJECT_ID}" \
+          --secret "oblt-clusters_${OBLT_CLUSTER}_env" > "${env_file}"
+
+        while IFS= read -r line || [[ -n "${line}" ]]; do
+          [[ -z "${line}" || "${line}" == \#* ]] && continue
+
+          if [[ "${line}" != *=* ]]; then
+            echo "::error::The secret contains an invalid dotenv entry."
+            exit 1
+          fi
+
+          key="${line%%=*}"
+          value="${line#*=}"
+
+          if [[ ! "${key}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+            echo "::error::The secret contains an invalid environment variable name."
+            exit 1
+          fi
+
+          if [[ -n "${value}" ]]; then
+            echo "::add-mask::${value}"
+          fi
+          printf '%s=%s\n' "${key}" "${value}" >> "${GITHUB_ENV}"
+        done < "${env_file}"
