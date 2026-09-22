@@ -10,13 +10,13 @@ runs:
   using: composite
   steps:
     - uses: elastic/oblt-actions/google/auth@v1
+      id: google-auth
 
     - name: Retrieve and export secret
       shell: bash
       env:
         OBLT_CLUSTER: ${{ inputs.oblt-cluster }}
-        # TODO: Use the project ID output from google/auth when it becomes available.
-        PROJECT_ID: elastic-observability
+        PROJECT_ID: ${{ steps.google-auth.outputs.project-id }}
       run: |
         set -euo pipefail
 
