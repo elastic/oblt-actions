@@ -16,6 +16,7 @@ on:
       - '!check-dependent-jobs/**'
       - '!download-kibana-dashboard/**'
       - '!elastic/github-commands/**'
+      - '!elastic/gscm-secrets/**'
       - '!elastic/validate-catalog/**'
       - '!feature-freeze/**'
       - '!git/setup/**'
