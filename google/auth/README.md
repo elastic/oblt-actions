@@ -25,6 +25,8 @@ GCP Workload Identity Pool Provider ID we use for Elastic Observability reposito
 | Name                         | Description                                      |
 |------------------------------|--------------------------------------------------|
 | `workload-identity-provider` | The generated Workload Identity Pool Provider ID |
+| `project-id`                 | The configured GCP project ID                    |
+| `project-number`             | The configured GCP project number                |
 <!--/outputs-->
 
 ## Usage

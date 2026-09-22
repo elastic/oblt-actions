@@ -28,9 +28,13 @@ jobs:
         id: google-auth
         continue-on-error: true
         with:
+          project-id: elastic-observability-test
+          project-number: '123456789012'
           repository: elastic/dummy
       - run: >
           test
-          "projects/8560181848/locations/global/workloadIdentityPools/github/providers/repo-37af2ab116595bd21e72f6b8478"
+          "projects/123456789012/locations/global/workloadIdentityPools/github/providers/repo-37af2ab116595bd21e72f6b8478"
           =
           "${{ steps.google-auth.outputs.workload-identity-provider }}"
+      - run: test "elastic-observability-test" = "${{ steps.google-auth.outputs.project-id }}"
+      - run: test "123456789012" = "${{ steps.google-auth.outputs.project-number }}"
