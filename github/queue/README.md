@@ -86,6 +86,93 @@ steps:
 If a workflow run is abruptly cancelled or fails prior to running the post-step cleanup, other jobs will automatically detect that the run has completed or cancelled via the GitHub API and prune it from the queue file.
 <!--/usage-->
 
+## How It Works
+
+### Architecture & Internals
+
+The action uses an orphan Git branch (`job-queue` by default) containing a plain-text file (`job_queue`) as a distributed FIFO queue.
+
+1. **Structured Item Identifier**:
+   Each job registers an identifier containing the GitHub Run ID:
+   `<run_id>:<run_attempt>:<suffix>:<timestamp>-<random>`
+   This allows any runner to identify which GitHub Actions workflow run owns each queued slot.
+
+2. **Run Synchronization & Dead Run Pruning**:
+   When `sync-runs` is enabled, jobs inspect queued entries against GitHub's REST API (`GET /repos/{owner}/{repo}/actions/runs/{run_id}`). If an item belongs to a run that is completed, cancelled, or no longer exists, it is pruned automatically from the queue file.
+
+3. **Concurrency Limiting**:
+   - `concurrency-limit` ($N$, default 50): If the job's 0-based index in the queue file is $< N$, the job has acquired an execution slot and continues immediately.
+   - `max-queue-size` ($M$, default 50): If the queue already contains $N + M$ items (e.g. 100), incoming jobs will wait before enqueuing to prevent unbounded queue growth.
+
+4. **Contention Handling**:
+   When multiple concurrent runners attempt to update and push to the queue branch simultaneously, Git rejects non-fast-forward pushes. The action handles this with exponential backoff and randomized jitter to avoid thundering-herd issues.
+
+### Flowchart
+
+```mermaid
+flowchart TD
+    Start([Job Starts]) --> InitRepo[Clone/Init Queue Branch]
+    InitRepo --> CheckPrune{sync-runs enabled?}
+    CheckPrune -- Yes --> PruneDead[Query GitHub API & Prune Dead Runs]
+    CheckPrune -- No --> CheckCap
+    PruneDead --> CheckCap{Queue >= N + M capacity?}
+
+    CheckCap -- Yes --> WaitCap[Sleep & Retry Enqueue]
+    WaitCap --> CheckPrune
+    CheckCap -- No --> PushEnqueue[Append run_id to Queue File & Push]
+
+    PushEnqueue -- Push Conflict --> BackoffEnqueue[Exponential Backoff + Jitter]
+    BackoffEnqueue --> InitRepo
+    PushEnqueue -- Success --> PollSlot[Read Queue Position]
+
+    PollSlot --> CheckPos{Position < N?}
+    CheckPos -- Yes --> Acquired([Acquire Slot & Execute Job])
+    CheckPos -- No --> SleepPoll[Sleep 5s]
+    SleepPoll --> CheckDeadPoll{Prune Dead Runs}
+    CheckDeadPoll --> PollSlot
+
+    Acquired --> JobRun[Run Workflow Steps]
+    JobRun --> PostStep([Post Action Step])
+    PostStep --> RemoveEntry[Remove run_id from Queue File & Push]
+    RemoveEntry -- Push Conflict --> BackoffDequeue[Backoff & Retry Dequeue]
+    BackoffDequeue --> RemoveEntry
+    RemoveEntry -- Success --> Done([Finished])
+```
+
+### Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Runner as Workflow Runner
+    participant Git as Queue Branch (Git)
+    participant API as GitHub Actions API
+
+    Note over Runner,Git: Main Action Step (Lock / Acquire)
+    Runner->>Git: Fetch latest queue state
+    opt sync-runs is true
+        Runner->>API: GET /actions/runs/{run_id} for queued items
+        API-->>Runner: Return run status (completed/in_progress)
+        Runner->>Git: Commit & Push pruned dead items (if any)
+    end
+    Runner->>Git: Append <run_id>:<attempt>:<suffix> & Push
+    loop Until Position < concurrency-limit or Timeout
+        Runner->>Git: Fetch queue file
+        alt Position < concurrency-limit
+            Note over Runner: Slot acquired! Proceed to job payload
+        else Position >= concurrency-limit
+            Runner->>Runner: Sleep 5s (polling)
+        end
+    end
+
+    Note over Runner: Workflow Steps Execute Here...
+
+    Note over Runner,Git: Post Action Step (Unlock / Release)
+    Runner->>Git: Fetch latest queue state
+    Runner->>Git: Remove <run_id> entry from queue file & Push
+    Note over Runner,Git: Next waiting job in line advances into active slot
+```
+
 ## Developing
 
 ### Prerequisites
