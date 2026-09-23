@@ -244,12 +244,14 @@ async function enqueue(
 
     let lines = readQueue(queuePath);
 
-    // Prune stale runs if enabled
-    if (syncRuns && repository && token) {
+    // Only prune stale runs if enabled AND queue has reached running capacity (concurrencyLimit)
+    if (syncRuns && repository && token && lines.length >= concurrencyLimit) {
       try {
-        const { activeLines, cleanedCount } = await pruneDeadRuns(lines, repository, token, currentRunId);
+        // Inspect only the first `concurrencyLimit` items which are holding running slots
+        const runningItems = lines.slice(0, concurrencyLimit);
+        const { activeLines: activeRunning, cleanedCount } = await pruneDeadRuns(runningItems, repository, token, currentRunId);
         if (cleanedCount > 0) {
-          lines = activeLines;
+          lines = [...activeRunning, ...lines.slice(concurrencyLimit)];
           writeQueue(queuePath, lines);
         }
       } catch (err) {
@@ -324,12 +326,27 @@ async function waitForSlot(
 
     let lines = readQueue(queuePath);
 
-    // Prune stale runs if enabled during polling
+    const position = lines.indexOf(requesterId);
+    if (position === -1) {
+      core.warning(`[${requesterId}] Not found in queue file. Re-enqueuing or continuing.`);
+      break;
+    }
+
+    if (position < concurrencyLimit) {
+      core.info(
+        `[${requesterId}] Slot acquired! Queue position ${position + 1} is within concurrency limit (${concurrencyLimit}).`
+      );
+      break;
+    }
+
+    // Prune stale runs only when waiting in queue (i.e. running limit reached)
+    // and only check the active running items (index 0 to concurrencyLimit) to save API calls
     if (syncRuns && repository && token) {
       try {
-        const { activeLines, cleanedCount } = await pruneDeadRuns(lines, repository, token, currentRunId);
+        const runningItems = lines.slice(0, concurrencyLimit);
+        const { activeLines: activeRunning, cleanedCount } = await pruneDeadRuns(runningItems, repository, token, currentRunId);
         if (cleanedCount > 0) {
-          lines = activeLines;
+          lines = [...activeRunning, ...lines.slice(concurrencyLimit)];
           writeQueue(queuePath, lines);
           await git.add(queueFile);
           await git.commit(`[${requesterId}] Pruned ${cleanedCount} dead runs`, ["-q"]);
@@ -342,19 +359,6 @@ async function waitForSlot(
       } catch (err) {
         core.debug(`Dead run prune error during poll: ${err.message}`);
       }
-    }
-
-    const position = lines.indexOf(requesterId);
-    if (position === -1) {
-      core.warning(`[${requesterId}] Not found in queue file. Re-enqueuing or continuing.`);
-      break;
-    }
-
-    if (position < concurrencyLimit) {
-      core.info(
-        `[${requesterId}] Slot acquired! Queue position ${position + 1} is within concurrency limit (${concurrencyLimit}).`
-      );
-      break;
     }
 
     core.info(
