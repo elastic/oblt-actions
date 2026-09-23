@@ -110,41 +110,6 @@ The action uses an orphan Git branch (`job-queue` by default) containing a plain
 5. **Contention Handling**:
    When multiple concurrent runners attempt to update and push to the queue branch simultaneously, Git rejects non-fast-forward pushes. The action handles this with exponential backoff and randomized jitter to avoid thundering-herd issues.
 
-### Flowchart
-
-```mermaid
-flowchart TD
-    A([Job starts]) --> B[Fetch queue branch and read queue]
-    B --> C{This job already queued?}
-    C -- "Yes" --> H[Read this job's position]
-    C -- "No" --> D{Queue at capacity N + M?}
-    D -- "Yes: wait for capacity" --> E[Wait 5 seconds]
-    E --> B
-    D -- "No: capacity available" --> F[Append this job and push queue update]
-    F --> G{Push succeeds?}
-    G -- "No: concurrent update" --> R[Back off with jitter]
-    R --> B
-    G -- "Yes" --> H
-
-    H --> I{Position is less than N?}
-    I -- "Yes: slot acquired" --> J[Run workflow steps]
-    I -- "No: wait for a slot" --> K{sync-runs enabled?}
-    K -- "Yes: queue is saturated" --> L[Check run status for the first N entries]
-    L --> M{Any completed or missing runs?}
-    M -- "Yes" --> N[Remove stale entries and push update]
-    N --> O[Wait 5 seconds]
-    M -- "No" --> O
-    K -- "No" --> O
-    O --> B
-
-    J --> P([Workflow steps finish])
-    P --> Q[Post step removes this job's entry]
-    Q --> S{Push succeeds?}
-    S -- "No: concurrent update" --> T[Fetch latest queue and retry]
-    T --> Q
-    S -- "Yes: slot released" --> U([Action finishes])
-```
-
 ### Sequence Diagram
 
 ```mermaid
