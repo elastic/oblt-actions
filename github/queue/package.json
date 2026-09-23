@@ -1,0 +1,22 @@
+{
+  "name": "queue",
+  "version": "1.0.0",
+  "description": "A queuing mechanism to limit concurrent job execution in GitHub Actions with run synchronization",
+  "main": "index.js",
+  "scripts": {
+    "build": "ncc build src/lock.js -o dist/lock && ncc build src/unlock.js -o dist/unlock",
+    "test": "jest --runInBand"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "simple-git": "^3.36.0"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.45.0",
+    "jest": "^30.5.1"
+  }
+}
