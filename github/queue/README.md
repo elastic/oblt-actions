@@ -114,42 +114,39 @@ The action uses an orphan Git branch (`job-queue` by default) containing a plain
 
 ```mermaid
 flowchart TD
-    subgraph AcquireSlot["Phase 1: Main Step - Acquire Slot"]
-        A([Job Starts]) --> B[Clone / Fetch Queue Branch]
-        B --> C{Queue length >= N + M capacity?}
-        C -- "Yes (Queue Full)" --> D[Sleep 5s]
-        D --> B
-        C -- "No (Capacity Available)" --> E{Queue length >= N running?}
-        E -- "Yes (Running limit reached)" --> F[Check GitHub API for running jobs]
-        F --> G[Prune completed / cancelled runs]
-        G --> H[Append run_id to Queue File & Commit]
-        E -- "No (Slots available)" --> H
-        H --> I[Push to Queue Branch]
-        I -- "Push Conflict (Non-fast-forward)" --> J[Exponential Backoff + Jitter]
-        J --> B
-        I -- "Push Success" --> K[Read Current Position in Queue]
-        K --> L{Position < N concurrency limit?}
-        L -- "No (Still waiting)" --> M[Sleep 5s]
-        M --> N{sync-runs enabled?}
-        N -- "Yes" --> O[Inspect running slots via API & Prune dead]
-        O --> K
-        N -- "No" --> K
-        L -- "Yes (Acquired!)" --> P([Proceed to Workflow Steps])
+    %% Main Entry
+    Start([Job Starts]) --> Enqueue[1. Enqueue Job]
+
+    %% Enqueue Stage
+    subgraph Step1["1. Enqueue to Branch"]
+        Enqueue --> FetchBranch[Fetch queue branch]
+        FetchBranch --> CheckCap{Queue >= N + M?}
+        CheckCap -- Yes: Queue full --> WaitCap[Wait 5s] --> FetchBranch
+        CheckCap -- No: Has space --> AddToQueue[Append run_id to queue file]
+        AddToQueue --> PushEnqueue[Push commit to branch]
+        PushEnqueue -- Push conflict --> RetryEnqueue[Backoff + jitter] --> FetchBranch
+        PushEnqueue -- Push OK --> WaitSlot[2. Wait for Slot]
     end
 
-    subgraph Execute["Phase 2: Job Execution"]
-        P --> Q[Execute User Workflow Steps]
-        Q --> R([Job Steps Complete])
+    %% Wait Stage
+    subgraph Step2["2. Wait for Concurrency Slot"]
+        WaitSlot --> ReadPos[Read current queue position]
+        ReadPos --> CheckSlot{Position <= N?}
+        CheckSlot -- Yes: Slot granted --> RunSteps([3. Run Workflow Steps])
+        CheckSlot -- No: Waiting in line --> CheckPrune{At capacity & sync-runs enabled?}
+        CheckPrune -- Yes --> PruneDead[Query API & prune dead runs from top N] --> PollWait[Wait 5s]
+        CheckPrune -- No --> PollWait
+        PollWait --> ReadPos
     end
 
-    subgraph ReleaseSlot["Phase 3: Post Step - Release Slot"]
-        R --> S([Post Action Runs Automatically])
-        S --> T[Fetch Latest Queue Branch]
-        T --> U[Remove run_id from Queue File]
-        U --> V[Commit Slot Release & Push]
-        V -- "Push Conflict" --> W[Exponential Backoff + Jitter]
-        W --> T
-        V -- "Push Success" --> X([Slot Released & Finished])
+    %% Execution & Cleanup
+    subgraph Step3["3. Execution & Automatic Cleanup"]
+        RunSteps --> Execute[Execute job commands]
+        Execute --> PostAction([Post-action triggered])
+        PostAction --> RemoveEntry[Remove run_id from queue file]
+        RemoveEntry --> PushRelease[Push release commit]
+        PushRelease -- Push conflict --> RetryRelease[Backoff + jitter] --> RemoveEntry
+        PushRelease -- Push OK --> Done([Complete])
     end
 ```
 
