@@ -114,40 +114,35 @@ The action uses an orphan Git branch (`job-queue` by default) containing a plain
 
 ```mermaid
 flowchart TD
-    %% Main Entry
-    Start([Job Starts]) --> Enqueue[1. Enqueue Job]
+    A([Job starts]) --> B[Fetch queue branch and read queue]
+    B --> C{This job already queued?}
+    C -- "Yes" --> H[Read this job's position]
+    C -- "No" --> D{Queue at capacity N + M?}
+    D -- "Yes: wait for capacity" --> E[Wait 5 seconds]
+    E --> B
+    D -- "No: capacity available" --> F[Append this job and push queue update]
+    F --> G{Push succeeds?}
+    G -- "No: concurrent update" --> R[Back off with jitter]
+    R --> B
+    G -- "Yes" --> H
 
-    %% Enqueue Stage
-    subgraph Step1["1. Enqueue to Branch"]
-        Enqueue --> FetchBranch[Fetch queue branch]
-        FetchBranch --> CheckCap{Queue >= N + M?}
-        CheckCap -- Yes: Queue full --> WaitCap[Wait 5s] --> FetchBranch
-        CheckCap -- No: Has space --> AddToQueue[Append run_id to queue file]
-        AddToQueue --> PushEnqueue[Push commit to branch]
-        PushEnqueue -- Push conflict --> RetryEnqueue[Backoff + jitter] --> FetchBranch
-        PushEnqueue -- Push OK --> WaitSlot[2. Wait for Slot]
-    end
+    H --> I{Position is less than N?}
+    I -- "Yes: slot acquired" --> J[Run workflow steps]
+    I -- "No: wait for a slot" --> K{sync-runs enabled?}
+    K -- "Yes: queue is saturated" --> L[Check run status for the first N entries]
+    L --> M{Any completed or missing runs?}
+    M -- "Yes" --> N[Remove stale entries and push update]
+    N --> O[Wait 5 seconds]
+    M -- "No" --> O
+    K -- "No" --> O
+    O --> B
 
-    %% Wait Stage
-    subgraph Step2["2. Wait for Concurrency Slot"]
-        WaitSlot --> ReadPos[Read current queue position]
-        ReadPos --> CheckSlot{Position <= N?}
-        CheckSlot -- Yes: Slot granted --> RunSteps([3. Run Workflow Steps])
-        CheckSlot -- No: Waiting in line --> CheckPrune{At capacity & sync-runs enabled?}
-        CheckPrune -- Yes --> PruneDead[Query API & prune dead runs from top N] --> PollWait[Wait 5s]
-        CheckPrune -- No --> PollWait
-        PollWait --> ReadPos
-    end
-
-    %% Execution & Cleanup
-    subgraph Step3["3. Execution & Automatic Cleanup"]
-        RunSteps --> Execute[Execute job commands]
-        Execute --> PostAction([Post-action triggered])
-        PostAction --> RemoveEntry[Remove run_id from queue file]
-        RemoveEntry --> PushRelease[Push release commit]
-        PushRelease -- Push conflict --> RetryRelease[Backoff + jitter] --> RemoveEntry
-        PushRelease -- Push OK --> Done([Complete])
-    end
+    J --> P([Workflow steps finish])
+    P --> Q[Post step removes this job's entry]
+    Q --> S{Push succeeds?}
+    S -- "No: concurrent update" --> T[Fetch latest queue and retry]
+    T --> Q
+    S -- "Yes: slot released" --> U([Action finishes])
 ```
 
 ### Sequence Diagram
