@@ -83,7 +83,7 @@ steps:
 
 ### Stale Run Synchronization
 
-If a workflow run is abruptly cancelled or fails prior to running the post-step cleanup, other jobs will automatically detect that the run has completed or cancelled via the GitHub API and prune it from the queue file.
+To prevent exhausting GitHub API rate limits, dead run pruning is **not** performed on every run. Pruning only triggers when the queue reaches the concurrency limit (i.e., when jobs are actually waiting in line) and only inspects the items currently occupying the running slots (the first $N$ items in the queue). If an occupied slot belongs to a workflow run that was cancelled or completed, it is evicted immediately.
 <!--/usage-->
 
 ## How It Works
@@ -97,46 +97,60 @@ The action uses an orphan Git branch (`job-queue` by default) containing a plain
    `<run_id>:<run_attempt>:<suffix>:<timestamp>-<random>`
    This allows any runner to identify which GitHub Actions workflow run owns each queued slot.
 
-2. **Run Synchronization & Dead Run Pruning**:
-   When `sync-runs` is enabled, jobs inspect queued entries against GitHub's REST API (`GET /repos/{owner}/{repo}/actions/runs/{run_id}`). If an item belongs to a run that is completed, cancelled, or no longer exists, it is pruned automatically from the queue file.
+2. **On-Demand Dead Run Pruning (Rate-Limit Friendly)**:
+   To avoid unnecessary GitHub API calls, API status checks (`GET /repos/{owner}/{repo}/actions/runs/{run_id}`) are **only performed when the concurrency limit is reached** (when jobs are blocked waiting for a slot). Furthermore, only the first $N$ running entries are checked, evicting any job whose workflow was cancelled, timed out, or aborted.
 
 3. **Concurrency Limiting**:
-   - `concurrency-limit` ($N$, default 50): If the job's 0-based index in the queue file is $< N$, the job has acquired an execution slot and continues immediately.
+   - `concurrency-limit` ($N$, default 50): If the job's 0-based position in the queue file is $< N$, the job has acquired an execution slot and continues to the workflow steps.
    - `max-queue-size` ($M$, default 50): If the queue already contains $N + M$ items (e.g. 100), incoming jobs will wait before enqueuing to prevent unbounded queue growth.
 
-4. **Contention Handling**:
+4. **Automatic Release on Job Finish**:
+   In the **post-action step** (which runs automatically when the workflow job completes, whether it succeeded, failed, or was cancelled), the action checks out the queue branch, removes its identifier from the queue file, commits, and pushes with retry backoff. This immediately frees up a slot for the next waiting job.
+
+5. **Contention Handling**:
    When multiple concurrent runners attempt to update and push to the queue branch simultaneously, Git rejects non-fast-forward pushes. The action handles this with exponential backoff and randomized jitter to avoid thundering-herd issues.
 
 ### Flowchart
 
 ```mermaid
 flowchart TD
-    Start([Job Starts]) --> InitRepo[Clone/Init Queue Branch]
-    InitRepo --> CheckPrune{sync-runs enabled?}
-    CheckPrune -- Yes --> PruneDead[Query GitHub API & Prune Dead Runs]
-    CheckPrune -- No --> CheckCap
-    PruneDead --> CheckCap{Queue >= N + M capacity?}
+    subgraph AcquireSlot["Phase 1: Main Step - Acquire Slot"]
+        A([Job Starts]) --> B[Clone / Fetch Queue Branch]
+        B --> C{Queue length >= N + M capacity?}
+        C -- "Yes (Queue Full)" --> D[Sleep 5s]
+        D --> B
+        C -- "No (Capacity Available)" --> E{Queue length >= N running?}
+        E -- "Yes (Running limit reached)" --> F[Check GitHub API for running jobs]
+        F --> G[Prune completed / cancelled runs]
+        G --> H[Append run_id to Queue File & Commit]
+        E -- "No (Slots available)" --> H
+        H --> I[Push to Queue Branch]
+        I -- "Push Conflict (Non-fast-forward)" --> J[Exponential Backoff + Jitter]
+        J --> B
+        I -- "Push Success" --> K[Read Current Position in Queue]
+        K --> L{Position < N concurrency limit?}
+        L -- "No (Still waiting)" --> M[Sleep 5s]
+        M --> N{sync-runs enabled?}
+        N -- "Yes" --> O[Inspect running slots via API & Prune dead]
+        O --> K
+        N -- "No" --> K
+        L -- "Yes (Acquired!)" --> P([Proceed to Workflow Steps])
+    end
 
-    CheckCap -- Yes --> WaitCap[Sleep & Retry Enqueue]
-    WaitCap --> CheckPrune
-    CheckCap -- No --> PushEnqueue[Append run_id to Queue File & Push]
+    subgraph Execute["Phase 2: Job Execution"]
+        P --> Q[Execute User Workflow Steps]
+        Q --> R([Job Steps Complete])
+    end
 
-    PushEnqueue -- Push Conflict --> BackoffEnqueue[Exponential Backoff + Jitter]
-    BackoffEnqueue --> InitRepo
-    PushEnqueue -- Success --> PollSlot[Read Queue Position]
-
-    PollSlot --> CheckPos{Position < N?}
-    CheckPos -- Yes --> Acquired([Acquire Slot & Execute Job])
-    CheckPos -- No --> SleepPoll[Sleep 5s]
-    SleepPoll --> CheckDeadPoll{Prune Dead Runs}
-    CheckDeadPoll --> PollSlot
-
-    Acquired --> JobRun[Run Workflow Steps]
-    JobRun --> PostStep([Post Action Step])
-    PostStep --> RemoveEntry[Remove run_id from Queue File & Push]
-    RemoveEntry -- Push Conflict --> BackoffDequeue[Backoff & Retry Dequeue]
-    BackoffDequeue --> RemoveEntry
-    RemoveEntry -- Success --> Done([Finished])
+    subgraph ReleaseSlot["Phase 3: Post Step - Release Slot"]
+        R --> S([Post Action Runs Automatically])
+        S --> T[Fetch Latest Queue Branch]
+        T --> U[Remove run_id from Queue File]
+        U --> V[Commit Slot Release & Push]
+        V -- "Push Conflict" --> W[Exponential Backoff + Jitter]
+        W --> T
+        V -- "Push Success" --> X([Slot Released & Finished])
+    end
 ```
 
 ### Sequence Diagram
@@ -150,17 +164,21 @@ sequenceDiagram
 
     Note over Runner,Git: Main Action Step (Lock / Acquire)
     Runner->>Git: Fetch latest queue state
-    opt sync-runs is true
-        Runner->>API: GET /actions/runs/{run_id} for queued items
-        API-->>Runner: Return run status (completed/in_progress)
-        Runner->>Git: Commit & Push pruned dead items (if any)
+    opt Queue length >= N (Running limit reached)
+        Runner->>API: GET /actions/runs/{run_id} (only for first N active jobs)
+        API-->>Runner: Return run status (completed/cancelled/in_progress)
+        Runner->>Git: Prune dead runs from queue
     end
-    Runner->>Git: Append <run_id>:<attempt>:<suffix> & Push
-    loop Until Position < concurrency-limit or Timeout
+    Runner->>Git: Append <run_id>:<attempt>:<suffix> & Push to branch
+    loop Poll until Position < concurrency-limit
         Runner->>Git: Fetch queue file
         alt Position < concurrency-limit
             Note over Runner: Slot acquired! Proceed to job payload
         else Position >= concurrency-limit
+            opt sync-runs is true
+                Runner->>API: Check active runs in top N slots
+                API-->>Runner: Prune if dead
+            end
             Runner->>Runner: Sleep 5s (polling)
         end
     end
@@ -168,9 +186,9 @@ sequenceDiagram
     Note over Runner: Workflow Steps Execute Here...
 
     Note over Runner,Git: Post Action Step (Unlock / Release)
-    Runner->>Git: Fetch latest queue state
-    Runner->>Git: Remove <run_id> entry from queue file & Push
-    Note over Runner,Git: Next waiting job in line advances into active slot
+    Runner->>Git: Fetch latest queue branch
+    Runner->>Git: Remove <run_id> from queue file & Push commit
+    Note over Runner,Git: Queue slot freed! Next waiting job advances.
 ```
 
 ## Developing
