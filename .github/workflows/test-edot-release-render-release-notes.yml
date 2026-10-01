@@ -186,7 +186,7 @@ jobs:
 
       - name: Reject an empty repository
         run: |
-          if RELEASE_REPOSITORY= edot-release/render-release-notes/render-release-notes.sh \
+          if RELEASE_REPOSITORY='' edot-release/render-release-notes/render-release-notes.sh \
             edot-release/render-release-notes/test-data/ios-sample.json 2.2.0 \
             elastic-apm-220 elastic-apm-ios-agent-220 > /dev/null; then
             exit 1
