@@ -1,0 +1,49 @@
+---
+name: 'edot-release/render-release-notes'
+description: 'Validate release-note JSON and render the EDOT Markdown release section.'
+
+inputs:
+  notes-file:
+    description: 'Path to the release-note JSON.'
+    required: true
+  version:
+    description: 'Release version in X.Y.Z form.'
+    required: true
+  output-file:
+    description: 'Path where the rendered Markdown section is written.'
+    required: true
+  repository:
+    description: 'GitHub repository used in pull-request links.'
+    required: false
+    default: ${{ github.repository }}
+  heading-anchor-base:
+    description: 'Anchor base for the release heading.'
+    required: true
+  subsection-anchor-base:
+    description: 'Anchor base for feature and fix subsection headings.'
+    required: true
+  release-date:
+    description: 'Optional release date. Defaults to today in UTC.'
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Render release notes
+      shell: bash
+      env:
+        NOTES_FILE: ${{ inputs.notes-file }}
+        RELEASE_VERSION: ${{ inputs.version }}
+        OUTPUT_FILE: ${{ inputs.output-file }}
+        HEADING_ANCHOR_BASE: ${{ inputs.heading-anchor-base }}
+        SUBSECTION_ANCHOR_BASE: ${{ inputs.subsection-anchor-base }}
+        GITHUB_REPOSITORY: ${{ inputs.repository }}
+        RELEASE_DATE: ${{ inputs.release-date }}
+      run: |
+        "$GITHUB_ACTION_PATH/render-release-notes.sh" \
+          "$NOTES_FILE" \
+          "$RELEASE_VERSION" \
+          "$HEADING_ANCHOR_BASE" \
+          "$SUBSECTION_ANCHOR_BASE" \
+          > "$OUTPUT_FILE"

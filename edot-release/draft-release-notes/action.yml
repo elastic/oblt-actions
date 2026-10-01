@@ -1,0 +1,55 @@
+---
+name: 'edot-release/draft-release-notes'
+description: 'Draft EDOT release-note JSON from the pull requests in a release range.'
+
+inputs:
+  ref:
+    description: 'Commit or ref at the end of the range.'
+    required: false
+    default: ${{ github.sha }}
+  ref-name:
+    description: 'Branch name used to derive the previous tag for a patch release.'
+    required: false
+    default: ${{ github.ref_name }}
+  previous-tag:
+    description: 'Release tag at the start of the range. Defaults from ref-name.'
+    required: false
+    default: ''
+  tag-prefix:
+    description: 'Prefix on release tags, such as v. Leave empty for plain X.Y.Z tags.'
+    required: false
+    default: ''
+  repository:
+    description: 'GitHub repository whose pull requests are resolved.'
+    required: false
+    default: ${{ github.repository }}
+  github-token:
+    description: 'GitHub token used by the commits API.'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  notes:
+    description: 'Draft release-note JSON grouped by release label.'
+    value: ${{ steps.notes.outputs.notes }}
+
+runs:
+  using: composite
+  steps:
+    - name: Draft release notes
+      id: notes
+      shell: bash
+      env:
+        RELEASE_REF: ${{ inputs.ref }}
+        PREVIOUS_TAG: ${{ inputs.previous-tag }}
+        TAG_PREFIX: ${{ inputs.tag-prefix }}
+        RELEASE_REF_NAME: ${{ inputs.ref-name }}
+        GITHUB_REPOSITORY: ${{ inputs.repository }}
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: |
+        notes=$("$GITHUB_ACTION_PATH/draft-release-notes.sh" "$RELEASE_REF" "$PREVIOUS_TAG")
+        {
+          echo 'notes<<EDOT_RELEASE_NOTES'
+          echo "$notes"
+          echo 'EDOT_RELEASE_NOTES'
+        } >> "$GITHUB_OUTPUT"

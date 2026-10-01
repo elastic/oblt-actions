@@ -1,0 +1,50 @@
+---
+name: 'edot-release/pr-range'
+description: 'List the pull requests contributing to an EDOT release range. The caller must check out full history and tags.'
+
+inputs:
+  ref:
+    description: 'Commit or ref at the end of the range.'
+    required: false
+    default: ${{ github.sha }}
+  previous-tag:
+    description: 'Release tag at the start of the range. Defaults to the highest matching tag.'
+    required: false
+    default: ''
+  tag-prefix:
+    description: 'Prefix on release tags, such as v. Leave empty for plain X.Y.Z tags.'
+    required: false
+    default: ''
+  repository:
+    description: 'GitHub repository whose pull requests are resolved.'
+    required: false
+    default: ${{ github.repository }}
+  github-token:
+    description: 'GitHub token used by the commits API.'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  range:
+    description: 'JSON containing the previous tag, range SHAs, and contributing pull requests.'
+    value: ${{ steps.range.outputs.range }}
+
+runs:
+  using: composite
+  steps:
+    - name: Resolve pull request range
+      id: range
+      shell: bash
+      env:
+        RELEASE_REF: ${{ inputs.ref }}
+        PREVIOUS_TAG: ${{ inputs.previous-tag }}
+        TAG_PREFIX: ${{ inputs.tag-prefix }}
+        GITHUB_REPOSITORY: ${{ inputs.repository }}
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: |
+        range=$("$GITHUB_ACTION_PATH/pr-range.sh" "$RELEASE_REF" "$PREVIOUS_TAG")
+        {
+          echo 'range<<EDOT_RELEASE_RANGE'
+          echo "$range"
+          echo 'EDOT_RELEASE_RANGE'
+        } >> "$GITHUB_OUTPUT"
