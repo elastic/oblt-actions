@@ -13,9 +13,11 @@
 #                           a different base for them than for the heading
 #
 # Environment:
-#   GITHUB_REPOSITORY  owner/repository used in pull-request links (required)
-#   RELEASE_DATE       date printed under the heading (default today in UTC,
-#                      "Month D, YYYY"); set only to reproduce a past section
+#   RELEASE_REPOSITORY  owner/repository used in pull-request links
+#                       (required). Not GITHUB_REPOSITORY: the runner owns the
+#                       GITHUB_* variables and ignores an override.
+#   RELEASE_DATE        date printed under the heading (default today in UTC,
+#                       "Month D, YYYY"); set only to reproduce a past section
 #
 # Validates the JSON shape, refuses input that still has `uncategorized`
 # items, has no items, or has a message that already starts with
@@ -43,7 +45,7 @@ version=$2
 heading_anchor_base=$3
 subsection_anchor_base=$4
 release_date=${RELEASE_DATE:-$(LC_ALL=C date -u +'%B %-d, %Y')}
-repository=${GITHUB_REPOSITORY:-}
+repository=${RELEASE_REPOSITORY:-}
 
 # The composite action marks these inputs required, but GitHub does not
 # enforce that at run time; an empty value would render broken anchors or
@@ -57,7 +59,7 @@ if [[ -z $subsection_anchor_base ]]; then
   exit 1
 fi
 if [[ -z $repository ]]; then
-  echo "Missing required repository (GITHUB_REPOSITORY) for pull-request links." >&2
+  echo "Missing required repository (RELEASE_REPOSITORY) for pull-request links." >&2
   exit 1
 fi
 

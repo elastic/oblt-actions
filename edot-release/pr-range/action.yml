@@ -39,7 +39,7 @@ runs:
         RELEASE_REF: ${{ inputs.ref }}
         PREVIOUS_TAG: ${{ inputs.previous-tag }}
         TAG_PREFIX: ${{ inputs.tag-prefix }}
-        GITHUB_REPOSITORY: ${{ inputs.repository }}
+        RELEASE_REPOSITORY: ${{ inputs.repository }}
         GH_TOKEN: ${{ inputs.github-token }}
       run: |
         range=$("$GITHUB_ACTION_PATH/pr-range.sh" "$RELEASE_REF" "$PREVIOUS_TAG")

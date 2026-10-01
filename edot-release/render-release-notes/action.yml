@@ -38,7 +38,7 @@ runs:
         OUTPUT_FILE: ${{ inputs.output-file }}
         HEADING_ANCHOR_BASE: ${{ inputs.heading-anchor-base }}
         SUBSECTION_ANCHOR_BASE: ${{ inputs.subsection-anchor-base }}
-        GITHUB_REPOSITORY: ${{ inputs.repository }}
+        RELEASE_REPOSITORY: ${{ inputs.repository }}
         RELEASE_DATE: ${{ inputs.release-date }}
       run: |
         "$GITHUB_ACTION_PATH/render-release-notes.sh" \

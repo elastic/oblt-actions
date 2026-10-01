@@ -12,7 +12,7 @@
 #
 # Environment:
 #   RELEASE_REF_NAME   branch the release is prepared from (default main)
-#   GITHUB_REPOSITORY, GH_TOKEN, TAG_PREFIX  see ../pr-range/pr-range.sh
+#   RELEASE_REPOSITORY, GH_TOKEN, TAG_PREFIX  see ../pr-range/pr-range.sh
 #
 # Lists the pull requests merged since the previous release (see
 # ../pr-range/pr-range.sh) and groups them with group.jq into the JSON shape

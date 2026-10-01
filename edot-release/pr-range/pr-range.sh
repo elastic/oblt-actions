@@ -10,11 +10,13 @@
 #                 tag per ../version/version.sh, honoring TAG_PREFIX)
 #
 # Environment:
-#   GITHUB_REPOSITORY  owner/repository to query (default the current gh
-#                      repository)
-#   GH_TOKEN           GitHub CLI authentication in CI; local gh
-#                      authentication is used when unset
-#   TAG_PREFIX         release tag prefix, read by version.sh
+#   RELEASE_REPOSITORY  owner/repository to query (default the current gh
+#                       repository). Not GITHUB_REPOSITORY: the runner owns
+#                       the GITHUB_* variables and ignores an override, so a
+#                       consumer could never point the action elsewhere.
+#   GH_TOKEN            GitHub CLI authentication in CI; local gh
+#                       authentication is used when unset
+#   TAG_PREFIX          release tag prefix, read by version.sh
 #
 # Walks the first-parent commits between `git merge-base <previous-tag> <ref>`
 # and <ref> and resolves each one to its merged pull request through GitHub's
@@ -33,7 +35,7 @@ set -euo pipefail
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 ref=${1:-HEAD}
 previous_tag=${2:-}
-repository=${GITHUB_REPOSITORY:-}
+repository=${RELEASE_REPOSITORY:-}
 
 if [[ -z $repository ]]; then
   repository=$(gh repo view --json nameWithOwner --jq .nameWithOwner)

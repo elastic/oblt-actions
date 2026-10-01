@@ -184,15 +184,10 @@ jobs:
       - if: steps.missing-subsection-anchor.outcome != 'failure'
         run: exit 1
 
-      - id: missing-repository
-        continue-on-error: true
-        uses: ./edot-release/render-release-notes
-        with:
-          notes-file: edot-release/render-release-notes/test-data/ios-sample.json
-          version: 2.2.0
-          output-file: ${{ runner.temp }}/missing-repository.md
-          repository: ''
-          heading-anchor-base: elastic-apm-220
-          subsection-anchor-base: elastic-apm-ios-agent-220
-      - if: steps.missing-repository.outcome != 'failure'
-        run: exit 1
+      - name: Reject an empty repository
+        run: |
+          if RELEASE_REPOSITORY= edot-release/render-release-notes/render-release-notes.sh \
+            edot-release/render-release-notes/test-data/ios-sample.json 2.2.0 \
+            elastic-apm-220 elastic-apm-ios-agent-220 > /dev/null; then
+            exit 1
+          fi
