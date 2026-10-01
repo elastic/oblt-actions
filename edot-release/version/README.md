@@ -33,9 +33,14 @@ Derive EDOT release tags and versions from repository state.
 
 ## Usage
 
+The repository must be checked out with full history and tags.
+
 <!--usage action="elastic/oblt-actions/edot-release/version" version="env:VERSION"-->
 ```yaml
 steps:
+  - uses: actions/checkout@v7
+    with:
+      fetch-depth: 0
   - uses: elastic/oblt-actions/edot-release/version@v1
     id: version
     with:

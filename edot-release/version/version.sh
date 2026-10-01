@@ -48,6 +48,11 @@ require_value() {
   fi
 }
 
+# One semantic-version component: 0 or an integer without a leading zero.
+# A leading zero is invalid SemVer, and Bash would read it as octal in the
+# arithmetic below, so it has to stop here with a readable message.
+component='(0|[1-9][0-9]*)'
+
 # The prefix is spliced into an extended regex below; escape it so a prefix
 # with a metacharacter cannot widen the match.
 regex_escape() {
@@ -61,7 +66,7 @@ parse_version() {
   if [[ -n $tag_prefix && $value == "$tag_prefix"* ]]; then
     value=${value#"$tag_prefix"}
   fi
-  if [[ ! $value =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+  if [[ ! $value =~ ^$component\.$component\.$component$ ]]; then
     echo "Invalid semantic version: $1" >&2
     exit 1
   fi
@@ -80,7 +85,7 @@ case $command in
   highest-tag)
     [[ $# -le 2 ]] || usage
     line=${2-${LINE:-}}
-    if [[ -n $line && ! $line =~ ^[0-9]+\.[0-9]+$ ]]; then
+    if [[ -n $line && ! $line =~ ^$component\.$component$ ]]; then
       echo "Invalid release line '$line'; expected X.Y." >&2
       exit 1
     fi
@@ -88,9 +93,9 @@ case $command in
     # names such as v2.0.0-rc1, or legacy v1.4.0 tags in a repository that
     # has moved to plain tags, and make preparation fail on them.
     escaped_prefix=$(regex_escape "$tag_prefix")
-    pattern="^${escaped_prefix}[0-9]+\\.[0-9]+\\.[0-9]+$"
+    pattern="^${escaped_prefix}${component}\\.${component}\\.${component}$"
     if [[ -n $line ]]; then
-      pattern="^${escaped_prefix}${line//./\\.}\\.[0-9]+$"
+      pattern="^${escaped_prefix}${line//./\\.}\\.${component}$"
     fi
     tag=$(
       git tag --list "${tag_prefix}*" --sort=-version:refname \
@@ -118,7 +123,7 @@ case $command in
     # A patch branch is named after the version it will release, so its
     # previous release is the same line one patch lower. A zero patch digit
     # would make that previous release a minor, which the branch cannot be.
-    if [[ ! ${ref_name#patching/} =~ ^([0-9]+)\.([0-9]+)\.([1-9][0-9]*)$ ]]; then
+    if [[ ! ${ref_name#patching/} =~ ^$component\.$component\.([1-9][0-9]*)$ ]]; then
       echo "Patch branch '$ref_name' must end in X.Y.Z with a nonzero patch version." >&2
       exit 1
     fi
