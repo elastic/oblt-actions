@@ -1,0 +1,50 @@
+---
+name: 'edot-release/publish-guard'
+description: 'Check that a merged EDOT preparation pull request may publish its release, and report whether its tag already exists.'
+
+inputs:
+  base-ref:
+    description: 'Base branch of the merged pull request.'
+    required: true
+  head-ref:
+    description: 'Head branch of the merged pull request.'
+    required: true
+  merge-commit:
+    description: 'Merge commit of the pull request, 40 hexadecimal characters.'
+    required: true
+  tag-prefix:
+    description: 'Prefix on release tags, such as v. Leave empty for plain X.Y.Z tags.'
+    required: false
+    default: ''
+  version-file:
+    description: 'Path of the file that holds the version.'
+    required: true
+  version-regex:
+    description: 'Perl regex matching the version line, with one capture group around the version.'
+    required: true
+
+outputs:
+  release-sha:
+    description: 'The validated merge commit.'
+    value: ${{ steps.guard.outputs.release-sha }}
+  release-version:
+    description: 'The release version, X.Y.Z.'
+    value: ${{ steps.guard.outputs.release-version }}
+  tag-exists:
+    description: 'true when the release tag already exists at the merge commit, so publication is skipped.'
+    value: ${{ steps.guard.outputs.tag-exists }}
+
+runs:
+  using: composite
+  steps:
+    - name: Check merged preparation pull request
+      id: guard
+      shell: bash
+      env:
+        BASE_REF: ${{ inputs.base-ref }}
+        HEAD_REF: ${{ inputs.head-ref }}
+        MERGE_COMMIT: ${{ inputs.merge-commit }}
+        TAG_PREFIX: ${{ inputs.tag-prefix }}
+        VERSION_FILE: ${{ inputs.version-file }}
+        VERSION_REGEX: ${{ inputs.version-regex }}
+      run: '"$GITHUB_ACTION_PATH/publish-guard.sh"'

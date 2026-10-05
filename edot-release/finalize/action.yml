@@ -1,0 +1,78 @@
+---
+name: 'edot-release/finalize'
+description: 'Create the EDOT release tag and GitHub Release, then open the release pull request into main, or the release-notes pull request for a patch release.'
+
+inputs:
+  release-sha:
+    description: 'Merged commit from publish-guard.'
+    required: true
+  version:
+    description: 'Release version from publish-guard, X.Y.Z.'
+    required: true
+  base-ref:
+    description: 'Release branch, releasing/X.Y.Z.'
+    required: true
+  tag-exists:
+    description: 'tag-exists from publish-guard: true or false.'
+    required: true
+  product-name:
+    description: 'Product name in the Release title and pull request bodies, such as EDOT iOS.'
+    required: true
+  docs-url:
+    description: 'Published release-notes page linked from the Release.'
+    required: true
+  heading-anchor-prefix:
+    description: 'Anchor base of the version heading without the version digits.'
+    required: true
+  dry-run:
+    description: 'true to print the tag, Release, commits, and pull requests instead of creating them.'
+    required: false
+    default: 'false'
+  tag-prefix:
+    description: 'Prefix on release tags, such as v. Leave empty for plain X.Y.Z tags.'
+    required: false
+    default: ''
+  version-file:
+    description: 'Path of the file that holds the version.'
+    required: true
+  version-regex:
+    description: 'Perl regex matching the version line, with one capture group around the version.'
+    required: true
+  repository:
+    description: 'GitHub repository of the release.'
+    required: false
+    default: ${{ github.repository }}
+  github-token:
+    description: 'GitHub token with contents and pull-requests write access.'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  release-url:
+    description: 'URL of the GitHub Release. Empty in a dry-run.'
+    value: ${{ steps.finalize.outputs.release-url }}
+  main-pull-request-url:
+    description: 'URL of the pull request into main. Empty in a dry-run.'
+    value: ${{ steps.finalize.outputs.main-pull-request-url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Finalize release
+      id: finalize
+      shell: bash
+      env:
+        RELEASE_SHA: ${{ inputs.release-sha }}
+        RELEASE_VERSION: ${{ inputs.version }}
+        BASE_REF: ${{ inputs.base-ref }}
+        TAG_EXISTS: ${{ inputs.tag-exists }}
+        PRODUCT_NAME: ${{ inputs.product-name }}
+        DOCS_URL: ${{ inputs.docs-url }}
+        HEADING_ANCHOR_PREFIX: ${{ inputs.heading-anchor-prefix }}
+        DRY_RUN: ${{ inputs.dry-run }}
+        TAG_PREFIX: ${{ inputs.tag-prefix }}
+        VERSION_FILE: ${{ inputs.version-file }}
+        VERSION_REGEX: ${{ inputs.version-regex }}
+        RELEASE_REPOSITORY: ${{ inputs.repository }}
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: '"$GITHUB_ACTION_PATH/finalize.sh"'

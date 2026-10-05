@@ -15,7 +15,7 @@ The repository is organized by action namespace. Each action directory contains 
 | `buildkite/` | [`download-artifact`](buildkite/download-artifact/README.md), [`flaky-report`](buildkite/flaky-report/README.md), [`run`](buildkite/run/README.md) |
 | `check-dependent-jobs/` | [`check-dependent-jobs`](check-dependent-jobs/README.md) |
 | `download-kibana-dashboard/` | [`download-kibana-dashboard`](download-kibana-dashboard/README.md) |
-| `edot-release/` | [`draft-release-notes`](edot-release/draft-release-notes/README.md), [`pr-range`](edot-release/pr-range/README.md), [`render-release-notes`](edot-release/render-release-notes/README.md), [`version`](edot-release/version/README.md) |
+| `edot-release/` | [`draft-release-notes`](edot-release/draft-release-notes/README.md), [`finalize`](edot-release/finalize/README.md), [`pr-range`](edot-release/pr-range/README.md), [`prepare-finish`](edot-release/prepare-finish/README.md), [`prepare-start`](edot-release/prepare-start/README.md), [`publish-guard`](edot-release/publish-guard/README.md), [`render-release-notes`](edot-release/render-release-notes/README.md), [`version`](edot-release/version/README.md) |
 | `elastic/` | [`active-branches`](elastic/active-branches/README.md), [`github-commands`](elastic/github-commands/README.md), [`validate-catalog`](elastic/validate-catalog/README.md) |
 | `feature-freeze/` | [`feature-freeze`](feature-freeze/README.md) |
 | `git/` | [`setup`](git/setup/README.md) |

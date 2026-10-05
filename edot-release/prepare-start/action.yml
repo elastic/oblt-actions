@@ -1,0 +1,86 @@
+---
+name: 'edot-release/prepare-start'
+description: 'Check an EDOT release dispatch, derive the release, and write the version file, applies_to entries, and release-notes section into the working tree. The caller must check out full history and tags.'
+
+inputs:
+  notes:
+    description: 'Release-note JSON authored by the operator.'
+    required: true
+  ref:
+    description: 'Dispatched commit.'
+    required: false
+    default: ${{ github.sha }}
+  ref-name:
+    description: 'Dispatched branch name: main or patching/X.Y.Z.'
+    required: false
+    default: ${{ github.ref_name }}
+  heading-anchor-prefix:
+    description: 'Anchor base of the version heading without the version digits, such as elastic-apm-android-agent-.'
+    required: true
+  subsection-anchor-prefix:
+    description: 'Anchor base of the subsection headings without the version digits.'
+    required: true
+  applies-to-key:
+    description: 'Documentation applies_to key of the product, such as edot_android.'
+    required: true
+  tag-prefix:
+    description: 'Prefix on release tags, such as v. Leave empty for plain X.Y.Z tags.'
+    required: false
+    default: ''
+  version-file:
+    description: 'Path of the file that holds the version.'
+    required: true
+  version-regex:
+    description: 'Perl regex matching the version line, with one capture group around the version.'
+    required: true
+  repository:
+    description: 'GitHub repository whose pull requests are listed and linked.'
+    required: false
+    default: ${{ github.repository }}
+  github-token:
+    description: 'GitHub token used by the commits API.'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  prepared:
+    description: 'true when the release changes were written; false when no pull request was merged since the previous release.'
+    value: ${{ steps.prepare.outputs.prepared }}
+  version:
+    description: 'Release version, X.Y.Z.'
+    value: ${{ steps.prepare.outputs.version }}
+  bump:
+    description: 'Release bump derived from the notes: minor or major.'
+    value: ${{ steps.prepare.outputs.bump }}
+  previous-tag:
+    description: 'Tag of the previous release.'
+    value: ${{ steps.prepare.outputs.previous-tag }}
+  release-branch:
+    description: 'Release branch to create, releasing/X.Y.Z.'
+    value: ${{ steps.prepare.outputs.release-branch }}
+  prepare-branch:
+    description: 'Preparation branch to create, prepare/X.Y.Z.'
+    value: ${{ steps.prepare.outputs.prepare-branch }}
+  range:
+    description: 'JSON containing the previous tag, range SHAs, and contributing pull requests.'
+    value: ${{ steps.prepare.outputs.range }}
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare release changes
+      id: prepare
+      shell: bash
+      env:
+        RELEASE_NOTES: ${{ inputs.notes }}
+        RELEASE_REF: ${{ inputs.ref }}
+        RELEASE_REF_NAME: ${{ inputs.ref-name }}
+        HEADING_ANCHOR_PREFIX: ${{ inputs.heading-anchor-prefix }}
+        SUBSECTION_ANCHOR_PREFIX: ${{ inputs.subsection-anchor-prefix }}
+        APPLIES_TO_KEY: ${{ inputs.applies-to-key }}
+        TAG_PREFIX: ${{ inputs.tag-prefix }}
+        VERSION_FILE: ${{ inputs.version-file }}
+        VERSION_REGEX: ${{ inputs.version-regex }}
+        RELEASE_REPOSITORY: ${{ inputs.repository }}
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: '"$GITHUB_ACTION_PATH/prepare-start.sh"'
