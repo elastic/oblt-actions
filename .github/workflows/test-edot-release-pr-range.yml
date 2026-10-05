@@ -1,0 +1,95 @@
+---
+name: test-edot-release-pr-range
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-edot-release-pr-range.yml'
+      - 'edot-release/pr-range/**'
+      - 'edot-release/version/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-edot-release-pr-range.yml'
+      - 'edot-release/pr-range/**'
+      - 'edot-release/version/**'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  test:
+    if: always()
+    needs:
+      - valid
+      - invalid
+    runs-on: ubuntu-slim
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  valid:
+    runs-on: ubuntu-slim
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - id: range
+        uses: ./edot-release/pr-range
+        with:
+          ref: v1.41.3
+          previous-tag: v1.41.2
+          tag-prefix: v
+          repository: elastic/oblt-actions
+
+      - name: Create literal ref fixture
+        run: git branch "edot-release-literal-\$value" v1.41.3
+
+      - id: literal-ref
+        uses: ./edot-release/pr-range
+        with:
+          ref: edot-release-literal-$value
+          previous-tag: v1.41.2
+          tag-prefix: v
+          repository: elastic/oblt-actions
+
+      - name: Verify ranges
+        env:
+          RANGE: ${{ steps.range.outputs.range }}
+          LITERAL_RANGE: ${{ steps.literal-ref.outputs.range }}
+        run: |
+          for range in "$RANGE" "$LITERAL_RANGE"; do
+            jq -e '
+              .previousTag == "v1.41.2"
+              and (.pullRequests | map(.number) == [1135])
+            ' <<<"$range"
+          done
+
+  invalid:
+    runs-on: ubuntu-slim
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - id: missing-tag
+        continue-on-error: true
+        uses: ./edot-release/pr-range
+        with:
+          ref: v1.41.3
+          previous-tag: v0.0.0-missing
+          tag-prefix: v
+          repository: elastic/oblt-actions
+
+      - if: steps.missing-tag.outcome != 'failure'
+        run: exit 1
