@@ -11,21 +11,12 @@ Create the EDOT release tag and GitHub Release, then open the release pull reque
 ## Inputs
 
 <!--inputs-->
-| Name                    | Description                                                                          | Required | Default                    |
-|-------------------------|--------------------------------------------------------------------------------------|----------|----------------------------|
-| `release-sha`           | Merged commit from publish-guard.                                                    | `true`   | ` `                        |
-| `version`               | Release version from publish-guard, X.Y.Z.                                           | `true`   | ` `                        |
-| `base-ref`              | Release branch, releasing/X.Y.Z.                                                     | `true`   | ` `                        |
-| `tag-exists`            | tag-exists from publish-guard: true or false.                                        | `true`   | ` `                        |
-| `product-name`          | Product name in the Release title and pull request bodies, such as EDOT iOS.         | `true`   | ` `                        |
-| `docs-url`              | Published release-notes page linked from the Release.                                | `true`   | ` `                        |
-| `heading-anchor-prefix` | Anchor base of the version heading without the version digits.                       | `true`   | ` `                        |
-| `dry-run`               | true to print the tag, Release, commits, and pull requests instead of creating them. | `false`  | `false`                    |
-| `tag-prefix`            | Prefix on release tags, such as v. Leave empty for plain X.Y.Z tags.                 | `false`  | ` `                        |
-| `version-file`          | Path of the file that holds the version.                                             | `true`   | ` `                        |
-| `version-regex`         | Perl regex matching the version line, with one capture group around the version.     | `true`   | ` `                        |
-| `repository`            | GitHub repository of the release.                                                    | `false`  | `${{ github.repository }}` |
-| `github-token`          | GitHub token with contents and pull-requests write access.                           | `false`  | `${{ github.token }}`      |
+| Name           | Description                                                                          | Required | Default                    |
+|----------------|--------------------------------------------------------------------------------------|----------|----------------------------|
+| `release`      | release output of publish-guard.                                                     | `true`   | ` `                        |
+| `dry-run`      | true to print the tag, Release, commits, and pull requests instead of creating them. | `false`  | `false`                    |
+| `repository`   | GitHub repository of the release.                                                    | `false`  | `${{ github.repository }}` |
+| `github-token` | GitHub token with contents and pull-requests write access.                           | `false`  | `${{ github.token }}`      |
 <!--/inputs-->
 
 ## Outputs
@@ -42,22 +33,16 @@ Create the EDOT release tag and GitHub Release, then open the release pull reque
 Run it after `publish-guard` and any publication steps. Every step checks
 whether its result already exists, so re-running a failed job resumes where
 it stopped.
+The action reads the repository's platform facts from
+`.github/edot-release.json` in the checked-out commit; see
+[`prepare-start`](../prepare-start/README.md#configuration).
 
 <!--usage action="elastic/oblt-actions/edot-release/finalize" version="env:VERSION"-->
 ```yaml
 steps:
   - uses: elastic/oblt-actions/edot-release/finalize@v1
     with:
-      release-sha: ${{ steps.guard.outputs.release-sha }}
-      version: ${{ steps.guard.outputs.release-version }}
-      base-ref: ${{ github.event.pull_request.base.ref }}
-      tag-exists: ${{ steps.guard.outputs.tag-exists }}
-      product-name: EDOT Android
-      docs-url: https://www.elastic.co/docs/release-notes/edot/sdks/android
-      heading-anchor-prefix: elastic-apm-android-agent-
-      tag-prefix: v
-      version-file: gradle.properties
-      version-regex: '^version=(.*)$'
+      release: ${{ steps.guard.outputs.release }}
       github-token: ${{ steps.token.outputs.token }}
 ```
 <!--/usage-->

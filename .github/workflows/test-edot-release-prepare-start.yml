@@ -29,7 +29,8 @@ permissions:
 
 # The fixture repository is built at the workspace root by
 # edot-release/prepare-start/test-data/fixture.sh, next to this checkout in
-# oblt-actions/. Each fixture commit carries a cherry-pick trailer that
+# oblt-actions/, with the platform's .github/edot-release.json from
+# test-data/android or test-data/ios. Each fixture commit carries a cherry-pick trailer that
 # pr-range resolves through the case's repository:
 #   elastic/apm-agent-android 4da20136c2519785c63247bb20e7d383fab20528 is PR #922
 #   elastic/apm-agent-ios ff10c291ca210ccdf26ab86ad44ff5b910fa0d21 is PR #395
@@ -37,8 +38,6 @@ permissions:
 env:
   FIXTURE: oblt-actions/edot-release/prepare-start/test-data/fixture.sh
   TEST_DATA: oblt-actions/edot-release/prepare-start/test-data
-  ANDROID_VERSION_REGEX: '^version=(.*)$'
-  IOS_VERSION_REGEX: '^  public static let elasticSwiftAgentVersion: String = "([^"]*)"$'
 
 jobs:
   test:
@@ -82,34 +81,30 @@ jobs:
           notes: ${{ steps.notes.outputs.android }}
           ref: HEAD
           ref-name: main
-          heading-anchor-prefix: elastic-apm-android-agent-
-          subsection-anchor-prefix: elastic-apm-android-agent-
-          applies-to-key: edot_android
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.ANDROID_VERSION_REGEX }}
           repository: elastic/apm-agent-android
 
       - name: Verify Android release changes
         env:
           PREPARED: ${{ steps.android.outputs.prepared }}
           VERSION: ${{ steps.android.outputs.version }}
-          BUMP: ${{ steps.android.outputs.bump }}
           PREVIOUS_TAG: ${{ steps.android.outputs.previous-tag }}
-          RELEASE_BRANCH: ${{ steps.android.outputs.release-branch }}
-          PREPARE_BRANCH: ${{ steps.android.outputs.prepare-branch }}
-          RANGE: ${{ steps.android.outputs.range }}
+          RELEASE: ${{ steps.android.outputs.release }}
         run: |
           "$FIXTURE" compare gradle.properties "$TEST_DATA/android/expected-gradle.properties"
           "$FIXTURE" compare docs/release-notes/index.md "$TEST_DATA/android/expected-index.md"
           "$FIXTURE" compare docs/reference/applies-to.md "$TEST_DATA/android/applies-to.md"
           test "$PREPARED" = true
           test "$VERSION" = 1.10.0
-          test "$BUMP" = minor
           test "$PREVIOUS_TAG" = v1.9.0
-          test "$RELEASE_BRANCH" = releasing/1.10.0
-          test "$PREPARE_BRANCH" = prepare/1.10.0
-          jq -e '.previousTag == "v1.9.0" and (.pullRequests | map(.number) == [922])' <<<"$RANGE"
+          jq -e '
+            .version == "1.10.0"
+            and .bump == "minor"
+            and .previousTag == "v1.9.0"
+            and .releaseBranch == "releasing/1.10.0"
+            and .prepareBranch == "prepare/1.10.0"
+            and .range.previousTag == "v1.9.0"
+            and (.range.pullRequests | map(.number) == [922])
+          ' <<<"$RELEASE"
 
       # iOS: a breaking item makes 2.2.0-SNAPSHOT release as 3.0.0, so the
       # applies_to entry written against 2.2.0 is rewritten.
@@ -122,33 +117,30 @@ jobs:
           notes: ${{ steps.notes.outputs.ios }}
           ref: HEAD
           ref-name: main
-          heading-anchor-prefix: elastic-apm-
-          subsection-anchor-prefix: elastic-apm-ios-agent-
-          applies-to-key: edot_ios
-          version-file: Sources/apm-agent-ios/Version.swift
-          version-regex: ${{ env.IOS_VERSION_REGEX }}
           repository: elastic/apm-agent-ios
 
       - name: Verify iOS release changes
         env:
           PREPARED: ${{ steps.ios.outputs.prepared }}
           VERSION: ${{ steps.ios.outputs.version }}
-          BUMP: ${{ steps.ios.outputs.bump }}
           PREVIOUS_TAG: ${{ steps.ios.outputs.previous-tag }}
-          RELEASE_BRANCH: ${{ steps.ios.outputs.release-branch }}
-          PREPARE_BRANCH: ${{ steps.ios.outputs.prepare-branch }}
-          RANGE: ${{ steps.ios.outputs.range }}
+          RELEASE: ${{ steps.ios.outputs.release }}
         run: |
           "$FIXTURE" compare Sources/apm-agent-ios/Version.swift "$TEST_DATA/ios/expected-Version.swift"
           "$FIXTURE" compare docs/release-notes/index.md "$TEST_DATA/ios/expected-index.md"
           "$FIXTURE" compare docs/reference/applies-to.md "$TEST_DATA/ios/expected-applies-to.md"
           test "$PREPARED" = true
           test "$VERSION" = 3.0.0
-          test "$BUMP" = major
           test "$PREVIOUS_TAG" = 2.1.0
-          test "$RELEASE_BRANCH" = releasing/3.0.0
-          test "$PREPARE_BRANCH" = prepare/3.0.0
-          jq -e '.previousTag == "2.1.0" and (.pullRequests | map(.number) == [395])' <<<"$RANGE"
+          jq -e '
+            .version == "3.0.0"
+            and .bump == "major"
+            and .previousTag == "2.1.0"
+            and .releaseBranch == "releasing/3.0.0"
+            and .prepareBranch == "prepare/3.0.0"
+            and .range.previousTag == "2.1.0"
+            and (.range.pullRequests | map(.number) == [395])
+          ' <<<"$RELEASE"
 
       # Android patch: the version comes from the branch name, the previous
       # tag is the same line one patch lower, and applies_to stays.
@@ -161,23 +153,14 @@ jobs:
           notes: ${{ steps.notes.outputs.android }}
           ref: HEAD
           ref-name: patching/1.10.1
-          heading-anchor-prefix: elastic-apm-android-agent-
-          subsection-anchor-prefix: elastic-apm-android-agent-
-          applies-to-key: edot_android
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.ANDROID_VERSION_REGEX }}
           repository: elastic/apm-agent-android
 
       - name: Verify Android patch release changes
         env:
           PREPARED: ${{ steps.patch.outputs.prepared }}
           VERSION: ${{ steps.patch.outputs.version }}
-          BUMP: ${{ steps.patch.outputs.bump }}
           PREVIOUS_TAG: ${{ steps.patch.outputs.previous-tag }}
-          RELEASE_BRANCH: ${{ steps.patch.outputs.release-branch }}
-          PREPARE_BRANCH: ${{ steps.patch.outputs.prepare-branch }}
-          RANGE: ${{ steps.patch.outputs.range }}
+          RELEASE: ${{ steps.patch.outputs.release }}
         run: |
           grep -Fx 'version=1.10.1' gradle.properties
           "$FIXTURE" compare docs/reference/applies-to.md "$TEST_DATA/android/applies-to.md"
@@ -185,11 +168,16 @@ jobs:
             = '## 1.10.1 [elastic-apm-android-agent-1101-release-notes]'
           test "$PREPARED" = true
           test "$VERSION" = 1.10.1
-          test "$BUMP" = minor
           test "$PREVIOUS_TAG" = v1.10.0
-          test "$RELEASE_BRANCH" = releasing/1.10.1
-          test "$PREPARE_BRANCH" = prepare/1.10.1
-          jq -e '.previousTag == "v1.10.0" and (.pullRequests | map(.number) == [922])' <<<"$RANGE"
+          jq -e '
+            .version == "1.10.1"
+            and .bump == "minor"
+            and .previousTag == "v1.10.0"
+            and .releaseBranch == "releasing/1.10.1"
+            and .prepareBranch == "prepare/1.10.1"
+            and .range.previousTag == "v1.10.0"
+            and (.range.pullRequests | map(.number) == [922])
+          ' <<<"$RELEASE"
 
       # Nothing merged since the tag: a successful no-op that writes nothing.
       - name: Create no-op fixture
@@ -201,12 +189,6 @@ jobs:
           notes: ${{ steps.notes.outputs.android }}
           ref: v1.9.0
           ref-name: main
-          heading-anchor-prefix: elastic-apm-android-agent-
-          subsection-anchor-prefix: elastic-apm-android-agent-
-          applies-to-key: edot_android
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.ANDROID_VERSION_REGEX }}
           repository: elastic/oblt-actions
 
       - name: Verify no-op
@@ -214,13 +196,13 @@ jobs:
           PREPARED: ${{ steps.no-op.outputs.prepared }}
           VERSION: ${{ steps.no-op.outputs.version }}
           PREVIOUS_TAG: ${{ steps.no-op.outputs.previous-tag }}
-          RANGE: ${{ steps.no-op.outputs.range }}
+          RELEASE: ${{ steps.no-op.outputs.release }}
         run: |
           "$FIXTURE" check-unchanged
           test "$PREPARED" = false
           test -z "$VERSION"
           test "$PREVIOUS_TAG" = v1.9.0
-          jq -e '.pullRequests == []' <<<"$RANGE"
+          test -z "$RELEASE"
 
   invalid:
     runs-on: ubuntu-slim
@@ -251,12 +233,6 @@ jobs:
           notes: ${{ steps.notes.outputs.major }}
           ref: HEAD
           ref-name: feature/x
-          heading-anchor-prefix: elastic-apm-android-agent-
-          subsection-anchor-prefix: elastic-apm-android-agent-
-          applies-to-key: edot_android
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.ANDROID_VERSION_REGEX }}
           repository: elastic/oblt-actions
       - if: steps.feature-ref.outcome != 'failure'
         run: exit 1
@@ -274,12 +250,6 @@ jobs:
           notes: ${{ steps.notes.outputs.major }}
           ref: HEAD
           ref-name: main
-          heading-anchor-prefix: elastic-apm-android-agent-
-          subsection-anchor-prefix: elastic-apm-android-agent-
-          applies-to-key: edot_android
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.ANDROID_VERSION_REGEX }}
           repository: elastic/oblt-actions
       - if: steps.in-flight.outcome != 'failure'
         run: exit 1
@@ -294,12 +264,6 @@ jobs:
           notes: ${{ steps.notes.outputs.minor }}
           ref: HEAD
           ref-name: main
-          heading-anchor-prefix: elastic-apm-android-agent-
-          subsection-anchor-prefix: elastic-apm-android-agent-
-          applies-to-key: edot_android
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.ANDROID_VERSION_REGEX }}
           repository: elastic/oblt-actions
       - if: steps.development-version.outcome != 'failure'
         run: exit 1
@@ -314,12 +278,6 @@ jobs:
           notes: ${{ steps.notes.outputs.uncategorized }}
           ref: HEAD
           ref-name: main
-          heading-anchor-prefix: elastic-apm-android-agent-
-          subsection-anchor-prefix: elastic-apm-android-agent-
-          applies-to-key: edot_android
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.ANDROID_VERSION_REGEX }}
           repository: elastic/oblt-actions
       - if: steps.uncategorized.outcome != 'failure'
         run: exit 1
@@ -334,12 +292,6 @@ jobs:
           notes: ${{ steps.notes.outputs.prefixed-breaking }}
           ref: HEAD
           ref-name: main
-          heading-anchor-prefix: elastic-apm-android-agent-
-          subsection-anchor-prefix: elastic-apm-android-agent-
-          applies-to-key: edot_android
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.ANDROID_VERSION_REGEX }}
           repository: elastic/oblt-actions
       - if: steps.prefixed-breaking.outcome != 'failure'
         run: exit 1
@@ -354,12 +306,6 @@ jobs:
           notes: '{"dependencies": ['
           ref: HEAD
           ref-name: main
-          heading-anchor-prefix: elastic-apm-android-agent-
-          subsection-anchor-prefix: elastic-apm-android-agent-
-          applies-to-key: edot_android
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.ANDROID_VERSION_REGEX }}
           repository: elastic/oblt-actions
       - if: steps.invalid-json.outcome != 'failure'
         run: exit 1
@@ -379,12 +325,6 @@ jobs:
           notes: ${{ steps.notes.outputs.major }}
           ref: HEAD
           ref-name: main
-          heading-anchor-prefix: elastic-apm-android-agent-
-          subsection-anchor-prefix: elastic-apm-android-agent-
-          applies-to-key: edot_android
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.ANDROID_VERSION_REGEX }}
           repository: elastic/oblt-actions
       - if: steps.existing-heading.outcome != 'failure'
         run: exit 1
@@ -403,12 +343,6 @@ jobs:
           notes: ${{ steps.notes.outputs.minor }}
           ref: HEAD
           ref-name: patching/99.0.1
-          heading-anchor-prefix: elastic-apm-android-agent-
-          subsection-anchor-prefix: elastic-apm-android-agent-
-          applies-to-key: edot_android
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.ANDROID_VERSION_REGEX }}
           repository: elastic/oblt-actions
       - if: steps.released-patch.outcome != 'failure'
         run: exit 1
@@ -423,12 +357,6 @@ jobs:
           notes: ${{ steps.notes.outputs.major }}
           ref: HEAD
           ref-name: patching/99.0.1
-          heading-anchor-prefix: elastic-apm-android-agent-
-          subsection-anchor-prefix: elastic-apm-android-agent-
-          applies-to-key: edot_android
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.ANDROID_VERSION_REGEX }}
           repository: elastic/oblt-actions
       - if: steps.breaking-patch.outcome != 'failure'
         run: exit 1
@@ -448,13 +376,128 @@ jobs:
           notes: ${{ steps.notes.outputs.minor }}
           ref: HEAD
           ref-name: main
-          heading-anchor-prefix: elastic-apm-android-agent-
-          subsection-anchor-prefix: elastic-apm-android-agent-
-          applies-to-key: edot_android
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.ANDROID_VERSION_REGEX }}
           repository: elastic/oblt-actions
       - if: steps.two-version-lines.outcome != 'failure'
+        run: exit 1
+      - run: '"$FIXTURE" check-unchanged'
+
+      # Configuration mistakes. Every action reads the whole file through
+      # config.sh, so prepare-start covers them for all four.
+      - name: Create fixture with a missing configuration file
+        run: |
+          "$FIXTURE" create android 98.1.0-SNAPSHOT v98.0.0 4967b69e2f83588d572e721c4f34928b51ab003e
+          rm .github/edot-release.json
+          "$FIXTURE" snapshot
+      - id: missing-config
+        continue-on-error: true
+        uses: ./oblt-actions/edot-release/prepare-start
+        with:
+          notes: ${{ steps.notes.outputs.major }}
+          ref: HEAD
+          ref-name: main
+          repository: elastic/oblt-actions
+      - if: steps.missing-config.outcome != 'failure'
+        run: exit 1
+      - run: '"$FIXTURE" check-unchanged'
+
+      - name: Create fixture with a configuration file that is not JSON
+        run: |
+          "$FIXTURE" create android 98.1.0-SNAPSHOT v98.0.0 4967b69e2f83588d572e721c4f34928b51ab003e
+          echo '{"tagPrefix":' > .github/edot-release.json
+          "$FIXTURE" snapshot
+      - id: config-not-json
+        continue-on-error: true
+        uses: ./oblt-actions/edot-release/prepare-start
+        with:
+          notes: ${{ steps.notes.outputs.major }}
+          ref: HEAD
+          ref-name: main
+          repository: elastic/oblt-actions
+      - if: steps.config-not-json.outcome != 'failure'
+        run: exit 1
+      - run: '"$FIXTURE" check-unchanged'
+
+      - name: Create fixture with a configuration without docsUrl
+        run: |
+          "$FIXTURE" create android 98.1.0-SNAPSHOT v98.0.0 4967b69e2f83588d572e721c4f34928b51ab003e
+          "$FIXTURE" config 'del(.docsUrl)'
+          "$FIXTURE" snapshot
+      - id: config-missing-key
+        continue-on-error: true
+        uses: ./oblt-actions/edot-release/prepare-start
+        with:
+          notes: ${{ steps.notes.outputs.major }}
+          ref: HEAD
+          ref-name: main
+          repository: elastic/oblt-actions
+      - if: steps.config-missing-key.outcome != 'failure'
+        run: exit 1
+      - run: '"$FIXTURE" check-unchanged'
+
+      - name: Create fixture with a configuration with an unknown key
+        run: |
+          "$FIXTURE" create android 98.1.0-SNAPSHOT v98.0.0 4967b69e2f83588d572e721c4f34928b51ab003e
+          "$FIXTURE" config '. + {"tagPattern": "v*"}'
+          "$FIXTURE" snapshot
+      - id: config-unknown-key
+        continue-on-error: true
+        uses: ./oblt-actions/edot-release/prepare-start
+        with:
+          notes: ${{ steps.notes.outputs.major }}
+          ref: HEAD
+          ref-name: main
+          repository: elastic/oblt-actions
+      - if: steps.config-unknown-key.outcome != 'failure'
+        run: exit 1
+      - run: '"$FIXTURE" check-unchanged'
+
+      - name: Create fixture with a configuration whose tagPrefix is a number
+        run: |
+          "$FIXTURE" create android 98.1.0-SNAPSHOT v98.0.0 4967b69e2f83588d572e721c4f34928b51ab003e
+          "$FIXTURE" config '.tagPrefix = 1'
+          "$FIXTURE" snapshot
+      - id: config-wrong-type
+        continue-on-error: true
+        uses: ./oblt-actions/edot-release/prepare-start
+        with:
+          notes: ${{ steps.notes.outputs.major }}
+          ref: HEAD
+          ref-name: main
+          repository: elastic/oblt-actions
+      - if: steps.config-wrong-type.outcome != 'failure'
+        run: exit 1
+      - run: '"$FIXTURE" check-unchanged'
+
+      - name: Create fixture with a versionLine without a placeholder
+        run: |
+          "$FIXTURE" create android 98.1.0-SNAPSHOT v98.0.0 4967b69e2f83588d572e721c4f34928b51ab003e
+          "$FIXTURE" config '.versionLine = "version="'
+          "$FIXTURE" snapshot
+      - id: config-version-line
+        continue-on-error: true
+        uses: ./oblt-actions/edot-release/prepare-start
+        with:
+          notes: ${{ steps.notes.outputs.major }}
+          ref: HEAD
+          ref-name: main
+          repository: elastic/oblt-actions
+      - if: steps.config-version-line.outcome != 'failure'
+        run: exit 1
+      - run: '"$FIXTURE" check-unchanged'
+
+      - name: Create fixture with an empty stagePaths
+        run: |
+          "$FIXTURE" create android 98.1.0-SNAPSHOT v98.0.0 4967b69e2f83588d572e721c4f34928b51ab003e
+          "$FIXTURE" config '.stagePaths = []'
+          "$FIXTURE" snapshot
+      - id: config-empty-stage-paths
+        continue-on-error: true
+        uses: ./oblt-actions/edot-release/prepare-start
+        with:
+          notes: ${{ steps.notes.outputs.major }}
+          ref: HEAD
+          ref-name: main
+          repository: elastic/oblt-actions
+      - if: steps.config-empty-stage-paths.outcome != 'failure'
         run: exit 1
       - run: '"$FIXTURE" check-unchanged'

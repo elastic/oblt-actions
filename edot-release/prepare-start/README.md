@@ -11,34 +11,59 @@ Check an EDOT release dispatch, derive the release, and write the version file, 
 ## Inputs
 
 <!--inputs-->
-| Name                       | Description                                                                                        | Required | Default                    |
-|----------------------------|----------------------------------------------------------------------------------------------------|----------|----------------------------|
-| `notes`                    | Release-note JSON authored by the operator.                                                        | `true`   | ` `                        |
-| `ref`                      | Dispatched commit.                                                                                 | `false`  | `${{ github.sha }}`        |
-| `ref-name`                 | Dispatched branch name: main or patching/X.Y.Z.                                                    | `false`  | `${{ github.ref_name }}`   |
-| `heading-anchor-prefix`    | Anchor base of the version heading without the version digits, such as elastic-apm-android-agent-. | `true`   | ` `                        |
-| `subsection-anchor-prefix` | Anchor base of the subsection headings without the version digits.                                 | `true`   | ` `                        |
-| `applies-to-key`           | Documentation applies_to key of the product, such as edot_android.                                 | `true`   | ` `                        |
-| `tag-prefix`               | Prefix on release tags, such as v. Leave empty for plain X.Y.Z tags.                               | `false`  | ` `                        |
-| `version-file`             | Path of the file that holds the version.                                                           | `true`   | ` `                        |
-| `version-regex`            | Perl regex matching the version line, with one capture group around the version.                   | `true`   | ` `                        |
-| `repository`               | GitHub repository whose pull requests are listed and linked.                                       | `false`  | `${{ github.repository }}` |
-| `github-token`             | GitHub token used by the commits API.                                                              | `false`  | `${{ github.token }}`      |
+| Name           | Description                                                  | Required | Default                    |
+|----------------|--------------------------------------------------------------|----------|----------------------------|
+| `notes`        | Release-note JSON authored by the operator.                  | `true`   | ` `                        |
+| `ref`          | Dispatched commit.                                           | `false`  | `${{ github.sha }}`        |
+| `ref-name`     | Dispatched branch name: main or patching/X.Y.Z.              | `false`  | `${{ github.ref_name }}`   |
+| `repository`   | GitHub repository whose pull requests are listed and linked. | `false`  | `${{ github.repository }}` |
+| `github-token` | GitHub token used by the commits API.                        | `false`  | `${{ github.token }}`      |
 <!--/inputs-->
 
 ## Outputs
 
 <!--outputs-->
-| Name             | Description                                                                                                   |
-|------------------|---------------------------------------------------------------------------------------------------------------|
-| `prepared`       | true when the release changes were written; false when no pull request was merged since the previous release. |
-| `version`        | Release version, X.Y.Z.                                                                                       |
-| `bump`           | Release bump derived from the notes: minor or major.                                                          |
-| `previous-tag`   | Tag of the previous release.                                                                                  |
-| `release-branch` | Release branch to create, releasing/X.Y.Z.                                                                    |
-| `prepare-branch` | Preparation branch to create, prepare/X.Y.Z.                                                                  |
-| `range`          | JSON containing the previous tag, range SHAs, and contributing pull requests.                                 |
+| Name           | Description                                                                                                                            |
+|----------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| `prepared`     | true when the release changes were written; false when no pull request was merged since the previous release.                          |
+| `version`      | Release version, X.Y.Z. Empty when nothing was prepared.                                                                               |
+| `previous-tag` | Tag of the previous release.                                                                                                           |
+| `release`      | Release JSON for prepare-finish: version, bump, previousTag, releaseBranch, prepareBranch, and range. Empty when nothing was prepared. |
 <!--/outputs-->
+
+## Configuration
+
+All four `edot-release` flow actions (`prepare-start`, `prepare-finish`,
+`publish-guard`, and `finalize`) read the repository's platform facts from
+`.github/edot-release.json` in the checked-out commit. The file is a JSON
+object with exactly these fields; any missing, unknown, or malformed field
+stops the action with a message that names it.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `tagPrefix` | string, may be empty | Prefix on release tags, such as `v`. |
+| `productName` | string | Product name in the Release title and pull request bodies. |
+| `versionFile` | string | Path of the file that holds the version. |
+| `versionLine` | string | The version line, with one `{version}` placeholder. It is matched literally, character for character. |
+| `appliesToKey` | string | Documentation `applies_to` key of the product. |
+| `headingAnchorPrefix` | string | Anchor base of the version heading, without the version digits. |
+| `subsectionAnchorPrefix` | string | Anchor base of the subsection headings, without the version digits. |
+| `docsUrl` | string | Published release-notes page linked from the Release. |
+| `stagePaths` | array of strings | Pathspecs staged in the preparation commit. |
+
+```json
+{
+  "tagPrefix": "v",
+  "productName": "EDOT Android",
+  "versionFile": "gradle.properties",
+  "versionLine": "version={version}",
+  "appliesToKey": "edot_android",
+  "headingAnchorPrefix": "elastic-apm-android-agent-",
+  "subsectionAnchorPrefix": "elastic-apm-android-agent-",
+  "docsUrl": "https://www.elastic.co/docs/release-notes/edot/sdks/android",
+  "stagePaths": ["gradle.properties", "docs"]
+}
+```
 
 ## Usage
 
@@ -59,11 +84,5 @@ steps:
     id: prepare
     with:
       notes: ${{ inputs.release_notes }}
-      heading-anchor-prefix: elastic-apm-android-agent-
-      subsection-anchor-prefix: elastic-apm-android-agent-
-      applies-to-key: edot_android
-      tag-prefix: v
-      version-file: gradle.properties
-      version-regex: '^version=(.*)$'
 ```
 <!--/usage-->

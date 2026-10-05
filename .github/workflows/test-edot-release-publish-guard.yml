@@ -25,10 +25,12 @@ permissions:
 
 # The fixture repository is built at the workspace root by
 # edot-release/prepare-start/test-data/fixture.sh, next to this checkout in
-# oblt-actions/, with a bare origin in the runner's temporary directory.
+# oblt-actions/, with the Android .github/edot-release.json and a bare
+# origin in the runner's temporary directory. The steps pass the event
+# values explicitly, because this workflow's own event is not a merged
+# preparation pull request.
 env:
   FIXTURE: oblt-actions/edot-release/prepare-start/test-data/fixture.sh
-  VERSION_REGEX: '^version=(.*)$'
 
 jobs:
   test:
@@ -67,20 +69,19 @@ jobs:
           base-ref: releasing/99.0.0
           head-ref: prepare/99.0.0
           merge-commit: ${{ steps.fixture.outputs.sha }}
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.VERSION_REGEX }}
 
       - name: Verify untagged release
         env:
           SHA: ${{ steps.fixture.outputs.sha }}
-          RELEASE_SHA: ${{ steps.untagged.outputs.release-sha }}
-          RELEASE_VERSION: ${{ steps.untagged.outputs.release-version }}
+          VERSION: ${{ steps.untagged.outputs.version }}
           TAG_EXISTS: ${{ steps.untagged.outputs.tag-exists }}
+          RELEASE: ${{ steps.untagged.outputs.release }}
         run: |
-          test "$RELEASE_SHA" = "$SHA"
-          test "$RELEASE_VERSION" = 99.0.0
+          test "$VERSION" = 99.0.0
           test "$TAG_EXISTS" = false
+          jq -e --arg sha "$SHA" '
+            . == {sha: $sha, version: "99.0.0", baseRef: "releasing/99.0.0", tagExists: false}
+          ' <<<"$RELEASE"
 
       # A previous run published: the tag exists on origin at the merge
       # commit, so publication is skipped.
@@ -95,20 +96,19 @@ jobs:
           base-ref: releasing/99.0.0
           head-ref: prepare/99.0.0
           merge-commit: ${{ steps.fixture.outputs.sha }}
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.VERSION_REGEX }}
 
       - name: Verify tagged release
         env:
           SHA: ${{ steps.fixture.outputs.sha }}
-          RELEASE_SHA: ${{ steps.tagged.outputs.release-sha }}
-          RELEASE_VERSION: ${{ steps.tagged.outputs.release-version }}
+          VERSION: ${{ steps.tagged.outputs.version }}
           TAG_EXISTS: ${{ steps.tagged.outputs.tag-exists }}
+          RELEASE: ${{ steps.tagged.outputs.release }}
         run: |
-          test "$RELEASE_SHA" = "$SHA"
-          test "$RELEASE_VERSION" = 99.0.0
+          test "$VERSION" = 99.0.0
           test "$TAG_EXISTS" = true
+          jq -e --arg sha "$SHA" '
+            . == {sha: $sha, version: "99.0.0", baseRef: "releasing/99.0.0", tagExists: true}
+          ' <<<"$RELEASE"
 
   invalid:
     runs-on: ubuntu-slim
@@ -145,9 +145,6 @@ jobs:
           base-ref: releasing/99.0.0
           head-ref: feature/x
           merge-commit: ${{ steps.fixture.outputs.release }}
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.VERSION_REGEX }}
       - if: steps.other-head.outcome != 'failure'
         run: exit 1
       - run: '"$FIXTURE" check-unchanged'
@@ -159,9 +156,6 @@ jobs:
           base-ref: releasing/99.0.1
           head-ref: prepare/99.0.0
           merge-commit: ${{ steps.fixture.outputs.release }}
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.VERSION_REGEX }}
       - if: steps.other-base.outcome != 'failure'
         run: exit 1
       - run: '"$FIXTURE" check-unchanged'
@@ -173,9 +167,6 @@ jobs:
           base-ref: releasing/99.0.0
           head-ref: prepare/99.0.0
           merge-commit: ${{ steps.fixture.outputs.release }}
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.VERSION_REGEX }}
       - if: steps.tag-elsewhere.outcome != 'failure'
         run: exit 1
       - run: '"$FIXTURE" check-unchanged'
@@ -192,9 +183,6 @@ jobs:
           base-ref: releasing/99.0.0
           head-ref: prepare/99.0.0
           merge-commit: ${{ steps.short.outputs.sha }}
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.VERSION_REGEX }}
       - if: steps.short-sha.outcome != 'failure'
         run: exit 1
       - run: '"$FIXTURE" check-unchanged'
@@ -206,9 +194,6 @@ jobs:
           base-ref: releasing/99.1.0-SNAPSHOT
           head-ref: prepare/99.1.0-SNAPSHOT
           merge-commit: ${{ steps.fixture.outputs.development }}
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.VERSION_REGEX }}
       - if: steps.development-version.outcome != 'failure'
         run: exit 1
       - run: '"$FIXTURE" check-unchanged'

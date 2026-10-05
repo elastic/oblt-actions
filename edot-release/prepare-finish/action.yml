@@ -3,36 +3,17 @@ name: 'edot-release/prepare-finish'
 description: 'Push the EDOT release branches and open the preparation pull request for the release changes in the working tree.'
 
 inputs:
-  version:
-    description: 'Release version from prepare-start, X.Y.Z.'
-    required: true
-  bump:
-    description: 'Release bump from prepare-start: minor or major.'
-    required: true
-  previous-tag:
-    description: 'Previous release tag from prepare-start.'
-    required: true
-  range:
-    description: 'Range JSON from prepare-start.'
+  release:
+    description: 'release output of prepare-start.'
     required: true
   ref:
     description: 'Dispatched commit; the release branch starts here.'
     required: false
     default: ${{ github.sha }}
-  paths:
-    description: 'Pathspecs to stage in the preparation commit, one per line.'
-    required: true
-  product-name:
-    description: 'Product name in the pull request body, such as EDOT Android.'
-    required: true
   dry-run:
     description: 'true to print the pushes and the pull request instead of creating them.'
     required: false
     default: 'false'
-  tag-prefix:
-    description: 'Prefix on release tags, such as v. Leave empty for plain X.Y.Z tags.'
-    required: false
-    default: ''
   repository:
     description: 'GitHub repository where the pull request is opened.'
     required: false
@@ -54,15 +35,9 @@ runs:
       id: finish
       shell: bash
       env:
-        RELEASE_VERSION: ${{ inputs.version }}
-        RELEASE_BUMP: ${{ inputs.bump }}
-        PREVIOUS_TAG: ${{ inputs.previous-tag }}
-        RELEASE_RANGE: ${{ inputs.range }}
+        RELEASE_JSON: ${{ inputs.release }}
         RELEASE_REF: ${{ inputs.ref }}
-        RELEASE_PATHS: ${{ inputs.paths }}
-        PRODUCT_NAME: ${{ inputs.product-name }}
         DRY_RUN: ${{ inputs.dry-run }}
-        TAG_PREFIX: ${{ inputs.tag-prefix }}
         RELEASE_REPOSITORY: ${{ inputs.repository }}
         GH_TOKEN: ${{ inputs.github-token }}
       run: '"$GITHUB_ACTION_PATH/prepare-finish.sh"'

@@ -6,14 +6,8 @@
 # Usage: prepare-finish.sh
 #
 # Environment:
-#   RELEASE_VERSION     release version, X.Y.Z (required)
-#   RELEASE_BUMP        bump derived by prepare-start: minor or major
-#   PREVIOUS_TAG        tag of the previous release (required)
-#   RELEASE_RANGE       range JSON from prepare-start (required)
+#   RELEASE_JSON        `release` output of prepare-start (required)
 #   RELEASE_REF         dispatched commit (required)
-#   RELEASE_PATHS       pathspecs to stage, one per line (required)
-#   PRODUCT_NAME        product name in the PR body, such as EDOT iOS
-#   TAG_PREFIX          release tag prefix (`v` or empty)
 #   DRY_RUN             true to print instead of create (default false)
 #   RELEASE_REPOSITORY  owner/repository where the PR is opened (required).
 #                       Not GITHUB_REPOSITORY: the runner owns the GITHUB_*
@@ -22,6 +16,10 @@
 #                       workflows, so ordinary CI runs on the PR
 #   GITHUB_OUTPUT       step output file (required)
 #   RUNNER_TEMP         directory for work files (required)
+#
+# The product name, tag prefix, and paths to stage come from the
+# repository's EDOT release configuration (config.sh): productName,
+# tagPrefix, and stagePaths.
 #
 # Runs after prepare-start and the consumer's platform steps have written
 # the release changes into the working tree. Pushes `releasing/X.Y.Z` at the
@@ -36,18 +34,31 @@
 
 set -euo pipefail
 
-release_version=${RELEASE_VERSION:-}
-bump=${RELEASE_BUMP:-}
-previous_tag=${PREVIOUS_TAG:?PREVIOUS_TAG is required}
-release_range=${RELEASE_RANGE:?RELEASE_RANGE is required}
+script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+release_json=${RELEASE_JSON:-}
 release_ref=${RELEASE_REF:?RELEASE_REF is required}
-product_name=${PRODUCT_NAME:?PRODUCT_NAME is required}
 repository=${RELEASE_REPOSITORY:?RELEASE_REPOSITORY is required}
 output_file=${GITHUB_OUTPUT:?GITHUB_OUTPUT is required}
 work_dir=$(mktemp -d "${RUNNER_TEMP:?RUNNER_TEMP is required}/edot-release-prepare-finish.XXXXXX")
 dry_run=${DRY_RUN:-false}
+config_sh="$script_dir/../prepare-start/config.sh"
+product_name=$("$config_sh" get productName)
+tag_prefix=$("$config_sh" get tagPrefix)
 
 # Reject malformed values before anything is pushed.
+if ! jq -e '
+  type == "object"
+  and ([.version, .bump, .previousTag, .releaseBranch, .prepareBranch] | all(type == "string"))
+  and (.range.pullRequests | type == "array")
+' <<<"$release_json" >/dev/null 2>&1; then
+  echo "release is not the JSON that prepare-start outputs." >&2
+  exit 1
+fi
+release_version=$(jq -r .version <<<"$release_json")
+bump=$(jq -r .bump <<<"$release_json")
+previous_tag=$(jq -r .previousTag <<<"$release_json")
+release_branch=$(jq -r .releaseBranch <<<"$release_json")
+prepare_branch=$(jq -r .prepareBranch <<<"$release_json")
 if [[ ! $release_version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   echo "version '$release_version' is not X.Y.Z." >&2
   exit 1
@@ -56,26 +67,21 @@ if [[ $bump != minor && $bump != major ]]; then
   echo "bump '$bump' must be minor or major." >&2
   exit 1
 fi
+if [[ $release_branch != "releasing/$release_version" || $prepare_branch != "prepare/$release_version" ]]; then
+  echo "Expected branches releasing/$release_version and prepare/$release_version, found $release_branch and $prepare_branch." >&2
+  exit 1
+fi
 if [[ $dry_run != true && $dry_run != false ]]; then
   echo "dry-run '$dry_run' must be true or false." >&2
   exit 1
 fi
-if ! jq -e '.pullRequests | type == "array"' <<<"$release_range" >/dev/null 2>&1; then
-  echo "range is not the JSON that prepare-start outputs." >&2
-  exit 1
-fi
-# One pathspec per line; blank lines are ignored. Pathspec magic such as
-# `:(glob)**/generated.txt` passes through to git unchanged.
+# One pathspec per line. Pathspec magic such as `:(glob)**/generated.txt`
+# passes through to git unchanged.
+stage_paths=$("$config_sh" get stagePaths)
 paths=()
 while IFS= read -r path; do
-  if [[ -n $path ]]; then
-    paths+=("$path")
-  fi
-done <<<"${RELEASE_PATHS:-}"
-if [[ ${#paths[@]} -eq 0 ]]; then
-  echo "paths must list at least one pathspec." >&2
-  exit 1
-fi
+  paths+=("$path")
+done <<<"$stage_paths"
 
 # Every command that changes a ref, the index, or GitHub goes through run, so
 # the dry-run prints exactly what a real run executes. The printout goes to
@@ -92,9 +98,7 @@ run() {
   fi
 }
 
-release_branch="releasing/$release_version"
-prepare_branch="prepare/$release_version"
-tag="${TAG_PREFIX:-}$release_version"
+tag="$tag_prefix$release_version"
 
 body_file="$work_dir/pull-request-body.md"
 # `main` never produces a patch, so a nonzero patch digit means a patch
@@ -111,7 +115,7 @@ fi
   printf -- '- Bump: `%s`\n' "$bump"
   printf -- '- Previous release: `%s`\n' "$previous_tag"
   printf -- '- Included pull requests:\n'
-  jq -r '.pullRequests[] | "- [#\(.number)](\(.url)) \(.title)"' <<<"$release_range"
+  jq -r '.range.pullRequests[] | "- [#\(.number)](\(.url)) \(.title)"' <<<"$release_json"
   printf '\n> Merging this pull request publishes %s: the automation tags the merge commit as `%s`, creates the GitHub Release, and opens %s. Review it, then merge when the checks are green.\n' \
     "$release_version" "$tag" "$ending"
 } >"$body_file"

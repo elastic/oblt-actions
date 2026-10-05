@@ -13,16 +13,12 @@
 #                             and linked (required). Not GITHUB_REPOSITORY:
 #                             the runner owns the GITHUB_* variables.
 #   GH_TOKEN                  GitHub CLI authentication, read by pr-range.sh
-#   TAG_PREFIX                release tag prefix (`v` or empty)
-#   VERSION_FILE              version file path, read by version-file.sh
-#   VERSION_REGEX             version line regex, read by version-file.sh
-#   HEADING_ANCHOR_PREFIX     anchor base of the version heading, without the
-#                             version digits
-#   SUBSECTION_ANCHOR_PREFIX  anchor base of the subsections, without the
-#                             version digits
-#   APPLIES_TO_KEY            documentation `applies_to` key of the product
 #   GITHUB_OUTPUT             step output file (required)
 #   RUNNER_TEMP               directory for work files (required)
+#
+# The platform facts come from the repository's EDOT release configuration
+# (config.sh): tagPrefix, versionFile and versionLine (via version-file.sh),
+# headingAnchorPrefix, subsectionAnchorPrefix, and appliesToKey.
 #
 # On main, the bump comes from the notes (`major` when any item is breaking,
 # else `minor`) and the version from the previous tag, after checking that
@@ -35,8 +31,11 @@
 # Every check runs before the first file is written, and the script creates
 # no ref, commit, or push: platform steps such as NOTICE regeneration run in
 # the consumer workflow next, and the prepare-finish action then pushes and
-# opens the preparation PR. If no PR was merged since the previous release,
-# the script succeeds with `prepared=false` and writes nothing.
+# opens the preparation PR. Outputs `prepared`, `version`, `previous-tag`,
+# and `release`, the JSON prepare-finish takes: version, bump, previousTag,
+# releaseBranch, prepareBranch, and range. If no PR was merged since the
+# previous release, the script succeeds with `prepared=false`, sets only
+# `previous-tag`, and writes nothing.
 
 set -euo pipefail
 
@@ -45,19 +44,22 @@ release_notes=${RELEASE_NOTES:-}
 release_ref=${RELEASE_REF:?RELEASE_REF is required}
 release_ref_name=${RELEASE_REF_NAME:-}
 : "${RELEASE_REPOSITORY:?RELEASE_REPOSITORY is required}"
-heading_anchor_prefix=${HEADING_ANCHOR_PREFIX:?HEADING_ANCHOR_PREFIX is required}
-subsection_anchor_prefix=${SUBSECTION_ANCHOR_PREFIX:?SUBSECTION_ANCHOR_PREFIX is required}
-applies_to_key=${APPLIES_TO_KEY:?APPLIES_TO_KEY is required}
 output_file=${GITHUB_OUTPUT:?GITHUB_OUTPUT is required}
 work_dir=$(mktemp -d "${RUNNER_TEMP:?RUNNER_TEMP is required}/edot-release-prepare-start.XXXXXX")
-tag_prefix=${TAG_PREFIX:-}
+config_sh="$script_dir/config.sh"
+tag_prefix=$("$config_sh" get tagPrefix)
+heading_anchor_prefix=$("$config_sh" get headingAnchorPrefix)
+subsection_anchor_prefix=$("$config_sh" get subsectionAnchorPrefix)
+applies_to_key=$("$config_sh" get appliesToKey)
+# version.sh and pr-range.sh read the tag prefix from the environment.
+export TAG_PREFIX=$tag_prefix
 version_sh="$script_dir/../version/version.sh"
 version_file_sh="$script_dir/version-file.sh"
 notes_index=docs/release-notes/index.md
 marker='% next_release_notes'
 
 # `main` releases the next minor or major; `patching/X.Y.Z` releases X.Y.Z.
-# Any other branch has no defined release, so stop before reading anything.
+# Any other branch has no defined release, so stop before reading its state.
 if [[ $release_ref_name != main && $release_ref_name != patching/* ]]; then
   echo "Prepare release runs from main or a patching/X.Y.Z branch, not '$release_ref_name'." >&2
   exit 1
@@ -93,21 +95,14 @@ fi
 range_file="$work_dir/range.json"
 "$script_dir/../pr-range/pr-range.sh" "$release_ref" "$previous_tag" >"$range_file"
 
-write_range_output() {
-  {
-    echo "previous-tag=$previous_tag"
-    echo 'range<<EDOT_RELEASE_RANGE'
-    cat "$range_file"
-    echo 'EDOT_RELEASE_RANGE'
-  } >>"$output_file"
-}
-
 # Nothing to release is a successful outcome, not an error, whatever the
 # notes say: the consumer workflow skips the remaining phases.
 if [[ $(jq '.pullRequests | length' "$range_file") -eq 0 ]]; then
   echo "No contributing pull requests since $previous_tag remain after excluding release bookkeeping; preparation is a no-op."
-  echo 'prepared=false' >>"$output_file"
-  write_range_output
+  {
+    echo 'prepared=false'
+    echo "previous-tag=$previous_tag"
+  } >>"$output_file"
   exit 0
 fi
 
@@ -192,11 +187,27 @@ awk -v marker="$marker" -v section="$section_file" '
 cat "$updated_index" >"$notes_index"
 
 echo "Prepared $release_version ($bump) from $previous_tag."
+# One line of JSON, so the output needs no multi-line delimiter.
+release=$(
+  jq -c -n \
+    --arg version "$release_version" \
+    --arg bump "$bump" \
+    --arg previous_tag "$previous_tag" \
+    --arg release_branch "$release_branch" \
+    --arg prepare_branch "$prepare_branch" \
+    --slurpfile range "$range_file" \
+    '{
+      version: $version,
+      bump: $bump,
+      previousTag: $previous_tag,
+      releaseBranch: $release_branch,
+      prepareBranch: $prepare_branch,
+      range: $range[0]
+    }'
+)
 {
   echo 'prepared=true'
   echo "version=$release_version"
-  echo "bump=$bump"
-  echo "release-branch=$release_branch"
-  echo "prepare-branch=$prepare_branch"
+  echo "previous-tag=$previous_tag"
+  echo "release=$release"
 } >>"$output_file"
-write_range_output

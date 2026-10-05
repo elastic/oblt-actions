@@ -6,27 +6,22 @@
 # Usage: finalize.sh
 #
 # Environment:
-#   RELEASE_SHA            the merged commit, 40 hexadecimal characters
-#   RELEASE_VERSION        the version being released, X.Y.Z
-#   BASE_REF               the release branch, releasing/X.Y.Z
-#   TAG_EXISTS             publish-guard's verdict: true when the tag already
-#                          exists at the merged commit
-#   PRODUCT_NAME           product name, such as EDOT Android (required)
-#   DOCS_URL               published release-notes page (required)
-#   HEADING_ANCHOR_PREFIX  anchor base of the version heading, without the
-#                          version digits (required)
-#   DRY_RUN                true to print instead of create (default false)
-#   TAG_PREFIX             release tag prefix (`v` or empty)
-#   VERSION_FILE           version file path, read by version-file.sh
-#   VERSION_REGEX          version line regex, read by version-file.sh
-#   RELEASE_REPOSITORY     owner/repository of the release (required). Not
-#                          GITHUB_REPOSITORY: the runner owns the GITHUB_*
-#                          variables.
-#   GH_TOKEN               token with contents and pull-requests write access,
-#                          used by every gh call (required)
-#   GITHUB_SERVER_URL      GitHub base URL (default https://github.com)
-#   GITHUB_OUTPUT          step output file (required)
-#   RUNNER_TEMP            directory for work files (required)
+#   RELEASE_JSON        `release` output of publish-guard (required): the
+#                       merged commit, the version, the release branch, and
+#                       whether the tag already exists at the merged commit
+#   DRY_RUN             true to print instead of create (default false)
+#   RELEASE_REPOSITORY  owner/repository of the release (required). Not
+#                       GITHUB_REPOSITORY: the runner owns the GITHUB_*
+#                       variables.
+#   GH_TOKEN            token with contents and pull-requests write access,
+#                       used by every gh call (required)
+#   GITHUB_SERVER_URL   GitHub base URL (default https://github.com)
+#   GITHUB_OUTPUT       step output file (required)
+#   RUNNER_TEMP         directory for work files (required)
+#
+# The platform facts come from the repository's EDOT release configuration
+# (config.sh): tagPrefix, productName, docsUrl, headingAnchorPrefix, and
+# versionFile and versionLine (via version-file.sh).
 #
 # In order: create the release tag at the merged commit; create the GitHub
 # Release from the release-notes section; then finish by the patch digit. A
@@ -37,7 +32,7 @@
 # Every step first checks whether its result already exists and skips it if
 # so, so "Re-run failed jobs" picks up where a failed run stopped without
 # repeating anything. Nothing is moved or republished. The guard owns the
-# tag check; this script trusts TAG_EXISTS.
+# tag check; this script trusts its tagExists.
 #
 # With DRY_RUN=true the script runs every check and existence read, prints
 # each command it would run with the Release and PR bodies, and creates
@@ -46,34 +41,43 @@
 set -euo pipefail
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-release_sha=${RELEASE_SHA:-}
-release_version=${RELEASE_VERSION:-}
-base_ref=${BASE_REF:-}
-tag_exists=${TAG_EXISTS:-}
-product_name=${PRODUCT_NAME:?PRODUCT_NAME is required}
-docs_url=${DOCS_URL:?DOCS_URL is required}
-heading_anchor_prefix=${HEADING_ANCHOR_PREFIX:?HEADING_ANCHOR_PREFIX is required}
+release_json=${RELEASE_JSON:-}
 dry_run=${DRY_RUN:-false}
-version_file=${VERSION_FILE:?VERSION_FILE is required}
 repository=${RELEASE_REPOSITORY:?RELEASE_REPOSITORY is required}
 : "${GH_TOKEN:?GH_TOKEN is required}"
 output_file=${GITHUB_OUTPUT:?GITHUB_OUTPUT is required}
 work_dir=$(mktemp -d "${RUNNER_TEMP:?RUNNER_TEMP is required}/edot-release-finalize.XXXXXX")
+config_sh="$script_dir/../prepare-start/config.sh"
 version_file_sh="$script_dir/../prepare-start/version-file.sh"
+tag_prefix=$("$config_sh" get tagPrefix)
+product_name=$("$config_sh" get productName)
+docs_url=$("$config_sh" get docsUrl)
+heading_anchor_prefix=$("$config_sh" get headingAnchorPrefix)
+version_file=$("$config_sh" get versionFile)
 notes_index=docs/release-notes/index.md
 
 # Reject malformed values before anything is created; an empty or wrong
 # value must never reach the tag or release commands.
+if ! jq -e 'type == "object" and ([.sha, .version, .baseRef] | all(type == "string"))' \
+  <<<"$release_json" >/dev/null 2>&1; then
+  echo "release is not the JSON that publish-guard outputs." >&2
+  exit 1
+fi
+release_sha=$(jq -r .sha <<<"$release_json")
+release_version=$(jq -r .version <<<"$release_json")
+base_ref=$(jq -r .baseRef <<<"$release_json")
+tag_exists=$(jq -c .tagExists <<<"$release_json")
 if [[ ! $release_sha =~ ^[0-9a-f]{40}$ ]]; then
-  echo "release-sha '$release_sha' is not a full commit SHA." >&2
+  echo "sha '$release_sha' is not a full commit SHA." >&2
   exit 1
 fi
 if [[ ! $release_version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   echo "version '$release_version' is not X.Y.Z." >&2
   exit 1
 fi
+# A JSON boolean only; jq -c prints a string with its quotes.
 if [[ $tag_exists != true && $tag_exists != false ]]; then
-  echo "tag-exists '$tag_exists' must be true or false." >&2
+  echo "tagExists $tag_exists must be true or false." >&2
   exit 1
 fi
 if [[ $dry_run != true && $dry_run != false ]]; then
@@ -85,7 +89,7 @@ if [[ $base_ref != "releasing/$release_version" ]]; then
   exit 1
 fi
 
-tag="${TAG_PREFIX:-}$release_version"
+tag="$tag_prefix$release_version"
 tag_url="${GITHUB_SERVER_URL:-https://github.com}/$repository/releases/tag/$tag"
 
 # Every command that creates a ref, a commit, a push, a Release, or a PR

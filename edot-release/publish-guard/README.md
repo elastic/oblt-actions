@@ -11,30 +11,31 @@ Check that a merged EDOT preparation pull request may publish its release, and r
 ## Inputs
 
 <!--inputs-->
-| Name            | Description                                                                      | Required | Default |
-|-----------------|----------------------------------------------------------------------------------|----------|---------|
-| `base-ref`      | Base branch of the merged pull request.                                          | `true`   | ` `     |
-| `head-ref`      | Head branch of the merged pull request.                                          | `true`   | ` `     |
-| `merge-commit`  | Merge commit of the pull request, 40 hexadecimal characters.                     | `true`   | ` `     |
-| `tag-prefix`    | Prefix on release tags, such as v. Leave empty for plain X.Y.Z tags.             | `false`  | ` `     |
-| `version-file`  | Path of the file that holds the version.                                         | `true`   | ` `     |
-| `version-regex` | Perl regex matching the version line, with one capture group around the version. | `true`   | ` `     |
+| Name           | Description                                                  | Required | Default                                             |
+|----------------|--------------------------------------------------------------|----------|-----------------------------------------------------|
+| `base-ref`     | Base branch of the merged pull request.                      | `false`  | `${{ github.event.pull_request.base.ref }}`         |
+| `head-ref`     | Head branch of the merged pull request.                      | `false`  | `${{ github.event.pull_request.head.ref }}`         |
+| `merge-commit` | Merge commit of the pull request, 40 hexadecimal characters. | `false`  | `${{ github.event.pull_request.merge_commit_sha }}` |
 <!--/inputs-->
 
 ## Outputs
 
 <!--outputs-->
-| Name              | Description                                                                              |
-|-------------------|------------------------------------------------------------------------------------------|
-| `release-sha`     | The validated merge commit.                                                              |
-| `release-version` | The release version, X.Y.Z.                                                              |
-| `tag-exists`      | true when the release tag already exists at the merge commit, so publication is skipped. |
+| Name         | Description                                                                              |
+|--------------|------------------------------------------------------------------------------------------|
+| `version`    | The release version, X.Y.Z.                                                              |
+| `tag-exists` | true when the release tag already exists at the merge commit, so publication is skipped. |
+| `release`    | Release JSON for finalize: sha, version, baseRef, and tagExists.                         |
 <!--/outputs-->
 
 ## Usage
 
 Run it first in the workflow that handles a merged pull request into a
-`releasing/*` branch, before anything irreversible.
+`releasing/*` branch, before anything irreversible. Its inputs default to
+that pull request's event values.
+The action reads the repository's platform facts from
+`.github/edot-release.json` in the checked-out commit; see
+[`prepare-start`](../prepare-start/README.md#configuration).
 
 <!--usage action="elastic/oblt-actions/edot-release/publish-guard" version="env:VERSION"-->
 ```yaml
@@ -45,12 +46,5 @@ steps:
       fetch-depth: 0
   - uses: elastic/oblt-actions/edot-release/publish-guard@v1
     id: guard
-    with:
-      base-ref: ${{ github.event.pull_request.base.ref }}
-      head-ref: ${{ github.event.pull_request.head.ref }}
-      merge-commit: ${{ github.event.pull_request.merge_commit_sha }}
-      tag-prefix: v
-      version-file: gradle.properties
-      version-regex: '^version=(.*)$'
 ```
 <!--/usage-->

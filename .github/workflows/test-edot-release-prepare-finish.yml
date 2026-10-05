@@ -37,7 +37,6 @@ permissions:
 # own v1.x tags or Releases.
 env:
   FIXTURE: oblt-actions/edot-release/prepare-start/test-data/fixture.sh
-  VERSION_REGEX: '^version=(.*)$'
 
 jobs:
   test:
@@ -79,12 +78,6 @@ jobs:
           notes: ${{ steps.notes.outputs.major }}
           ref: HEAD
           ref-name: main
-          heading-anchor-prefix: elastic-apm-android-agent-
-          subsection-anchor-prefix: elastic-apm-android-agent-
-          applies-to-key: edot_android
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.VERSION_REGEX }}
           repository: elastic/oblt-actions
 
       # Stands in for a platform step that creates a file the release ships.
@@ -97,18 +90,9 @@ jobs:
       - id: finish-main
         uses: ./oblt-actions/edot-release/prepare-finish
         with:
-          version: ${{ steps.start-main.outputs.version }}
-          bump: ${{ steps.start-main.outputs.bump }}
-          previous-tag: ${{ steps.start-main.outputs.previous-tag }}
-          range: ${{ steps.start-main.outputs.range }}
+          release: ${{ steps.start-main.outputs.release }}
           ref: HEAD
-          paths: |
-            gradle.properties
-            docs
-            :(glob)**/generated.txt
-          product-name: EDOT Android
           dry-run: true
-          tag-prefix: v
           repository: elastic/oblt-actions
 
       - name: Verify main dry-run
@@ -116,18 +100,9 @@ jobs:
           PULL_REQUEST_URL: ${{ steps.finish-main.outputs.pull-request-url }}
           # The environment finish-main received from action.yml, for a
           # direct run whose printout the assertions read.
-          RELEASE_VERSION: ${{ steps.start-main.outputs.version }}
-          RELEASE_BUMP: ${{ steps.start-main.outputs.bump }}
-          PREVIOUS_TAG: ${{ steps.start-main.outputs.previous-tag }}
-          RELEASE_RANGE: ${{ steps.start-main.outputs.range }}
+          RELEASE_JSON: ${{ steps.start-main.outputs.release }}
           RELEASE_REF: HEAD
-          RELEASE_PATHS: |
-            gradle.properties
-            docs
-            :(glob)**/generated.txt
-          PRODUCT_NAME: EDOT Android
           DRY_RUN: 'true'
-          TAG_PREFIX: v
           RELEASE_REPOSITORY: elastic/oblt-actions
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -161,12 +136,6 @@ jobs:
           notes: ${{ steps.notes.outputs.minor }}
           ref: HEAD
           ref-name: patching/99.0.1
-          heading-anchor-prefix: elastic-apm-android-agent-
-          subsection-anchor-prefix: elastic-apm-android-agent-
-          applies-to-key: edot_android
-          tag-prefix: v
-          version-file: gradle.properties
-          version-regex: ${{ env.VERSION_REGEX }}
           repository: elastic/oblt-actions
 
       - name: Add a generated file
@@ -178,18 +147,9 @@ jobs:
       - id: finish-patch
         uses: ./oblt-actions/edot-release/prepare-finish
         with:
-          version: ${{ steps.start-patch.outputs.version }}
-          bump: ${{ steps.start-patch.outputs.bump }}
-          previous-tag: ${{ steps.start-patch.outputs.previous-tag }}
-          range: ${{ steps.start-patch.outputs.range }}
+          release: ${{ steps.start-patch.outputs.release }}
           ref: HEAD
-          paths: |
-            gradle.properties
-            docs
-            :(glob)**/generated.txt
-          product-name: EDOT Android
           dry-run: true
-          tag-prefix: v
           repository: elastic/oblt-actions
 
       - name: Verify patch dry-run
@@ -197,18 +157,9 @@ jobs:
           PULL_REQUEST_URL: ${{ steps.finish-patch.outputs.pull-request-url }}
           # The environment finish-patch received from action.yml, for a
           # direct run whose printout the assertions read.
-          RELEASE_VERSION: ${{ steps.start-patch.outputs.version }}
-          RELEASE_BUMP: ${{ steps.start-patch.outputs.bump }}
-          PREVIOUS_TAG: ${{ steps.start-patch.outputs.previous-tag }}
-          RELEASE_RANGE: ${{ steps.start-patch.outputs.range }}
+          RELEASE_JSON: ${{ steps.start-patch.outputs.release }}
           RELEASE_REF: HEAD
-          RELEASE_PATHS: |
-            gradle.properties
-            docs
-            :(glob)**/generated.txt
-          PRODUCT_NAME: EDOT Android
           DRY_RUN: 'true'
-          TAG_PREFIX: v
           RELEASE_REPOSITORY: elastic/oblt-actions
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -251,15 +202,9 @@ jobs:
         continue-on-error: true
         uses: ./oblt-actions/edot-release/prepare-finish
         with:
-          version: '99.0'
-          bump: major
-          previous-tag: v98.0.0
-          range: '{"pullRequests":[]}'
+          release: '{"version": "99.0", "bump": "major", "previousTag": "v98.0.0", "releaseBranch": "releasing/99.0", "prepareBranch": "prepare/99.0", "range": {"pullRequests": []}}'
           ref: HEAD
-          paths: docs
-          product-name: EDOT Android
           dry-run: true
-          tag-prefix: v
           repository: elastic/oblt-actions
       - if: steps.short-version.outcome != 'failure'
         run: exit 1
@@ -269,15 +214,9 @@ jobs:
         continue-on-error: true
         uses: ./oblt-actions/edot-release/prepare-finish
         with:
-          version: 99.0.0
-          bump: patch
-          previous-tag: v98.0.0
-          range: '{"pullRequests":[]}'
+          release: '{"version": "99.0.0", "bump": "patch", "previousTag": "v98.0.0", "releaseBranch": "releasing/99.0.0", "prepareBranch": "prepare/99.0.0", "range": {"pullRequests": []}}'
           ref: HEAD
-          paths: docs
-          product-name: EDOT Android
           dry-run: true
-          tag-prefix: v
           repository: elastic/oblt-actions
       - if: steps.patch-bump.outcome != 'failure'
         run: exit 1

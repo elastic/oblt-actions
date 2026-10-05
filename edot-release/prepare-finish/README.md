@@ -13,15 +13,9 @@ Push the EDOT release branches and open the preparation pull request for the rel
 <!--inputs-->
 | Name           | Description                                                                                     | Required | Default                    |
 |----------------|-------------------------------------------------------------------------------------------------|----------|----------------------------|
-| `version`      | Release version from prepare-start, X.Y.Z.                                                      | `true`   | ` `                        |
-| `bump`         | Release bump from prepare-start: minor or major.                                                | `true`   | ` `                        |
-| `previous-tag` | Previous release tag from prepare-start.                                                        | `true`   | ` `                        |
-| `range`        | Range JSON from prepare-start.                                                                  | `true`   | ` `                        |
+| `release`      | release output of prepare-start.                                                                | `true`   | ` `                        |
 | `ref`          | Dispatched commit; the release branch starts here.                                              | `false`  | `${{ github.sha }}`        |
-| `paths`        | Pathspecs to stage in the preparation commit, one per line.                                     | `true`   | ` `                        |
-| `product-name` | Product name in the pull request body, such as EDOT Android.                                    | `true`   | ` `                        |
 | `dry-run`      | true to print the pushes and the pull request instead of creating them.                         | `false`  | `false`                    |
-| `tag-prefix`   | Prefix on release tags, such as v. Leave empty for plain X.Y.Z tags.                            | `false`  | ` `                        |
 | `repository`   | GitHub repository where the pull request is opened.                                             | `false`  | `${{ github.repository }}` |
 | `github-token` | GitHub token that opens the pull request. Use a token that triggers workflows so CI runs on it. | `false`  | `${{ github.token }}`      |
 <!--/inputs-->
@@ -39,6 +33,9 @@ Push the EDOT release branches and open the preparation pull request for the rel
 Run it after `prepare-start` reported `prepared: true` and after any step
 that changes more files for the release. Use a token that triggers
 workflows, so that CI runs on the preparation pull request.
+The action reads the repository's platform facts from
+`.github/edot-release.json` in the checked-out commit; see
+[`prepare-start`](../prepare-start/README.md#configuration).
 
 <!--usage action="elastic/oblt-actions/edot-release/prepare-finish" version="env:VERSION"-->
 ```yaml
@@ -46,15 +43,7 @@ steps:
   - uses: elastic/oblt-actions/edot-release/prepare-finish@v1
     if: steps.prepare.outputs.prepared == 'true'
     with:
-      version: ${{ steps.prepare.outputs.version }}
-      bump: ${{ steps.prepare.outputs.bump }}
-      previous-tag: ${{ steps.prepare.outputs.previous-tag }}
-      range: ${{ steps.prepare.outputs.range }}
-      paths: |
-        gradle.properties
-        docs
-      product-name: EDOT Android
-      tag-prefix: v
+      release: ${{ steps.prepare.outputs.release }}
       github-token: ${{ steps.token.outputs.token }}
 ```
 <!--/usage-->

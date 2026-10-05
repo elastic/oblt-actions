@@ -9,10 +9,13 @@
 #   HEAD_REF       source preparation branch of the merged PR (required)
 #   MERGE_COMMIT   commit produced by merging the PR, 40 hexadecimal
 #                  characters (required)
-#   TAG_PREFIX     release tag prefix (`v` or empty)
-#   VERSION_FILE   version file path, read by version-file.sh
-#   VERSION_REGEX  version line regex, read by version-file.sh
 #   GITHUB_OUTPUT  step output file (required)
+#   RUNNER_TEMP    directory for work files, used by version-file.sh
+#
+# The tag prefix and the version file come from the repository's EDOT
+# release configuration (config.sh): tagPrefix, versionFile, and
+# versionLine. Outputs `version`, `tag-exists`, and `release`, the JSON
+# finalize takes: sha, version, baseRef, and tagExists.
 #
 # The consumer's publish workflow runs when a PR into a `releasing/*` branch
 # is merged. GitHub's merge button already decided who may merge and whether
@@ -34,6 +37,7 @@ base_ref=${BASE_REF:?BASE_REF is required}
 head_ref=${HEAD_REF:?HEAD_REF is required}
 release_sha=${MERGE_COMMIT:-}
 output_file=${GITHUB_OUTPUT:?GITHUB_OUTPUT is required}
+tag_prefix=$("$script_dir/../prepare-start/config.sh" get tagPrefix)
 
 # A short or symbolic value would make the checks below read a different
 # commit than the one that was merged.
@@ -58,7 +62,7 @@ if [[ $head_ref != "prepare/$version" ]]; then
 fi
 
 # The tag is the record of what was published. Never move it.
-tag="${TAG_PREFIX:-}$version"
+tag="$tag_prefix$version"
 tag_exists=false
 if git rev-parse -q --verify "refs/tags/$tag^{commit}" >/dev/null; then
   tag_sha=$(git rev-parse "refs/tags/$tag^{commit}")
@@ -70,8 +74,17 @@ if git rev-parse -q --verify "refs/tags/$tag^{commit}" >/dev/null; then
   tag_exists=true
 fi
 
+# One line of JSON, so the output needs no multi-line delimiter.
+release=$(
+  jq -c -n \
+    --arg sha "$release_sha" \
+    --arg version "$version" \
+    --arg base_ref "$base_ref" \
+    --argjson tag_exists "$tag_exists" \
+    '{sha: $sha, version: $version, baseRef: $base_ref, tagExists: $tag_exists}'
+)
 {
-  echo "release-sha=$release_sha"
-  echo "release-version=$version"
+  echo "version=$version"
   echo "tag-exists=$tag_exists"
+  echo "release=$release"
 } >>"$output_file"

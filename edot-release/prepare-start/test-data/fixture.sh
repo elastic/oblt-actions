@@ -13,13 +13,16 @@
 # Usage:
 #   fixture.sh create <layout> <version> <tag> [<trailer-sha>]
 #       Replace the fixture with a fresh one. <layout> is android or ios: the
-#       version file, release-notes index, and applies_to page of that
-#       platform from test-data/<layout>/. Commits them with the version file
-#       at <version>, tags the commit <tag>, and, with <trailer-sha>, adds an
-#       empty commit whose `(cherry picked from commit <trailer-sha>)`
-#       trailer makes pr-range resolve it to that commit's pull request.
+#       EDOT release configuration, version file, release-notes index, and
+#       applies_to page of that platform from test-data/<layout>/. Commits
+#       them with the version file at <version>, tags the commit <tag>, and,
+#       with <trailer-sha>, adds an empty commit whose
+#       `(cherry picked from commit <trailer-sha>)` trailer makes pr-range
+#       resolve it to that commit's pull request.
 #       Pushes `main` and the tag to the bare origin and takes a snapshot.
 #   fixture.sh set-version <version>     set the version file in the tree
+#   fixture.sh config <jq-filter>        rewrite the configuration in the
+#                                        tree through a jq filter
 #   fixture.sh duplicate-version-line    append a second version line
 #   fixture.sh add-section <version>     insert a minimal release section for
 #                                        <version> under the index marker
@@ -119,7 +122,8 @@ case ${1:-} in
     git config user.name 'EDOT release fixture'
     git config user.email 'edot-release-fixture@example.invalid'
     git remote add origin "$origin"
-    mkdir -p docs/release-notes docs/reference
+    mkdir -p .github docs/release-notes docs/reference
+    cp "$test_data/$fixture_layout/edot-release.json" .github/edot-release.json
     cp "$test_data/$fixture_layout/index.md" "$index"
     cp "$test_data/$fixture_layout/applies-to.md" docs/reference/applies-to.md
     case $fixture_layout in
@@ -141,6 +145,11 @@ case ${1:-} in
   set-version)
     [[ $# -eq 2 ]] || exit 2
     set_version "$2"
+    ;;
+  config)
+    [[ $# -eq 2 ]] || exit 2
+    jq "$2" .github/edot-release.json >"$RUNNER_TEMP/edot-release-fixture-config.json"
+    mv "$RUNNER_TEMP/edot-release-fixture-config.json" .github/edot-release.json
     ;;
   duplicate-version-line)
     [[ $# -eq 1 ]] || exit 2
