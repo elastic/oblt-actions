@@ -8,6 +8,18 @@ Important: Keep this file accurate and up to date. Update it immediately when (1
 
 Note: This file is exempt from the “no new docs” rule below. Proactively edit and maintain this file as part of your duties.
 
+## Repository-specific review guidance for Copilot code review
+
+When reviewing pull requests in this repository, prioritize the following:
+
+- Validate end-to-end behavior before approving. For GitHub Action changes, prefer evidence of real behavior through dedicated workflows in `.github/workflows/test-<action>.yml` or colocated action tests. For composite actions, end-to-end validation should exercise the action via `uses: ./<action-path>` rather than relying only on isolated unit logic.
+- Keep actions simple and focused. Each action should do one job, expose clear inputs and outputs, and avoid mixing unrelated concerns or side effects in the same action or workflow. Keep the repository layout simple: top-level folders are individual GitHub composite actions, and namespaced actions stay in dedicated subdirectories with their own `action.yml`.
+- Apply GitHub hardening principles consistently. Use explicit least-privilege `permissions`, avoid broad `write-all` or unscoped tokens, do not log or expose secrets, validate untrusted input before passing it to shell commands, and prefer explicit token scoping and OIDC where appropriate.
+- Prefer small, reviewable edits. Avoid unrelated refactors or scope creep. If a change does not include the required test coverage or does not align with the repository's action structure, call it out in review feedback.
+- Maintain documentation and metadata discipline. When action inputs, outputs, or usage change, update the action's `README.md` and keep examples consistent with the declared contract.
+
+Review feedback should call out missing e2e coverage, missing security hardening, or mixed concerns before raising low-signal style issues.
+
 ## Code Standards
 
 ### Required before each commit
