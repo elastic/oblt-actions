@@ -54,7 +54,8 @@ jobs:
         with:
           path: oblt-actions
 
-      # 99.0.0 merged into releasing/99.0.0 and not yet tagged.
+      # 99.0.0 merged from prepare/99.0.0 into releasing/99.0.0 and not yet
+      # tagged.
       - id: main-fixture
         name: Create main release fixture
         run: |
@@ -63,7 +64,9 @@ jobs:
           "$FIXTURE" set-version 99.0.0
           "$FIXTURE" add-section 99.0.0
           sha=$("$FIXTURE" commit 'Prepare release 99.0.0')
-          git push --quiet origin refs/heads/releasing/99.0.0:refs/heads/releasing/99.0.0
+          git push --quiet origin \
+            refs/heads/releasing/99.0.0:refs/heads/releasing/99.0.0 \
+            refs/heads/releasing/99.0.0:refs/heads/prepare/99.0.0
           "$FIXTURE" snapshot
           {
             echo "sha=$sha"
@@ -107,6 +110,10 @@ jobs:
           grep -Fx 'Would run: git push origin HEAD:refs/heads/releasing/99.0.0' "$log"
           grep -F 'Would run: gh pr create --repo elastic/oblt-actions --base main --head releasing/99.0.0 --title Release\ 99.0.0 --body-file ' "$log"
           grep -Fx 'EDOT Android 99.0.0 is published: [v99.0.0](https://github.com/elastic/oblt-actions/releases/tag/v99.0.0), [GitHub Release](<release-url>).' "$log"
+          grep -Fx 'Would run: git push origin --delete prepare/99.0.0' "$log"
+          if grep -F 'Would run: git push origin --delete releasing/' "$log"; then
+            exit 1
+          fi
 
       # A previous run tagged 99.0.0 and committed the next development
       # version on releasing/99.0.0, then failed.
@@ -173,9 +180,11 @@ jobs:
           "$FIXTURE" set-version 99.0.1
           "$FIXTURE" add-section 99.0.1
           sha=$("$FIXTURE" commit 'Prepare release 99.0.1')
+          # No patching/99.0.1 on origin, as after a run that deleted it.
           git push --quiet origin \
             refs/heads/main:refs/heads/main \
             refs/heads/releasing/99.0.1:refs/heads/releasing/99.0.1 \
+            refs/heads/releasing/99.0.1:refs/heads/prepare/99.0.1 \
             refs/tags/v99.0.0:refs/tags/v99.0.0
           "$FIXTURE" snapshot
           {
@@ -220,6 +229,12 @@ jobs:
           grep -Fx 'Would run: git push origin HEAD:refs/heads/patch-notes/99.0.1' "$log"
           grep -F 'Would run: gh pr create --repo elastic/oblt-actions --base main --head patch-notes/99.0.1 --title Release\ notes\ for\ 99.0.1 --body-file ' "$log"
           grep -Fx 'Merging this pull request publishes the release notes on the documentation site.' "$log"
+          grep -Fx 'Would run: git push origin --delete prepare/99.0.1' "$log"
+          grep -Fx 'Would run: git push origin --delete releasing/99.0.1' "$log"
+          grep -Fx 'patching/99.0.1 is already deleted.' "$log"
+          if grep -F 'Would run: git push origin --delete patching/' "$log"; then
+            exit 1
+          fi
 
       - name: Verify nothing was created on GitHub
         env:

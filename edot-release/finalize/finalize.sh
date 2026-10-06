@@ -28,6 +28,8 @@
 # zero patch digit commits the next `-SNAPSHOT` on `releasing/X.Y.Z` and
 # opens that branch's PR into `main`. A nonzero patch digit is a patch
 # release, which `main` never produces: it opens a notes-only PR into `main`.
+# Last, it deletes `prepare/X.Y.Z`, and after a patch release also
+# `releasing/X.Y.Z` and `patching/X.Y.Z`.
 #
 # Every step first checks whether its result already exists and skips it if
 # so, so "Re-run failed jobs" picks up where a failed run stopped without
@@ -296,6 +298,24 @@ else
     )
   fi
 fi
+
+# Delete the branches the release no longer needs; the tag keeps the
+# released commit. This runs last: until here, a rerun of the publish job
+# needs releasing/X.Y.Z, which publish-guard checks. On main, releasing/X.Y.Z
+# is the head of the PR into main and stays. A branch that is already gone
+# is skipped; a failed lookup stops the script.
+finished_branches=("prepare/$release_version")
+if [[ ${release_version##*.} != 0 ]]; then
+  finished_branches+=("$base_ref" "patching/$release_version")
+fi
+for branch in "${finished_branches[@]}"; do
+  remote_head=$(git ls-remote --heads origin "refs/heads/$branch")
+  if [[ -n $remote_head ]]; then
+    run git push origin --delete "$branch"
+  else
+    echo "$branch is already deleted."
+  fi
+done
 
 if [[ $dry_run == true ]]; then
   if [[ -s $body_file ]]; then
