@@ -36,6 +36,10 @@
 #                                        working tree status
 #   fixture.sh check-unchanged           fail unless all of that still
 #                                        matches the snapshot
+#   fixture.sh check-origin              fail unless the origin's refs still
+#                                        match the snapshot
+#   fixture.sh forget-identity           remove the fixture's Git identity
+#                                        and stop Git from guessing one
 #   fixture.sh check-upstream <repository> <version>...
 #                                        fail if <repository> has a branch,
 #                                        tag, Release, or pull request that a
@@ -198,6 +202,18 @@ case ${1:-} in
       echo "The fixture changed since its snapshot." >&2
       exit 1
     fi
+    ;;
+  check-origin)
+    if ! git ls-remote origin | diff <(sed -n '/^# origin$/,/^# local$/p' "$snapshot" | sed '1d;$d') -; then
+      echo "The fixture origin changed since its snapshot." >&2
+      exit 1
+    fi
+    ;;
+  forget-identity)
+    [[ $# -eq 1 ]] || exit 2
+    git config --unset user.name
+    git config --unset user.email
+    git config user.useConfigOnly true
     ;;
   check-upstream)
     [[ $# -ge 3 ]] || exit 2

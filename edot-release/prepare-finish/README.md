@@ -32,7 +32,10 @@ Push the EDOT release branches and open the preparation pull request for the rel
 
 Run it after `prepare-start` reported `prepared: true` and after any step
 that changes more files for the release. Use a token that triggers
-workflows, so that CI runs on the preparation pull request.
+workflows, so that CI runs on the preparation pull request. The Git
+identity and credentials are the caller's: configure them first, for
+example with `elastic/oblt-actions/git/setup` and the same token. The
+action does not configure Git itself.
 The action reads the repository's platform facts from
 `.github/edot-release.json` in the checked-out commit; see
 [`prepare-start`](../prepare-start/README.md#configuration).
@@ -40,6 +43,9 @@ The action reads the repository's platform facts from
 <!--usage action="elastic/oblt-actions/edot-release/prepare-finish" version="env:VERSION"-->
 ```yaml
 steps:
+  - uses: elastic/oblt-actions/git/setup@v1
+    with:
+      github-token: ${{ steps.token.outputs.token }}
   - uses: elastic/oblt-actions/edot-release/prepare-finish@v1
     if: steps.prepare.outputs.prepared == 'true'
     with:

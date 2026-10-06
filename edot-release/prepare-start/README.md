@@ -74,15 +74,28 @@ or push. Steps that change more files for the release run after it, and
 request. When `prepared` is `false`, no pull request was merged since the
 previous release and nothing was written.
 
+The in-flight check, which stops while a `releasing/*` branch exists, is a
+read, not a lock. Run every preparation, from `main` and from patch
+branches, in one concurrency group that does not cancel a running
+preparation, so a second run starts only after the first has pushed its
+branches.
+
 <!--usage action="elastic/oblt-actions/edot-release/prepare-start" version="env:VERSION"-->
 ```yaml
-steps:
-  - uses: actions/checkout@v7
-    with:
-      fetch-depth: 0
-  - uses: elastic/oblt-actions/edot-release/prepare-start@v1
-    id: prepare
-    with:
-      notes: ${{ inputs.release_notes }}
+concurrency:
+  group: prepare-release
+  cancel-in-progress: false
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: elastic/oblt-actions/edot-release/prepare-start@v1
+        id: prepare
+        with:
+          notes: ${{ inputs.release_notes }}
 ```
 <!--/usage-->

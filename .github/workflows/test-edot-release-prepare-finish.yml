@@ -117,6 +117,9 @@ jobs:
           grep -Fx 'Would run: git switch -c prepare/99.0.0' "$log"
           grep -Fx 'Would run: git commit -m Prepare\ release\ 99.0.0' "$log"
           grep -Fx 'Would run: git push origin HEAD:refs/heads/prepare/99.0.0' "$log"
+          # Every local step, the commit included, comes before the first push.
+          test "$(grep -n -m 1 '^Would run: git commit ' "$log" | cut -d: -f1)" \
+            -lt "$(grep -n -m 1 '^Would run: git push ' "$log" | cut -d: -f1)"
           test "$(grep "^add '" "$log")" = "$(printf '%s\n' \
             "add 'docs/release-notes/index.md'" \
             "add 'gradle.properties'" \
@@ -174,6 +177,9 @@ jobs:
           grep -Fx 'Would run: git switch -c prepare/99.0.1' "$log"
           grep -Fx 'Would run: git commit -m Prepare\ release\ 99.0.1' "$log"
           grep -Fx 'Would run: git push origin HEAD:refs/heads/prepare/99.0.1' "$log"
+          # Every local step, the commit included, comes before the first push.
+          test "$(grep -n -m 1 '^Would run: git commit ' "$log" | cut -d: -f1)" \
+            -lt "$(grep -n -m 1 '^Would run: git push ' "$log" | cut -d: -f1)"
           test "$(grep "^add '" "$log")" = "$(printf '%s\n' \
             "add 'docs/release-notes/index.md'" \
             "add 'gradle.properties'" \
@@ -194,6 +200,11 @@ jobs:
       - uses: actions/checkout@v7
         with:
           path: oblt-actions
+
+      - id: notes
+        name: Read release-note fixtures
+        run: |
+          echo "major=$(jq -c . oblt-actions/edot-release/render-release-notes/test-data/ios-sample.json)" >> "$GITHUB_OUTPUT"
 
       - name: Create fixture
         run: '"$FIXTURE" create android 98.1.0-SNAPSHOT v98.0.0 4967b69e2f83588d572e721c4f34928b51ab003e'
@@ -221,3 +232,35 @@ jobs:
       - if: steps.patch-bump.outcome != 'failure'
         run: exit 1
       - run: '"$FIXTURE" check-unchanged'
+
+      # Without a Git identity the commit fails. Nothing may reach origin
+      # first: a pushed releasing branch would block the next preparation.
+      # The local branches and the staged changes are expected to remain.
+      - name: Create fixture whose run has no Git identity
+        run: '"$FIXTURE" create android 98.1.0-SNAPSHOT v98.0.0 4967b69e2f83588d572e721c4f34928b51ab003e'
+      - id: start-no-identity
+        uses: ./oblt-actions/edot-release/prepare-start
+        with:
+          notes: ${{ steps.notes.outputs.major }}
+          ref: HEAD
+          ref-name: main
+          repository: elastic/oblt-actions
+      - name: Add a generated file and remove the Git identity
+        run: |
+          mkdir -p module
+          echo generated > module/generated.txt
+          "$FIXTURE" forget-identity
+          "$FIXTURE" snapshot
+      - id: no-identity
+        continue-on-error: true
+        uses: ./oblt-actions/edot-release/prepare-finish
+        env:
+          # Ignore any identity in the runner's global Git configuration.
+          GIT_CONFIG_GLOBAL: /dev/null
+        with:
+          release: ${{ steps.start-no-identity.outputs.release }}
+          ref: HEAD
+          repository: elastic/oblt-actions
+      - if: steps.no-identity.outcome != 'failure'
+        run: exit 1
+      - run: '"$FIXTURE" check-origin'

@@ -32,7 +32,9 @@ Create the EDOT release tag and GitHub Release, then open the release pull reque
 
 Run it after `publish-guard` and any publication steps. Every step checks
 whether its result already exists, so re-running a failed job resumes where
-it stopped.
+it stopped. The Git identity and credentials are the caller's: configure
+them first, for example with `elastic/oblt-actions/git/setup` and the same
+token. The action does not configure Git itself.
 The action reads the repository's platform facts from
 `.github/edot-release.json` in the checked-out commit; see
 [`prepare-start`](../prepare-start/README.md#configuration).
@@ -40,6 +42,9 @@ The action reads the repository's platform facts from
 <!--usage action="elastic/oblt-actions/edot-release/finalize" version="env:VERSION"-->
 ```yaml
 steps:
+  - uses: elastic/oblt-actions/git/setup@v1
+    with:
+      github-token: ${{ steps.token.outputs.token }}
   - uses: elastic/oblt-actions/edot-release/finalize@v1
     with:
       release: ${{ steps.guard.outputs.release }}

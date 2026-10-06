@@ -22,12 +22,13 @@
 # tagPrefix, and stagePaths.
 #
 # Runs after prepare-start and the consumer's platform steps have written
-# the release changes into the working tree. Pushes `releasing/X.Y.Z` at the
-# dispatched commit, unchanged, then commits the release changes once on
-# `prepare/X.Y.Z` and opens the preparation PR between them, so the PR diff
-# shows exactly what the release adds. Merging that PR publishes the
-# release; nothing here is irreversible on its own, but the pushed branches
-# are the in-flight lock that blocks the next preparation.
+# the release changes into the working tree. Creates `releasing/X.Y.Z` at the
+# dispatched commit, commits the release changes once on `prepare/X.Y.Z`,
+# then pushes both, the releasing branch unchanged, and opens the
+# preparation PR between them, so the PR diff shows exactly what the release
+# adds. The caller owns the Git identity and credentials. Merging that PR
+# publishes the release; nothing here is irreversible on its own, but the
+# pushed branches are the in-flight lock that blocks the next preparation.
 #
 # With DRY_RUN=true the script runs every check, prints each command it
 # would run, the paths it would stage, and the PR body, and creates nothing.
@@ -120,10 +121,13 @@ fi
     "$release_version" "$tag" "$ending"
 } >"$body_file"
 
+# Every local step comes before the first push. A pushed releasing branch is
+# the in-flight lock, so a failure after it, such as a commit without a Git
+# identity, would block the next preparation until someone deletes it.
+#
 # The release branch is the dispatched commit, untouched; it is the base of
 # the preparation PR and later of the release PR into main.
 run git branch "$release_branch" "$release_ref"
-run git push origin "refs/heads/$release_branch:refs/heads/$release_branch"
 # The release changes sit uncommitted in the working tree; the prepare branch
 # starts at the same commit and takes them along.
 run git switch -c "$prepare_branch"
@@ -134,7 +138,9 @@ if [[ $dry_run == true ]]; then
   git add --dry-run -A -- "${paths[@]}"
 fi
 run git add -A -- "${paths[@]}"
+# The caller configures the Git identity, for example with git/setup.
 run git commit -m "Prepare release $release_version"
+run git push origin "refs/heads/$release_branch:refs/heads/$release_branch"
 run git push origin "HEAD:refs/heads/$prepare_branch"
 
 # Merging this PR is the operator's release action; it is not a draft. The

@@ -67,7 +67,9 @@ fi
 
 # Only one release can be in flight. A releasing branch exists from the
 # moment preparation pushes it until the release is finished and the branch
-# deleted.
+# deleted. This read is not a lock: it assumes the caller runs every
+# preparation, main and patch, in one concurrency group without
+# cancel-in-progress, so no second run starts until the first has pushed.
 existing_release_branches=$(git ls-remote --heads origin 'refs/heads/releasing/*' | awk '{print $2}')
 if [[ -n $existing_release_branches ]]; then
   echo "A release is already in flight. Finish it, or delete its branches if it was abandoned:" >&2
