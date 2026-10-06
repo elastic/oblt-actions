@@ -2,12 +2,12 @@
 # https://www.updatecli.io/docs/core/compose/
 policies:
   - name: Handle default oblt-cli version
-    policy: ghcr.io/elastic/oblt-updatecli-policies/oblt-cli/version:0.4.1@sha256:d982ec23e648fadd8936beec681e4c9154ad2090768fb8f6cbeff89863f6674f
+    policy: ghcr.io/elastic/oblt-updatecli-policies/oblt-cli/version:0.5.0@sha256:14b6263b1ca8910efec0ce0852e1b52a67b74bed183355f818076a0470a766b7
     values:
       - .ci/updatecli/values.d/scm.yml
       - .ci/updatecli/values.d/oblt-cli.yml
   - name: Handle updatecli bumps
-    policy: ghcr.io/elastic/oblt-updatecli-policies/updatecli/version:0.2.2@sha256:3c884a6a1004d383ac3747a5d400001be355ebca5d3e12749247a000b2221139
+    policy: ghcr.io/elastic/oblt-updatecli-policies/updatecli/version:0.3.0@sha256:5feadcdeb66bd1ab8dab111b975201cc9b379cda11ba1896b1cade4467314068
     values:
       - .ci/updatecli/values.d/scm.yml
       - .ci/updatecli/values.d/updatecli.yml
