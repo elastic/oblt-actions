@@ -47,20 +47,12 @@ publication.
 
 <!--usage action="elastic/oblt-actions/edot-release/publish-guard" version="env:VERSION"-->
 ```yaml
-concurrency:
-  group: publish-release-${{ github.event.pull_request.base.ref }}
-  cancel-in-progress: false
-
-jobs:
-  publish-release:
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
-          fetch-depth: 0
-      - uses: elastic/oblt-actions/edot-release/publish-guard@v1
-        id: guard
+steps:
+  - uses: actions/checkout@v7
+    with:
+      ref: ${{ github.event.pull_request.merge_commit_sha }}
+      fetch-depth: 0
+  - uses: elastic/oblt-actions/edot-release/publish-guard@v1
+    id: guard
 ```
 <!--/usage-->
