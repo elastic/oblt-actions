@@ -24,11 +24,12 @@
 # Runs after prepare-start and the consumer's platform steps have written
 # the release changes into the working tree. Creates `releasing/X.Y.Z` at the
 # dispatched commit, commits the release changes once on `prepare/X.Y.Z`,
-# then pushes both, the releasing branch unchanged, and opens the
-# preparation PR between them, so the PR diff shows exactly what the release
-# adds. The caller owns the Git identity and credentials. Merging that PR
-# publishes the release; nothing here is irreversible on its own, but the
-# pushed branches are the in-flight lock that blocks the next preparation.
+# then pushes both in one atomic push, the releasing branch unchanged, and
+# opens the preparation PR between them, so the PR diff shows exactly what
+# the release adds. The caller owns the Git identity and credentials.
+# Merging that PR publishes the release; nothing here is irreversible on its
+# own, but the pushed branches are the in-flight lock that blocks the next
+# preparation.
 #
 # With DRY_RUN=true the script runs every check, prints each command it
 # would run, the paths it would stage, and the PR body, and creates nothing.
@@ -140,8 +141,12 @@ fi
 run git add -A -- "${paths[@]}"
 # The caller configures the Git identity, for example with git/setup.
 run git commit -m "Prepare release $release_version"
-run git push origin "refs/heads/$release_branch:refs/heads/$release_branch"
-run git push origin "HEAD:refs/heads/$prepare_branch"
+# One atomic push: both branches land together or not at all. A rejected
+# prepare branch, such as a leftover one from an abandoned preparation, must
+# not leave the releasing branch behind, because that is the in-flight lock.
+run git push --atomic origin \
+  "refs/heads/$release_branch:refs/heads/$release_branch" \
+  "HEAD:refs/heads/$prepare_branch"
 
 # Merging this PR is the operator's release action; it is not a draft. The
 # automation never writes to it again after opening it.

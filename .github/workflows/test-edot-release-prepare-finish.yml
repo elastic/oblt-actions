@@ -113,10 +113,10 @@ jobs:
           cat "$log"
           "$FIXTURE" check-unchanged
           grep -Fx 'Would run: git branch releasing/99.0.0 HEAD' "$log"
-          grep -Fx 'Would run: git push origin refs/heads/releasing/99.0.0:refs/heads/releasing/99.0.0' "$log"
           grep -Fx 'Would run: git switch -c prepare/99.0.0' "$log"
           grep -Fx 'Would run: git commit -m Prepare\ release\ 99.0.0' "$log"
-          grep -Fx 'Would run: git push origin HEAD:refs/heads/prepare/99.0.0' "$log"
+          grep -Fx 'Would run: git push --atomic origin refs/heads/releasing/99.0.0:refs/heads/releasing/99.0.0 HEAD:refs/heads/prepare/99.0.0' "$log"
+          test "$(grep -c '^Would run: git push ' "$log")" = 1
           # Every local step, the commit included, comes before the first push.
           test "$(grep -n -m 1 '^Would run: git commit ' "$log" | cut -d: -f1)" \
             -lt "$(grep -n -m 1 '^Would run: git push ' "$log" | cut -d: -f1)"
@@ -173,10 +173,10 @@ jobs:
           cat "$log"
           "$FIXTURE" check-unchanged
           grep -Fx 'Would run: git branch releasing/99.0.1 HEAD' "$log"
-          grep -Fx 'Would run: git push origin refs/heads/releasing/99.0.1:refs/heads/releasing/99.0.1' "$log"
           grep -Fx 'Would run: git switch -c prepare/99.0.1' "$log"
           grep -Fx 'Would run: git commit -m Prepare\ release\ 99.0.1' "$log"
-          grep -Fx 'Would run: git push origin HEAD:refs/heads/prepare/99.0.1' "$log"
+          grep -Fx 'Would run: git push --atomic origin refs/heads/releasing/99.0.1:refs/heads/releasing/99.0.1 HEAD:refs/heads/prepare/99.0.1' "$log"
+          test "$(grep -c '^Would run: git push ' "$log")" = 1
           # Every local step, the commit included, comes before the first push.
           test "$(grep -n -m 1 '^Would run: git commit ' "$log" | cut -d: -f1)" \
             -lt "$(grep -n -m 1 '^Would run: git push ' "$log" | cut -d: -f1)"
@@ -262,5 +262,37 @@ jobs:
           ref: HEAD
           repository: elastic/oblt-actions
       - if: steps.no-identity.outcome != 'failure'
+        run: exit 1
+      - run: '"$FIXTURE" check-origin'
+
+      # A leftover prepare/99.0.0 on origin, unrelated to this run, makes the
+      # prepare push non-fast-forward. The in-flight check reads only
+      # releasing/*, so only the push can stop it, and the releasing branch
+      # must not land without the prepare branch.
+      - name: Create fixture with a leftover prepare branch
+        run: |
+          "$FIXTURE" create android 98.1.0-SNAPSHOT v98.0.0 4967b69e2f83588d572e721c4f34928b51ab003e
+          leftover=$(git commit-tree -m 'Leftover preparation' 'HEAD^{tree}')
+          git push --quiet origin "$leftover:refs/heads/prepare/99.0.0"
+      - id: start-leftover
+        uses: ./oblt-actions/edot-release/prepare-start
+        with:
+          notes: ${{ steps.notes.outputs.major }}
+          ref: HEAD
+          ref-name: main
+          repository: elastic/oblt-actions
+      - name: Add a generated file
+        run: |
+          mkdir -p module
+          echo generated > module/generated.txt
+          "$FIXTURE" snapshot
+      - id: leftover-prepare
+        continue-on-error: true
+        uses: ./oblt-actions/edot-release/prepare-finish
+        with:
+          release: ${{ steps.start-leftover.outputs.release }}
+          ref: HEAD
+          repository: elastic/oblt-actions
+      - if: steps.leftover-prepare.outcome != 'failure'
         run: exit 1
       - run: '"$FIXTURE" check-origin'
