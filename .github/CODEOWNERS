@@ -1,1 +1,3 @@
 * @elastic/observablt-ci
+/edot-release/ @elastic/obs-signals-traces-approvers
+/.github/workflows/test-edot-release-*.yml @elastic/obs-signals-traces-approvers
