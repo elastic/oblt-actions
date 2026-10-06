@@ -298,3 +298,38 @@ jobs:
       - if: steps.leftover-prepare.outcome != 'failure'
         run: exit 1
       - run: '"$FIXTURE" check-origin'
+
+      # The push succeeds and opening the pull request fails. Both pushed
+      # branches must be deleted again, so the next preparation can start.
+      # A gh that always fails stands in for the failed pull request.
+      - name: Create fixture whose pull request cannot be opened
+        run: '"$FIXTURE" create android 98.1.0-SNAPSHOT v98.0.0 4967b69e2f83588d572e721c4f34928b51ab003e'
+      - id: start-no-pr
+        uses: ./oblt-actions/edot-release/prepare-start
+        with:
+          notes: ${{ steps.notes.outputs.major }}
+          ref: HEAD
+          ref-name: main
+          repository: elastic/oblt-actions
+      - name: Verify a failed pull request deletes the pushed branches
+        env:
+          RELEASE_JSON: ${{ steps.start-no-pr.outputs.release }}
+          RELEASE_REF: HEAD
+          RELEASE_REPOSITORY: elastic/oblt-actions
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p module
+          echo generated > module/generated.txt
+          "$FIXTURE" snapshot
+          mkdir "$RUNNER_TEMP/failing-gh"
+          printf '#!/bin/sh\nexit 1\n' > "$RUNNER_TEMP/failing-gh/gh"
+          chmod +x "$RUNNER_TEMP/failing-gh/gh"
+          log="$RUNNER_TEMP/no-pr.log"
+          if PATH="$RUNNER_TEMP/failing-gh:$PATH" \
+            oblt-actions/edot-release/prepare-finish/prepare-finish.sh > "$log" 2>&1; then
+            cat "$log"
+            exit 1
+          fi
+          cat "$log"
+          grep -Fx 'Could not open the preparation pull request; deleting releasing/99.0.0 and prepare/99.0.0 so the release can be dispatched again.' "$log"
+          "$FIXTURE" check-origin

@@ -149,15 +149,23 @@ run git push --atomic origin \
   "HEAD:refs/heads/$prepare_branch"
 
 # Merging this PR is the operator's release action; it is not a draft. The
-# automation never writes to it again after opening it.
-pr_url=$(
+# automation never writes to it again after opening it. Without the PR, the
+# pushed releasing branch would only block the next preparation: delete both
+# branches this run pushed, so the release can be dispatched again, and fail.
+if ! pr_url=$(
   run gh pr create \
     --repo "$repository" \
     --base "$release_branch" \
     --head "$prepare_branch" \
     --title "Prepare release $release_version" \
     --body-file "$body_file"
-)
+); then
+  echo "Could not open the preparation pull request; deleting $release_branch and $prepare_branch so the release can be dispatched again." >&2
+  if ! run git push --atomic origin --delete "$release_branch" "$prepare_branch"; then
+    echo "Could not delete them; delete both by hand before dispatching again." >&2
+  fi
+  exit 1
+fi
 if [[ $dry_run == true ]]; then
   echo 'Pull request body:'
   cat "$body_file"
