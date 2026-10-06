@@ -35,9 +35,10 @@ Check an EDOT release dispatch, derive the release, and write the version file, 
 
 All four `edot-release` flow actions (`prepare-start`, `prepare-finish`,
 `publish-guard`, and `finalize`) read the repository's platform facts from
-`.github/edot-release.json` in the checked-out commit. The file is a JSON
-object with exactly these fields; any missing, unknown, or malformed field
-stops the action with a message that names it.
+`.github/edot-release.json` in the checked-out commit, and
+[`start-patch`](../start-patch/README.md) reads `tagPrefix` from it. The
+file is a JSON object with exactly these fields; any missing, unknown, or
+malformed field stops the action with a message that names it.
 
 | Field | Type | Description |
 |-------|------|-------------|

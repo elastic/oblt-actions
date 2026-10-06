@@ -1,0 +1,57 @@
+---
+name: 'edot-release/start-patch'
+description: 'Cut the EDOT patch branch patching/X.Y.Z from the highest release tag of a line and cherry-pick merged main pull requests onto it. The caller checks out full history and tags and configures the Git identity and credentials.'
+
+inputs:
+  line:
+    description: 'Release line to patch, X.Y. The source is its highest release tag.'
+    required: true
+  pull-requests:
+    description: 'Squash-merged main pull requests to cherry-pick, as numbers separated by spaces or commas, each with an optional leading #. They are applied in merge order.'
+    required: false
+    default: ''
+  ref-name:
+    description: 'Dispatched branch; the action runs only from main.'
+    required: false
+    default: ${{ github.ref_name }}
+  dry-run:
+    description: 'true to run every check and cherry-pick and print the push instead of running it. For tests.'
+    required: false
+    default: 'false'
+  repository:
+    description: 'GitHub repository of the release and its pull requests.'
+    required: false
+    default: ${{ github.repository }}
+  github-token:
+    description: 'GitHub token with pull-requests read access for the pull request lookups. The push uses the caller''s Git credentials, which need contents write access.'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  branch:
+    description: 'Patch branch, patching/X.Y.Z. Set in a dry-run too.'
+    value: ${{ steps.start-patch.outputs.branch }}
+  source-tag:
+    description: 'Release tag the patch branch starts from, with its prefix. Set in a dry-run too.'
+    value: ${{ steps.start-patch.outputs.source-tag }}
+  version:
+    description: 'Version the patch branch will release, X.Y.Z. Set in a dry-run too.'
+    value: ${{ steps.start-patch.outputs.version }}
+  pull-requests:
+    description: 'Applied pull request numbers in merge order, separated by spaces. Empty when none. Set in a dry-run too.'
+    value: ${{ steps.start-patch.outputs.pull-requests }}
+
+runs:
+  using: composite
+  steps:
+    - name: Start patch
+      id: start-patch
+      shell: bash
+      env:
+        LINE: ${{ inputs.line }}
+        PULL_REQUESTS: ${{ inputs.pull-requests }}
+        RELEASE_REF_NAME: ${{ inputs.ref-name }}
+        DRY_RUN: ${{ inputs.dry-run }}
+        RELEASE_REPOSITORY: ${{ inputs.repository }}
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: '"$GITHUB_ACTION_PATH/start-patch.sh"'
