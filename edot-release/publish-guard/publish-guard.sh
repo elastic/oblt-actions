@@ -74,7 +74,10 @@ if ! git merge-base --is-ancestor "$release_sha" "refs/remotes/origin/$base_ref"
   exit 1
 fi
 
-# The tag is the record of what was published. Never move it.
+# The tag is the record of what was published. Never move it. It is not a
+# lock on the caller's publication steps: finalize creates it after them, so
+# those steps must be safe to rerun, and the caller queues the publish runs
+# of one release in one concurrency group.
 tag="$tag_prefix$version"
 tag_exists=false
 if git rev-parse -q --verify "refs/tags/$tag^{commit}" >/dev/null; then

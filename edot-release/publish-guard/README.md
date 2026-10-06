@@ -37,14 +37,30 @@ The action reads the repository's platform facts from
 `.github/edot-release.json` in the checked-out commit; see
 [`prepare-start`](../prepare-start/README.md#configuration).
 
+The release tag records a finished publication, not a lock on the
+publication itself: `finalize` creates it after the repository's own
+publication steps. Those steps must be safe to rerun, for example because
+the registry refuses a version that already exists, so a rerun after a
+successful upload does not publish twice. Run the publish workflow of one
+release in one concurrency group that does not cancel a running
+publication.
+
 <!--usage action="elastic/oblt-actions/edot-release/publish-guard" version="env:VERSION"-->
 ```yaml
-steps:
-  - uses: actions/checkout@v7
-    with:
-      ref: ${{ github.event.pull_request.merge_commit_sha }}
-      fetch-depth: 0
-  - uses: elastic/oblt-actions/edot-release/publish-guard@v1
-    id: guard
+concurrency:
+  group: publish-release-${{ github.event.pull_request.base.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish-release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          fetch-depth: 0
+      - uses: elastic/oblt-actions/edot-release/publish-guard@v1
+        id: guard
 ```
 <!--/usage-->
