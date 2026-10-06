@@ -300,13 +300,14 @@ else
 fi
 
 # Delete the branches the release no longer needs; the tag keeps the
-# released commit. This runs last: until here, a rerun of the publish job
-# needs releasing/X.Y.Z, which publish-guard checks. On main, releasing/X.Y.Z
-# is the head of the PR into main and stays. A branch that is already gone
-# is skipped; a failed lookup stops the script.
+# released commit. This runs last, and releasing/X.Y.Z goes last of all:
+# until it is deleted, a rerun of the publish job needs it, because
+# publish-guard checks it. On main, releasing/X.Y.Z is the head of the PR
+# into main and stays. A branch that is already gone is skipped; a failed
+# lookup stops the script.
 finished_branches=("prepare/$release_version")
 if [[ ${release_version##*.} != 0 ]]; then
-  finished_branches+=("$base_ref" "patching/$release_version")
+  finished_branches+=("patching/$release_version" "$base_ref")
 fi
 for branch in "${finished_branches[@]}"; do
   remote_head=$(git ls-remote --heads origin "refs/heads/$branch")

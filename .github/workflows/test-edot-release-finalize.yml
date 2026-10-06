@@ -180,11 +180,11 @@ jobs:
           "$FIXTURE" set-version 99.0.1
           "$FIXTURE" add-section 99.0.1
           sha=$("$FIXTURE" commit 'Prepare release 99.0.1')
-          # No patching/99.0.1 on origin, as after a run that deleted it.
+          # No prepare/99.0.1 on origin, as after a merge that deleted it.
           git push --quiet origin \
             refs/heads/main:refs/heads/main \
             refs/heads/releasing/99.0.1:refs/heads/releasing/99.0.1 \
-            refs/heads/releasing/99.0.1:refs/heads/prepare/99.0.1 \
+            refs/tags/v99.0.0:refs/heads/patching/99.0.1 \
             refs/tags/v99.0.0:refs/tags/v99.0.0
           "$FIXTURE" snapshot
           {
@@ -229,12 +229,13 @@ jobs:
           grep -Fx 'Would run: git push origin HEAD:refs/heads/patch-notes/99.0.1' "$log"
           grep -F 'Would run: gh pr create --repo elastic/oblt-actions --base main --head patch-notes/99.0.1 --title Release\ notes\ for\ 99.0.1 --body-file ' "$log"
           grep -Fx 'Merging this pull request publishes the release notes on the documentation site.' "$log"
-          grep -Fx 'Would run: git push origin --delete prepare/99.0.1' "$log"
-          grep -Fx 'Would run: git push origin --delete releasing/99.0.1' "$log"
-          grep -Fx 'patching/99.0.1 is already deleted.' "$log"
-          if grep -F 'Would run: git push origin --delete patching/' "$log"; then
+          grep -Fx 'prepare/99.0.1 is already deleted.' "$log"
+          if grep -F 'Would run: git push origin --delete prepare/' "$log"; then
             exit 1
           fi
+          grep -Fx 'Would run: git push origin --delete patching/99.0.1' "$log"
+          # A rerun needs the releasing branch, so it is deleted last.
+          test "$(grep '^Would run:' "$log" | tail -n 1)" = 'Would run: git push origin --delete releasing/99.0.1'
 
       - name: Verify nothing was created on GitHub
         env:
