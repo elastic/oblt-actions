@@ -24,7 +24,8 @@
 #   - the merged commit is a prepared release: the version file at the merge
 #     commit holds a release version X.Y.Z, the base branch is
 #     `releasing/X.Y.Z`, and the merged head is `prepare/X.Y.Z`, so no other
-#     PR into the releasing branch can publish;
+#     PR into the releasing branch can publish, and the commit is on
+#     `releasing/X.Y.Z`, so no unmerged commit can;
 #   - whether it was already published: the release tag is the lock. At the
 #     merge commit, a previous run published and failed later, publication
 #     is skipped, and only the remaining steps run. At another commit, a
@@ -58,6 +59,18 @@ if [[ $base_ref != "releasing/$version" ]]; then
 fi
 if [[ $head_ref != "prepare/$version" ]]; then
   echo "Expected the merged head to be prepare/$version, found $head_ref." >&2
+  exit 1
+fi
+
+# The commit must be on the releasing branch: its tip, or an ancestor after
+# finalize's bump commit, which also covers a merge, squash, or rebase merge.
+# The checks above cannot tell a merged commit from GitHub's test merge of an
+# open PR, which carries the PR's version and branch names, or from any
+# other commit outside the branch, and none of those may ever publish. The
+# caller's workflow trigger selects the events; this check proves the commit.
+git fetch --quiet origin "refs/heads/$base_ref:refs/remotes/origin/$base_ref"
+if ! git merge-base --is-ancestor "$release_sha" "refs/remotes/origin/$base_ref"; then
+  echo "The merged commit $release_sha is not on $base_ref; only a commit merged into $base_ref can publish." >&2
   exit 1
 fi
 

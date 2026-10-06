@@ -110,6 +110,33 @@ jobs:
             . == {sha: $sha, version: "99.0.0", baseRef: "releasing/99.0.0", tagExists: true}
           ' <<<"$RELEASE"
 
+      # The rerun after finalize committed the next development version: the
+      # merge commit is no longer the tip of releasing/99.0.0 but its parent.
+      - name: Commit the next development version on releasing/99.0.0
+        env:
+          SHA: ${{ steps.fixture.outputs.sha }}
+        run: |
+          git switch --quiet -c releasing/99.0.0 "$SHA"
+          "$FIXTURE" set-version 99.1.0-SNAPSHOT
+          "$FIXTURE" commit 'Prepare for the next release' > /dev/null
+          git push --quiet origin refs/heads/releasing/99.0.0:refs/heads/releasing/99.0.0
+
+      - id: bumped
+        uses: ./oblt-actions/edot-release/publish-guard
+        with:
+          base-ref: releasing/99.0.0
+          head-ref: prepare/99.0.0
+          merge-commit: ${{ steps.fixture.outputs.sha }}
+
+      - name: Verify release under the bump commit
+        env:
+          SHA: ${{ steps.fixture.outputs.sha }}
+          RELEASE: ${{ steps.bumped.outputs.release }}
+        run: |
+          jq -e --arg sha "$SHA" '
+            . == {sha: $sha, version: "99.0.0", baseRef: "releasing/99.0.0", tagExists: true}
+          ' <<<"$RELEASE"
+
   invalid:
     runs-on: ubuntu-slim
     steps:
@@ -195,5 +222,36 @@ jobs:
           head-ref: prepare/99.1.0-SNAPSHOT
           merge-commit: ${{ steps.fixture.outputs.development }}
       - if: steps.development-version.outcome != 'failure'
+        run: exit 1
+      - run: '"$FIXTURE" check-unchanged'
+
+      # A commit with the release version and matching branch names that is
+      # not on releasing/99.0.0, like the test merge of an open pull request
+      # under refs/pull/<n>/merge. It must never publish.
+      - id: off-branch-fixture
+        name: Create fixture with a commit outside the releasing branch
+        run: |
+          "$FIXTURE" create android 98.1.0-SNAPSHOT v98.0.0
+          git switch --quiet -c releasing/99.0.0
+          "$FIXTURE" set-version 99.0.0
+          "$FIXTURE" add-section 99.0.0
+          "$FIXTURE" commit 'Prepare release 99.0.0' > /dev/null
+          git switch --quiet -c pull-merge v98.0.0
+          "$FIXTURE" set-version 99.0.0
+          "$FIXTURE" add-section 99.0.0
+          sha=$("$FIXTURE" commit 'Merge prepare/99.0.0 into releasing/99.0.0')
+          git push --quiet origin \
+            refs/heads/releasing/99.0.0:refs/heads/releasing/99.0.0 \
+            "$sha:refs/pull/1/merge"
+          "$FIXTURE" snapshot
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+      - id: off-branch
+        continue-on-error: true
+        uses: ./oblt-actions/edot-release/publish-guard
+        with:
+          base-ref: releasing/99.0.0
+          head-ref: prepare/99.0.0
+          merge-commit: ${{ steps.off-branch-fixture.outputs.sha }}
+      - if: steps.off-branch.outcome != 'failure'
         run: exit 1
       - run: '"$FIXTURE" check-unchanged'
