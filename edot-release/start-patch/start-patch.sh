@@ -170,5 +170,7 @@ run() {
 }
 
 # Every check and cherry-pick succeeded. This is the only write to origin,
-# and it creates the patch branch at the last picked commit.
-run git push origin "$patch_commit:refs/heads/$patch_branch"
+# and it creates the patch branch at the last picked commit. The empty lease
+# makes the push fail if the branch appeared after the check above, such as
+# from a concurrent run, instead of advancing that branch.
+run git push --force-with-lease="refs/heads/$patch_branch:" origin "$patch_commit:refs/heads/$patch_branch"

@@ -99,8 +99,8 @@ jobs:
           cat "$log"
           "$FIXTURE" check-unchanged
           test "$(grep -c '^Would run:' "$log")" = 1
-          push=$(grep -Ex 'Would run: git push origin [0-9a-f]{40}:refs/heads/patching/99\.0\.2' "$log")
-          commit=$(sed -E 's/^Would run: git push origin ([0-9a-f]{40}):.*/\1/' <<< "$push")
+          push=$(grep -Ex 'Would run: git push --force-with-lease=refs/heads/patching/99\.0\.2: origin [0-9a-f]{40}:refs/heads/patching/99\.0\.2' "$log")
+          commit=$(sed -E 's/^Would run: git push [^ ]+ origin ([0-9a-f]{40}):.*/\1/' <<< "$push")
           test "$(git log -1 --format=%B "$commit" | sed '/^$/d' | tail -n 1)" = '(cherry picked from commit 2d7b24596909615fbe09e96c23143379a243ec1f)'
           test "$(git log -1 --format=%B "$commit~1" | sed '/^$/d' | tail -n 1)" = '(cherry picked from commit 0bf75aa4fb29817e23c3e3071d3a19fbce85b016)'
           test "$(git rev-parse "$commit~2")" = "$(git rev-parse 'v99.0.1^{commit}')"
@@ -128,7 +128,7 @@ jobs:
           cat "$log"
           "$FIXTURE" check-unchanged
           test "$(grep -c '^Would run:' "$log")" = 1
-          grep -Fx "Would run: git push origin $(git rev-parse '99.0.0^{commit}'):refs/heads/patching/99.0.1" "$log"
+          grep -Fx "Would run: git push --force-with-lease=refs/heads/patching/99.0.1: origin $(git rev-parse '99.0.0^{commit}'):refs/heads/patching/99.0.1" "$log"
 
       - name: Verify nothing was created on GitHub
         run: '"$FIXTURE" check-upstream elastic/oblt-actions 99.0.1 99.0.2'
