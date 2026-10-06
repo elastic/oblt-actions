@@ -31,8 +31,6 @@
 #   fixture.sh import <repository> <sha> fetch a commit of a public GitHub
 #                                        repository and its parents into the
 #                                        fixture, creating no ref
-#   fixture.sh remote-branch <branch>    create <branch> at HEAD on the origin
-#                                        only; take a snapshot after it
 #   fixture.sh compare <file> <expected> diff a file against an expected
 #                                        one, ignoring the release date and
 #                                        trailing whitespace
@@ -192,10 +190,6 @@ case ${1:-} in
     # fetch by SHA creates no ref; the snapshot records neither FETCH_HEAD
     # nor the shallow boundary it writes.
     git fetch --quiet --depth=2 "https://github.com/$2.git" "$3"
-    ;;
-  remote-branch)
-    [[ $# -eq 2 ]] || exit 2
-    git push --quiet origin "HEAD:refs/heads/$2"
     ;;
   snapshot)
     take_snapshot

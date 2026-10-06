@@ -7,7 +7,7 @@ inputs:
     description: 'Release line to patch, X.Y. The source is its highest release tag.'
     required: true
   pull-requests:
-    description: 'Squash-merged main pull requests to cherry-pick, as numbers separated by spaces or commas, each with an optional leading #. They are applied in merge order.'
+    description: 'Squash-merged main pull requests to cherry-pick, as numbers separated by commas, such as 1135,527. They are applied in merge order.'
     required: false
     default: ''
   ref-name:
@@ -27,25 +27,10 @@ inputs:
     required: false
     default: ${{ github.token }}
 
-outputs:
-  branch:
-    description: 'Patch branch, patching/X.Y.Z. Set in a dry-run too.'
-    value: ${{ steps.start-patch.outputs.branch }}
-  source-tag:
-    description: 'Release tag the patch branch starts from, with its prefix. Set in a dry-run too.'
-    value: ${{ steps.start-patch.outputs.source-tag }}
-  version:
-    description: 'Version the patch branch will release, X.Y.Z. Set in a dry-run too.'
-    value: ${{ steps.start-patch.outputs.version }}
-  pull-requests:
-    description: 'Applied pull request numbers in merge order, separated by spaces. Empty when none. Set in a dry-run too.'
-    value: ${{ steps.start-patch.outputs.pull-requests }}
-
 runs:
   using: composite
   steps:
     - name: Start patch
-      id: start-patch
       shell: bash
       env:
         LINE: ${{ inputs.line }}

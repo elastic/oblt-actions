@@ -8,7 +8,7 @@
 # Environment:
 #   LINE                release line to patch, X.Y (required)
 #   PULL_REQUESTS       `main` pull requests to cherry-pick, numbers separated
-#                       by spaces or commas, each with an optional leading #
+#                       by commas, such as 1135,527
 #   RELEASE_REF_NAME    dispatched branch; must be `main`
 #   DRY_RUN             true to print the push instead of running it
 #                       (default false)
@@ -17,7 +17,6 @@
 #                       GITHUB_* variables
 #   GH_TOKEN            token with pull-requests read access, used by the
 #                       pull request lookups
-#   GITHUB_OUTPUT       step output file (required)
 #   RUNNER_TEMP         directory for work files (required)
 #
 # The tag prefix comes from the repository's EDOT release configuration
@@ -32,9 +31,7 @@
 # version, stop if the patch branch exists, look up every pull request, then
 # cherry-pick them with -x in merge order on a detached HEAD at the tag. Only
 # after every check and cherry-pick succeeded does it push, once. A failure
-# pushes nothing, and on every exit the original checkout is restored. Sets
-# the outputs branch, source-tag, version, and pull-requests, also in a
-# dry-run.
+# pushes nothing, and on every exit the original checkout is restored.
 #
 # With DRY_RUN=true every check, lookup, and cherry-pick runs, and the push is
 # printed instead of run. The picked commits stay only as unreferenced
@@ -48,7 +45,6 @@ pull_requests=${PULL_REQUESTS:-}
 ref_name=${RELEASE_REF_NAME:-}
 dry_run=${DRY_RUN:-false}
 repository=${RELEASE_REPOSITORY:?RELEASE_REPOSITORY is required}
-output_file=${GITHUB_OUTPUT:?GITHUB_OUTPUT is required}
 work_dir=$(mktemp -d "${RUNNER_TEMP:?RUNNER_TEMP is required}/edot-release-start-patch.XXXXXX")
 version_sh="$script_dir/../version/version.sh"
 config_sh="$script_dir/../prepare-start/config.sh"
@@ -97,15 +93,14 @@ case $ls_remote_status in
     ;;
 esac
 
+if [[ -n $pull_requests && ! $pull_requests =~ ^[1-9][0-9]*(,[1-9][0-9]*)*$ ]]; then
+  echo "Invalid pull-requests '$pull_requests'; expected numbers separated by commas, such as 1135,527." >&2
+  exit 1
+fi
 requested_file="$work_dir/pull-requests.tsv"
 : >"$requested_file"
-read -r -a tokens <<<"${pull_requests//,/ }"
-for token in ${tokens[@]+"${tokens[@]}"}; do
-  number=${token#\#}
-  if [[ ! $number =~ ^[1-9][0-9]*$ ]]; then
-    echo "Invalid pull request '$token'; expected numbers separated by spaces or commas." >&2
-    exit 1
-  fi
+IFS=, read -r -a numbers <<<"$pull_requests"
+for number in ${numbers[@]+"${numbers[@]}"}; do
   pr=$(
     gh pr view "$number" \
       --repo "$repository" \
@@ -150,7 +145,6 @@ trap restore_checkout EXIT
 # Pick on a detached HEAD at the tag in both modes, so the action never
 # creates a local branch; the push below names the remote branch directly.
 git switch --quiet --detach "$source_tag"
-applied=()
 while IFS=$'\t' read -r _merged_at number merge_commit; do
   # -x records the original commit, which pr-range uses to resolve the
   # pull request of each patch commit.
@@ -159,7 +153,6 @@ while IFS=$'\t' read -r _merged_at number merge_commit; do
     echo "Cherry-pick for pull request #$number conflicted. Dispatch again without #$number, then cherry-pick it by hand through a pull request into $patch_branch. Nothing was pushed." >&2
     exit 1
   fi
-  applied+=("$number")
 done <"$requested_file"
 patch_commit=$(git rev-parse HEAD)
 
@@ -179,10 +172,3 @@ run() {
 # Every check and cherry-pick succeeded. This is the only write to origin,
 # and it creates the patch branch at the last picked commit.
 run git push origin "$patch_commit:refs/heads/$patch_branch"
-
-{
-  echo "branch=$patch_branch"
-  echo "source-tag=$source_tag"
-  echo "version=$release_version"
-  echo "pull-requests=${applied[*]-}"
-} >>"$output_file"

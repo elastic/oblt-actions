@@ -11,25 +11,21 @@ Cut the EDOT patch branch patching/X.Y.Z from the highest release tag of a line 
 ## Inputs
 
 <!--inputs-->
-| Name            | Description                                                                                                                                                  | Required | Default                    |
-|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|----------------------------|
-| `line`          | Release line to patch, X.Y. The source is its highest release tag.                                                                                           | `true`   | ` `                        |
-| `pull-requests` | Squash-merged main pull requests to cherry-pick, as numbers separated by spaces or commas, each with an optional leading #. They are applied in merge order. | `false`  | ` `                        |
-| `ref-name`      | Dispatched branch; the action runs only from main.                                                                                                           | `false`  | `${{ github.ref_name }}`   |
-| `dry-run`       | true to run every check and cherry-pick and print the push instead of running it. For tests.                                                                 | `false`  | `false`                    |
-| `repository`    | GitHub repository of the release and its pull requests.                                                                                                      | `false`  | `${{ github.repository }}` |
-| `github-token`  | GitHub token with pull-requests read access for the pull request lookups. The push uses the caller's Git credentials, which need contents write access.      | `false`  | `${{ github.token }}`      |
+| Name            | Description                                                                                                                                             | Required | Default                    |
+|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|----------|----------------------------|
+| `line`          | Release line to patch, X.Y. The source is its highest release tag.                                                                                      | `true`   | ` `                        |
+| `pull-requests` | Squash-merged main pull requests to cherry-pick, as numbers separated by commas, such as 1135,527. They are applied in merge order.                     | `false`  | ` `                        |
+| `ref-name`      | Dispatched branch; the action runs only from main.                                                                                                      | `false`  | `${{ github.ref_name }}`   |
+| `dry-run`       | true to run every check and cherry-pick and print the push instead of running it. For tests.                                                            | `false`  | `false`                    |
+| `repository`    | GitHub repository of the release and its pull requests.                                                                                                 | `false`  | `${{ github.repository }}` |
+| `github-token`  | GitHub token with pull-requests read access for the pull request lookups. The push uses the caller's Git credentials, which need contents write access. | `false`  | `${{ github.token }}`      |
 <!--/inputs-->
 
 ## Outputs
 
 <!--outputs-->
-| Name            | Description                                                                                              |
-|-----------------|----------------------------------------------------------------------------------------------------------|
-| `branch`        | Patch branch, patching/X.Y.Z. Set in a dry-run too.                                                      |
-| `source-tag`    | Release tag the patch branch starts from, with its prefix. Set in a dry-run too.                         |
-| `version`       | Version the patch branch will release, X.Y.Z. Set in a dry-run too.                                      |
-| `pull-requests` | Applied pull request numbers in merge order, separated by spaces. Empty when none. Set in a dry-run too. |
+| Name | Description |
+|------|-------------|
 <!--/outputs-->
 
 ## Usage

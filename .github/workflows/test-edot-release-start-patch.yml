@@ -83,24 +83,16 @@ jobs:
         uses: ./oblt-actions/edot-release/start-patch
         with:
           line: '99.0'
-          pull-requests: '#1137, 527'
+          pull-requests: '1137,527'
           ref-name: main
           dry-run: true
           repository: elastic/oblt-actions
 
       - name: Verify picks dry-run
         env:
-          BRANCH: ${{ steps.picks.outputs.branch }}
-          SOURCE_TAG: ${{ steps.picks.outputs.source-tag }}
-          VERSION: ${{ steps.picks.outputs.version }}
-          APPLIED: ${{ steps.picks.outputs.pull-requests }}
           LINE: '99.0'
-          PULL_REQUESTS: '#1137, 527'
+          PULL_REQUESTS: '1137,527'
         run: |
-          test "$BRANCH" = patching/99.0.2
-          test "$SOURCE_TAG" = v99.0.1
-          test "$VERSION" = 99.0.2
-          test "$APPLIED" = '527 1137'
           "$FIXTURE" check-unchanged
           log="$RUNNER_TEMP/picks.log"
           "$START_PATCH" > "$log"
@@ -127,17 +119,9 @@ jobs:
 
       - name: Verify no-picks dry-run
         env:
-          BRANCH: ${{ steps.no-picks.outputs.branch }}
-          SOURCE_TAG: ${{ steps.no-picks.outputs.source-tag }}
-          VERSION: ${{ steps.no-picks.outputs.version }}
-          APPLIED: ${{ steps.no-picks.outputs.pull-requests }}
           LINE: '99.0'
           PULL_REQUESTS: ''
         run: |
-          test "$BRANCH" = patching/99.0.1
-          test "$SOURCE_TAG" = 99.0.0
-          test "$VERSION" = 99.0.1
-          test -z "$APPLIED"
           "$FIXTURE" check-unchanged
           log="$RUNNER_TEMP/no-picks.log"
           "$START_PATCH" > "$log"
@@ -275,12 +259,13 @@ jobs:
           grep -Fx 'v99.2.0 predates the automated release process; patch this release by hand.' "$RUNNER_TEMP/error.log"
           "$FIXTURE" check-unchanged
 
+      # Only numbers separated by commas are accepted.
       - id: malformed-pull-request
         continue-on-error: true
         uses: ./oblt-actions/edot-release/start-patch
         with:
           line: '99.0'
-          pull-requests: '12a'
+          pull-requests: '#527'
           ref-name: main
           dry-run: true
           repository: elastic/oblt-actions
@@ -288,13 +273,14 @@ jobs:
         run: exit 1
       - env:
           LINE: '99.0'
-          PULL_REQUESTS: '12a'
         run: |
           "$FIXTURE" check-unchanged
-          if "$START_PATCH" 2> "$RUNNER_TEMP/error.log"; then exit 1; fi
-          cat "$RUNNER_TEMP/error.log"
-          grep -Fx "Invalid pull request '12a'; expected numbers separated by spaces or commas." "$RUNNER_TEMP/error.log"
-          "$FIXTURE" check-unchanged
+          for value in '#527' '527 1137' '527, 1137' '527,' '12a'; do
+            if PULL_REQUESTS=$value "$START_PATCH" 2> "$RUNNER_TEMP/error.log"; then exit 1; fi
+            cat "$RUNNER_TEMP/error.log"
+            grep -Fx "Invalid pull-requests '$value'; expected numbers separated by commas, such as 1135,527." "$RUNNER_TEMP/error.log"
+            "$FIXTURE" check-unchanged
+          done
 
       # #1094 was closed without merging.
       - id: unmerged
@@ -302,7 +288,7 @@ jobs:
         uses: ./oblt-actions/edot-release/start-patch
         with:
           line: '99.0'
-          pull-requests: '#1094'
+          pull-requests: '1094'
           ref-name: main
           dry-run: true
           repository: elastic/oblt-actions
@@ -310,7 +296,7 @@ jobs:
         run: exit 1
       - env:
           LINE: '99.0'
-          PULL_REQUESTS: '#1094'
+          PULL_REQUESTS: '1094'
         run: |
           "$FIXTURE" check-unchanged
           if "$START_PATCH" 2> "$RUNNER_TEMP/error.log"; then exit 1; fi
@@ -324,7 +310,7 @@ jobs:
         uses: ./oblt-actions/edot-release/start-patch
         with:
           line: '99.0'
-          pull-requests: '#472'
+          pull-requests: '472'
           ref-name: main
           dry-run: true
           repository: elastic/oblt-actions
@@ -332,7 +318,7 @@ jobs:
         run: exit 1
       - env:
           LINE: '99.0'
-          PULL_REQUESTS: '#472'
+          PULL_REQUESTS: '472'
         run: |
           "$FIXTURE" check-unchanged
           if "$START_PATCH" 2> "$RUNNER_TEMP/error.log"; then exit 1; fi
@@ -370,7 +356,7 @@ jobs:
         uses: ./oblt-actions/edot-release/start-patch
         with:
           line: '99.0'
-          pull-requests: '1135 527'
+          pull-requests: '1135,527'
           ref-name: main
           dry-run: true
           repository: elastic/oblt-actions
@@ -378,7 +364,7 @@ jobs:
         run: exit 1
       - env:
           LINE: '99.0'
-          PULL_REQUESTS: '1135 527'
+          PULL_REQUESTS: '1135,527'
         run: |
           "$FIXTURE" check-unchanged
           if "$START_PATCH" > "$RUNNER_TEMP/output.log" 2> "$RUNNER_TEMP/error.log"; then exit 1; fi
@@ -393,7 +379,7 @@ jobs:
         uses: ./oblt-actions/edot-release/start-patch
         with:
           line: '99.0'
-          pull-requests: '527 527'
+          pull-requests: '527,527'
           ref-name: main
           dry-run: true
           repository: elastic/oblt-actions
@@ -401,7 +387,7 @@ jobs:
         run: exit 1
       - env:
           LINE: '99.0'
-          PULL_REQUESTS: '527 527'
+          PULL_REQUESTS: '527,527'
         run: |
           "$FIXTURE" check-unchanged
           if "$START_PATCH" 2> "$RUNNER_TEMP/error.log"; then exit 1; fi
@@ -412,7 +398,7 @@ jobs:
       # Last, because every line 99.0 case above needs patching/99.0.2 absent.
       - name: Create the patch branch on the fixture origin
         run: |
-          "$FIXTURE" remote-branch patching/99.0.2
+          git push --quiet origin HEAD:refs/heads/patching/99.0.2
           "$FIXTURE" snapshot
       - id: existing-branch
         continue-on-error: true
