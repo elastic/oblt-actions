@@ -65,8 +65,8 @@ if [[ ! $release_version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   echo "version '$release_version' is not X.Y.Z." >&2
   exit 1
 fi
-if [[ $bump != minor && $bump != major ]]; then
-  echo "bump '$bump' must be minor or major." >&2
+if [[ $bump != minor && $bump != major && $bump != patch ]]; then
+  echo "bump '$bump' must be minor, major, or patch." >&2
   exit 1
 fi
 if [[ $release_branch != "releasing/$release_version" || $prepare_branch != "prepare/$release_version" ]]; then

@@ -185,7 +185,9 @@ jobs:
             "add 'gradle.properties'" \
             "add 'module/generated.txt'")"
           grep -F 'Would run: gh pr create --repo elastic/oblt-actions --base releasing/99.0.1 --head prepare/99.0.1 --title Prepare\ release\ 99.0.1 --body-file ' "$log"
-          # The backticks are Markdown in the expected sentence.
+          # The backticks are Markdown in the expected sentences.
+          # shellcheck disable=SC2016
+          grep -Fx -- '- Bump: `patch`' "$log"
           # shellcheck disable=SC2016
           grep -Fx '> Merging this pull request publishes 99.0.1: the automation tags the merge commit as `v99.0.1`, creates the GitHub Release, and opens a release-notes pull request into `main`. Review it, then merge when the checks are green.' "$log"
 
@@ -221,15 +223,15 @@ jobs:
         run: exit 1
       - run: '"$FIXTURE" check-unchanged'
 
-      - id: patch-bump
+      - id: unknown-bump
         continue-on-error: true
         uses: ./oblt-actions/edot-release/prepare-finish
         with:
-          release: '{"version": "99.0.0", "bump": "patch", "previousTag": "v98.0.0", "releaseBranch": "releasing/99.0.0", "prepareBranch": "prepare/99.0.0", "range": {"pullRequests": []}}'
+          release: '{"version": "99.0.0", "bump": "none", "previousTag": "v98.0.0", "releaseBranch": "releasing/99.0.0", "prepareBranch": "prepare/99.0.0", "range": {"pullRequests": []}}'
           ref: HEAD
           dry-run: true
           repository: elastic/oblt-actions
-      - if: steps.patch-bump.outcome != 'failure'
+      - if: steps.unknown-bump.outcome != 'failure'
         run: exit 1
       - run: '"$FIXTURE" check-unchanged'
 

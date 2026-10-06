@@ -23,10 +23,11 @@
 # On main, the bump comes from the notes (`major` when any item is breaking,
 # else `minor`) and the version from the previous tag, after checking that
 # the version file holds the expected `-SNAPSHOT`. On a patch branch, the
-# version comes from the branch name `patching/X.Y.Z`, and the branch must
-# contain its source tag. Then the script sets the version file, rewrites
-# `applies_to` entries that name a development version that will never ship,
-# and inserts the rendered section under the `% next_release_notes` marker.
+# bump is `patch`, the version comes from the branch name `patching/X.Y.Z`,
+# and the branch must contain its source tag. Then the script sets the
+# version file, rewrites `applies_to` entries that name a development version
+# that will never ship, and inserts the rendered section under the
+# `% next_release_notes` marker.
 #
 # Every check runs before the first file is written, and the script creates
 # no ref, commit, or push: platform steps such as NOTICE regeneration run in
@@ -125,7 +126,9 @@ if [[ $patch_release == true && $bump == major ]]; then
   echo "A patch release cannot contain a breaking item." >&2
   exit 1
 fi
-if [[ $patch_release == false ]]; then
+if [[ $patch_release == true ]]; then
+  bump="patch"
+else
   development_version=$("$version_file_sh" read)
   release_version=$(
     "$version_sh" release-version "$previous_tag" "$development_version" "$bump"
