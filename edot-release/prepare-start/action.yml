@@ -1,0 +1,52 @@
+---
+name: 'edot-release/prepare-start'
+description: 'Check an EDOT release dispatch, derive the release, and write the version file, applies_to entries, and release-notes section into the working tree. The caller must check out full history and tags.'
+
+inputs:
+  notes:
+    description: 'Release-note JSON authored by the operator.'
+    required: true
+  ref:
+    description: 'Dispatched commit.'
+    required: false
+    default: ${{ github.sha }}
+  ref-name:
+    description: 'Dispatched branch name: main or patching/X.Y.Z.'
+    required: false
+    default: ${{ github.ref_name }}
+  repository:
+    description: 'GitHub repository whose pull requests are listed and linked.'
+    required: false
+    default: ${{ github.repository }}
+  github-token:
+    description: 'GitHub token used by the commits API.'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  prepared:
+    description: 'true when the release changes were written; false when no pull request was merged since the previous release.'
+    value: ${{ steps.prepare.outputs.prepared }}
+  version:
+    description: 'Release version, X.Y.Z. Empty when nothing was prepared.'
+    value: ${{ steps.prepare.outputs.version }}
+  previous-tag:
+    description: 'Tag of the previous release.'
+    value: ${{ steps.prepare.outputs.previous-tag }}
+  release:
+    description: 'Release JSON for prepare-finish: version, bump, previousTag, releaseBranch, prepareBranch, and range. Empty when nothing was prepared.'
+    value: ${{ steps.prepare.outputs.release }}
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare release changes
+      id: prepare
+      shell: bash
+      env:
+        RELEASE_NOTES: ${{ inputs.notes }}
+        RELEASE_REF: ${{ inputs.ref }}
+        RELEASE_REF_NAME: ${{ inputs.ref-name }}
+        RELEASE_REPOSITORY: ${{ inputs.repository }}
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: '"$GITHUB_ACTION_PATH/prepare-start.sh"'

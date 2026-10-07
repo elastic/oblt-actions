@@ -1,0 +1,193 @@
+---
+name: test-edot-release-render-release-notes
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-edot-release-render-release-notes.yml'
+      - 'edot-release/render-release-notes/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-edot-release-render-release-notes.yml'
+      - 'edot-release/render-release-notes/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: always()
+    needs:
+      - valid
+      - invalid
+    runs-on: ubuntu-slim
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  valid:
+    runs-on: ubuntu-slim
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./edot-release/render-release-notes
+        with:
+          notes-file: edot-release/render-release-notes/test-data/android-1.10.0.json
+          version: 1.10.0
+          output-file: ${{ runner.temp }}/android.md
+          repository: elastic/apm-agent-android
+          heading-anchor-base: elastic-apm-android-agent-1100
+          subsection-anchor-base: elastic-apm-android-agent-1100
+          release-date: September 29, 2026
+
+      - name: Verify Android section
+        run: |
+          sed 's/[[:space:]]*$//' "$RUNNER_TEMP/android.md" > "$RUNNER_TEMP/android-clean.md"
+          sed 's/[[:space:]]*$//' \
+            edot-release/render-release-notes/test-data/android-1.10.0.md \
+            > "$RUNNER_TEMP/android-want.md"
+          diff "$RUNNER_TEMP/android-clean.md" "$RUNNER_TEMP/android-want.md"
+
+      - name: Create literal path fixture
+        run: |
+          cp edot-release/render-release-notes/test-data/ios-sample.json \
+            "$RUNNER_TEMP/notes\$literal.json"
+
+      - uses: ./edot-release/render-release-notes
+        with:
+          notes-file: ${{ runner.temp }}/notes$literal.json
+          version: 2.2.0
+          output-file: ${{ runner.temp }}/ios$literal.md
+          repository: elastic/apm-agent-ios
+          heading-anchor-base: elastic-apm-220
+          subsection-anchor-base: elastic-apm-ios-agent-220
+          release-date: October 1, 2026
+
+      - name: Verify iOS section
+        run: diff "$RUNNER_TEMP/ios\$literal.md" edot-release/render-release-notes/test-data/ios-sample.md
+
+  invalid:
+    runs-on: ubuntu-slim
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Create rejection fixtures
+        run: |
+          jq '.uncategorized = [{"message":"Classify me"}]' \
+            edot-release/render-release-notes/test-data/ios-sample.json \
+            > "$RUNNER_TEMP/uncategorized.json"
+          jq '.featuresEnhancements[0].message = "[Breaking] Duplicate signal"' \
+            edot-release/render-release-notes/test-data/ios-sample.json \
+            > "$RUNNER_TEMP/prefixed-breaking.json"
+          printf '%s\n' \
+            '{"dependencies":[],"featuresEnhancements":[],"fixes":[],"uncategorized":[]}' \
+            > "$RUNNER_TEMP/empty.json"
+          echo 'not JSON' > "$RUNNER_TEMP/not-json.json"
+
+      - id: uncategorized
+        continue-on-error: true
+        uses: ./edot-release/render-release-notes
+        with:
+          notes-file: ${{ runner.temp }}/uncategorized.json
+          version: 2.2.0
+          output-file: ${{ runner.temp }}/uncategorized.md
+          repository: elastic/apm-agent-ios
+          heading-anchor-base: elastic-apm-220
+          subsection-anchor-base: elastic-apm-ios-agent-220
+      - if: steps.uncategorized.outcome != 'failure'
+        run: exit 1
+
+      - id: prefixed-breaking
+        continue-on-error: true
+        uses: ./edot-release/render-release-notes
+        with:
+          notes-file: ${{ runner.temp }}/prefixed-breaking.json
+          version: 2.2.0
+          output-file: ${{ runner.temp }}/prefixed-breaking.md
+          repository: elastic/apm-agent-ios
+          heading-anchor-base: elastic-apm-220
+          subsection-anchor-base: elastic-apm-ios-agent-220
+      - if: steps.prefixed-breaking.outcome != 'failure'
+        run: exit 1
+
+      - id: empty
+        continue-on-error: true
+        uses: ./edot-release/render-release-notes
+        with:
+          notes-file: ${{ runner.temp }}/empty.json
+          version: 2.2.0
+          output-file: ${{ runner.temp }}/empty.md
+          repository: elastic/apm-agent-ios
+          heading-anchor-base: elastic-apm-220
+          subsection-anchor-base: elastic-apm-ios-agent-220
+      - if: steps.empty.outcome != 'failure'
+        run: exit 1
+
+      - id: invalid-version
+        continue-on-error: true
+        uses: ./edot-release/render-release-notes
+        with:
+          notes-file: edot-release/render-release-notes/test-data/ios-sample.json
+          version: '2.2'
+          output-file: ${{ runner.temp }}/invalid-version.md
+          repository: elastic/apm-agent-ios
+          heading-anchor-base: elastic-apm-220
+          subsection-anchor-base: elastic-apm-ios-agent-220
+      - if: steps.invalid-version.outcome != 'failure'
+        run: exit 1
+
+      - id: invalid-json
+        continue-on-error: true
+        uses: ./edot-release/render-release-notes
+        with:
+          notes-file: ${{ runner.temp }}/not-json.json
+          version: 2.2.0
+          output-file: ${{ runner.temp }}/invalid-json.md
+          repository: elastic/apm-agent-ios
+          heading-anchor-base: elastic-apm-220
+          subsection-anchor-base: elastic-apm-ios-agent-220
+      - if: steps.invalid-json.outcome != 'failure'
+        run: exit 1
+
+      - id: missing-heading-anchor
+        continue-on-error: true
+        uses: ./edot-release/render-release-notes
+        with:
+          notes-file: edot-release/render-release-notes/test-data/ios-sample.json
+          version: 2.2.0
+          output-file: ${{ runner.temp }}/missing-heading.md
+          repository: elastic/apm-agent-ios
+          heading-anchor-base: ''
+          subsection-anchor-base: elastic-apm-ios-agent-220
+      - if: steps.missing-heading-anchor.outcome != 'failure'
+        run: exit 1
+
+      - id: missing-subsection-anchor
+        continue-on-error: true
+        uses: ./edot-release/render-release-notes
+        with:
+          notes-file: edot-release/render-release-notes/test-data/ios-sample.json
+          version: 2.2.0
+          output-file: ${{ runner.temp }}/missing-subsection.md
+          repository: elastic/apm-agent-ios
+          heading-anchor-base: elastic-apm-220
+          subsection-anchor-base: ''
+      - if: steps.missing-subsection-anchor.outcome != 'failure'
+        run: exit 1
+
+      - name: Reject an empty repository
+        run: |
+          if RELEASE_REPOSITORY='' edot-release/render-release-notes/render-release-notes.sh \
+            edot-release/render-release-notes/test-data/ios-sample.json 2.2.0 \
+            elastic-apm-220 elastic-apm-ios-agent-220 > /dev/null; then
+            exit 1
+          fi

@@ -17,9 +17,15 @@ inputs:
     default: ${{ github.repository }}
 
 outputs:
-    workload-identity-provider:
-      value: ${{ steps.generate-workload-identity-pool-provider-id.outputs.workload_identity_provider_id }}
-      description: 'The generated Workload Identity Pool Provider ID'
+  workload-identity-provider:
+    value: ${{ steps.generate-workload-identity-pool-provider-id.outputs.workload_identity_provider_id }}
+    description: 'The generated Workload Identity Pool Provider ID'
+  project-id:
+    value: ${{ inputs.project-id }}
+    description: 'The configured GCP project ID'
+  project-number:
+    value: ${{ inputs.project-number }}
+    description: 'The configured GCP project number'
 
 runs:
   using: composite
