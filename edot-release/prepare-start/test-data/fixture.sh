@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
 # Build and check the fixture repository that the edot-release flow-action
-# test workflows run against. One builder serves all four workflows, so the
-# fixture layout has one home.
+# and start-patch test workflows run against. One builder serves all five
+# workflows, so the fixture layout has one home.
 #
 # The fixture is a Git repository at GITHUB_WORKSPACE, next to the
 # oblt-actions checkout in `oblt-actions/` (excluded through
@@ -28,6 +28,9 @@
 #                                        <version> under the index marker
 #   fixture.sh commit <message> [<trailer-sha>]
 #                                        commit the tree and print the SHA
+#   fixture.sh import <repository> <sha> fetch a commit of a public GitHub
+#                                        repository and its parents into the
+#                                        fixture, creating no ref
 #   fixture.sh compare <file> <expected> diff a file against an expected
 #                                        one, ignoring the release date and
 #                                        trailing whitespace
@@ -43,7 +46,8 @@
 #   fixture.sh check-upstream <repository> <version>...
 #                                        fail if <repository> has a branch,
 #                                        tag, Release, or pull request that a
-#                                        dry-run for <version> must not create
+#                                        dry-run for <version> must not create,
+#                                        patch branches included
 #
 # Environment: GITHUB_WORKSPACE and RUNNER_TEMP (required); GH_TOKEN for
 # check-upstream.
@@ -180,6 +184,13 @@ case ${1:-} in
     [[ $# -ge 2 && $# -le 3 ]] || exit 2
     commit "$2" "${3:-}"
     ;;
+  import)
+    [[ $# -eq 3 ]] || exit 2
+    # Depth 2 brings the commit's parents too, so a test can count them. A
+    # fetch by SHA creates no ref; the snapshot records neither FETCH_HEAD
+    # nor the shallow boundary it writes.
+    git fetch --quiet --depth=2 "https://github.com/$2.git" "$3"
+    ;;
   snapshot)
     take_snapshot
     ;;
@@ -222,7 +233,7 @@ case ${1:-} in
     failed=false
     for version in "$@"; do
       major=${version%%.*}
-      for ref in "heads/releasing/$major." "heads/prepare/$major." "heads/patch-notes/$major." "tags/v$major."; do
+      for ref in "heads/releasing/$major." "heads/prepare/$major." "heads/patch-notes/$major." "heads/patching/$major." "tags/v$major."; do
         found=$(gh api "repos/$repository/git/matching-refs/$ref" --jq '.[].ref')
         if [[ -n $found ]]; then
           echo "$repository has $found." >&2
@@ -234,7 +245,7 @@ case ${1:-} in
         echo "$repository has Release $found." >&2
         failed=true
       fi
-      for head in "releasing/$version" "prepare/$version" "patch-notes/$version"; do
+      for head in "releasing/$version" "prepare/$version" "patch-notes/$version" "patching/$version"; do
         found=$(gh pr list --repo "$repository" --state all --head "$head" --json url --jq '.[].url')
         if [[ -n $found ]]; then
           echo "$repository has a pull request from $head: $found" >&2
