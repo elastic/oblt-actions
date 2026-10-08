@@ -37,10 +37,11 @@ them first, for example with `elastic/oblt-actions/git/setup` and the same
 token. The action does not configure Git itself.
 As its last step, the action deletes `prepare/X.Y.Z`, and after a patch
 release also `releasing/X.Y.Z` and `patching/X.Y.Z`, so the next
-preparation is not blocked; it skips a branch that is already gone. After a
-release from `main`, `releasing/X.Y.Z` is the head of the pull request into
-`main`: delete it when that pull request merges, unless the repository
-deletes merged head branches.
+preparation is not blocked; it skips a branch that is already gone. It
+does not delete the head of the pull request it opens into `main`:
+`releasing/X.Y.Z` after a release from `main`, `patch-notes/X.Y.Z` after a
+patch release. Delete that branch when the pull request merges, unless the
+repository deletes merged head branches.
 The action reads the repository's platform facts from
 `.github/edot-release.json` in the checked-out commit; see
 [`prepare-start`](../prepare-start/README.md#configuration).
