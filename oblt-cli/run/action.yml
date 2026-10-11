@@ -17,7 +17,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: elastic/oblt-actions/oblt-cli/setup@v1.41.3
+    - uses: elastic/oblt-actions/oblt-cli/setup@v1.42.0
       with:
         github-token: ${{ inputs.github-token }}
         slack-channel: ${{ inputs.slack-channel }}
