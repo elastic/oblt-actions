@@ -21,7 +21,7 @@ Run the oblt-cli wrapper to create a custom cluster.
 | `username`            | Username to show in the deployments with oblt-cli. oblt-cli/setup lowercases the value and strips characters outside [a-z0-9_-]. Defaults to the GitHub repository name (without the owner prefix). | `false`  | ` `                |
 | `gitops`              | Whether to provide the GitOps metadata to the oblt-cli                                                                                                                                              | `false`  | `false`            |
 | `dry-run`             | Whether to dryRun                                                                                                                                                                                   | `false`  | `false`            |
-| `skip-random-name`    | Whether to deploy a cluster with a random name                                                                                                                                                      | `false`  | `false`            |
+| `skip-random-name`    | Whether to disable random cluster name generation                                                                                                                                                   | `false`  | `false`            |
 | `wait`                | it waits N minutes for the operation to finish. (default 0 if no wait time is provided)                                                                                                             | `false`  | `0`                |
 | `expiry-date`         | Expiry date for the cluster in ISO 8601 format (e.g., '2024-12-31' or '2024-12-31T23:59:59Z'). (Optional)                                                                                           | `false`  | ` `                |
 | `expire-in-hours`     | Number of hours after which the cluster expires (e.g., 48 for 2 days). (Optional)                                                                                                                   | `false`  | ` `                |
@@ -55,4 +55,6 @@ jobs:
           parameters: '{"RemoteClusterName":"release-oblt","StackVersion":"8.7.0","ElasticsearchDockerImage":"docker.elastic.co/observability-ci/elasticsearch-cloud-ess:8.7.0-046d305b","KibanaDockerImage":"docker.elastic.co/observability-ci/kibana-cloud:8.7.0-SNAPSHOT-87"}'
           github-token: ${{ secrets.PAT_TOKEN }}
 ```
+
+Set `skip-random-name: true` to keep the provided cluster name as-is without appending a random suffix.
 <!--/usage-->

@@ -33,7 +33,7 @@ inputs:
     default: false
     required: false
   skip-random-name:
-    description: 'Whether to deploy a cluster with a random name'
+    description: 'Whether to disable random cluster name generation'
     default: false
     required: false
   wait:
