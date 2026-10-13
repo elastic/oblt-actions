@@ -31,5 +31,8 @@ jobs:
           repository: elastic/oblt-actions
           dry-run: 'true'
       - name: Assert output is set
+        env:
+          BRANCH_COUNT: >-
+            ${{ steps.delete-stale-branches.outputs.stale-branches-count }}
         run: |
-          test -n "${{ steps.delete-stale-branches.outputs.stale-branches-count }}"
+          test -n "${BRANCH_COUNT}"
