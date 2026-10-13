@@ -17,7 +17,6 @@ on:
       - 'github/delete-stale-branches/**'
 
 permissions:
-  administration: read
   contents: read
   pull-requests: read
 

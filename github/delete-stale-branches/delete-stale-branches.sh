@@ -18,9 +18,6 @@ if [[ "${DRY_RUN}" != "true" && "${DRY_RUN}" != "false" ]]; then
   exit 1
 fi
 
-OWNER="${REPO%%/*}"
-NAME="${REPO##*/}"
-
 if date --version >/dev/null 2>&1; then
   CUTOFF="$(date -u -d "${STALE_MONTHS} months ago" +%Y-%m-%dT%H:%M:%SZ)"
 else
@@ -28,10 +25,16 @@ else
 fi
 echo "Repo: ${REPO} | cutoff: ${CUTOFF} | dry run: ${DRY_RUN}"
 
+OWNER="${REPO%%/*}"
+NAME="${REPO##*/}"
+
 DEFAULT_BRANCH="$(gh api "repos/${REPO}" --jq .default_branch)"
 
 OPEN_PR_BRANCHES="$(gh pr list -R "${REPO}" --state open --limit 5000 \
   --json headRefName,isCrossRepository --jq '.[] | select(.isCrossRepository | not) | .headRefName')"
+
+PROTECTED_BRANCHES="$(gh api --paginate "repos/${REPO}/branches" \
+  -f protected=true -f per_page=100 --jq '.[].name')"
 
 BRANCHES="$(gh api graphql --paginate \
   -f owner="${OWNER}" -f name="${NAME}" \
@@ -39,17 +42,17 @@ BRANCHES="$(gh api graphql --paginate \
     repository(owner:$owner,name:$name){
       refs(refPrefix:"refs/heads/",first:100,after:$endCursor){
         pageInfo{hasNextPage endCursor}
-        nodes{name branchProtectionRule{id} target{... on Commit{committedDate}}}
+        nodes{name target{... on Commit{committedDate}}}
       }
     }
-  }' --jq '.data.repository.refs.nodes[] | [.name, .target.committedDate, (.branchProtectionRule != null)] | @tsv')"
+  }' --jq '.data.repository.refs.nodes[] | [.name, .target.committedDate] | @tsv')"
 
 RELEASE_RE='^([0-9]+\.([0-9]+|x))$'
 count=0
-while IFS=$'\t' read -r branch date protected; do
+while IFS=$'\t' read -r branch date; do
   [[ -z "${branch}" || -z "${date}" ]] && continue
   [[ "${branch}" == "${DEFAULT_BRANCH}" ]] && continue
-  [[ "${protected}" == "true" ]] && continue
+  grep -Fxq -- "${branch}" <<<"${PROTECTED_BRANCHES}" && continue
   [[ "${branch}" =~ ${RELEASE_RE} ]] && continue
   [[ ! "${date}" < "${CUTOFF}" ]] && continue
   if grep -Fxq -- "${branch}" <<<"${OPEN_PR_BRANCHES}"; then

@@ -5,8 +5,8 @@ description: >-
 inputs:
   github-token:
     description: >-
-      GitHub token with administration, contents, and pull-requests permissions
-      for the target repository.
+      GitHub token with contents and pull-requests permissions for the target
+      repository.
     required: false
     default: ${{ github.token }}
   repository:

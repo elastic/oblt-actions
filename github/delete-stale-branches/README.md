@@ -12,7 +12,7 @@ Finds and optionally deletes branches with no open pull request that have not be
 
 | Name | Description | Required | Default |
 | --- | --- | --- | --- |
-| `github-token` | GitHub token with administration, contents, and pull-requests permissions for the target repository. | `false` | `${{ github.token }}` |
+| `github-token` | GitHub token with contents and pull-requests permissions for the target repository. | `false` | `${{ github.token }}` |
 | `repository` | Repository to inspect in owner/name format. | `false` | `${{ github.repository }}` |
 | `stale-months` | Delete branches whose last commit is older than this many months. | `false` | `36` |
 | `dry-run` | List matching branches without deleting them. | `false` | `true` |
@@ -25,11 +25,10 @@ Finds and optionally deletes branches with no open pull request that have not be
 
 ## Usage
 
-The token needs `administration: read` to identify protected branches, `contents: write` to delete branches, and `pull-requests: read` to preserve branches used by open pull requests. Dry-run mode is enabled by default.
+The token needs `contents: write` to delete branches and `pull-requests: read` to preserve branches used by open pull requests. Dry-run mode is enabled by default.
 
 ```yaml
 permissions:
-  administration: read
   contents: write
   pull-requests: read
 
