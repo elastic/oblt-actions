@@ -4,6 +4,7 @@ set -euo pipefail
 REPO="${REPO:?REPO is required}"
 STALE_MONTHS="${STALE_MONTHS:-36}"
 DRY_RUN="${DRY_RUN:-true}"
+DEBUG="${DEBUG:-false}"
 
 if [[ ! "${REPO}" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
   echo "::error::repository must be in owner/name format"
@@ -16,6 +17,14 @@ fi
 if [[ "${DRY_RUN}" != "true" && "${DRY_RUN}" != "false" ]]; then
   echo "::error::dry-run must be true or false"
   exit 1
+fi
+if [[ "${DEBUG}" != "true" && "${DEBUG}" != "false" ]]; then
+  echo "::error::debug must be true or false"
+  exit 1
+fi
+
+if [[ "${DEBUG}" == "true" ]]; then
+  set -x
 fi
 
 if date --version >/dev/null 2>&1; then

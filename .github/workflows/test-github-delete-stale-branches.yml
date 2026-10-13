@@ -39,6 +39,7 @@ jobs:
           repository: test-owner/test-repo
           stale-months: '1'
           dry-run: 'true'
+          debug: 'true'
       - name: Assert dry-run result
         env:
           BRANCH_COUNT: >-
