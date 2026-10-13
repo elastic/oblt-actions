@@ -1,8 +1,12 @@
 name: Delete Stale Branches
-description: Finds and optionally deletes branches with no open pull request that have not been updated recently.
+description: >-
+  Finds and optionally deletes branches with no open pull request that have not
+  been updated recently.
 inputs:
   github-token:
-    description: GitHub token with contents and pull-requests permissions for the target repository.
+    description: >-
+      GitHub token with contents and pull-requests permissions for the target
+      repository.
     required: false
     default: ${{ github.token }}
   repository:
@@ -10,7 +14,8 @@ inputs:
     required: false
     default: ${{ github.repository }}
   stale-months:
-    description: Delete branches whose last commit is older than this many months.
+    description: >-
+      Delete branches whose last commit is older than this many months.
     required: false
     default: '36'
   dry-run:
