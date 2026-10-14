@@ -86,11 +86,18 @@ jobs:
             ' <<<"$notes"
           done
 
+      # The fixture's prefix exists only on a local tag, so the case does
+      # not depend on the repository's release history.
       - name: Create release configuration fixture
-        run: cp edot-release/prepare-start/test-data/android/edot-release.json .github/edot-release.json
+        run: |
+          jq '.tagPrefix = "edot-release-test-"' \
+            edot-release/prepare-start/test-data/android/edot-release.json \
+            > .github/edot-release.json
+          git tag edot-release-test-1.41.2 v1.41.2
 
       # No tag-prefix input and no previous-tag: the previous tag is the
-      # highest release tag, which only resolves with the file's v prefix.
+      # highest tag with the file's prefix, which only exists if that
+      # prefix is read.
       - id: config-prefix
         uses: ./edot-release/draft-release-notes
         with:
@@ -106,7 +113,7 @@ jobs:
             (.dependencies | length) == 0
             and (.featuresEnhancements | length) == 0
             and (.fixes | length) == 0
-            and (.uncategorized | length) == 0
+            and (.uncategorized | map(.prId) == ["1135"])
           ' <<<"$NOTES"
 
   grouping:
