@@ -43,3 +43,6 @@ jobs:
 ```
 
 The action preserves the repository's default branch, protected branches, branches referenced by open pull requests in the same repository, and release branches named `N.N` or `N.x`.
+
+> [!WARNING]
+> The action checks up to 5,000 open pull requests. In repositories with more than 5,000 open pull requests, branches referenced only by pull requests beyond this limit may not be preserved and could be deleted. Review the dry-run results before disabling dry-run mode.
