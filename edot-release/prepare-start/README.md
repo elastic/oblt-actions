@@ -73,7 +73,8 @@ writes the release changes into the working tree and creates no ref, commit,
 or push. Steps that change more files for the release run after it, and
 `prepare-finish` then pushes the branches and opens the preparation pull
 request. When `prepared` is `false`, no pull request was merged since the
-previous release and nothing was written.
+previous release and nothing was written; the action reports that as a
+warning annotation on the run, so the caller needs no step of its own.
 
 The in-flight check, which stops while a `releasing/*` branch exists, is a
 read, not a lock. Run every preparation, from `main` and from patch
