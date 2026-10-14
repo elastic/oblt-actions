@@ -31,6 +31,15 @@ An Action to build and push Kibana docker images given a git ref.
 | `kibana-stack-version` | The elastic stack version of Kibana that was built.                       |
 <!--/outputs-->
 
+## Bootstrap behavior
+
+The action chooses the bootstrap command based on the Kibana checkout lockfile:
+
+- If `pnpm-lock.yaml` is present, it prefers the pnpm path. It ensures `corepack` is available (installing it via `npm` if needed), enables it, verifies `pnpm`, and runs `pnpm kbn clean` followed by `pnpm kbn bootstrap`.
+- If `pnpm-lock.yaml` is absent but `yarn.lock` is present, it uses the legacy yarn path. It verifies that `yarn` is installed and then runs `yarn kbn clean` followed by `yarn kbn bootstrap`.
+- If neither lockfile exists, the action exits with an explicit error instead of continuing.
+- If the required package manager is missing for the selected lockfile path, the action exits with a clear `::error::` message before proceeding to the build stage.
+
 ## Usage
 
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->

@@ -81,6 +81,44 @@ describe("run", () => {
     expect(mockCore.setOutput).toHaveBeenCalledWith("count-deleted", 1);
   });
 
+  it("should ignore non-AMD statuses when aggregating changed outputs", async () => {
+    const mockCommittedFiles = {
+      committedFiles: [
+        { filename: "renamed.md", status: "Renamed" },
+        { filename: "copied.yaml", status: "Copied" },
+        { filename: "type-change.json", status: "Type-Change" },
+        { filename: "added.txt", status: "Added" },
+        { filename: "modified.js", status: "Modified" },
+        { filename: "deleted.md", status: "Deleted" },
+      ],
+    };
+    mockGitChangedFiles.mockResolvedValue(mockCommittedFiles);
+    mockCore.getInput.mockReturnValueOnce("main").mockReturnValueOnce("HEAD").mockReturnValueOnce('["*.*"]');
+
+    await run();
+
+    expect(mockCore.info).toHaveBeenCalledWith(
+      "Added Files: " + JSON.stringify(["added.txt"])
+    );
+    expect(mockCore.info).toHaveBeenCalledWith(
+      "Modified Files: " + JSON.stringify(["modified.js"])
+    );
+    expect(mockCore.info).toHaveBeenCalledWith(
+      "Deleted Files: " + JSON.stringify(["deleted.md"])
+    );
+    expect(mockCore.info).toHaveBeenCalledWith(
+      "Changed Files: " + JSON.stringify(["added.txt", "modified.js", "deleted.md"])
+    );
+    expect(mockCore.setOutput).toHaveBeenCalledWith(
+      "changed",
+      JSON.stringify(["added.txt", "modified.js", "deleted.md"])
+    );
+    expect(mockCore.setOutput).toHaveBeenCalledWith("count", 3);
+    expect(mockCore.setOutput).toHaveBeenCalledWith("count-added", 1);
+    expect(mockCore.setOutput).toHaveBeenCalledWith("count-modified", 1);
+    expect(mockCore.setOutput).toHaveBeenCalledWith("count-deleted", 1);
+  });
+
   it("should use default values for base-ref, ref and filter if not provided", async () => {
     const mockCommittedFiles = {
       committedFiles: [],

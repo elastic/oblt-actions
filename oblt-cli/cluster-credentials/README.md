@@ -48,6 +48,14 @@ Masked environment variables that are available:
 * KIBANA_PASSWORD
 * SYNTHETICS_API_KEY
 
+## Behavior
+
+- Attempts to fetch cluster credentials with `oblt-cli cluster secrets env` up to three times.
+- Uses a retry backoff of 2s, then 4s between failed attempts.
+- Fails the step with an error after the final failed attempt if credentials are still unavailable.
+- Masks each non-empty secret value with `::add-mask` before exporting it to `${GITHUB_ENV}`.
+- Removes the temporary env file on exit so the fetched credentials are only exposed via the workflow environment.
+
 ## Usage
 
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
