@@ -36,7 +36,8 @@
 # and `release`, the JSON prepare-finish takes: version, bump, previousTag,
 # releaseBranch, prepareBranch, and range. If no PR was merged since the
 # previous release, the script succeeds with `prepared=false`, sets only
-# `previous-tag`, and writes nothing.
+# `previous-tag`, writes nothing, and reports the no-op as a warning
+# annotation so a green run shows why it created nothing.
 
 set -euo pipefail
 
@@ -101,7 +102,7 @@ range_file="$work_dir/range.json"
 # Nothing to release is a successful outcome, not an error, whatever the
 # notes say: the consumer workflow skips the remaining phases.
 if [[ $(jq '.pullRequests | length' "$range_file") -eq 0 ]]; then
-  echo "No contributing pull requests since $previous_tag remain after excluding release bookkeeping; preparation is a no-op."
+  echo "::warning::No contributing pull requests since $previous_tag remain after excluding release bookkeeping; preparation is a no-op."
   {
     echo 'prepared=false'
     echo "previous-tag=$previous_tag"
