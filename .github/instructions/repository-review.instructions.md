@@ -7,7 +7,7 @@ applyTo: "**"
 - For GitHub Action changes, prefer end-to-end evidence in `.github/workflows/test-<action>.yml` or colocated action tests. Exercise composite actions through `uses: ./<action-path>` so the test covers metadata and runtime behavior, not only isolated logic.
 - Keep actions single-purpose with clear inputs and outputs; avoid combining unrelated side effects. Keep namespaced actions in their own directories with an `action.yml`.
 - When an action's inputs, outputs, or usage change, keep its README examples aligned with the declared contract.
-- Keep changes focused and reviewable. Repository-specific review details are in this file and `.github/instructions/github-actions.instructions.md`.
+- Keep changes focused and reviewable. For the review workflow, follow `.agents/skills/copilot-review/SKILL.md`; repository-specific checks are in this file and `.github/instructions/github-actions.instructions.md`.
 
 ## Domain focus
 
