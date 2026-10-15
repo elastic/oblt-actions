@@ -12,7 +12,7 @@ Keep this file focused on cross-repository guidance and below 4,000 characters. 
 - When action inputs, outputs, or usage change, update its README and examples.
 - Keep each action focused on one responsibility. If a namespace contains multiple actions, give each its own directory and `action.yml`.
 - Prefer editing existing files; create only files needed for the task.
-- Keep these instructions accurate as repository standards change.
+- Update this file immediately when a user gives new instructions, contradictions are found, or repository standards change; treat instruction maintenance as a highest-priority task.
 
 ## Pull requests
 
