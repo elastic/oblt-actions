@@ -16,7 +16,7 @@ inputs:
     required: false
     default: ''
   tag-prefix:
-    description: 'Prefix on release tags, such as v. Leave empty for plain X.Y.Z tags.'
+    description: 'Prefix on release tags, such as v, for a repository without .github/edot-release.json. When that file exists, its tagPrefix is used instead.'
     required: false
     default: ''
   repository:
@@ -47,6 +47,11 @@ runs:
         RELEASE_REPOSITORY: ${{ inputs.repository }}
         GH_TOKEN: ${{ inputs.github-token }}
       run: |
+        # A repository with an EDOT release configuration states its tag
+        # prefix there once; the input serves repositories without the file.
+        if [[ -f .github/edot-release.json ]]; then
+          TAG_PREFIX=$("$GITHUB_ACTION_PATH/../prepare-start/config.sh" get tagPrefix)
+        fi
         notes=$("$GITHUB_ACTION_PATH/draft-release-notes.sh" "$RELEASE_REF" "$PREVIOUS_TAG")
         {
           echo 'notes<<EDOT_RELEASE_NOTES'
