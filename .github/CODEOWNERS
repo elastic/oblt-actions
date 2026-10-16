@@ -1,3 +1,6 @@
 * @elastic/observablt-ci
 /edot-release/ @elastic/obs-signals-traces-approvers
 /.github/workflows/test-edot-release-*.yml @elastic/obs-signals-traces-approvers
+
+# Agentic workflow client triggers (elastic/oblt-aw distribution)
+/.github/workflows/trigger-obs-aw-* @elastic/observablt-ci
