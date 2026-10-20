@@ -11,14 +11,14 @@ Draft EDOT release-note JSON from the pull requests in a release range.
 ## Inputs
 
 <!--inputs-->
-| Name           | Description                                                          | Required | Default                    |
-|----------------|----------------------------------------------------------------------|----------|----------------------------|
-| `ref`          | Commit or ref at the end of the range.                               | `false`  | `${{ github.sha }}`        |
-| `ref-name`     | Branch name used to derive the previous tag for a patch release.     | `false`  | `${{ github.ref_name }}`   |
-| `previous-tag` | Release tag at the start of the range. Defaults from ref-name.       | `false`  | ` `                        |
-| `tag-prefix`   | Prefix on release tags, such as v. Leave empty for plain X.Y.Z tags. | `false`  | ` `                        |
-| `repository`   | GitHub repository whose pull requests are resolved.                  | `false`  | `${{ github.repository }}` |
-| `github-token` | GitHub token used by the commits API.                                | `false`  | `${{ github.token }}`      |
+| Name           | Description                                                                                                                                  | Required | Default                    |
+|----------------|----------------------------------------------------------------------------------------------------------------------------------------------|----------|----------------------------|
+| `ref`          | Commit or ref at the end of the range.                                                                                                       | `false`  | `${{ github.sha }}`        |
+| `ref-name`     | Branch name used to derive the previous tag for a patch release.                                                                             | `false`  | `${{ github.ref_name }}`   |
+| `previous-tag` | Release tag at the start of the range. Defaults from ref-name.                                                                               | `false`  | ` `                        |
+| `tag-prefix`   | Prefix on release tags, such as v, for a repository without .github/edot-release.json. When that file exists, its tagPrefix is used instead. | `false`  | ` `                        |
+| `repository`   | GitHub repository whose pull requests are resolved.                                                                                          | `false`  | `${{ github.repository }}` |
+| `github-token` | GitHub token used by the commits API.                                                                                                        | `false`  | `${{ github.token }}`      |
 <!--/inputs-->
 
 ## Outputs
@@ -31,7 +31,10 @@ Draft EDOT release-note JSON from the pull requests in a release range.
 
 ## Usage
 
-The repository must be checked out with full history and tags.
+The repository must be checked out with full history and tags. A repository
+that has `.github/edot-release.json` (see the
+[`prepare-start` configuration](../prepare-start/README.md#configuration))
+passes no `tag-prefix`: the action reads `tagPrefix` from that file.
 
 <!--usage action="elastic/oblt-actions/edot-release/draft-release-notes" version="env:VERSION"-->
 ```yaml
@@ -40,7 +43,5 @@ steps:
     with:
       fetch-depth: 0
   - uses: elastic/oblt-actions/edot-release/draft-release-notes@v1
-    with:
-      tag-prefix: v
 ```
 <!--/usage-->
