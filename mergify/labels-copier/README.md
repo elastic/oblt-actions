@@ -27,13 +27,13 @@ copies pull request labels to backported PRs
 
 ## Usage
 
-Production callers that copy labels which must retrigger other workflows (for example
-`oblt-aw/ai/merge-ready` for Observability Agentic Workflow automerge) must pass an
-ephemeral Vault token from `elastic/oblt-actions/github/create-token@v1`. Labels applied
-with `GITHUB_TOKEN` / `github-actions[bot]` do not start new `pull_request` `labeled`
-runs. Register a TokenPolicy in `elastic/catalog-info` for the **caller** workflow path
-(`elastic/<repo>/.github/workflows/mergify-labels-copier.yml@*`) with
-`pull_requests: write` before relying on mint.
+Use the default `GITHUB_TOKEN` when copied labels do not need to start other
+workflows. Use an ephemeral Vault token when they must (for example
+`oblt-aw/ai/merge-ready` for Observability Agentic Workflow automerge): labels
+applied by `GITHUB_TOKEN` / `github-actions[bot]` do not start new
+`pull_request` `labeled` runs.
+
+### Default `GITHUB_TOKEN`
 
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
@@ -43,15 +43,52 @@ on:
   pull_request:
     types:
       - opened
-
-permissions:
-  contents: read
-
 jobs:
   react:
     runs-on: ubuntu-latest
     if: startsWith(github.head_ref, 'mergify/bp/')
     permissions:
+      # Add GH labels
+      pull-requests: write
+      # See https://github.com/cli/cli/issues/6274
+      repository-projects: read
+    steps:
+      - uses: elastic/oblt-actions/mergify/labels-copier@v1
+        with:
+          excluded-labels-regex: "^backport-*"
+      # ...
+```
+<!--/usage-->
+
+### Ephemeral Vault token (retrigger workflows)
+
+Mint the token in the **caller** workflow and pass it via `github-token`.
+Register a TokenPolicy in `elastic/catalog-info` for the caller workflow path
+(`elastic/<repo>/.github/workflows/mergify-labels-copier.yml@*`) with
+`pull_requests: write` before relying on mint.
+
+`id-token: write` is required only on the job that runs
+`elastic/oblt-actions/github/create-token@v1`. This action does not need it; if
+you mint in another job and pass the token in, keep `id-token: write` on that
+mint job only.
+
+```yaml
+name: mergify backport labels copier
+
+on:
+  pull_request:
+    types:
+      - opened
+jobs:
+  react:
+    runs-on: ubuntu-latest
+    if: startsWith(github.head_ref, 'mergify/bp/')
+    permissions:
+      # Add GH labels (GITHUB_TOKEN; Vault token scopes come from TokenPolicy)
+      pull-requests: write
+      # See https://github.com/cli/cli/issues/6274
+      repository-projects: read
+      # OIDC for create-token (not required by labels-copier itself)
       id-token: write
     steps:
       - name: Create ephemeral GitHub token
@@ -63,4 +100,3 @@ jobs:
           excluded-labels-regex: "^backport-*"
           github-token: ${{ steps.create-token.outputs.token }}
 ```
-<!--/usage-->
