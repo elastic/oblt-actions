@@ -27,6 +27,14 @@ copies pull request labels to backported PRs
 
 ## Usage
 
+Production callers that copy labels which must retrigger other workflows (for example
+`oblt-aw/ai/merge-ready` for Observability Agentic Workflow automerge) must pass an
+ephemeral Vault token from `elastic/oblt-actions/github/create-token@v1`. Labels applied
+with `GITHUB_TOKEN` / `github-actions[bot]` do not start new `pull_request` `labeled`
+runs. Register a TokenPolicy in `elastic/catalog-info` for the **caller** workflow path
+(`elastic/<repo>/.github/workflows/mergify-labels-copier.yml@*`) with
+`pull_requests: write` before relying on mint.
+
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
 name: mergify backport labels copier
@@ -35,19 +43,24 @@ on:
   pull_request:
     types:
       - opened
+
+permissions:
+  contents: read
+
 jobs:
   react:
     runs-on: ubuntu-latest
     if: startsWith(github.head_ref, 'mergify/bp/')
     permissions:
-      # Add GH labels
-      pull-requests: write
-      # See https://github.com/cli/cli/issues/6274
-      repository-projects: read
+      id-token: write
     steps:
-      - uses: elastic/oblt-actions/mergify/labels-copier@v1
+      - name: Create ephemeral GitHub token
+        id: create-token
+        uses: elastic/oblt-actions/github/create-token@v1
+      - name: Copy parent labels to backport
+        uses: elastic/oblt-actions/mergify/labels-copier@v1
         with:
           excluded-labels-regex: "^backport-*"
-      # ...
+          github-token: ${{ steps.create-token.outputs.token }}
 ```
 <!--/usage-->
