@@ -12,6 +12,8 @@ on:
       - 'edot-release/draft-release-notes/**'
       - 'edot-release/pr-range/**'
       - 'edot-release/version/**'
+      - 'edot-release/prepare-start/config.sh'
+      - 'edot-release/prepare-start/test-data/android/edot-release.json'
   pull_request:
     branches:
       - main
@@ -20,6 +22,8 @@ on:
       - 'edot-release/draft-release-notes/**'
       - 'edot-release/pr-range/**'
       - 'edot-release/version/**'
+      - 'edot-release/prepare-start/config.sh'
+      - 'edot-release/prepare-start/test-data/android/edot-release.json'
 
 permissions:
   contents: read
@@ -82,6 +86,36 @@ jobs:
             ' <<<"$notes"
           done
 
+      # The fixture's prefix exists only on a local tag, so the case does
+      # not depend on the repository's release history.
+      - name: Create release configuration fixture
+        run: |
+          jq '.tagPrefix = "edot-release-test-"' \
+            edot-release/prepare-start/test-data/android/edot-release.json \
+            > .github/edot-release.json
+          git tag edot-release-test-1.41.2 v1.41.2
+
+      # No tag-prefix input and no previous-tag: the previous tag is the
+      # highest tag with the file's prefix, which only exists if that
+      # prefix is read.
+      - id: config-prefix
+        uses: ./edot-release/draft-release-notes
+        with:
+          ref: v1.41.3
+          ref-name: main
+          repository: elastic/oblt-actions
+
+      - name: Verify notes drafted with the configured prefix
+        env:
+          NOTES: ${{ steps.config-prefix.outputs.notes }}
+        run: |
+          jq -e '
+            (.dependencies | length) == 0
+            and (.featuresEnhancements | length) == 0
+            and (.fixes | length) == 0
+            and (.uncategorized | map(.prId) == ["1135"])
+          ' <<<"$NOTES"
+
   grouping:
     runs-on: ubuntu-slim
     steps:
@@ -111,4 +145,20 @@ jobs:
           repository: elastic/oblt-actions
 
       - if: steps.missing-tag.outcome != 'failure'
+        run: exit 1
+
+      - name: Create malformed release configuration
+        run: |
+          echo '{"tagPrefix": "v", "unknownKey": true}' > .github/edot-release.json
+
+      - id: malformed-config
+        continue-on-error: true
+        uses: ./edot-release/draft-release-notes
+        with:
+          ref: v1.41.3
+          ref-name: main
+          previous-tag: v1.41.2
+          repository: elastic/oblt-actions
+
+      - if: steps.malformed-config.outcome != 'failure'
         run: exit 1
