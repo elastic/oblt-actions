@@ -70,6 +70,11 @@ It runs on:
 
 This workflow requires the repository secrets `OBS_AUTOMATION_APP_ID` and `OBS_AUTOMATION_APP_PEM` to generate a GitHub App token with write access to contents and pull requests for the target repositories. It also requires `SLACK_BOT_TOKEN` so the job can notify `#observablt-bots` when the updatecli run fails.
 
+### GitHub Actions workflow documentation
+
+The repository-local workflow inventory and per-workflow documentation are
+indexed in [`.github/workflows/README.md`](.github/workflows/README.md).
+
 ## Releasing
 
 See [RELEASE.md](docs/RELEASE.md) for the release process.
