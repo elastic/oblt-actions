@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ "${1:-}" == "pr" ]]; then
-  printf '%s\n' "open-pr"
+if [[ "${1:-}" == "api" && "${2:-}" == "--method" && "${3:-}" == "GET" && "${4:-}" == "repos/test-owner/test-repo/pulls" ]]; then
+  if [[ "$*" == *"head=test-owner:open-pr"* ]]; then printf '%s\n' 1; else printf '%s\n' 0; fi
 elif [[ "${1:-}" == "api" && "${2:-}" == "repos/test-owner/test-repo" ]]; then
   printf '%s\n' "main"
-elif [[ "${1:-}" == "api" && "${2:-}" == "--paginate" && "${3:-}" == "repos/test-owner/test-repo/branches" ]]; then
+elif [[ "${1:-}" == "api" && "${2:-}" == "--method" && "${3:-}" == "GET" && "${4:-}" == "--paginate" && "${5:-}" == "repos/test-owner/test-repo/branches" ]]; then
   printf '%s\n' "protected"
 elif [[ "${1:-}" == "api" && "${2:-}" == "graphql" ]]; then
   printf '%s\t%s\n' \

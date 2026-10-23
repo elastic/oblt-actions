@@ -39,10 +39,7 @@ NAME="${REPO##*/}"
 
 DEFAULT_BRANCH="$(gh api "repos/${REPO}" --jq .default_branch)"
 
-OPEN_PR_BRANCHES="$(gh pr list -R "${REPO}" --state open --limit 5000 \
-  --json headRefName,isCrossRepository --jq '.[] | select(.isCrossRepository | not) | .headRefName')"
-
-PROTECTED_BRANCHES="$(gh api --paginate "repos/${REPO}/branches" \
+PROTECTED_BRANCHES="$(gh api --method GET --paginate "repos/${REPO}/branches" \
   -f protected=true -f per_page=100 --jq '.[].name')"
 
 BRANCHES="$(gh api graphql --paginate \
@@ -64,15 +61,21 @@ while IFS=$'\t' read -r branch date; do
   grep -Fxq -- "${branch}" <<<"${PROTECTED_BRANCHES}" && continue
   [[ "${branch}" =~ ${RELEASE_RE} ]] && continue
   [[ ! "${date}" < "${CUTOFF}" ]] && continue
-  if grep -Fxq -- "${branch}" <<<"${OPEN_PR_BRANCHES}"; then
+  # Only stale candidates are checked for open PRs, so there is no cap on the
+  # number of open PRs in the repository. Fail safe: skip on any error.
+  if ! open_prs="$(gh api --method GET "repos/${REPO}/pulls" \
+    -f state=open -f head="${OWNER}:${branch}" -f per_page=1 --jq 'length')"; then
+    echo "::warning::Could not check open PRs for ${branch}; skipping"
     continue
   fi
+  [[ "${open_prs}" != "0" ]] && continue
 
   if [[ "${DRY_RUN}" == "true" ]]; then
     echo "[dry-run] would delete ${branch} (last commit ${date})"
   else
     echo "Deleting ${branch} (last commit ${date})"
-    gh api -X DELETE "repos/${REPO}/git/refs/heads/${branch}" >/dev/null \
+    encoded="$(jq -rn --arg b "${branch}" '$b | @uri')"
+    gh api -X DELETE "repos/${REPO}/git/refs/heads/${encoded}" >/dev/null \
       || { echo "::warning::Failed to delete ${branch}"; continue; }
   fi
   count=$((count + 1))
