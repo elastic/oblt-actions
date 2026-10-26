@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "${1:-}" == "api" && "${2:-}" == "--method" && "${3:-}" == "GET" && "${4:-}" == "repos/test-owner/test-repo/pulls" ]]; then
+  if [[ "$*" == *"head=test-owner:open-pr"* ]]; then printf '%s\n' 1; else printf '%s\n' 0; fi
+elif [[ "${1:-}" == "api" && "${2:-}" == "repos/test-owner/test-repo" ]]; then
+  printf '%s\n' "main"
+elif [[ "${1:-}" == "api" && "${2:-}" == "--method" && "${3:-}" == "GET" && "${4:-}" == "--paginate" && "${5:-}" == "repos/test-owner/test-repo/branches" ]]; then
+  printf '%s\n' "protected"
+elif [[ "${1:-}" == "api" && "${2:-}" == "graphql" ]]; then
+  printf '%s\t%s\n' \
+    "main" "2000-01-01T00:00:00Z" \
+    "open-pr" "2000-01-01T00:00:00Z" \
+    "protected" "2000-01-01T00:00:00Z" \
+    "1.2" "2000-01-01T00:00:00Z" \
+    "stale" "2000-01-01T00:00:00Z" \
+    "recent" "2099-01-01T00:00:00Z"
+elif [[ "${1:-}" == "api" && "${2:-}" == "-X" && "${3:-}" == "DELETE" ]]; then
+  printf '%s\n' "${4}" >> "${MOCK_GH_DELETE_LOG:?}"
+else
+  echo "Unexpected gh invocation: $*" >&2
+  exit 1
+fi
