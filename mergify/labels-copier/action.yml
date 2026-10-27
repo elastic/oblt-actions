@@ -11,14 +11,14 @@ inputs:
     description: 'GitHub token for API requests when use-ephemeral-token is false. Ignored when use-ephemeral-token is true.'
     required: false
     default: ${{ github.token }}
-  repository:
-    description: 'The GitHub repository to use for API requests'
-    required: false
-    default: ${{ github.repository }}
   pull-request:
     description: 'The GitHub pull-request to use for API requests'
     required: false
     default: ${{ github.event.pull_request.number }}
+  repository:
+    description: 'The GitHub repository to use for API requests'
+    required: false
+    default: ${{ github.repository }}
   token-policy:
     description: >-
       Optional Vault role passed to create-token when use-ephemeral-token is true
