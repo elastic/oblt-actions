@@ -10,12 +10,13 @@ copies pull request labels to backported PRs
 
 ## Inputs
 <!--inputs-->
-| Name                    | Description                                     | Required | Default                                   |
-|-------------------------|-------------------------------------------------|----------|-------------------------------------------|
-| `excluded-labels-regex` | labels to be excluded in regex format           | `false`  | ` `                                       |
-| `github-token`          | The GitHub token to use for API requests        | `false`  | `${{ github.token }}`                     |
-| `repository`            | The GitHub repository to use for API requests   | `false`  | `${{ github.repository }}`                |
-| `pull-request`          | The GitHub pull-request to use for API requests | `false`  | `${{ github.event.pull_request.number }}` |
+| Name                    | Description                                                                                                                                                                                     | Required | Default                                   |
+|-------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|-------------------------------------------|
+| `excluded-labels-regex` | labels to be excluded in regex format                                                                                                                                                           | `false`  | ` `                                       |
+| `github-token`          | GitHub token for API requests when token-policy is unset. Ignored when token-policy is set.                                                                                                     | `false`  | `${{ github.token }}`                     |
+| `repository`            | The GitHub repository to use for API requests                                                                                                                                                   | `false`  | `${{ github.repository }}`                |
+| `pull-request`          | The GitHub pull-request to use for API requests                                                                                                                                                 | `false`  | `${{ github.event.pull_request.number }}` |
+| `token-policy`          | Vault TokenPolicy role for the caller workflow. When set, mint an ephemeral token with github/create-token and use it (job needs id-token: write). When unset, use github-token / GITHUB_TOKEN. | `false`  | ` `                                       |
 <!--/inputs-->
 
 ## Outputs
@@ -27,10 +28,11 @@ copies pull request labels to backported PRs
 
 ## Usage
 
-Use the default `GITHUB_TOKEN` when copied labels do not need to start other
-workflows. Use an ephemeral Vault token when they must (for example
-`oblt-aw/ai/merge-ready` for Observability Agentic Workflow automerge): labels
-applied by `GITHUB_TOKEN` / `github-actions[bot]` do not start new
+Omit `token-policy` to label with `GITHUB_TOKEN` (or `github-token`). Pass
+`token-policy` to mint an ephemeral Vault token inside this action and use it
+instead. Use the Vault path when copied labels must start other workflows (for
+example `oblt-aw/ai/merge-ready` for Observability Agentic Workflow automerge):
+labels applied by `GITHUB_TOKEN` / `github-actions[bot]` do not start new
 `pull_request` `labeled` runs.
 
 ### Default `GITHUB_TOKEN`
@@ -62,15 +64,15 @@ jobs:
 
 ### Ephemeral Vault token (retrigger workflows)
 
-Mint the token in the **caller** workflow and pass it via `github-token`.
-Register a TokenPolicy in `elastic/catalog-info` for the caller workflow path
-(`elastic/<repo>/.github/workflows/mergify-labels-copier.yml@*`) with
-`pull_requests: write` before relying on mint.
+Pass the TokenPolicy role name via `token-policy`. This action calls
+`elastic/oblt-actions/github/create-token@v1` and uses the minted token.
+Register a TokenPolicy in `elastic/catalog-info` for the **caller** workflow
+path (`elastic/<repo>/.github/workflows/mergify-labels-copier.yml@*`) with
+`pull_requests: write` before relying on mint. Policies bind to the caller
+workflow path, not this composite action.
 
-`id-token: write` is required only on the job that runs
-`elastic/oblt-actions/github/create-token@v1`. This action does not need it; if
-you mint in another job and pass the token in, keep `id-token: write` on that
-mint job only.
+The job needs `id-token: write` for OIDC. When `token-policy` is set,
+`github-token` is ignored.
 
 ```yaml
 name: mergify backport labels copier
@@ -88,15 +90,13 @@ jobs:
       pull-requests: write
       # See https://github.com/cli/cli/issues/6274
       repository-projects: read
-      # OIDC for create-token (not required by labels-copier itself)
+      # OIDC for create-token (required when token-policy is set)
       id-token: write
     steps:
-      - name: Create ephemeral GitHub token
-        id: create-token
-        uses: elastic/oblt-actions/github/create-token@v1
       - name: Copy parent labels to backport
         uses: elastic/oblt-actions/mergify/labels-copier@v1
         with:
           excluded-labels-regex: "^backport-*"
-          github-token: ${{ steps.create-token.outputs.token }}
+          # Role name from the caller workflow TokenPolicy in catalog-info
+          token-policy: token-policy-<hash>
 ```
