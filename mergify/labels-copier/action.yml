@@ -8,7 +8,7 @@ inputs:
     required: false
     default: ''
   github-token:
-    description: 'GitHub token for API requests when token-policy is unset. Ignored when token-policy is set.'
+    description: 'GitHub token for API requests when use-ephemeral-token is false. Ignored when use-ephemeral-token is true.'
     required: false
     default: ${{ github.token }}
   repository:
@@ -21,11 +21,17 @@ inputs:
     default: ${{ github.event.pull_request.number }}
   token-policy:
     description: >-
-      Vault TokenPolicy role for the caller workflow. When set, mint an ephemeral
-      token with github/create-token and use it (job needs id-token: write). When
-      unset, use github-token / GITHUB_TOKEN.
+      Optional Vault role passed to create-token when use-ephemeral-token is true
+      (for example wildcard TokenPolicies). Leave empty to resolve the role from
+      the caller workflow_ref.
     required: false
     default: ''
+  use-ephemeral-token:
+    description: >-
+      When true, mint an ephemeral Vault token via github/create-token and use it
+      (job needs id-token: write). When false, use github-token / GITHUB_TOKEN.
+    required: false
+    default: 'false'
 outputs:
   labels:
     description: 'The labels to be copied'
@@ -35,7 +41,7 @@ runs:
   steps:
     - name: Create ephemeral GitHub token
       id: create-token
-      if: inputs.token-policy != ''
+      if: inputs.use-ephemeral-token == 'true'
       uses: elastic/oblt-actions/github/create-token@v1
       with:
         token-policy: ${{ inputs.token-policy }}
