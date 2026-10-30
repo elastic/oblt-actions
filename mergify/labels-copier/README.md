@@ -76,8 +76,9 @@ When the TokenPolicy `workflow_ref` has no wildcards, omit `token-policy` and
 let create-token resolve the role from the caller workflow. Pass `token-policy`
 only when you need an explicit Vault role (for example wildcard policies).
 
-The job needs `id-token: write` for OIDC. When `use-ephemeral-token` is true,
-`github-token` is ignored.
+The job needs `id-token: write` for OIDC. Label write scopes come from the
+TokenPolicy, not from job `permissions` (those only apply to `GITHUB_TOKEN`).
+When `use-ephemeral-token` is true, `github-token` is ignored.
 
 ```yaml
 name: mergify backport labels copier
@@ -91,10 +92,6 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.head_ref, 'mergify/bp/')
     permissions:
-      # Add GH labels (GITHUB_TOKEN; Vault token scopes come from TokenPolicy)
-      pull-requests: write
-      # See https://github.com/cli/cli/issues/6274
-      repository-projects: read
       # OIDC for create-token (required when use-ephemeral-token is true)
       id-token: write
     steps:
