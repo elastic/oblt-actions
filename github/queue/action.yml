@@ -1,0 +1,44 @@
+# action.yml
+name: 'Queue Action'
+description: 'A queueing mechanism to limit concurrent job execution in GitHub Actions with run synchronization'
+inputs:
+  github-token:
+    description: 'The token for accessing the repo and GitHub Actions API.'
+    required: false
+    default: ${{ github.token }}
+  repository:
+    description: 'The repository path that stores the queue (e.g `elastic/oblt-actions`).'
+    required: false
+    default: ${{ github.repository }}
+  branch:
+    description: 'The branch to use for the queue'
+    required: false
+    default: 'job-queue'
+  queue-file:
+    description: 'The file name to store queue entries on the queue branch'
+    required: false
+    default: 'job_queue'
+  suffix:
+    description: 'Requester id suffix to avoid identical values for parallel/matrix jobs in the same workflow run'
+    required: false
+    default: 'default'
+  concurrency-limit:
+    description: 'Maximum number of jobs allowed to run concurrently'
+    required: false
+    default: '50'
+  max-queue-size:
+    description: 'Maximum number of jobs allowed to wait in the queue (0 for unlimited)'
+    required: false
+    default: '50'
+  sync-runs:
+    description: 'Whether to clean up orphaned queue entries from completed or cancelled workflow runs via GitHub API'
+    required: false
+    default: 'true'
+  timeout-minutes:
+    description: 'Maximum time in minutes to wait for slot acquisition or release before timing out'
+    required: false
+    default: '30'
+runs:
+  using: 'node24'
+  main: 'dist/lock/index.js'
+  post: 'dist/unlock/index.js'
