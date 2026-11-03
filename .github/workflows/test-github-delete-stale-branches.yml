@@ -1,0 +1,62 @@
+name: test-github-delete-stale-branches
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-github-delete-stale-branches.yml'
+      - 'github/delete-stale-branches/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-github-delete-stale-branches.yml'
+      - 'github/delete-stale-branches/**'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up mocked GitHub CLI
+        run: |
+          mkdir -p "${RUNNER_TEMP}/mock-bin"
+          cp github/delete-stale-branches/tests/mock-gh "${RUNNER_TEMP}/mock-bin/gh"
+          chmod +x "${RUNNER_TEMP}/mock-bin/gh"
+          echo "MOCK_GH_DELETE_LOG=${RUNNER_TEMP}/delete-stale-branches.log" >> "${GITHUB_ENV}"
+          : > "${RUNNER_TEMP}/delete-stale-branches.log"
+          echo "${RUNNER_TEMP}/mock-bin" >> "${GITHUB_PATH}"
+      - uses: ./github/delete-stale-branches
+        id: dry-run
+        with:
+          repository: test-owner/test-repo
+          stale-months: '1'
+          dry-run: 'true'
+          debug: 'true'
+      - name: Assert dry-run result
+        env:
+          BRANCH_COUNT: >-
+            ${{ steps.dry-run.outputs.stale-branches-count }}
+        run: |
+          test "${BRANCH_COUNT}" = "1"
+          test ! -s "${MOCK_GH_DELETE_LOG}"
+      - uses: ./github/delete-stale-branches
+        id: delete
+        with:
+          repository: test-owner/test-repo
+          stale-months: '1'
+          dry-run: 'false'
+      - name: Assert deletion result
+        env:
+          BRANCH_COUNT: >-
+            ${{ steps.delete.outputs.stale-branches-count }}
+        run: |
+          test "${BRANCH_COUNT}" = "1"
+          test "$(cat "${MOCK_GH_DELETE_LOG}")" = "repos/test-owner/test-repo/git/refs/heads/stale"
