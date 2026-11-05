@@ -32,7 +32,7 @@ The workflow-level trigger is `merge_group`; `workflow_dispatch`; `push` (branch
 | Order | Step | Action / command | Condition | Inputs / environment |
 | ---: | --- | --- | --- | --- |
 | 1 | Step 1 | `actions/checkout@v7` | `—` | — |
-| 2 | Free Disk Space (Ubuntu) | `jlumbroso/free-disk-space@ceedf095f4ec1a097402bc6bd80831f2e1a6fde6` | `${{ github.event_name != 'merge_group' }}` | `tool-cache`, `android`, `dotnet`, `haskell`, `large-packages`, `docker-images`, `swap-storage` |
+| 2 | Free Disk Space (Ubuntu) | `./github/free-disk-space` | `${{ github.event_name != 'merge_group' }}` | `tool-cache`, `android`, `dotnet`, `haskell`, `large-packages`, `docker-images`, `swap-storage` |
 | 3 | Log in to the Elastic Container registry | `docker/login-action@dbcb813823bdd20940b903addbd779551569679f` | `${{ github.event_name != 'merge_group' }}` | `registry`, `username`, `password` |
 | 4 | kibana-docker-image | `./kibana-docker-image` | `${{ github.event_name != 'merge_group' }}` | `serverless` |
 | 5 | validate | `echo "${STACK_VERSION:?}" echo "${GIT_COMMIT_SHA:?}" echo "${DOCKER_IMAGE_REF:?}" docker pull "${DOCKER_IMAGE_REF}"` | `${{ github.event_name != 'merge_group' }}` | `DOCKER_IMAGE_REF`, `GIT_COMMIT_SHA`, `STACK_VERSION` |
@@ -43,7 +43,7 @@ The workflow-level trigger is `merge_group`; `workflow_dispatch`; `push` (branch
 | --- | --- |
 | Workflow inputs | No `workflow_dispatch` inputs are declared. |
 | Permissions | Workflow: `contents: read`; job overrides: `none`. |
-| Local actions | [`kibana-docker-image/action.yml`](../../../kibana-docker-image/action.yml); [usage README](../../../kibana-docker-image/README.md) — An Action to build and push Kibana docker images given a git ref. Inputs: `github-repository`, `git-ref`, `serverless`, `docker-registry`, `docker-namespace`, `checkout-path`. Declared outputs: `kibana-docker-image`, `kibana-commit-sha`, `kibana-stack-version`. |
+| Local actions | [`kibana-docker-image/action.yml`](../../../kibana-docker-image/action.yml); [usage README](../../../kibana-docker-image/README.md) — An Action to build and push Kibana docker images given a git ref. Inputs: `github-repository`, `git-ref`, `serverless`, `docker-registry`, `docker-namespace`, `checkout-path`. Declared outputs: `kibana-docker-image`, `kibana-commit-sha`, `kibana-stack-version`.<br>[`github/free-disk-space/action.yml`](../../../github/free-disk-space/action.yml); [usage README](../../../github/free-disk-space/README.md) - A configurable GitHub Action to free up disk space on an Ubuntu GitHub Actions runner. Inputs: `android`, `dotnet`, `haskell`, `large-packages`, `docker-images`, `preinstalled-runtimes`, `tool-cache`, `swap-storage`. Declared outputs: none declared. |
 | Outputs | No workflow/job outputs are declared. Step outputs referenced by name: `kibana-commit-sha, kibana-docker-image, kibana-stack-version`. |
 | Artifacts and caches | No GitHub artifact-upload/download or cache action is declared directly in this workflow. |
 | Secrets | `ELASTIC_DOCKER_PASSWORD`, `ELASTIC_DOCKER_REGISTRY`, `ELASTIC_DOCKER_USERNAME` |
@@ -56,5 +56,5 @@ Only settings and references declared in the checked-in source are documented; r
 ## Sources and history
 
 - Workflow: [`test-kibana-docker-image.yml`](../test-kibana-docker-image.yml#L1-78)
-- Local action: [`kibana-docker-image/action.yml`](../../../kibana-docker-image/action.yml) and [`kibana-docker-image/README.md`](../../../kibana-docker-image/README.md)
+- Local actions: [`kibana-docker-image/action.yml`](../../../kibana-docker-image/action.yml) and [`kibana-docker-image/README.md`](../../../kibana-docker-image/README.md); [`github/free-disk-space/action.yml`](../../../github/free-disk-space/action.yml) and [`github/free-disk-space/README.md`](../../../github/free-disk-space/README.md)
 - Rationale: [`CONTRIBUTING.md`](../../../docs/CONTRIBUTING.md)

@@ -35,6 +35,7 @@ This index covers every checked-in workflow in [`.github/workflows/`](.). These 
 | [`test-github-changed-files`](./test-github-changed-files.yml) | [`test-github-changed-files.md`](docs/test-github-changed-files.md) |
 | [`test-github-comment-reaction`](./test-github-comment-reaction.yml) | [`test-github-comment-reaction.md`](docs/test-github-comment-reaction.md) |
 | [`test-github-create-token`](./test-github-create-token.yml) | [`test-github-create-token.md`](docs/test-github-create-token.md) |
+| [`test-github-free-disk-space`](./test-github-free-disk-space.yml) | [`test-github-free-disk-space.md`](docs/test-github-free-disk-space.md) |
 | [`test-github-is-member-of`](./test-github-is-member-of.yml) | [`test-github-is-member-of.md`](docs/test-github-is-member-of.md) |
 | [`test-github-is-pr-author-member-of`](./test-github-is-pr-author-member-of.yml) | [`test-github-is-pr-author-member-of.md`](docs/test-github-is-pr-author-member-of.md) |
 | [`test-github-mutex`](./test-github-mutex.yml) | [`test-github-mutex.md`](docs/test-github-mutex.md) |
