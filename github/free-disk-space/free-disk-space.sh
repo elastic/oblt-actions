@@ -2,7 +2,8 @@
 # Copied from https://github.com/lumbroso-commons/free-disk-space
 # at v2.0.0 (ceedf095f4ec1a097402bc6bd80831f2e1a6fde6), the `run` block of its action.yml.
 # Copyright (c) 2022 Jérémie Lumbroso. MIT License, see LICENSE in this directory.
-# Only the indentation differs from upstream.
+# Differences from upstream: indentation, and the `|| true` fallbacks print a
+# ::warning:: like the apt-get ones already did, so failures are not swallowed.
 
 # ======
 # MACROS
@@ -87,7 +88,7 @@ echo ""
 if [[ "$ANDROID" == 'true' ]]; then
   BEFORE=$(getAvailableSpace)
 
-  sudo rm -rf /usr/local/lib/android || true
+  sudo rm -rf /usr/local/lib/android || echo "::warning::The command [sudo rm -rf /usr/local/lib/android] failed to complete successfully. Proceeding..."
 
   AFTER=$(getAvailableSpace)
   SAVED=$((AFTER-BEFORE))
@@ -100,7 +101,7 @@ if [[ "$DOTNET" == 'true' ]]; then
   BEFORE=$(getAvailableSpace)
 
   # https://github.community/t/bigger-github-hosted-runners-disk-space/17267/11
-  sudo rm -rf /usr/share/dotnet || true
+  sudo rm -rf /usr/share/dotnet || echo "::warning::The command [sudo rm -rf /usr/share/dotnet] failed to complete successfully. Proceeding..."
 
   AFTER=$(getAvailableSpace)
   SAVED=$((AFTER-BEFORE))
@@ -112,8 +113,8 @@ fi
 if [[ "$HASKELL" == 'true' ]]; then
   BEFORE=$(getAvailableSpace)
 
-  sudo rm -rf /opt/ghc || true
-  sudo rm -rf /usr/local/.ghcup || true
+  sudo rm -rf /opt/ghc || echo "::warning::The command [sudo rm -rf /opt/ghc] failed to complete successfully. Proceeding..."
+  sudo rm -rf /usr/local/.ghcup || echo "::warning::The command [sudo rm -rf /usr/local/.ghcup] failed to complete successfully. Proceeding..."
 
   AFTER=$(getAvailableSpace)
   SAVED=$((AFTER-BEFORE))
@@ -163,7 +164,7 @@ fi
 if [[ "$DOCKER_IMAGES" == 'true' ]]; then
   BEFORE=$(getAvailableSpace)
 
-  sudo docker image prune --all --force || true
+  sudo docker image prune --all --force || echo "::warning::The command [sudo docker image prune --all --force] failed to complete successfully. Proceeding..."
 
   AFTER=$(getAvailableSpace)
   SAVED=$((AFTER-BEFORE))
@@ -185,7 +186,7 @@ fi
 if [[ "$PREINSTALLED_RUNTIMES" == 'true' || "$TOOL_CACHE" == 'true' ]]; then
   BEFORE=$(getAvailableSpace)
 
-  sudo rm -rf "$AGENT_TOOLSDIRECTORY" || true
+  sudo rm -rf "$AGENT_TOOLSDIRECTORY" || echo "::warning::The command [sudo rm -rf \"$AGENT_TOOLSDIRECTORY\"] failed to complete successfully. Proceeding..."
 
   AFTER=$(getAvailableSpace)
   SAVED=$((AFTER-BEFORE))
@@ -197,8 +198,8 @@ fi
 if [[ "$SWAP_STORAGE" == 'true' ]]; then
   BEFORE=$(getAvailableSpace)
 
-  sudo swapoff -a || true
-  sudo rm -f /mnt/swapfile || true
+  sudo swapoff -a || echo "::warning::The command [sudo swapoff -a] failed to complete successfully. Proceeding..."
+  sudo rm -f /mnt/swapfile || echo "::warning::The command [sudo rm -f /mnt/swapfile] failed to complete successfully. Proceeding..."
   free -h
 
   AFTER=$(getAvailableSpace)

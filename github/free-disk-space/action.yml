@@ -3,7 +3,8 @@
 # Copyright (c) 2022 Jérémie Lumbroso. MIT License, see LICENSE in this directory.
 # Kept in oblt-actions so an upstream rename or takeover cannot break or
 # compromise our workflows. Differences from upstream: the `name` below, the
-# script moved to free-disk-space.sh, and the `swap-storage` description links
+# script moved to free-disk-space.sh (with its `|| true` fallbacks now printing a
+# warning), and the `swap-storage` description links
 # to the upstream issue (`see #12` became a full URL).
 
 name: "github/free-disk-space"
