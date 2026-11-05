@@ -49,7 +49,7 @@ runs:
 
     - uses: actions/setup-node@v7
       with:
-        node-version-file: ${{ inputs.checkout-path }}/.node-version
+        node-version-file: ${{ inputs.checkout-path }}/.nvmrc
 
     - name: Set up variables
       id: vars
