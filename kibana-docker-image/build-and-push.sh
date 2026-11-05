@@ -45,9 +45,30 @@ else
 fi
 echo "::endgroup::"
 
+export KBN_NP_PLUGINS_BUILT=true
+
+# Kibana >= 9.6 builds the cloud image from a kibana-cloud-* archive produced by `--cloud`.
+# https://github.com/elastic/kibana/blob/main/.buildkite/scripts/steps/cloud/build_cloud_image.sh
+if [ "${SERVERLESS}" == "false" ] && grep -q "'cloud'," src/dev/build/args.ts; then
+  echo "::group::Build cloud docker image"
+  extra_args=()
+  if grep -q "'skip-docker-image-archive'," src/dev/build/args.ts; then
+    extra_args+=(--skip-docker-image-archive)
+  fi
+  time node scripts/build \
+        --cloud \
+        --docker-namespace="${DOCKER_NAMESPACE}" \
+        --docker-tag="${DOCKER_TAG}" \
+        --docker-push \
+        --skip-cdn-assets \
+        --skip-docker-contexts \
+        "${extra_args[@]}"
+  echo "::endgroup::"
+  exit 0
+fi
+
 # https://github.com/elastic/kibana/blob/main/.buildkite/scripts/build_kibana.sh#L11-L19
 echo "::group::Build Linux package"
-export KBN_NP_PLUGINS_BUILT=true
 time node scripts/build \
   --skip-os-packages \
   --skip-cdn-assets \
