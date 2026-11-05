@@ -1,0 +1,35 @@
+name: test-github-free-disk-space
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-github-free-disk-space.yml'
+      - 'github/free-disk-space/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-github-free-disk-space.yml'
+      - 'github/free-disk-space/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./github/free-disk-space
+        with:
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: false
+      - run: df -h /

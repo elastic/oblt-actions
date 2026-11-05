@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@v7
       - name: Free Disk Space (Ubuntu)
         if: ${{ github.event_name != 'merge_group' }}
-        uses: jlumbroso/free-disk-space@ceedf095f4ec1a097402bc6bd80831f2e1a6fde6
+        uses: ./github/free-disk-space
         with:
           tool-cache: false
           android: true
@@ -45,7 +45,7 @@ jobs:
           large-packages: true
           docker-images: true
           # This needs to be set to false.
-          # See https://github.com/jlumbroso/free-disk-space/issues/12
+          # See https://github.com/lumbroso-commons/free-disk-space/issues/12
           # TL;DR
           # Otherwise, the workflow is cancelled with an 143 exit code.
           swap-storage: false
