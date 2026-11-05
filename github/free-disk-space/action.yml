@@ -2,8 +2,9 @@
 # at v2.0.0 (ceedf095f4ec1a097402bc6bd80831f2e1a6fde6).
 # Copyright (c) 2022 Jérémie Lumbroso. MIT License, see LICENSE in this directory.
 # Kept in oblt-actions so an upstream rename or takeover cannot break or
-# compromise our workflows. The script lives in free-disk-space.sh. Only the
-# `name` below and the script location differ from upstream.
+# compromise our workflows. Differences from upstream: the `name` below, the
+# script moved to free-disk-space.sh, and the `swap-storage` description links
+# to the upstream issue (`see #12` became a full URL).
 
 name: "github/free-disk-space"
 description: "A configurable GitHub Action to free up disk space on an Ubuntu GitHub Actions runner."
@@ -53,7 +54,7 @@ inputs:
     default: "false"
 
   swap-storage:
-    description: "Remove swap storage. ⚠️ Jobs that need swap may be killed under memory pressure, with no error mentioning this action — see #12. Off by default for that reason."
+    description: "Remove swap storage. ⚠️ Jobs that need swap may be killed under memory pressure, with no error mentioning this action — see https://github.com/lumbroso-commons/free-disk-space/issues/12. Off by default for that reason."
     required: false
     default: "false"
 

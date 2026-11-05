@@ -19,7 +19,7 @@ A configurable GitHub Action to free up disk space on an Ubuntu GitHub Actions r
 | `docker-images`         | Remove Docker images                                                                                                                                                                                                                            | `false`  | `true`  |
 | `preinstalled-runtimes` | Remove pre-installed runtimes (Node, Go, Python, Ruby). ⚠️ Workflows using actions/setup-node, setup-python, setup-go or setup-ruby will re-download their runtime, and a pinned version may not be available.                              | `false`  | `false` |
 | `tool-cache`            | DEPRECATED — renamed to `preinstalled-runtimes`. Still honoured, and will keep working until v3.0.0; it prints a warning when used.                                                                                                           | `false`  | `false` |
-| `swap-storage`          | Remove swap storage. ⚠️ Jobs that need swap may be killed under memory pressure, with no error mentioning this action — see #12. Off by default for that reason.                                                                          | `false`  | `false` |
+| `swap-storage`          | Remove swap storage. ⚠️ Jobs that need swap may be killed under memory pressure, with no error mentioning this action — see https://github.com/lumbroso-commons/free-disk-space/issues/12. Off by default for that reason.                | `false`  | `false` |
 <!--/inputs-->
 
 ## Usage
@@ -39,3 +39,7 @@ jobs:
       # ...
 ```
 <!--/usage-->
+
+## Credits
+
+This action is a copy of [lumbroso-commons/free-disk-space](https://github.com/lumbroso-commons/free-disk-space) v2.0.0 ([`ceedf09`](https://github.com/lumbroso-commons/free-disk-space/tree/ceedf095f4ec1a097402bc6bd80831f2e1a6fde6)) by Jérémie Lumbroso, used under the MIT License. See [LICENSE](LICENSE).
