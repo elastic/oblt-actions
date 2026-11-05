@@ -1,6 +1,10 @@
+# Based on https://github.com/lumbroso-commons/free-disk-space v2.0.0
+# (MIT License, Copyright (c) 2022 Jérémie Lumbroso). Same inputs and cleanup
+# commands, kept in-house so a rename or takeover upstream can't break or
+# compromise our CI.
 name: 'github/free-disk-space'
 
-description: Free up disk space on an Ubuntu GitHub Actions runner. Wraps lumbroso-commons/free-disk-space.
+description: Free up disk space on an Ubuntu GitHub Actions runner.
 
 inputs:
   android:
@@ -16,7 +20,7 @@ inputs:
     required: false
     default: 'true'
   large-packages:
-    description: 'Remove large misc. packages, including azure-cli, Chrome, Firefox, PowerShell, mono, and the llvm-, php-, mongodb-, mysql-, dotnet- and aspnetcore- package families. Respects subject toggles: `dotnet: false` exempts .NET from this sweep.'
+    description: 'Remove large misc. packages, including azure-cli, Chrome, Firefox, PowerShell, mono, and the llvm-, php-, mongodb-, mysql-, dotnet- and aspnetcore- package families. `dotnet: false` exempts .NET from this sweep.'
     required: false
     default: 'true'
   docker-images:
@@ -28,24 +32,56 @@ inputs:
     required: false
     default: 'false'
   tool-cache:
-    description: 'DEPRECATED: renamed to `preinstalled-runtimes`. Still honoured, and will keep working until v3.0.0; it prints a warning when used.'
+    description: 'DEPRECATED: alias of `preinstalled-runtimes`, kept so existing callers keep working.'
     required: false
     default: 'false'
   swap-storage:
-    description: 'Remove swap storage. Jobs that need swap may be killed under memory pressure, with no error mentioning this action; see https://github.com/lumbroso-commons/free-disk-space/issues/12. Off by default for that reason.'
+    description: 'Remove swap storage. Jobs that need swap may be killed under memory pressure (exit code 143). Off by default for that reason.'
     required: false
     default: 'false'
 
 runs:
   using: "composite"
   steps:
-    - uses: lumbroso-commons/free-disk-space@ceedf095f4ec1a097402bc6bd80831f2e1a6fde6 # v2.0.0
-      with:
-        android: ${{ inputs.android }}
-        dotnet: ${{ inputs.dotnet }}
-        haskell: ${{ inputs.haskell }}
-        large-packages: ${{ inputs.large-packages }}
-        docker-images: ${{ inputs.docker-images }}
-        preinstalled-runtimes: ${{ inputs.preinstalled-runtimes }}
-        tool-cache: ${{ inputs.tool-cache }}
-        swap-storage: ${{ inputs.swap-storage }}
+    - name: Free disk space
+      shell: bash
+      env:
+        ANDROID: ${{ inputs.android }}
+        DOTNET: ${{ inputs.dotnet }}
+        HASKELL: ${{ inputs.haskell }}
+        LARGE_PACKAGES: ${{ inputs.large-packages }}
+        DOCKER_IMAGES: ${{ inputs.docker-images }}
+        PREINSTALLED_RUNTIMES: ${{ inputs.preinstalled-runtimes }}
+        TOOL_CACHE: ${{ inputs.tool-cache }}
+        SWAP_STORAGE: ${{ inputs.swap-storage }}
+      run: |
+        # Every removal is best effort: a missing path or package must not fail the job.
+        set +e
+        df -h /
+
+        [[ "$ANDROID" == 'true' ]] && sudo rm -rf /usr/local/lib/android
+        [[ "$DOTNET" == 'true' ]] && sudo rm -rf /usr/share/dotnet
+        [[ "$HASKELL" == 'true' ]] && sudo rm -rf /opt/ghc /usr/local/.ghcup
+
+        if [[ "$LARGE_PACKAGES" == 'true' ]]; then
+          pkgs=('^llvm-.*' 'php.*' '^mongodb-.*' '^mysql-.*' azure-cli google-chrome-stable firefox powershell mono-devel libgl1-mesa-dri google-cloud-sdk google-cloud-cli)
+          [[ "$DOTNET" == 'true' ]] && pkgs+=('^aspnetcore-.*' '^dotnet-.*')
+          # One apt call per pattern so a package missing on this image doesn't skip the rest.
+          for p in "${pkgs[@]}"; do
+            sudo apt-get remove -y "$p" --fix-missing >/dev/null 2>&1 || echo "::debug::apt-get remove $p failed, continuing"
+          done
+          sudo apt-get autoremove -y >/dev/null 2>&1 || true
+          sudo apt-get clean || true
+        fi
+
+        [[ "$DOCKER_IMAGES" == 'true' ]] && sudo docker image prune --all --force
+        if [[ "$PREINSTALLED_RUNTIMES" == 'true' || "$TOOL_CACHE" == 'true' ]]; then
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+        fi
+        if [[ "$SWAP_STORAGE" == 'true' ]]; then
+          sudo swapoff -a || true
+          sudo rm -f /mnt/swapfile
+        fi
+
+        df -h /
+        exit 0

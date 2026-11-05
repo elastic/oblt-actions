@@ -5,21 +5,21 @@
 [![test-github-free-disk-space](https://github.com/elastic/oblt-actions/actions/workflows/test-github-free-disk-space.yml/badge.svg?branch=main)](https://github.com/elastic/oblt-actions/actions/workflows/test-github-free-disk-space.yml)
 
 <!--description-->
-Free up disk space on an Ubuntu GitHub Actions runner. Wraps lumbroso-commons/free-disk-space.
+Free up disk space on an Ubuntu GitHub Actions runner.
 <!--/description-->
 
 ## Inputs
 <!--inputs-->
-| Name                    | Description                                                                                                                                                                                                                                   | Required | Default |
-|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|---------|
-| `android`               | Remove Android runtime                                                                                                                                                                                                                        | `false`  | `true`  |
-| `dotnet`                | Remove .NET runtime                                                                                                                                                                                                                           | `false`  | `true`  |
-| `haskell`               | Remove Haskell runtime                                                                                                                                                                                                                        | `false`  | `true`  |
-| `large-packages`        | Remove large misc. packages, including azure-cli, Chrome, Firefox, PowerShell, mono, and the llvm-, php-, mongodb-, mysql-, dotnet- and aspnetcore- package families. Respects subject toggles: `dotnet: false` exempts .NET from this sweep. | `false`  | `true`  |
-| `docker-images`         | Remove Docker images                                                                                                                                                                                                                          | `false`  | `true`  |
-| `preinstalled-runtimes` | Remove pre-installed runtimes (Node, Go, Python, Ruby). Workflows using actions/setup-node, setup-python, setup-go or setup-ruby will re-download their runtime, and a pinned version may not be available.                                   | `false`  | `false` |
-| `tool-cache`            | DEPRECATED: renamed to `preinstalled-runtimes`. Still honoured, and will keep working until v3.0.0; it prints a warning when used.                                                                                                            | `false`  | `false` |
-| `swap-storage`          | Remove swap storage. Jobs that need swap may be killed under memory pressure, with no error mentioning this action; see https://github.com/lumbroso-commons/free-disk-space/issues/12. Off by default for that reason.                        | `false`  | `false` |
+| Name                    | Description                                                                                                                                                                                                         | Required | Default |
+|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|---------|
+| `android`               | Remove Android runtime                                                                                                                                                                                              | `false`  | `true`  |
+| `dotnet`                | Remove .NET runtime                                                                                                                                                                                                 | `false`  | `true`  |
+| `haskell`               | Remove Haskell runtime                                                                                                                                                                                              | `false`  | `true`  |
+| `large-packages`        | Remove large misc. packages, including azure-cli, Chrome, Firefox, PowerShell, mono, and the llvm-, php-, mongodb-, mysql-, dotnet- and aspnetcore- package families. `dotnet: false` exempts .NET from this sweep. | `false`  | `true`  |
+| `docker-images`         | Remove Docker images                                                                                                                                                                                                | `false`  | `true`  |
+| `preinstalled-runtimes` | Remove pre-installed runtimes (Node, Go, Python, Ruby). Workflows using actions/setup-node, setup-python, setup-go or setup-ruby will re-download their runtime, and a pinned version may not be available.         | `false`  | `false` |
+| `tool-cache`            | DEPRECATED: alias of `preinstalled-runtimes`, kept so existing callers keep working.                                                                                                                                | `false`  | `false` |
+| `swap-storage`          | Remove swap storage. Jobs that need swap may be killed under memory pressure (exit code 143). Off by default for that reason.                                                                                       | `false`  | `false` |
 <!--/inputs-->
 
 ## Usage
