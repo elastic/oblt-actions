@@ -7,7 +7,7 @@ Test workflow for `github-free-disk-space`. A configurable GitHub Action to free
 | | |
 | --- | --- |
 | Platform | GitHub Actions |
-| Source | [`test-github-free-disk-space.yml`](../test-github-free-disk-space.yml#L1-L35) |
+| Source | [`test-github-free-disk-space.yml`](../test-github-free-disk-space.yml#L1-L84) |
 | Trigger | `merge_group`; `workflow_dispatch`; `push` (branches: `main`; paths: `.github/workflows/test-github-free-disk-space.yml, github/free-disk-space/**`); `pull_request` (branches: `main`; paths: `.github/workflows/test-github-free-disk-space.yml, github/free-disk-space/**`) |
 
 ## Purpose
@@ -32,8 +32,12 @@ The workflow-level trigger is `merge_group`; `workflow_dispatch`; `push` (branch
 | Order | Step | Action / command | Condition | Inputs / environment |
 | ---: | --- | --- | --- | --- |
 | 1 | Step 1 | `actions/checkout@v7` | `-` | - |
-| 2 | Step 2 | `./github/free-disk-space` | `-` | `android`, `dotnet`, `haskell`, `large-packages`, `docker-images`, `swap-storage` |
-| 3 | Step 3 | `df -h /` | `-` | - |
+| 2 | Seed fixtures | `sudo mkdir -p /usr/local/lib/android/seed /usr/share/dotnet/seed /opt/ghc/seed mkdir -p "$RUNNER_TEMP/runtimes/seed" "$RUNNER_TEMP/tool-cache/seed"` | `-` | - |
+| 3 | Remove Android and Haskell only | `./github/free-disk-space` | `-` | `android`, `dotnet`, `haskell`, `large-packages`, `docker-images`, `preinstalled-runtimes`, `swap-storage`; env `AGENT_TOOLSDIRECTORY` |
+| 4 | Assert enabled targets are removed and disabled ones are kept | `test ! -e /usr/local/lib/android test ! -e /opt/ghc test -d /usr/share/dotnet/seed test -d "$RUNNER_TEMP/runtimes/seed"` | `-` | - |
+| 5 | Remove pre-installed runtimes | `./github/free-disk-space` | `-` | `android`, `dotnet`, `haskell`, `large-packages`, `docker-images`, `preinstalled-runtimes`; env `AGENT_TOOLSDIRECTORY` |
+| 6 | Remove the tool cache through the deprecated alias | `./github/free-disk-space` | `-` | `android`, `dotnet`, `haskell`, `large-packages`, `docker-images`, `tool-cache`; env `AGENT_TOOLSDIRECTORY` |
+| 7 | Assert both runtime toggles removed their directory | `test ! -e "$RUNNER_TEMP/runtimes" test ! -e "$RUNNER_TEMP/tool-cache" test -d /usr/share/dotnet/seed df -h /` | `-` | - |
 
 ## Inputs, outputs, and access
 
@@ -53,6 +57,6 @@ Only settings and references declared in the checked-in source are documented; r
 
 ## Sources and history
 
-- Workflow: [`test-github-free-disk-space.yml`](../test-github-free-disk-space.yml#L1-35)
+- Workflow: [`test-github-free-disk-space.yml`](../test-github-free-disk-space.yml#L1-84)
 - Local action: [`github/free-disk-space/action.yml`](../../../github/free-disk-space/action.yml) and [`github/free-disk-space/README.md`](../../../github/free-disk-space/README.md)
 - Rationale: [`CONTRIBUTING.md`](../../../docs/CONTRIBUTING.md)
