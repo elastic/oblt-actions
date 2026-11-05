@@ -1,6 +1,6 @@
 # test-github-free-disk-space
 
-Test workflow for `github-free-disk-space`. Free up disk space on an Ubuntu GitHub Actions runner.
+Test workflow for `github-free-disk-space`. A configurable GitHub Action to free up disk space on an Ubuntu GitHub Actions runner.
 
 ## At a glance
 
@@ -12,7 +12,7 @@ Test workflow for `github-free-disk-space`. Free up disk space on an Ubuntu GitH
 
 ## Purpose
 
-Test workflow for `github-free-disk-space`. Free up disk space on an Ubuntu GitHub Actions runner.
+Test workflow for `github-free-disk-space`. A configurable GitHub Action to free up disk space on an Ubuntu GitHub Actions runner.
 
 Repository guidance says dedicated `test-<action>.yml` workflows provide the required `test` status check and exercise composite actions through `uses: ./<action-path>`.
 See [CONTRIBUTING.md](../../../docs/CONTRIBUTING.md) for the repository guidance.
@@ -41,7 +41,7 @@ The workflow-level trigger is `merge_group`; `workflow_dispatch`; `push` (branch
 | --- | --- |
 | Workflow inputs | No `workflow_dispatch` inputs are declared. |
 | Permissions | Workflow: `contents: read`; job overrides: `none`. |
-| Local actions | [`github/free-disk-space/action.yml`](../../../github/free-disk-space/action.yml); [usage README](../../../github/free-disk-space/README.md) - Free up disk space on an Ubuntu GitHub Actions runner. Inputs: `android`, `dotnet`, `haskell`, `large-packages`, `docker-images`, `preinstalled-runtimes`, `tool-cache`, `swap-storage`. Declared outputs: none declared. |
+| Local actions | [`github/free-disk-space/action.yml`](../../../github/free-disk-space/action.yml); [usage README](../../../github/free-disk-space/README.md) - A configurable GitHub Action to free up disk space on an Ubuntu GitHub Actions runner. Inputs: `android`, `dotnet`, `haskell`, `large-packages`, `docker-images`, `preinstalled-runtimes`, `tool-cache`, `swap-storage`. Declared outputs: none declared. |
 | Outputs | No workflow/job outputs are declared. |
 | Artifacts and caches | No GitHub artifact-upload/download or cache action is declared directly in this workflow. |
 | Secrets | No `secrets.*` references found in the workflow source. |
