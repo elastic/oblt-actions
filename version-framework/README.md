@@ -59,6 +59,6 @@ jobs:
       matrix: ${{ fromJSON(needs.create-test-matrix.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
-      [..]
+      # ...
 ```
 <!--/usage-->

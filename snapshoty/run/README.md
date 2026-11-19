@@ -32,7 +32,7 @@ of the variable will be passed.
           config: snapshoty.yml
           bucket-name: 'my-bucket'
           gcs-client-email: 'my-email@acme.org'
-          gcs-private-ley: 'my-secret-key'
+          gcs-private-key: 'my-secret-key'
           gcs-private-key-id: 'my-private-key'
           gcs-project: 'my-gcs-project'
         env:

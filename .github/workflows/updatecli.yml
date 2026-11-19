@@ -14,7 +14,7 @@ jobs:
       contents: read
       packages: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Get token
         id: get_token
@@ -25,11 +25,11 @@ jobs:
           owner: ${{ github.repository_owner }}
           repositories: |
             oblt-actions
-            observability-test-environments
+            oblt-cli
           permission-contents: write
           permission-pull-requests: write
 
-      - uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -46,3 +46,12 @@ jobs:
           command: compose apply
         env:
           GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
+
+      - if: ${{ failure()  }}
+        uses: elastic/oblt-actions/slack/send@v1
+        env:
+          JOB_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        with:
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#observablt-bots"
+          message: ":traffic_cone: updatecli failed for `${{ github.repository }}@${{ github.ref_name }}`, please look what's going on <${{ env.JOB_URL }}|here>"

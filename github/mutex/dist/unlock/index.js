@@ -29262,9 +29262,8 @@ module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("util");
 /******/ }
 /******/ 
 /************************************************************************/
-/******/ /* webpack/runtime/compat */
-/******/ 
-/******/ if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = new URL('.', import.meta.url).pathname.slice(import.meta.url.match(/^file:\/\/\/\w:/) ? 1 : 0, -1) + "/";
+/******/ /* webpack/runtime/asset-relocator-loader */
+/******/ if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = decodeURIComponent(new URL('.', import.meta.url).pathname).slice(import.meta.url.match(/^file:\/\/\/\w:/) ? 1 : 0, -1) + "/";
 /******/ 
 /************************************************************************/
 var __webpack_exports__ = {};
@@ -32214,16 +32213,490 @@ function getIDToken(aud) {
  */
 
 //# sourceMappingURL=core.js.map
-// EXTERNAL MODULE: external "node:buffer"
-var external_node_buffer_ = __nccwpck_require__(4573);
 // EXTERNAL MODULE: ./node_modules/@kwsites/file-exists/dist/index.js
 var dist = __nccwpck_require__(7117);
+;// CONCATENATED MODULE: ./node_modules/@simple-git/args-pathspec/dist/index.mjs
+const t = /* @__PURE__ */ new WeakMap();
+function c(...n) {
+  const e = new String(n);
+  return t.set(e, n), e;
+}
+function dist_r(n) {
+  return n instanceof String && t.has(n);
+}
+function dist_o(n) {
+  return t.get(n) ?? [];
+}
+
+//# sourceMappingURL=index.mjs.map
+
 // EXTERNAL MODULE: ./node_modules/debug/src/index.js
 var src = __nccwpck_require__(2830);
 // EXTERNAL MODULE: ./node_modules/@kwsites/promise-deferred/dist/index.js
 var promise_deferred_dist = __nccwpck_require__(9997);
 ;// CONCATENATED MODULE: external "node:path"
 const external_node_path_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:path");
+;// CONCATENATED MODULE: ./node_modules/@simple-git/argv-parser/dist/index.mjs
+
+function* U(e, t) {
+  const n = t === "global";
+  for (const o of e)
+    o.isGlobal === n && (yield o);
+}
+const k = /* @__PURE__ */ new Set([
+  "--add",
+  "--edit",
+  "--remove-section",
+  "--rename-section",
+  "--replace-all",
+  "--unset",
+  "--unset-all",
+  "-e"
+]), S = /* @__PURE__ */ new Set([
+  "--get",
+  "--get-all",
+  "--get-color",
+  "--get-colorbool",
+  "--get-regexp",
+  "--get-urlmatch",
+  "--list",
+  "-l"
+]), P = /* @__PURE__ */ new Set([
+  "edit",
+  "remove-section",
+  "rename-section",
+  "set",
+  "unset"
+]), E = /* @__PURE__ */ new Set(["get", "get-color", "get-colorbool", "list"]);
+function F(e, t) {
+  for (const { name: o } of U(e, "task")) {
+    if (k.has(o))
+      return p(!0, t);
+    if (S.has(o))
+      return p(!1, t);
+  }
+  const n = t.at(0)?.toLowerCase();
+  return n === void 0 ? null : P.has(n) ? p(!0, t.slice(1)) : E.has(n) ? p(!1, t.slice(1)) : t.length === 1 ? p(!1, t) : p(!0, t);
+}
+function p(e = !1, t = []) {
+  const n = t.at(0)?.toLowerCase();
+  return n === void 0 ? null : {
+    isWrite: e,
+    isRead: !e,
+    key: n,
+    value: t.at(1)
+  };
+}
+function A(e, t) {
+  return t.isWrite && t.value !== void 0 ? { key: t.key, value: t.value, scope: e } : { key: t.key, scope: e };
+}
+function M(e) {
+  const t = e?.indexOf("=") || -1;
+  return !e || t < 0 ? null : {
+    key: e.slice(0, t).trim().toLowerCase(),
+    value: e.slice(t + 1)
+  };
+}
+function N(e) {
+  for (const { name: t } of U(e, "task"))
+    switch (t) {
+      case "--global":
+        return "global";
+      case "--system":
+        return "system";
+      case "--worktree":
+        return "worktree";
+      case "--local":
+        return "local";
+      case "--file":
+      case "-f":
+        return "file";
+    }
+  return "local";
+}
+function G({ name: e }) {
+  if (e === "-c" || e === "--config")
+    return "inline";
+  if (e === "--config-env")
+    return "env";
+}
+function* O(e) {
+  for (const t of e) {
+    const n = G(t), o = n && M(t.value);
+    o && (yield {
+      ...o,
+      scope: n
+    });
+  }
+}
+function L(e, t, n) {
+  const o = {
+    read: [],
+    write: [...O(t)]
+  };
+  return e === "config" && $(
+    o,
+    N(t),
+    F(t, n)
+  ), o;
+}
+function $(e, t, n) {
+  if (n === null)
+    return;
+  const o = A(t, n);
+  n.isWrite ? e.write.push(o) : e.read.push(o);
+}
+const x = {
+  short: /* @__PURE__ */ new Map([
+    ["c", !0]
+    //  -c <k=v>    set config key for this invocation
+  ])
+}, D = {
+  short: new Map([
+    ["C", !0],
+    //  -C <path>   change working directory
+    ["P", !1],
+    // -P          no pager (alias for --no-pager)
+    ["h", !1],
+    // -h          help
+    ["p", !1],
+    // -p          paginate
+    ["v", !1],
+    // -v          version
+    ...x.short.entries()
+  ]),
+  long: /* @__PURE__ */ new Set([
+    "attr-source",
+    "config-env",
+    "exec-path",
+    "git-dir",
+    "list-cmds",
+    "namespace",
+    "super-prefix",
+    "work-tree"
+  ])
+}, R = {
+  clone: {
+    short: /* @__PURE__ */ new Map([
+      ["b", !0],
+      // -b <branch>
+      ["j", !0],
+      // -j <n>          parallel jobs
+      ["l", !1],
+      // -l local
+      ["n", !1],
+      // -n no-checkout
+      ["o", !0],
+      // -o <name>       remote name
+      ["q", !1],
+      // -q quiet
+      ["s", !1],
+      // -s shared
+      ["u", !0]
+      // -u <upload-pack>
+    ]),
+    long: /* @__PURE__ */ new Set(["branch", "config", "jobs", "origin", "upload-pack", "u", "template"])
+  },
+  commit: {
+    short: /* @__PURE__ */ new Map([
+      ["C", !0],
+      // -C <commit>  reuse message
+      ["F", !0],
+      // -F <file>    read message from file
+      ["c", !0],
+      // -c <commit>  reedit message
+      ["m", !0],
+      // -m <msg>
+      ["t", !0]
+      // -t <template>
+    ]),
+    long: /* @__PURE__ */ new Set(["file", "message", "reedit-message", "reuse-message", "template"])
+  },
+  config: {
+    short: /* @__PURE__ */ new Map([
+      ["e", !1],
+      // -e  open editor
+      ["f", !0],
+      //  -f <file>
+      ["l", !1]
+      // -l  list
+    ]),
+    long: /* @__PURE__ */ new Set(["blob", "comment", "default", "file", "type", "value"])
+  },
+  fetch: {
+    short: /* @__PURE__ */ new Map(),
+    long: /* @__PURE__ */ new Set(["upload-pack"])
+  },
+  init: {
+    short: /* @__PURE__ */ new Map(),
+    long: /* @__PURE__ */ new Set(["template"])
+  },
+  pull: {
+    short: /* @__PURE__ */ new Map(),
+    long: /* @__PURE__ */ new Set(["upload-pack"])
+  },
+  push: {
+    short: /* @__PURE__ */ new Map(),
+    long: /* @__PURE__ */ new Set(["exec", "receive-pack"])
+  }
+}, T = { short: /* @__PURE__ */ new Map(), long: /* @__PURE__ */ new Set() };
+function I(e) {
+  const t = R[e ?? ""] ?? T;
+  return {
+    short: new Map([...x.short.entries(), ...t.short.entries()]),
+    long: t.long
+  };
+}
+function b(e, t = D) {
+  if (e.startsWith("--")) {
+    const n = e.indexOf("=");
+    if (n > 2)
+      return [{ name: e.slice(0, n), value: e.slice(n + 1), needsNext: !1 }];
+    const o = e.slice(2);
+    return [{ name: e, needsNext: t.long.has(o) }];
+  }
+  if (e.length === 2) {
+    const n = e.charAt(1), o = t.short.get(n);
+    return [{ name: e, needsNext: o === !0 }];
+  }
+  return W(e, t.short);
+}
+function W(e, t) {
+  const n = e.slice(1).split(""), o = [];
+  for (let s = 0; s < n.length; s++) {
+    const r = n[s], l = t.get(r);
+    if (l === void 0)
+      return [{ name: e, needsNext: !1 }];
+    if (l) {
+      const a = n.slice(s + 1).join("");
+      if (a && ![...a].every((w) => t.has(w)))
+        return o.push({ name: `-${r}`, value: a, needsNext: !1 }), o;
+    }
+    o.push({ name: `-${r}`, needsNext: l });
+  }
+  return o;
+}
+function j(e, t = []) {
+  let n = 0;
+  for (; n < e.length; ) {
+    const o = String(e[n]);
+    if (!o.startsWith("-") || o.length < 2) break;
+    const s = b(o);
+    let r = n + 1;
+    for (const l of s) {
+      const a = {
+        name: l.name,
+        value: l.value,
+        absorbedNext: !1,
+        isGlobal: !0
+      };
+      l.needsNext && a.value === void 0 && r < e.length && (a.value = String(e[r]), a.absorbedNext = !0, r++), t.push(a);
+    }
+    n = r;
+  }
+  return { flags: t, taskIndex: n };
+}
+function B(e, t, n = []) {
+  const o = I(t), s = [], r = [];
+  let l = 0;
+  for (; l < e.length; ) {
+    const a = e[l];
+    if (dist_r(a)) {
+      r.push(...dist_o(a)), l++;
+      continue;
+    }
+    const f = String(a);
+    if (f === "--") {
+      for (let g = l + 1; g < e.length; g++) {
+        const u = e[g];
+        dist_r(u) ? r.push(...dist_o(u)) : r.push(String(u));
+      }
+      break;
+    }
+    if (!f.startsWith("-") || f.length < 2) {
+      s.push(f), l++;
+      continue;
+    }
+    const w = b(f, o);
+    let d = l + 1;
+    for (const g of w) {
+      const u = {
+        name: g.name,
+        value: g.value,
+        absorbedNext: !1,
+        isGlobal: !1
+      };
+      g.needsNext && u.value === void 0 && d < e.length && !dist_r(e[d]) && (u.value = String(e[d]), u.absorbedNext = !0, d++), n.push(u);
+    }
+    l = d;
+  }
+  return { flags: n, positionals: s, pathspecs: r };
+}
+function* V({
+  write: e
+}) {
+  for (const t of e)
+    for (const n of q) {
+      const o = n(t.key);
+      o && (yield o);
+    }
+}
+function dist_c(e, t, n = String(e)) {
+  const o = typeof e == "string" ? new RegExp(`\\s*${e.toLowerCase()}`) : e;
+  return function(r) {
+    if (o.test(r))
+      return {
+        category: t,
+        message: `Configuring ${n} is not permitted without enabling ${t}`
+      };
+  };
+}
+function i(e, t) {
+  const n = new RegExp(`\\s*${e.toLowerCase().replace(/\./g, "(..+)?.")}`);
+  return dist_c(n, t, e);
+}
+const q = [
+  dist_c("alias", "allowUnsafeAlias"),
+  dist_c("core.askPass", "allowUnsafeAskPass"),
+  dist_c("core.editor", "allowUnsafeEditor"),
+  dist_c("core.fsmonitor", "allowUnsafeFsMonitor"),
+  dist_c("core.gitProxy", "allowUnsafeGitProxy"),
+  dist_c("core.hooksPath", "allowUnsafeHooksPath"),
+  dist_c("core.pager", "allowUnsafePager"),
+  dist_c("core.sshCommand", "allowUnsafeSshCommand"),
+  i("credential.helper", "allowUnsafeCredentialHelper"),
+  i("diff.command", "allowUnsafeDiffExternal"),
+  dist_c("diff.external", "allowUnsafeDiffExternal"),
+  i("diff.textconv", "allowUnsafeDiffTextConv"),
+  i("filter.clean", "allowUnsafeFilter"),
+  i("filter.smudge", "allowUnsafeFilter"),
+  i("gpg.program", "allowUnsafeGpgProgram"),
+  dist_c("init.templateDir", "allowUnsafeTemplateDir"),
+  i("merge.driver", "allowUnsafeMergeDriver"),
+  i("mergetool.path", "allowUnsafeMergeDriver"),
+  i("mergetool.cmd", "allowUnsafeMergeDriver"),
+  i("protocol.allow", "allowUnsafeProtocolOverride"),
+  i("remote.receivepack", "allowUnsafePack"),
+  i("remote.uploadpack", "allowUnsafePack"),
+  dist_c("sequence.editor", "allowUnsafeEditor")
+];
+function* K(e, t) {
+  for (const n of t)
+    for (const o of H) {
+      const s = o(e, n.name);
+      s && (yield s);
+    }
+}
+function h(e, t, n, o = String(t)) {
+  const s = typeof t == "string" ? new RegExp(`\\s*${t.toLowerCase()}`) : t, r = `Use of ${e ? `${e} with option ` : ""}${o} is not permitted without enabling ${n}`;
+  return function(a, f) {
+    if ((!e || a === e) && s.test(f))
+      return {
+        category: n,
+        message: r
+      };
+  };
+}
+const H = [
+  h(
+    null,
+    /--(upload|receive)-pack/,
+    "allowUnsafePack",
+    "--upload-pack or --receive-pack"
+  ),
+  h("clone", /^-\w*u/, "allowUnsafePack"),
+  h("clone", "--u", "allowUnsafePack"),
+  h("push", "--exec", "allowUnsafePack"),
+  h(null, "--template", "allowUnsafeTemplateDir")
+];
+function C(e, t, n) {
+  return [...K(e, t), ...V(n)];
+}
+function Y(...e) {
+  const { flags: t, taskIndex: n } = j(e), o = n < e.length ? String(e[n]).toLowerCase() : null, s = o !== null ? e.slice(n + 1) : [], { positionals: r, pathspecs: l } = B(s, o, t), a = L(o, t, r);
+  return {
+    task: o,
+    flags: t.map(J),
+    paths: l,
+    config: a,
+    vulnerabilities: z(C(o, t, a))
+  };
+}
+function z(e) {
+  return Object.defineProperty(e, "vulnerabilities", {
+    value: e
+  });
+}
+function J({ value: e, name: t }) {
+  return e !== void 0 ? { name: t, value: e } : { name: t };
+}
+const y = {
+  editor: "allowUnsafeEditor",
+  git_askpass: "allowUnsafeAskPass",
+  git_config_global: "allowUnsafeConfigPaths",
+  git_config_system: "allowUnsafeConfigPaths",
+  git_config_count: "allowUnsafeConfigEnvCount",
+  git_config: "allowUnsafeConfigPaths",
+  git_editor: "allowUnsafeEditor",
+  git_exec_path: "allowUnsafeConfigPaths",
+  git_external_diff: "allowUnsafeDiffExternal",
+  git_pager: "allowUnsafePager",
+  git_proxy_command: "allowUnsafeGitProxy",
+  git_template_dir: "allowUnsafeTemplateDir",
+  git_sequence_editor: "allowUnsafeEditor",
+  git_ssh: "allowUnsafeSshCommand",
+  git_ssh_command: "allowUnsafeSshCommand",
+  pager: "allowUnsafePager",
+  prefix: "allowUnsafeConfigPaths",
+  ssh_askpass: "allowUnsafeAskPass"
+};
+function* Q(e) {
+  const t = parseInt(e.git_config_count ?? "0", 10);
+  for (let n = 0; n < t; n++) {
+    const o = e[`git_config_key_${n}`], s = e[`git_config_value_${n}`];
+    o !== void 0 && (yield { key: o.toLowerCase().trim(), value: s, scope: "env" });
+  }
+}
+function* X(e) {
+  for (const t of Object.keys(e))
+    if (_(t)) {
+      const n = y[t];
+      yield {
+        category: n,
+        message: `Use of "${t.toUpperCase()}" is not permitted without enabling ${n}`
+      };
+    }
+}
+function _(e) {
+  return Object.hasOwn(y, e);
+}
+function Z(e) {
+  const t = {};
+  for (const [n, o] of Object.entries(e)) {
+    const s = n.toLowerCase().trim();
+    (_(s) || s.startsWith("git")) && (t[s] = String(o));
+  }
+  return t;
+}
+function ee(e) {
+  const t = Z(e), n = {
+    read: [],
+    write: [...Q(t)]
+  }, o = [
+    ...X(t),
+    ...C(null, [], n)
+  ];
+  return {
+    config: n,
+    vulnerabilities: o
+  };
+}
+function ne(e, t) {
+  return [...Y(...e).vulnerabilities, ...ee(t).vulnerabilities];
+}
+
+//# sourceMappingURL=index.mjs.map
+
 // EXTERNAL MODULE: external "node:events"
 var external_node_events_ = __nccwpck_require__(8474);
 ;// CONCATENATED MODULE: ./node_modules/simple-git/dist/esm/index.js
@@ -32250,26 +32723,6 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-// src/lib/args/pathspec.ts
-function pathspec(...paths) {
-  const key = new String(paths);
-  cache.set(key, paths);
-  return key;
-}
-function isPathSpec(path) {
-  return path instanceof String && cache.has(path);
-}
-function toPaths(pathSpec) {
-  return cache.get(pathSpec) || [];
-}
-var cache;
-var init_pathspec = __esm({
-  "src/lib/args/pathspec.ts"() {
-    "use strict";
-    cache = /* @__PURE__ */ new WeakMap();
-  }
-});
 
 // src/lib/errors/git-error.ts
 var GitError;
@@ -32316,7 +32769,6 @@ var init_task_configuration_error = __esm({
 });
 
 // src/lib/utils/util.ts
-
 
 function asFunction(source) {
   if (typeof source !== "function") {
@@ -32415,7 +32867,7 @@ function prefixedArray(input, prefix) {
   return output;
 }
 function bufferToString(input) {
-  return (Array.isArray(input) ? external_node_buffer_.Buffer.concat(input) : input).toString("utf-8");
+  return (Array.isArray(input) ? Buffer.concat(input) : input).toString("utf-8");
 }
 function pick(source, properties) {
   const out = {};
@@ -32448,6 +32900,7 @@ var init_util = __esm({
 });
 
 // src/lib/utils/argument-filters.ts
+
 function filterType(input, filter, def) {
   if (filter(input)) {
     return input;
@@ -32455,7 +32908,7 @@ function filterType(input, filter, def) {
   return arguments.length > 2 ? def : void 0;
 }
 function filterPrimitives(input, omit) {
-  const type = isPathSpec(input) ? "string" : typeof input;
+  const type = dist_r(input) ? "string" : typeof input;
   return /number|string|boolean/.test(type) && (!omit || !omit.includes(type));
 }
 function filterPlainObject(input) {
@@ -32468,7 +32921,6 @@ var filterArray, filterNumber, filterString, filterStringOrStringArray, filterHa
 var init_argument_filters = __esm({
   "src/lib/utils/argument-filters.ts"() {
     "use strict";
-    init_pathspec();
     init_util();
     filterArray = (input) => {
       return Array.isArray(input);
@@ -32477,7 +32929,7 @@ var init_argument_filters = __esm({
       return typeof input === "number";
     };
     filterString = (input) => {
-      return typeof input === "string" || isPathSpec(input);
+      return typeof input === "string" || dist_r(input);
     };
     filterStringOrStringArray = (input) => {
       return filterString(input) || Array.isArray(input) && input.every(filterString);
@@ -32602,13 +33054,14 @@ var init_simple_git_options = __esm({
 });
 
 // src/lib/utils/task-options.ts
+
 function appendTaskOptions(options, commands = []) {
   if (!filterPlainObject(options)) {
     return commands;
   }
   return Object.keys(options).reduce((commands2, key) => {
     const value = options[key];
-    if (isPathSpec(value)) {
+    if (dist_r(value)) {
       commands2.push(value);
     } else if (filterPrimitives(value, ["boolean"])) {
       commands2.push(key + "=" + value);
@@ -32654,7 +33107,6 @@ var init_task_options = __esm({
     "use strict";
     init_argument_filters();
     init_util();
-    init_pathspec();
   }
 });
 
@@ -33544,11 +33996,10 @@ var init_git_executor_chain = __esm({
       }
       async attemptRemoteTask(task, logger) {
         const binary = this._plugins.exec("spawn.binary", "", pluginContext(task, task.commands));
-        const args = this._plugins.exec(
-          "spawn.args",
-          [...task.commands],
-          pluginContext(task, task.commands)
-        );
+        const args = this._plugins.exec("spawn.args", [...task.commands], {
+          ...pluginContext(task, task.commands),
+          env: { ...this.env }
+        });
         const raw = await this.gitResponse(
           task,
           binary,
@@ -34308,6 +34759,7 @@ var init_diff = __esm({
 });
 
 // src/lib/tasks/log.ts
+
 function prettyFormat(format, splitter) {
   const fields = [];
   const formatStr = [];
@@ -34351,7 +34803,7 @@ function parseLogOptions(opt = {}, customArgs = []) {
     suffix.push(`${opt.from || ""}${rangeOperator}${opt.to || ""}`);
   }
   if (filterString(opt.file)) {
-    command.push("--follow", pathspec(opt.file));
+    command.push("--follow", c(opt.file));
   }
   appendTaskOptions(userOptions(opt), command);
   return {
@@ -34394,7 +34846,6 @@ var init_log = __esm({
   "src/lib/tasks/log.ts"() {
     "use strict";
     init_log_format();
-    init_pathspec();
     init_parse_list_log_summary();
     init_utils();
     init_task();
@@ -35150,6 +35601,7 @@ var init_version = __esm({
 });
 
 // src/lib/tasks/clone.ts
+
 function createCloneTask(api, task, repoPath, ...args) {
   if (!filterString(repoPath)) {
     return configurationErrorTask(`git.${api}() requires a string 'repoPath'`);
@@ -35178,11 +35630,10 @@ var init_clone = __esm({
     "use strict";
     init_task();
     init_utils();
-    init_pathspec();
     cloneTask = (repo, directory, customArgs) => {
       const commands = ["clone", ...customArgs];
-      filterString(repo) && commands.push(pathspec(repo));
-      filterString(directory) && commands.push(pathspec(directory));
+      filterString(repo) && commands.push(c(repo));
+      filterString(directory) && commands.push(c(directory));
       return straightThroughStringTask(commands);
     };
     cloneMirrorTask = (repo, directory, customArgs) => {
@@ -36427,7 +36878,7 @@ var require_git = __commonJS({
 });
 
 // src/lib/api.ts
-init_pathspec();
+
 
 // src/lib/errors/git-construct-error.ts
 init_git_error();
@@ -36489,74 +36940,16 @@ function abortPlugin(signal) {
 }
 
 // src/lib/plugins/block-unsafe-operations-plugin.ts
-function isConfigSwitch(arg) {
-  return typeof arg === "string" && arg.trim().toLowerCase() === "-c";
-}
-function isCloneUploadPackSwitch(char, arg) {
-  if (typeof arg !== "string" || !arg.includes(char)) {
-    return false;
-  }
-  const cleaned = arg.trim().replace(/\0/g, "");
-  return /^(--no)?-{1,2}[\dlsqvnobucj]+(\s|$)/.test(cleaned);
-}
-function preventConfigBuilder(config, setting, message = String(config)) {
-  const regex = typeof config === "string" ? new RegExp(`\\s*${config}`, "i") : config;
-  return function preventCommand(options, arg, next) {
-    if (options[setting] !== true && isConfigSwitch(arg) && regex.test(next)) {
-      throw new GitPluginError(
-        void 0,
-        "unsafe",
-        `Configuring ${message} is not permitted without enabling ${setting}`
-      );
-    }
-  };
-}
-var preventUnsafeConfig = [
-  preventConfigBuilder(
-    /^\s*protocol(.[a-z]+)?.allow/i,
-    "allowUnsafeProtocolOverride",
-    "protocol.allow"
-  ),
-  preventConfigBuilder("core.sshCommand", "allowUnsafeSshCommand"),
-  preventConfigBuilder("core.gitProxy", "allowUnsafeGitProxy"),
-  preventConfigBuilder("core.hooksPath", "allowUnsafeHooksPath"),
-  preventConfigBuilder("diff.external", "allowUnsafeDiffExternal")
-];
-function preventUploadPack(arg, method) {
-  if (/^\s*--(upload|receive)-pack/.test(arg)) {
-    throw new GitPluginError(
-      void 0,
-      "unsafe",
-      `Use of --upload-pack or --receive-pack is not permitted without enabling allowUnsafePack`
-    );
-  }
-  if (method === "clone" && isCloneUploadPackSwitch("u", arg)) {
-    throw new GitPluginError(
-      void 0,
-      "unsafe",
-      `Use of clone with option -u is not permitted without enabling allowUnsafePack`
-    );
-  }
-  if (method === "push" && /^\s*--exec\b/.test(arg)) {
-    throw new GitPluginError(
-      void 0,
-      "unsafe",
-      `Use of push with option --exec is not permitted without enabling allowUnsafePack`
-    );
-  }
-}
-function blockUnsafeOperationsPlugin({
-  allowUnsafePack = false,
-  ...options
-} = {}) {
+
+function blockUnsafeOperationsPlugin(options = {}) {
   return {
     type: "spawn.args",
-    action(args, context) {
-      args.forEach((current, index) => {
-        const next = index < args.length ? args[index + 1] : "";
-        allowUnsafePack || preventUploadPack(current, context.method);
-        preventUnsafeConfig.forEach((helper) => helper(options, current, next));
-      });
+    action(args, { env }) {
+      for (const vulnerability of ne(args, env)) {
+        if (options[vulnerability.category] !== true) {
+          throw new GitPluginError(void 0, "unsafe", vulnerability.message);
+        }
+      }
       return args;
     }
   };
@@ -36841,7 +37234,7 @@ function timeoutPlugin({
 }
 
 // src/lib/plugins/suffix-paths.plugin.ts
-init_pathspec();
+
 function suffixPathsPlugin() {
   return {
     type: "spawn.args",
@@ -36853,13 +37246,13 @@ function suffixPathsPlugin() {
       }
       for (let i = 0; i < data.length; i++) {
         const param = data[i];
-        if (isPathSpec(param)) {
-          append2(toPaths(param));
+        if (dist_r(param)) {
+          append2(dist_o(param));
           continue;
         }
         if (param === "--") {
           append2(
-            data.slice(i + 1).flatMap((item) => isPathSpec(item) && toPaths(item) || item)
+            data.slice(i + 1).flatMap((item) => dist_r(item) && dist_o(item) || item)
           );
           break;
         }

@@ -1,0 +1,55 @@
+{
+  "previousTag": "v1.0.0",
+  "baseSha": "1111111111111111111111111111111111111111",
+  "headSha": "2222222222222222222222222222222222222222",
+  "pullRequests": [
+    {
+      "number": 101,
+      "title": "Bump log4j to 2.24.1",
+      "url": "https://github.com/elastic/example/pull/101",
+      "labels": ["dependencies"]
+    },
+    {
+      "number": 102,
+      "title": "Bump actions/checkout from 4 to 5",
+      "url": "https://github.com/elastic/example/pull/102",
+      "labels": ["dependencies"]
+    },
+    {
+      "number": 103,
+      "title": "Bump the x group with 2 updates",
+      "url": "https://github.com/elastic/example/pull/103",
+      "labels": ["dependencies"]
+    },
+    {
+      "number": 104,
+      "title": "Fix a regression with a better implementation",
+      "url": "https://github.com/elastic/example/pull/104",
+      "labels": ["enhancement", "bug"]
+    },
+    {
+      "number": 105,
+      "title": "Add a useful capability",
+      "url": "https://github.com/elastic/example/pull/105",
+      "labels": ["enhancement"]
+    },
+    {
+      "number": 106,
+      "title": "Document an operator detail",
+      "url": "https://github.com/elastic/example/pull/106",
+      "labels": []
+    },
+    {
+      "number": 107,
+      "title": "Bump actions/checkout from 5 to 6",
+      "url": "https://github.com/elastic/example/pull/107",
+      "labels": ["dependencies"]
+    },
+    {
+      "number": 108,
+      "title": "Bump the x group with 4 updates",
+      "url": "https://github.com/elastic/example/pull/108",
+      "labels": ["dependencies"]
+    }
+  ]
+}

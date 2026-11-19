@@ -35,13 +35,14 @@ jobs:
   run-action-if-comment:
     runs-on: ubuntu-latest
     steps:
-      - uses: elastic/oblt-actions/github/is-member-of@v1
+      - id: is_elastic_member
+        uses: elastic/oblt-actions/github/is-member-of@v1
         with:
           github-user: ${{ github.event.issue.user.login }}
           github-org: "elastic"
           github-token: ${{ secrets.PAT_TOKEN }}
 
-      - if: steps.is_elastic_member.outputs.result == true
+      - if: steps.is_elastic_member.outputs.result == 'true'
         run: echo '${{ github.event.issue.user.login }} is member'
       # ...
 ```

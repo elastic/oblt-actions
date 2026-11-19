@@ -1,0 +1,60 @@
+---
+name: 'edot-release/version'
+description: 'Derive EDOT release tags and versions from repository state.'
+
+inputs:
+  command:
+    description: 'Version operation: highest-tag, previous-tag, next-patch, release-version, or next-development.'
+    required: true
+  tag-prefix:
+    description: 'Prefix on release tags, such as v. Leave empty for plain X.Y.Z tags.'
+    required: false
+    default: ''
+  line:
+    description: 'Optional X.Y release line for highest-tag.'
+    required: false
+    default: ''
+  ref-name:
+    description: 'Branch name for previous-tag.'
+    required: false
+    default: ''
+  version:
+    description: 'Version or tag for next-patch and next-development.'
+    required: false
+    default: ''
+  previous-tag:
+    description: 'Previous release tag for release-version.'
+    required: false
+    default: ''
+  development-version:
+    description: 'Current development version for release-version.'
+    required: false
+    default: ''
+  bump:
+    description: 'Release bump for release-version: minor or major.'
+    required: false
+    default: ''
+
+outputs:
+  value:
+    description: 'The derived tag or version.'
+    value: ${{ steps.version.outputs.value }}
+
+runs:
+  using: composite
+  steps:
+    - name: Derive release version
+      id: version
+      shell: bash
+      env:
+        VERSION_COMMAND: ${{ inputs.command }}
+        TAG_PREFIX: ${{ inputs.tag-prefix }}
+        LINE: ${{ inputs.line }}
+        REF_NAME: ${{ inputs.ref-name }}
+        VERSION: ${{ inputs.version }}
+        PREVIOUS_TAG: ${{ inputs.previous-tag }}
+        DEVELOPMENT_VERSION: ${{ inputs.development-version }}
+        BUMP: ${{ inputs.bump }}
+      run: |
+        value=$("$GITHUB_ACTION_PATH/version.sh" "$VERSION_COMMAND")
+        printf 'value=%s\n' "$value" >> "$GITHUB_OUTPUT"

@@ -1,0 +1,28 @@
+{
+  "dependencies": [
+    {
+      "message": "Update Byte Buddy to 1.18.13",
+      "prId": "910"
+    },
+    {
+      "message": "Update SLF4J API to 2.0.20",
+      "prId": "914"
+    },
+    {
+      "message": "Update AndroidX Annotation to 1.11.0",
+      "prId": "916"
+    }
+  ],
+  "featuresEnhancements": [
+    {
+      "message": "Update OpenTelemetry Java to 1.66.0",
+      "prId": "907"
+    },
+    {
+      "message": "Lower the toolchain floors required to consume the SDK to compile SDK 36, OkHttp 5.4.0, and Kotlin 2.2.21, and drop the androidx.core dependency",
+      "prId": "911"
+    }
+  ],
+  "fixes": [],
+  "uncategorized": []
+}

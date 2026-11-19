@@ -9,12 +9,12 @@ Run the oblt-cli wrapper to destroy the given cluster
 
 ## Inputs
 <!--inputs-->
-| Name                | Description                                                         | Required | Default       |
-|---------------------|---------------------------------------------------------------------|----------|---------------|
-| `cluster-name`      | The cluster name                                                    | `false`  | ` `           |
-| `cluster-info-file` | The cluster info file (absolute path)                               | `false`  | ` `           |
-| `github-token`      | The GitHub access token.                                            | `true`   | ` `           |
-| `username`          | Username to show in the deployments with oblt-cli, format: [a-z0-9] | `false`  | `obltmachine` |
+| Name                | Description                                                                                                                                                                                         | Required | Default |
+|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|---------|
+| `cluster-name`      | The cluster name                                                                                                                                                                                    | `false`  | ` `     |
+| `cluster-info-file` | The cluster info file (absolute path)                                                                                                                                                               | `false`  | ` `     |
+| `github-token`      | The GitHub access token.                                                                                                                                                                            | `true`   | ` `     |
+| `username`          | Username to show in the deployments with oblt-cli. oblt-cli/setup lowercases the value and strips characters outside [a-z0-9_-]. Defaults to the GitHub repository name (without the owner prefix). | `false`  | ` `     |
 <!--/inputs-->
 
 ## Usage
