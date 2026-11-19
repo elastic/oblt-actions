@@ -50,7 +50,7 @@ jobs:
       contents: write
     needs: [check-feature-freeze]
     if: needs.check-feature-freeze.outputs.in-freeze == 'false'
-    ...
+    # ...
 
 ```
 <!--/usage-->

@@ -55,10 +55,12 @@ oblt-actions/
 
 ## Action Testing
 
-Every action should have a test workflow in the `.github/workflows` directory.
-If the action name is `my/new-action`, then the test workflow should be named `test-my-new-action.yml.`
+Action changes must keep the required `test` status check green. In this repository, that is done in one of these ways:
 
-The workflow must have a job named `test` because the `test` status check is a required check for the `main` branch.
+1. Add or update a dedicated workflow in `.github/workflows/test-<my-action>.yml`, where `<my-action>` is the action path with `/` replaced by `-` (for example `my/new-action` -> `test-my-new-action.yml`).
+2. If an action intentionally has no dedicated test workflow (for example legacy/deprecated actions), keep its path included in `.github/workflows/no-test.yml` so `no-test` provides the required `test` job for those changes (this is the default behavior via `**`).
+
+Dedicated test workflows must include a job named `test` because `test` is a required check for the `main` branch.
 
 If you need to multiple jobs in the workflow you can create a job named `test` which utilizes the [check-dependent-jobs](../check-dependent-jobs) action
 to create a status check that is computed based on the status of the other jobs.
@@ -94,13 +96,13 @@ jobs:
   test-default:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ./<action-path>
 
   test-with-arg:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - id: my-action
         uses: ./<action-path>
@@ -115,7 +117,11 @@ jobs:
 
 ### .github/workflows/no-test.yml
 
-Add `!<action-path>/**` in the `paths` section at `.github/workflows/no-test.yml`
+`no-test.yml` starts from `**` (all paths) and then uses `!<action-path>/**` exclusions for actions that already have dedicated `test-*.yml` workflows.
+
+- Add `!<action-path>/**` when an action has a dedicated workflow **and** you want that dedicated workflow to be the only `test` signal for that path (for example `!aws/auth/**` pairs with `.github/workflows/test-aws-auth.yml`).
+- It is valid to keep an action path in `no-test.yml` even when it has a dedicated `test-*.yml` workflow if you intentionally want fallback `no-test` coverage as well. Verify current behavior directly in `.github/workflows/no-test.yml` before documenting concrete path examples.
+- Do **not** add an exclusion for actions without a dedicated workflow; they should stay included so the fallback `no-test` workflow runs and provides the required `test` job.
 
 **NOTE**: replace `<action-path>` with the path to the action directory.
 
@@ -133,6 +139,17 @@ If the `required-labels` check fails:
 Every action should have a `README.md` file in its directory.
 The `README.md` file is generated and updated with the `action-readme`
 pre-commit hook provided by [gh-action-readme](https://github.com/reakaleek/gh-action-readme).
+
+Because action READMEs are generated, do not hand-edit generated sections in place.
+Instead, update the source metadata and usage snippets that `gh-action-readme` consumes, then regenerate.
+
+When documenting inputs that are marked `required: true` and also provide a default value,
+keep the input contract and usage examples consistent:
+- include those inputs explicitly in the primary usage example, or
+- add a nearby note that the input is required by contract and defaults to the documented value when omitted.
+
+This avoids contradictory guidance where the Inputs table says an input is required
+but the main usage example appears to treat it as optional.
 
 If you are adding a new action, you can use the following template to create the `README.md` file
 and replace `<action-path>` with the path to the action directory or remove sections that are not applicable:
@@ -168,5 +185,5 @@ steps:
 Then run the following command to update the `README.md` file:
 
 ```bash
-VERSION=v1 gh action-readme update
+VERSION=v1 pre-commit run action-readme --all-files
 ```

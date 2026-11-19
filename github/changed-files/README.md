@@ -71,3 +71,9 @@ jobs:
           echo "count-modified=${{ steps.changed-files.outputs.count-modified }}"
 ```
 <!--/usage-->
+
+### Caveat: non-AMD statuses
+
+The `changed` and `count` outputs only include files whose git status is `Added`, `Modified`, or `Deleted`.
+If a diff contains only other statuses such as `Copied`, `Renamed`, or `Type-Change`, then `changed` and `count` can be empty or `0` even though Git reports a change.
+This is the current behavior of the action and is especially easy to hit with rename/copy/type-change-only updates.

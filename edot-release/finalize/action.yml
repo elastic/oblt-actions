@@ -1,0 +1,41 @@
+---
+name: 'edot-release/finalize'
+description: 'Create the EDOT release tag and GitHub Release, then open the release pull request into main, or the release-notes pull request for a patch release.'
+
+inputs:
+  release:
+    description: 'release output of publish-guard.'
+    required: true
+  dry-run:
+    description: 'true to print the tag, Release, commits, and pull requests instead of creating them.'
+    required: false
+    default: 'false'
+  repository:
+    description: 'GitHub repository of the release.'
+    required: false
+    default: ${{ github.repository }}
+  github-token:
+    description: 'GitHub token with contents and pull-requests write access.'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  release-url:
+    description: 'URL of the GitHub Release. Empty in a dry-run.'
+    value: ${{ steps.finalize.outputs.release-url }}
+  main-pull-request-url:
+    description: 'URL of the pull request into main. Empty in a dry-run.'
+    value: ${{ steps.finalize.outputs.main-pull-request-url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Finalize release
+      id: finalize
+      shell: bash
+      env:
+        RELEASE_JSON: ${{ inputs.release }}
+        DRY_RUN: ${{ inputs.dry-run }}
+        RELEASE_REPOSITORY: ${{ inputs.repository }}
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: '"$GITHUB_ACTION_PATH/finalize.sh"'

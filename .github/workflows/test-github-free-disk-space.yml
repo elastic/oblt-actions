@@ -1,0 +1,84 @@
+name: test-github-free-disk-space
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-github-free-disk-space.yml'
+      - 'github/free-disk-space/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-github-free-disk-space.yml'
+      - 'github/free-disk-space/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Seed a file under every target, so an assertion fails whether the
+      # action skips an enabled toggle or touches a disabled one.
+      - name: Seed fixtures
+        run: |
+          sudo mkdir -p /usr/local/lib/android/seed /usr/share/dotnet/seed /opt/ghc/seed
+          mkdir -p "$RUNNER_TEMP/runtimes/seed" "$RUNNER_TEMP/tool-cache/seed"
+
+      - name: Remove Android and Haskell only
+        uses: ./github/free-disk-space
+        env:
+          AGENT_TOOLSDIRECTORY: ${{ runner.temp }}/runtimes
+        with:
+          android: true
+          dotnet: false
+          haskell: true
+          large-packages: false
+          docker-images: false
+          preinstalled-runtimes: false
+          swap-storage: false
+
+      - name: Assert enabled targets are removed and disabled ones are kept
+        run: |
+          test ! -e /usr/local/lib/android
+          test ! -e /opt/ghc
+          test -d /usr/share/dotnet/seed
+          test -d "$RUNNER_TEMP/runtimes/seed"
+
+      - name: Remove pre-installed runtimes
+        uses: ./github/free-disk-space
+        env:
+          AGENT_TOOLSDIRECTORY: ${{ runner.temp }}/runtimes
+        with:
+          android: false
+          dotnet: false
+          haskell: false
+          large-packages: false
+          docker-images: false
+          preinstalled-runtimes: true
+
+      - name: Remove the tool cache through the deprecated alias
+        uses: ./github/free-disk-space
+        env:
+          AGENT_TOOLSDIRECTORY: ${{ runner.temp }}/tool-cache
+        with:
+          android: false
+          dotnet: false
+          haskell: false
+          large-packages: false
+          docker-images: false
+          tool-cache: true
+
+      - name: Assert both runtime toggles removed their directory
+        run: |
+          test ! -e "$RUNNER_TEMP/runtimes"
+          test ! -e "$RUNNER_TEMP/tool-cache"
+          test -d /usr/share/dotnet/seed
+          df -h /

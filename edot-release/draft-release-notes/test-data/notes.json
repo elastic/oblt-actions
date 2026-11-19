@@ -1,0 +1,34 @@
+{
+  "dependencies": [
+    {
+      "message": "Bump log4j to 2.24.1",
+      "prId": "101"
+    },
+    {
+      "message": "Bump actions/checkout from 5 to 6",
+      "prId": "107"
+    },
+    {
+      "message": "Bump the x group with 4 updates",
+      "prId": "108"
+    }
+  ],
+  "featuresEnhancements": [
+    {
+      "message": "Add a useful capability",
+      "prId": "105"
+    }
+  ],
+  "fixes": [
+    {
+      "message": "Fix a regression with a better implementation",
+      "prId": "104"
+    }
+  ],
+  "uncategorized": [
+    {
+      "message": "Document an operator detail",
+      "prId": "106"
+    }
+  ]
+}

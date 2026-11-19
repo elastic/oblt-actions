@@ -1,0 +1,220 @@
+---
+name: test-edot-release-version
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-edot-release-version.yml'
+      - 'edot-release/version/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-edot-release-version.yml'
+      - 'edot-release/version/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: always()
+    needs:
+      - valid
+      - invalid
+    runs-on: ubuntu-slim
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  valid:
+    runs-on: ubuntu-slim
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Create tag fixtures
+        run: |
+          for repository in prefixed plain; do
+            git init -q "$RUNNER_TEMP/$repository"
+            git -C "$RUNNER_TEMP/$repository" config user.name test
+            git -C "$RUNNER_TEMP/$repository" config user.email test@example.com
+            touch "$RUNNER_TEMP/$repository/fixture"
+            git -C "$RUNNER_TEMP/$repository" add fixture
+            git -C "$RUNNER_TEMP/$repository" commit -qm fixture
+          done
+          for tag in v1.9.0 v1.10.0 v1.10.1 v2.0.0-rc1; do
+            git -C "$RUNNER_TEMP/prefixed" tag "$tag"
+          done
+          for tag in 2.0.0 2.1.0 v1.4.0 v.1.4.0 3.0.0-rc1; do
+            git -C "$RUNNER_TEMP/plain" tag "$tag"
+          done
+
+      - id: prefixed-highest
+        uses: ./edot-release/version
+        env:
+          GIT_DIR: ${{ runner.temp }}/prefixed/.git
+        with:
+          command: highest-tag
+          tag-prefix: v
+      - run: test '${{ steps.prefixed-highest.outputs.value }}' = v1.10.1
+
+      - id: plain-highest
+        uses: ./edot-release/version
+        env:
+          GIT_DIR: ${{ runner.temp }}/plain/.git
+        with:
+          command: highest-tag
+      - run: test '${{ steps.plain-highest.outputs.value }}' = 2.1.0
+
+      - id: line-highest
+        uses: ./edot-release/version
+        env:
+          GIT_DIR: ${{ runner.temp }}/prefixed/.git
+        with:
+          command: highest-tag
+          tag-prefix: v
+          line: '1.10'
+      - run: test '${{ steps.line-highest.outputs.value }}' = v1.10.1
+
+      - id: patch-previous
+        uses: ./edot-release/version
+        env:
+          GIT_DIR: ${{ runner.temp }}/prefixed/.git
+        with:
+          command: previous-tag
+          tag-prefix: v
+          ref-name: patching/1.10.2
+      - run: test '${{ steps.patch-previous.outputs.value }}' = v1.10.1
+
+      - id: main-previous
+        uses: ./edot-release/version
+        env:
+          GIT_DIR: ${{ runner.temp }}/prefixed/.git
+        with:
+          command: previous-tag
+          tag-prefix: v
+          ref-name: main
+      - run: test '${{ steps.main-previous.outputs.value }}' = v1.10.1
+
+      - id: next-patch
+        uses: ./edot-release/version
+        with:
+          command: next-patch
+          tag-prefix: v
+          version: v1.10.1
+      - run: test '${{ steps.next-patch.outputs.value }}' = 1.10.2
+
+      - id: minor
+        uses: ./edot-release/version
+        with:
+          command: release-version
+          tag-prefix: v
+          previous-tag: v1.10.1
+          development-version: 1.11.0-SNAPSHOT
+          bump: minor
+      - run: test '${{ steps.minor.outputs.value }}' = 1.11.0
+
+      - id: major
+        uses: ./edot-release/version
+        with:
+          command: release-version
+          tag-prefix: v
+          previous-tag: v1.10.1
+          development-version: 1.11.0-SNAPSHOT
+          bump: major
+      - run: test '${{ steps.major.outputs.value }}' = 2.0.0
+
+      - id: next-development
+        uses: ./edot-release/version
+        with:
+          command: next-development
+          version: 1.11.0
+      - run: test '${{ steps.next-development.outputs.value }}' = 1.12.0-SNAPSHOT
+
+  invalid:
+    runs-on: ubuntu-slim
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Create rejection fixtures
+        run: |
+          for repository in tagged untagged; do
+            git init -q "$RUNNER_TEMP/$repository"
+            git -C "$RUNNER_TEMP/$repository" config user.name test
+            git -C "$RUNNER_TEMP/$repository" config user.email test@example.com
+            touch "$RUNNER_TEMP/$repository/fixture"
+            git -C "$RUNNER_TEMP/$repository" add fixture
+            git -C "$RUNNER_TEMP/$repository" commit -qm fixture
+          done
+          git -C "$RUNNER_TEMP/tagged" tag v1.10.1
+          git -C "$RUNNER_TEMP/untagged" tag v2.0.0-rc1
+
+      - id: wrong-development
+        continue-on-error: true
+        uses: ./edot-release/version
+        with:
+          command: release-version
+          tag-prefix: v
+          previous-tag: v1.10.1
+          development-version: 1.10.1-SNAPSHOT
+          bump: minor
+      - if: steps.wrong-development.outcome != 'failure'
+        run: exit 1
+
+      - id: malformed-line
+        continue-on-error: true
+        uses: ./edot-release/version
+        env:
+          GIT_DIR: ${{ runner.temp }}/tagged/.git
+        with:
+          command: highest-tag
+          tag-prefix: v
+          line: '1'
+      - if: steps.malformed-line.outcome != 'failure'
+        run: exit 1
+
+      - id: zero-patch
+        continue-on-error: true
+        uses: ./edot-release/version
+        with:
+          command: previous-tag
+          tag-prefix: v
+          ref-name: patching/1.10.0
+      - if: steps.zero-patch.outcome != 'failure'
+        run: exit 1
+
+      - id: no-matching-tag
+        continue-on-error: true
+        uses: ./edot-release/version
+        env:
+          GIT_DIR: ${{ runner.temp }}/untagged/.git
+        with:
+          command: highest-tag
+          tag-prefix: v
+      - if: steps.no-matching-tag.outcome != 'failure'
+        run: exit 1
+
+      - id: leading-zero
+        continue-on-error: true
+        uses: ./edot-release/version
+        with:
+          command: next-development
+          version: 1.08.0
+      - if: steps.leading-zero.outcome != 'failure'
+        run: exit 1
+
+      - id: literal-command
+        continue-on-error: true
+        uses: ./edot-release/version
+        with:
+          command: next-development$literal
+          version: 1.11.0
+      - if: steps.literal-command.outcome != 'failure'
+        run: exit 1

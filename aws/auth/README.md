@@ -35,10 +35,19 @@ AWS role ARN we use for Elastic Observability repositories.
 ## Usage
 <!--usage action="elastic/oblt-actions/**" version="env:VERSION"-->
 ```yaml
-steps:
-  - uses: elastic/oblt-actions/aws/auth@v1
-    with:
-      aws-region: 'us-east-1'
-  - run: aws s3 ls
+jobs:
+  my-job:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: elastic/oblt-actions/aws/auth@v1
+        with:
+          aws-region: 'us-east-1'
+      - run: aws s3 ls
 ```
 <!--/usage-->
+
+> [!NOTE]
+> OIDC role assumption requires `permissions.id-token: write`.

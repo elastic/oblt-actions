@@ -17,7 +17,7 @@ notifications.
 | Name               | Description                                                                                                         | Required | Default   |
 |--------------------|---------------------------------------------------------------------------------------------------------------------|----------|-----------|
 | `command`          | Specify the updatecli command to be executed.                                                                       | `true`   | ` `       |
-| `slack-channel-id` |                                                                                                                     | `true`   | ` `       |
+| `slack-channel-id` | Specify the slack channel-id.                                                                                       | `true`   | ` `       |
 | `slack-bot-token`  | Specify the slack bot token.                                                                                        | `true`   | ` `       |
 | `slack-message`    | Specify the message to be sent (markdown format).                                                                   | `true`   | ` `       |
 | `slack-send-when`  | When to send the message, always, failure, success.                                                                 | `false`  | `failure` |

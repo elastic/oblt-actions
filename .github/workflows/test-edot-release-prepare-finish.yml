@@ -1,0 +1,335 @@
+---
+name: test-edot-release-prepare-finish
+
+on:
+  merge_group: ~
+  workflow_dispatch: ~
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-edot-release-prepare-finish.yml'
+      - 'edot-release/prepare-finish/**'
+      - 'edot-release/prepare-start/**'
+      - 'edot-release/version/**'
+      - 'edot-release/pr-range/**'
+      - 'edot-release/render-release-notes/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test-edot-release-prepare-finish.yml'
+      - 'edot-release/prepare-finish/**'
+      - 'edot-release/prepare-start/**'
+      - 'edot-release/version/**'
+      - 'edot-release/pr-range/**'
+      - 'edot-release/render-release-notes/**'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+# The fixture repository is built at the workspace root by
+# edot-release/prepare-start/test-data/fixture.sh, next to this checkout in
+# oblt-actions/. Its commits carry the cherry-pick trailer of
+# elastic/oblt-actions 4967b69e2f83588d572e721c4f34928b51ab003e, PR #1135.
+# The versions are 99.x so that no check can find one of this repository's
+# own v1.x tags or Releases.
+env:
+  FIXTURE: oblt-actions/edot-release/prepare-start/test-data/fixture.sh
+
+jobs:
+  test:
+    if: always()
+    needs:
+      - valid
+      - invalid
+    runs-on: ubuntu-slim
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+
+  valid:
+    runs-on: ubuntu-slim
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: oblt-actions
+
+      - id: notes
+        name: Read release-note fixtures
+        run: |
+          data=oblt-actions/edot-release/render-release-notes/test-data
+          {
+            echo "minor=$(jq -c . "$data/android-1.10.0.json")"
+            echo "major=$(jq -c . "$data/ios-sample.json")"
+          } >> "$GITHUB_OUTPUT"
+
+      # 99.0.0: a breaking item over v98.0.0 with 98.1.0-SNAPSHOT.
+      - name: Create main fixture
+        run: '"$FIXTURE" create android 98.1.0-SNAPSHOT v98.0.0 4967b69e2f83588d572e721c4f34928b51ab003e'
+
+      - id: start-main
+        uses: ./oblt-actions/edot-release/prepare-start
+        with:
+          notes: ${{ steps.notes.outputs.major }}
+          ref: HEAD
+          ref-name: main
+          repository: elastic/oblt-actions
+
+      # Stands in for a platform step that creates a file the release ships.
+      - name: Add a generated file
+        run: |
+          mkdir -p module
+          echo generated > module/generated.txt
+          "$FIXTURE" snapshot
+
+      - id: finish-main
+        uses: ./oblt-actions/edot-release/prepare-finish
+        with:
+          release: ${{ steps.start-main.outputs.release }}
+          ref: HEAD
+          dry-run: true
+          repository: elastic/oblt-actions
+
+      - name: Verify main dry-run
+        env:
+          PULL_REQUEST_URL: ${{ steps.finish-main.outputs.pull-request-url }}
+          # The environment finish-main received from action.yml, for a
+          # direct run whose printout the assertions read.
+          RELEASE_JSON: ${{ steps.start-main.outputs.release }}
+          RELEASE_REF: HEAD
+          DRY_RUN: 'true'
+          RELEASE_REPOSITORY: elastic/oblt-actions
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test -z "$PULL_REQUEST_URL"
+          "$FIXTURE" check-unchanged
+          log="$RUNNER_TEMP/finish-main.log"
+          oblt-actions/edot-release/prepare-finish/prepare-finish.sh > "$log"
+          cat "$log"
+          "$FIXTURE" check-unchanged
+          grep -Fx 'Would run: git branch releasing/99.0.0 HEAD' "$log"
+          grep -Fx 'Would run: git switch -c prepare/99.0.0' "$log"
+          grep -Fx 'Would run: git commit -m Prepare\ release\ 99.0.0' "$log"
+          grep -Fx 'Would run: git push --atomic origin refs/heads/releasing/99.0.0:refs/heads/releasing/99.0.0 HEAD:refs/heads/prepare/99.0.0' "$log"
+          test "$(grep -c '^Would run: git push ' "$log")" = 1
+          # Every local step, the commit included, comes before the first push.
+          test "$(grep -n -m 1 '^Would run: git commit ' "$log" | cut -d: -f1)" \
+            -lt "$(grep -n -m 1 '^Would run: git push ' "$log" | cut -d: -f1)"
+          test "$(grep "^add '" "$log")" = "$(printf '%s\n' \
+            "add 'docs/release-notes/index.md'" \
+            "add 'gradle.properties'" \
+            "add 'module/generated.txt'")"
+          grep -F 'Would run: gh pr create --repo elastic/oblt-actions --base releasing/99.0.0 --head prepare/99.0.0 --title Prepare\ release\ 99.0.0 --body-file ' "$log"
+          # The backticks are Markdown in the expected sentence.
+          # shellcheck disable=SC2016
+          grep -Fx '> Merging this pull request publishes 99.0.0: the automation tags the merge commit as `v99.0.0`, creates the GitHub Release, and opens a pull request from `releasing/99.0.0` into `main`. Review it, then merge when the checks are green.' "$log"
+
+      # 99.0.1: patching/99.0.1 over v99.0.0.
+      - name: Create patch fixture
+        run: '"$FIXTURE" create android 99.0.0 v99.0.0 4967b69e2f83588d572e721c4f34928b51ab003e'
+
+      - id: start-patch
+        uses: ./oblt-actions/edot-release/prepare-start
+        with:
+          notes: ${{ steps.notes.outputs.minor }}
+          ref: HEAD
+          ref-name: patching/99.0.1
+          repository: elastic/oblt-actions
+
+      - name: Add a generated file
+        run: |
+          mkdir -p module
+          echo generated > module/generated.txt
+          "$FIXTURE" snapshot
+
+      - id: finish-patch
+        uses: ./oblt-actions/edot-release/prepare-finish
+        with:
+          release: ${{ steps.start-patch.outputs.release }}
+          ref: HEAD
+          dry-run: true
+          repository: elastic/oblt-actions
+
+      - name: Verify patch dry-run
+        env:
+          PULL_REQUEST_URL: ${{ steps.finish-patch.outputs.pull-request-url }}
+          # The environment finish-patch received from action.yml, for a
+          # direct run whose printout the assertions read.
+          RELEASE_JSON: ${{ steps.start-patch.outputs.release }}
+          RELEASE_REF: HEAD
+          DRY_RUN: 'true'
+          RELEASE_REPOSITORY: elastic/oblt-actions
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test -z "$PULL_REQUEST_URL"
+          "$FIXTURE" check-unchanged
+          log="$RUNNER_TEMP/finish-patch.log"
+          oblt-actions/edot-release/prepare-finish/prepare-finish.sh > "$log"
+          cat "$log"
+          "$FIXTURE" check-unchanged
+          grep -Fx 'Would run: git branch releasing/99.0.1 HEAD' "$log"
+          grep -Fx 'Would run: git switch -c prepare/99.0.1' "$log"
+          grep -Fx 'Would run: git commit -m Prepare\ release\ 99.0.1' "$log"
+          grep -Fx 'Would run: git push --atomic origin refs/heads/releasing/99.0.1:refs/heads/releasing/99.0.1 HEAD:refs/heads/prepare/99.0.1' "$log"
+          test "$(grep -c '^Would run: git push ' "$log")" = 1
+          # Every local step, the commit included, comes before the first push.
+          test "$(grep -n -m 1 '^Would run: git commit ' "$log" | cut -d: -f1)" \
+            -lt "$(grep -n -m 1 '^Would run: git push ' "$log" | cut -d: -f1)"
+          test "$(grep "^add '" "$log")" = "$(printf '%s\n' \
+            "add 'docs/release-notes/index.md'" \
+            "add 'gradle.properties'" \
+            "add 'module/generated.txt'")"
+          grep -F 'Would run: gh pr create --repo elastic/oblt-actions --base releasing/99.0.1 --head prepare/99.0.1 --title Prepare\ release\ 99.0.1 --body-file ' "$log"
+          # The backticks are Markdown in the expected sentences.
+          # shellcheck disable=SC2016
+          grep -Fx -- '- Bump: `patch`' "$log"
+          # shellcheck disable=SC2016
+          grep -Fx '> Merging this pull request publishes 99.0.1: the automation tags the merge commit as `v99.0.1`, creates the GitHub Release, and opens a release-notes pull request into `main`. Review it, then merge when the checks are green.' "$log"
+
+      - name: Verify nothing was created on GitHub
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: '"$FIXTURE" check-upstream elastic/oblt-actions 99.0.0 99.0.1'
+
+  invalid:
+    runs-on: ubuntu-slim
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: oblt-actions
+
+      - id: notes
+        name: Read release-note fixtures
+        run: |
+          echo "major=$(jq -c . oblt-actions/edot-release/render-release-notes/test-data/ios-sample.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Create fixture
+        run: '"$FIXTURE" create android 98.1.0-SNAPSHOT v98.0.0 4967b69e2f83588d572e721c4f34928b51ab003e'
+
+      - id: short-version
+        continue-on-error: true
+        uses: ./oblt-actions/edot-release/prepare-finish
+        with:
+          release: '{"version": "99.0", "bump": "major", "previousTag": "v98.0.0", "releaseBranch": "releasing/99.0", "prepareBranch": "prepare/99.0", "range": {"pullRequests": []}}'
+          ref: HEAD
+          dry-run: true
+          repository: elastic/oblt-actions
+      - if: steps.short-version.outcome != 'failure'
+        run: exit 1
+      - run: '"$FIXTURE" check-unchanged'
+
+      - id: unknown-bump
+        continue-on-error: true
+        uses: ./oblt-actions/edot-release/prepare-finish
+        with:
+          release: '{"version": "99.0.0", "bump": "none", "previousTag": "v98.0.0", "releaseBranch": "releasing/99.0.0", "prepareBranch": "prepare/99.0.0", "range": {"pullRequests": []}}'
+          ref: HEAD
+          dry-run: true
+          repository: elastic/oblt-actions
+      - if: steps.unknown-bump.outcome != 'failure'
+        run: exit 1
+      - run: '"$FIXTURE" check-unchanged'
+
+      # Without a Git identity the commit fails. Nothing may reach origin
+      # first: a pushed releasing branch would block the next preparation.
+      # The local branches and the staged changes are expected to remain.
+      - name: Create fixture whose run has no Git identity
+        run: '"$FIXTURE" create android 98.1.0-SNAPSHOT v98.0.0 4967b69e2f83588d572e721c4f34928b51ab003e'
+      - id: start-no-identity
+        uses: ./oblt-actions/edot-release/prepare-start
+        with:
+          notes: ${{ steps.notes.outputs.major }}
+          ref: HEAD
+          ref-name: main
+          repository: elastic/oblt-actions
+      - name: Add a generated file and remove the Git identity
+        run: |
+          mkdir -p module
+          echo generated > module/generated.txt
+          "$FIXTURE" forget-identity
+          "$FIXTURE" snapshot
+      - id: no-identity
+        continue-on-error: true
+        uses: ./oblt-actions/edot-release/prepare-finish
+        env:
+          # Ignore any identity in the runner's global Git configuration.
+          GIT_CONFIG_GLOBAL: /dev/null
+        with:
+          release: ${{ steps.start-no-identity.outputs.release }}
+          ref: HEAD
+          repository: elastic/oblt-actions
+      - if: steps.no-identity.outcome != 'failure'
+        run: exit 1
+      - run: '"$FIXTURE" check-origin'
+
+      # A leftover prepare/99.0.0 on origin, unrelated to this run, makes the
+      # prepare push non-fast-forward. The in-flight check reads only
+      # releasing/*, so only the push can stop it, and the releasing branch
+      # must not land without the prepare branch.
+      - name: Create fixture with a leftover prepare branch
+        run: |
+          "$FIXTURE" create android 98.1.0-SNAPSHOT v98.0.0 4967b69e2f83588d572e721c4f34928b51ab003e
+          leftover=$(git commit-tree -m 'Leftover preparation' 'HEAD^{tree}')
+          git push --quiet origin "$leftover:refs/heads/prepare/99.0.0"
+      - id: start-leftover
+        uses: ./oblt-actions/edot-release/prepare-start
+        with:
+          notes: ${{ steps.notes.outputs.major }}
+          ref: HEAD
+          ref-name: main
+          repository: elastic/oblt-actions
+      - name: Add a generated file
+        run: |
+          mkdir -p module
+          echo generated > module/generated.txt
+          "$FIXTURE" snapshot
+      - id: leftover-prepare
+        continue-on-error: true
+        uses: ./oblt-actions/edot-release/prepare-finish
+        with:
+          release: ${{ steps.start-leftover.outputs.release }}
+          ref: HEAD
+          repository: elastic/oblt-actions
+      - if: steps.leftover-prepare.outcome != 'failure'
+        run: exit 1
+      - run: '"$FIXTURE" check-origin'
+
+      # The push succeeds and opening the pull request fails. Both pushed
+      # branches must be deleted again, so the next preparation can start.
+      # A gh that always fails stands in for the failed pull request.
+      - name: Create fixture whose pull request cannot be opened
+        run: '"$FIXTURE" create android 98.1.0-SNAPSHOT v98.0.0 4967b69e2f83588d572e721c4f34928b51ab003e'
+      - id: start-no-pr
+        uses: ./oblt-actions/edot-release/prepare-start
+        with:
+          notes: ${{ steps.notes.outputs.major }}
+          ref: HEAD
+          ref-name: main
+          repository: elastic/oblt-actions
+      - name: Verify a failed pull request deletes the pushed branches
+        env:
+          RELEASE_JSON: ${{ steps.start-no-pr.outputs.release }}
+          RELEASE_REF: HEAD
+          RELEASE_REPOSITORY: elastic/oblt-actions
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p module
+          echo generated > module/generated.txt
+          "$FIXTURE" snapshot
+          mkdir "$RUNNER_TEMP/failing-gh"
+          printf '#!/bin/sh\nexit 1\n' > "$RUNNER_TEMP/failing-gh/gh"
+          chmod +x "$RUNNER_TEMP/failing-gh/gh"
+          log="$RUNNER_TEMP/no-pr.log"
+          if PATH="$RUNNER_TEMP/failing-gh:$PATH" \
+            oblt-actions/edot-release/prepare-finish/prepare-finish.sh > "$log" 2>&1; then
+            cat "$log"
+            exit 1
+          fi
+          cat "$log"
+          grep -Fx 'Could not open the preparation pull request; deleting releasing/99.0.0 and prepare/99.0.0 so the release can be dispatched again.' "$log"
+          "$FIXTURE" check-origin

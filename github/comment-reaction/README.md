@@ -30,8 +30,8 @@ on:
 jobs:
   react:
     runs-on: ubuntu-latest
-    if: ${{ github.event.issue.pull_request
-    permission:
+    if: ${{ github.event.issue.pull_request }}
+    permissions:
       pull-requests: write
     steps:
       - uses: elastic/oblt-actions/github/comment-reaction@v1

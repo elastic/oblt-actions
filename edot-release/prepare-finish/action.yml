@@ -1,0 +1,43 @@
+---
+name: 'edot-release/prepare-finish'
+description: 'Push the EDOT release branches and open the preparation pull request for the release changes in the working tree.'
+
+inputs:
+  release:
+    description: 'release output of prepare-start.'
+    required: true
+  ref:
+    description: 'Dispatched commit; the release branch starts here.'
+    required: false
+    default: ${{ github.sha }}
+  dry-run:
+    description: 'true to print the pushes and the pull request instead of creating them.'
+    required: false
+    default: 'false'
+  repository:
+    description: 'GitHub repository where the pull request is opened.'
+    required: false
+    default: ${{ github.repository }}
+  github-token:
+    description: 'GitHub token that opens the pull request. Use a token that triggers workflows so CI runs on it.'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  pull-request-url:
+    description: 'URL of the preparation pull request. Empty in a dry-run.'
+    value: ${{ steps.finish.outputs.pull-request-url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Open preparation pull request
+      id: finish
+      shell: bash
+      env:
+        RELEASE_JSON: ${{ inputs.release }}
+        RELEASE_REF: ${{ inputs.ref }}
+        DRY_RUN: ${{ inputs.dry-run }}
+        RELEASE_REPOSITORY: ${{ inputs.repository }}
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: '"$GITHUB_ACTION_PATH/prepare-finish.sh"'
