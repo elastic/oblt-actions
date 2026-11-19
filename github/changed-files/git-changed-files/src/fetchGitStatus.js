@@ -66,7 +66,7 @@ function fetchGitStatus(options) {
     } = options;
 
     if (!(showCommitted || showUnCommitted)) {
-      return reject(chalk.keyword('orange')('Either showCommitted or showUnCommitted must be true.'));
+      return reject(chalk.hex('#FFA500')('Either showCommitted or showUnCommitted must be true.'));
     }
 
     let statusCmd = showStatus ? '--name-status' : '--name-only';

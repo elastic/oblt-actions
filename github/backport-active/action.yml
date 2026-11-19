@@ -6,8 +6,8 @@ inputs:
     description: 'GitHub token for authentication'
     default: ${{ github.token }}
   backports-url:
-    description: 'URL to fetch the backport branches configuration JSON'
-    default: "https://storage.googleapis.com/artifacts-api/snapshots/branches.json"
+    description: 'URL to fetch the active branches'
+    default: "https://elastic-release-api.s3.us-west-2.amazonaws.com/public/active-branches.txt"
   pr-number:
     description: 'PR number to use (needed for tests)'
     default: ${{ github.event.pull_request.number }}
@@ -16,7 +16,7 @@ runs:
   using: 'composite'
   steps:
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: '3.13'
 
@@ -33,5 +33,5 @@ runs:
         REPOSITORY: ${{ github.repository }}
         PR_LABELS: ${{ toJSON(github.event.pull_request.labels) }}
         BACKPORTS_URL: ${{ inputs.backports-url }}
-      run: python ${{ github.action_path }}/backport_script.py
+      run: python "$GITHUB_ACTION_PATH/backport_script.py"
       shell: bash

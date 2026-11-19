@@ -14,15 +14,61 @@ export BABEL_DISABLE_CACHE=true
 export FORCE_COLOR=1
 export NODE_OPTIONS=" --max-old-space-size=4096"
 export BUILD_TS_REFS_DISABLE="true"
+export KBN_USE_RSPACK=true
 
 echo "::group::Bootstrap"
-time yarn kbn clean
-time yarn kbn bootstrap
+if [ -f pnpm-lock.yaml ]; then
+  if ! command -v corepack > /dev/null 2>&1; then
+    if ! command -v npm > /dev/null 2>&1; then
+      echo "::error::corepack is not installed and npm is unavailable"
+      exit 1
+    fi
+    npm install -g corepack
+  fi
+  corepack enable
+  if ! command -v pnpm > /dev/null 2>&1; then
+    echo "::error::pnpm is required to bootstrap Kibana"
+    exit 1
+  fi
+  time pnpm kbn clean
+  time pnpm kbn bootstrap
+elif [ -f yarn.lock ]; then
+  if ! command -v yarn > /dev/null 2>&1; then
+    echo "::error::yarn is required to bootstrap legacy Kibana branches"
+    exit 1
+  fi
+  time yarn kbn clean
+  time yarn kbn bootstrap
+else
+  echo "::error::Kibana checkout contains neither pnpm-lock.yaml nor yarn.lock"
+  exit 1
+fi
 echo "::endgroup::"
+
+export KBN_NP_PLUGINS_BUILT=true
+
+# Kibana >= 9.6 builds the cloud image from a kibana-cloud-* archive produced by `--cloud`.
+# https://github.com/elastic/kibana/blob/main/.buildkite/scripts/steps/cloud/build_cloud_image.sh
+if [ "${SERVERLESS}" == "false" ] && grep -q "'cloud'," src/dev/build/args.ts; then
+  echo "::group::Build cloud docker image"
+  extra_args=()
+  if grep -q "'skip-docker-image-archive'," src/dev/build/args.ts; then
+    extra_args+=(--skip-docker-image-archive)
+  fi
+  time node scripts/build \
+        --cloud \
+        --docker-namespace="${DOCKER_NAMESPACE}" \
+        --docker-tag="${DOCKER_TAG}" \
+        --docker-push \
+        --skip-cdn-assets \
+        --skip-docker-contexts \
+        "${extra_args[@]}"
+  echo "::endgroup::"
+  exit 0
+fi
 
 # https://github.com/elastic/kibana/blob/main/.buildkite/scripts/build_kibana.sh#L11-L19
 echo "::group::Build Linux package"
-export KBN_NP_PLUGINS_BUILT=true
 time node scripts/build \
   --skip-os-packages \
   --skip-cdn-assets \

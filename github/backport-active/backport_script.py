@@ -47,36 +47,24 @@ def main():
 
     print(f"Labels found: {labels}")
 
-    # Function to get config from URL
-    def get_config_from_url(url):
+    # Function to get branches from URL (plain text, one branch per line)
+    def get_branches_from_url(url):
         try:
-            print(f"Fetching config from URL: {url}")
+            print(f"Fetching branches from URL: {url}")
             response = requests.get(url, timeout=10)
             response.raise_for_status()
-            return response.json()
+            return [line.strip() for line in response.text.splitlines() if line.strip()]
         except Exception as e:
-            print(f"Error fetching config from URL: {e}")
-            return None
+            print(f"Error fetching branches from URL: {e}")
+            return []
 
     # Always fetch from the backports URL
-    config = get_config_from_url(backports_url)
+    target_branches = get_branches_from_url(backports_url)
 
-    target_branches = []
-
-    # Extract branches from config if available
-    if config and 'branches' in config:
-        branches_data = config['branches']
-
-        if isinstance(branches_data, str):
-            # If branches is a string with space-separated values, split it
-            target_branches = [b for b in branches_data.split() if b]
-        elif isinstance(branches_data, list):
-            # If branches is an array, use it directly
-            target_branches = branches_data
-
-        print(f"Found branches in config: {target_branches}")
+    if target_branches:
+        print(f"Found branches: {target_branches}")
     else:
-        print("No branches found in config or config not available")
+        print("No branches found or config not available")
 
     # Filter branches based on the labels
     filtered_branches = []

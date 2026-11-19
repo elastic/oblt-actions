@@ -52,7 +52,7 @@ runs:
   using: composite
   steps:
     - name: Fetch Kibana Dashboard
-      run: ${{ github.action_path }}/run.sh
+      run: "$GITHUB_ACTION_PATH/run.sh"
       shell: bash
       env:
         KIBANA_HOST: ${{ inputs.kibana-host }}
@@ -68,7 +68,7 @@ runs:
         QUERY: ${{ inputs.query }}
 
     - name: Upload dashboard PNG to artifacts
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ inputs.png-filename }}
         path: ${{ inputs.png-filename }}

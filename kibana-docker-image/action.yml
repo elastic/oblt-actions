@@ -41,22 +41,20 @@ outputs:
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         repository: ${{ inputs.github-repository }}
         ref: ${{ inputs.git-ref }}
         path: ${{ inputs.checkout-path }}
 
-    - uses: actions/setup-node@v6
+    - uses: actions/setup-node@v7
       with:
-        node-version-file: ${{ inputs.checkout-path }}/.node-version
-        cache: yarn
-        cache-dependency-path: ${{ inputs.checkout-path }}/yarn.lock
+        node-version-file: ${{ inputs.checkout-path }}/.nvmrc
 
     - name: Set up variables
       id: vars
       working-directory: ${{ inputs.checkout-path }}
-      run: ${{ github.action_path }}/setup-vars.sh
+      run: "$GITHUB_ACTION_PATH/setup-vars.sh"
       env:
         DOCKER_REGISTRY: ${{ inputs.docker-registry }}
         DOCKER_NAMESPACE: ${{ inputs.docker-namespace }}
@@ -65,7 +63,7 @@ runs:
 
     - name: Build and Push
       working-directory: ${{ inputs.checkout-path }}
-      run: ${{ github.action_path }}/build-and-push.sh
+      run: "$GITHUB_ACTION_PATH/build-and-push.sh"
       shell: bash
       env:
         SERVERLESS: ${{ inputs.serverless }}

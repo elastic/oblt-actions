@@ -1,0 +1,28 @@
+# action.yml
+name: 'Mutex Action'
+description: 'A simple locking/unlocking mechanism to provide mutual exclusion in GitHub Actions'
+inputs:
+  github-token:
+    description: 'The token for accessing the repo.'
+    required: false
+    default: ${{ github.token }}
+  repository:
+    description: 'The repository path that stores the lock (e.g `elastic/oblt-actions`).'
+    required: false
+    default: ${{ github.repository }}
+  branch:
+    description: 'The branch to use for the mutex'
+    required: false
+    default: 'mutex'
+  suffix:
+    description: 'Requester id suffix to avoid identical values for parallel/matrix jobs in the same workflow run'
+    required: false
+    default: 'default'
+  timeout-minutes:
+    description: 'Maximum time in minutes to wait for lock acquisition or release before timing out'
+    required: false
+    default: '30'
+runs:
+  using: 'node24'
+  main: 'dist/lock/index.js'
+  post: 'dist/unlock/index.js'

@@ -22,7 +22,7 @@ runs:
   using: "composite"
   steps:
     - id: generator
-      run: python ${{ github.action_path }}/matrix.py
+      run: python "$GITHUB_ACTION_PATH/matrix.py"
       env:
         VERSIONS_FILE: ${{ inputs.versions-file }}
         FRAMEWORKS_FILE: ${{ inputs.frameworks-file }}
