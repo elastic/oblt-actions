@@ -124,7 +124,7 @@ jobs:
             "add 'docs/release-notes/index.md'" \
             "add 'gradle.properties'" \
             "add 'module/generated.txt'")"
-          grep -F 'Would run: gh pr create --repo elastic/oblt-actions --base releasing/99.0.0 --head prepare/99.0.0 --title Prepare\ release\ 99.0.0 --body-file ' "$log"
+          grep -F 'Would run: gh pr create --repo elastic/oblt-actions --label release --base releasing/99.0.0 --head prepare/99.0.0 --title Prepare\ release\ 99.0.0 --body-file ' "$log"
           # The backticks are Markdown in the expected sentence.
           # shellcheck disable=SC2016
           grep -Fx '> Merging this pull request publishes 99.0.0: the automation tags the merge commit as `v99.0.0`, creates the GitHub Release, and opens a pull request from `releasing/99.0.0` into `main`. Review it, then merge when the checks are green.' "$log"
@@ -184,7 +184,7 @@ jobs:
             "add 'docs/release-notes/index.md'" \
             "add 'gradle.properties'" \
             "add 'module/generated.txt'")"
-          grep -F 'Would run: gh pr create --repo elastic/oblt-actions --base releasing/99.0.1 --head prepare/99.0.1 --title Prepare\ release\ 99.0.1 --body-file ' "$log"
+          grep -F 'Would run: gh pr create --repo elastic/oblt-actions --label release --base releasing/99.0.1 --head prepare/99.0.1 --title Prepare\ release\ 99.0.1 --body-file ' "$log"
           # The backticks are Markdown in the expected sentences.
           # shellcheck disable=SC2016
           grep -Fx -- '- Bump: `patch`' "$log"

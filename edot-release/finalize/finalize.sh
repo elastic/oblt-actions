@@ -231,6 +231,7 @@ if [[ ${release_version##*.} == 0 ]]; then
     main_pr=$(
       run gh pr create \
         --repo "$repository" \
+        --label release \
         --base main \
         --head "$base_ref" \
         --title "Release $release_version" \
@@ -291,6 +292,7 @@ else
     main_pr=$(
       run gh pr create \
         --repo "$repository" \
+        --label release \
         --base main \
         --head "$notes_branch" \
         --title "Release notes for $release_version" \
