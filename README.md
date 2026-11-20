@@ -7,6 +7,7 @@ This repository contains GitHub Actions for Elastic Observability projects.
 ## Actions catalog
 
 The repository is organized by action namespace. Each action directory contains its own `action.yml` and usage README.
+The `edot-release/wizard` directory contains helper scripts for release wizard skills.
 
 | Namespace | Action docs |
 | --- | --- |
@@ -15,7 +16,7 @@ The repository is organized by action namespace. Each action directory contains 
 | `buildkite/` | [`download-artifact`](buildkite/download-artifact/README.md), [`flaky-report`](buildkite/flaky-report/README.md), [`run`](buildkite/run/README.md) |
 | `check-dependent-jobs/` | [`check-dependent-jobs`](check-dependent-jobs/README.md) |
 | `download-kibana-dashboard/` | [`download-kibana-dashboard`](download-kibana-dashboard/README.md) |
-| `edot-release/` | [`draft-release-notes`](edot-release/draft-release-notes/README.md), [`finalize`](edot-release/finalize/README.md), [`pr-range`](edot-release/pr-range/README.md), [`prepare-finish`](edot-release/prepare-finish/README.md), [`prepare-start`](edot-release/prepare-start/README.md), [`publish-guard`](edot-release/publish-guard/README.md), [`render-release-notes`](edot-release/render-release-notes/README.md), [`start-patch`](edot-release/start-patch/README.md), [`version`](edot-release/version/README.md) |
+| `edot-release/` | [`draft-release-notes`](edot-release/draft-release-notes/README.md), [`finalize`](edot-release/finalize/README.md), [`pr-range`](edot-release/pr-range/README.md), [`prepare-finish`](edot-release/prepare-finish/README.md), [`prepare-start`](edot-release/prepare-start/README.md), [`publish-guard`](edot-release/publish-guard/README.md), [`render-release-notes`](edot-release/render-release-notes/README.md), [`start-patch`](edot-release/start-patch/README.md), [`version`](edot-release/version/README.md), [`wizard`](edot-release/wizard/README.md) (helper scripts) |
 | `elastic/` | [`active-branches`](elastic/active-branches/README.md), [`github-commands`](elastic/github-commands/README.md), [`validate-catalog`](elastic/validate-catalog/README.md) |
 | `feature-freeze/` | [`feature-freeze`](feature-freeze/README.md) |
 | `git/` | [`setup`](git/setup/README.md) |
