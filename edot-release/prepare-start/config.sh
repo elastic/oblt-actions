@@ -8,7 +8,7 @@
 # Usage: config.sh get <field>
 #
 # The file is `.github/edot-release.json` in the working directory, the
-# checked-out commit. It is a JSON object with exactly these fields:
+# checked-out commit. It is a JSON object with these required fields:
 #   tagPrefix               release tag prefix, such as `v`; may be empty
 #   productName             product name, such as `EDOT Android`
 #   versionFile             path of the file that holds the version
@@ -22,6 +22,8 @@
 #   docsUrl                 published release-notes page
 #   stagePaths              non-empty array of pathspecs to stage in the
 #                           preparation commit; printed one per line
+#
+# Optional field: repository, the wizard's GitHub repository as owner/name.
 #
 # The whole file is validated on every call, so any action stops on any
 # mistake in it, with a message that names the file and the field.
@@ -51,13 +53,18 @@ problems=$(
     def string_fields: ["tagPrefix", "productName", "versionFile", "versionLine",
       "appliesToKey", "headingAnchorPrefix", "subsectionAnchorPrefix", "docsUrl"];
     def fields: string_fields + ["stagePaths"];
+    def optional_fields: ["repository"];
     def one_line: type == "string" and (contains("\n") or contains("\r") | not);
     . as $config
     | (fields - keys | .[] | "missing key \(.)"),
-      (keys - fields | .[] | "unknown key \(.)"),
+      (keys - fields - optional_fields | .[] | "unknown key \(.)"),
       (string_fields[] as $key | select($config | has($key)) | $config[$key]
         | if one_line | not then "\($key) must be a one-line string"
           elif $key != "tagPrefix" and . == "" then "\($key) must not be empty"
+          else empty end),
+      (select(has("repository")) | .repository
+        | if one_line | not then "repository must be a one-line owner/name string"
+          elif test("^[A-Za-z0-9][A-Za-z0-9-]*/[A-Za-z0-9_.-]+$") | not then "repository must be an owner/name string"
           else empty end),
       (select(has("versionLine") and (.versionLine | type == "string"))
         | .versionLine | select(indices("{version}") | length != 1)

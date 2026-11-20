@@ -38,8 +38,9 @@ All four `edot-release` flow actions (`prepare-start`, `prepare-finish`,
 `.github/edot-release.json` in the checked-out commit;
 [`start-patch`](../start-patch/README.md) reads `tagPrefix` from it, and so
 does [`draft-release-notes`](../draft-release-notes/README.md) when the file
-exists. The file is a JSON object with exactly these fields; any missing,
-unknown, or malformed field stops the action with a message that names it.
+exists. The file is a JSON object with the required fields below and an optional
+`repository` field. Any missing required, unknown, or malformed field stops
+the action with a message that names it.
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -52,6 +53,7 @@ unknown, or malformed field stops the action with a message that names it.
 | `subsectionAnchorPrefix` | string | Anchor base of the subsection headings, without the version digits. |
 | `docsUrl` | string | Published release-notes page linked from the Release. |
 | `stagePaths` | array of strings | Pathspecs staged in the preparation commit. |
+| `repository` | optional string | GitHub `owner/name` read by the [release wizard helpers](../wizard/README.md). Existing actions accept configurations without it; their `repository` input is unchanged. |
 
 ```json
 {

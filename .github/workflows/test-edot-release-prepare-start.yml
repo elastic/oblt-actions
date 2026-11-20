@@ -60,6 +60,18 @@ jobs:
         with:
           path: oblt-actions
 
+      - name: Read configurations with and without repository
+        run: |
+          config="$PWD/oblt-actions/edot-release/prepare-start/config.sh"
+          data="$PWD/$TEST_DATA"
+          work=$(mktemp -d)
+          trap 'rm -rf "$work"' EXIT
+          mkdir "$work/.github"
+          for fixture in android ios with-repository; do
+            cp "$data/$fixture/edot-release.json" "$work/.github/edot-release.json"
+            (cd "$work" && "$config" get productName && "$config" get tagPrefix)
+          done
+
       - id: notes
         name: Read release-note fixtures
         run: |
@@ -210,6 +222,22 @@ jobs:
       - uses: actions/checkout@v7
         with:
           path: oblt-actions
+
+      - name: Reject malformed repository configuration
+        run: |
+          config="$PWD/oblt-actions/edot-release/prepare-start/config.sh"
+          data="$PWD/$TEST_DATA"
+          work=$(mktemp -d)
+          trap 'rm -rf "$work"' EXIT
+          mkdir "$work/.github"
+          cp "$data/invalid-repository/edot-release.json" "$work/.github/edot-release.json"
+          cd "$work"
+          if "$config" get productName >output 2>error; then
+            echo "Malformed repository was accepted" >&2
+            exit 1
+          fi
+          test ! -s output
+          grep -F '.github/edot-release.json: repository' error
 
       - id: notes
         name: Read release-note fixtures
