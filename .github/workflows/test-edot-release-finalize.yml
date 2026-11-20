@@ -108,7 +108,7 @@ jobs:
           grep -Fx 'Would run: git add -- gradle.properties' "$log"
           grep -Fx 'Would run: git commit -m Prepare\ for\ the\ next\ release' "$log"
           grep -Fx 'Would run: git push origin HEAD:refs/heads/releasing/99.0.0' "$log"
-          grep -F 'Would run: gh pr create --repo elastic/oblt-actions --base main --head releasing/99.0.0 --title Release\ 99.0.0 --body-file ' "$log"
+          grep -F 'Would run: gh pr create --repo elastic/oblt-actions --label release --base main --head releasing/99.0.0 --title Release\ 99.0.0 --body-file ' "$log"
           grep -Fx 'EDOT Android 99.0.0 is published: [v99.0.0](https://github.com/elastic/oblt-actions/releases/tag/v99.0.0), [GitHub Release](<release-url>).' "$log"
           grep -Fx 'Would run: git push origin --delete prepare/99.0.0' "$log"
           if grep -F 'Would run: git push origin --delete releasing/' "$log"; then
@@ -162,7 +162,7 @@ jobs:
           fi
           grep -Fx 'releasing/99.0.0 already carries the next development version.' "$log"
           grep -F 'Would run: gh release create v99.0.0 --repo elastic/oblt-actions --verify-tag --title EDOT\ Android\ 99.0.0 --notes-file ' "$log"
-          grep -F 'Would run: gh pr create --repo elastic/oblt-actions --base main --head releasing/99.0.0 --title Release\ 99.0.0 --body-file ' "$log"
+          grep -F 'Would run: gh pr create --repo elastic/oblt-actions --label release --base main --head releasing/99.0.0 --title Release\ 99.0.0 --body-file ' "$log"
 
       # 99.0.1 merged into releasing/99.0.1, cut from v99.0.0; main already
       # carries the 99.0.0 notes, under which the 99.0.1 section belongs.
@@ -227,7 +227,7 @@ jobs:
           grep -Fx 'Would run: git switch -C patch-notes/99.0.1 refs/remotes/origin/main' "$log"
           grep -Fx 'Would run: git commit -m Add\ 99.0.1\ release\ notes' "$log"
           grep -Fx 'Would run: git push origin HEAD:refs/heads/patch-notes/99.0.1' "$log"
-          grep -F 'Would run: gh pr create --repo elastic/oblt-actions --base main --head patch-notes/99.0.1 --title Release\ notes\ for\ 99.0.1 --body-file ' "$log"
+          grep -F 'Would run: gh pr create --repo elastic/oblt-actions --label release --base main --head patch-notes/99.0.1 --title Release\ notes\ for\ 99.0.1 --body-file ' "$log"
           grep -Fx 'Merging this pull request publishes the release notes on the documentation site.' "$log"
           grep -Fx 'prepare/99.0.1 is already deleted.' "$log"
           if grep -F 'Would run: git push origin --delete prepare/' "$log"; then

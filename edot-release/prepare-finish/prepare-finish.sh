@@ -155,6 +155,7 @@ run git push --atomic origin \
 if ! pr_url=$(
   run gh pr create \
     --repo "$repository" \
+    --label release \
     --base "$release_branch" \
     --head "$prepare_branch" \
     --title "Prepare release $release_version" \
