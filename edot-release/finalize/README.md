@@ -32,9 +32,12 @@ Create the EDOT release tag and GitHub Release, then open the release pull reque
 
 Run it after `publish-guard` and any publication steps. Every step checks
 whether its result already exists, so re-running a failed job resumes where
-it stopped. The Git identity and credentials are the caller's: configure
-them first, for example with `elastic/oblt-actions/git/setup` and the same
-token. The action does not configure Git itself.
+it stopped. For both release and patch-release flows, the action creates
+its pull request with the `release` label; ensure the target repository has
+a `release` label available. The Git identity and credentials are the
+caller's: configure them first, for example with
+`elastic/oblt-actions/git/setup` and the same token. The action does not
+configure Git itself.
 As its last step, the action deletes `prepare/X.Y.Z`, and after a patch
 release also `releasing/X.Y.Z` and `patching/X.Y.Z`, so the next
 preparation is not blocked; it skips a branch that is already gone. It
