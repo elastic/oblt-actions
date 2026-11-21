@@ -1,6 +1,6 @@
-const core = require('@actions/core');
-const exec = require('@actions/exec');
-const os = require("os");
+import * as core from '@actions/core';
+import * as exec from '@actions/exec';
+import { userInfo } from 'os';
 
 async function run() {
   try {
@@ -12,12 +12,12 @@ async function run() {
     const config = core.getInput('config');
 
     const workDir = process.env.GITHUB_WORKSPACE;
-    const userInfo = os.userInfo();
+    const currentUser = userInfo();
 
     const args = [
       'run', '--rm',
       '-v', `${workDir}:/app`,
-      '-u', `${userInfo.uid}:${userInfo.gid}`,
+      '-u', `${currentUser.uid}:${currentUser.gid}`,
       '-w', '/app',
       '-e', `GCS_CLIENT_EMAIL=${gcsClientEmail}`,
       '-e', `GCS_PRIVATE_KEY=${gcsPrivateKey}`,
@@ -26,7 +26,7 @@ async function run() {
     ]
 
     // GCS env vars are secrets
-    for (secret of [gcsClientEmail, gcsPrivateKey, gcsPrivateKeyId, gcsProject]) {
+    for (const secret of [gcsClientEmail, gcsPrivateKey, gcsPrivateKeyId, gcsProject]) {
         core.setSecret(secret);
     }
 
