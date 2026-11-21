@@ -1,5 +1,5 @@
 import { spawnSync } from 'child_process';
-import matcher from 'matcher';
+import { matcher } from 'matcher';
 
 function filterFiles(files, options) {
   let filteredFiles = [];
