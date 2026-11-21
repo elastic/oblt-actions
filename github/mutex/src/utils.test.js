@@ -1,19 +1,22 @@
-const fs = require("fs");
-const os = require("os");
-const path = require("path");
+import { jest } from '@jest/globals';
+import fs from "fs";
+import os from "os";
+import path from "path";
 
-jest.mock("@actions/core", () => ({
+jest.unstable_mockModule("@actions/core", () => ({
   info: jest.fn(),
   error: jest.fn(),
   debug: jest.fn(),
   warning: jest.fn(),
 }));
 
-jest.mock("simple-git", () => jest.fn());
+jest.unstable_mockModule("simple-git", () => ({
+  default: jest.fn(),
+}));
 
-const core = require("@actions/core");
-const simpleGit = require("simple-git");
-const { setUpRepo, syncBranch, enqueue, dequeue } = require("./utils");
+const core = await import("@actions/core");
+const { default: simpleGit } = await import("simple-git");
+const { setUpRepo, syncBranch, enqueue, dequeue } = await import("./utils.js");
 
 function createGitMock() {
   return {

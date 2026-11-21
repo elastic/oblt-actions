@@ -1,7 +1,7 @@
-const fs = require("fs");
-const path = require("path");
-const core = require("@actions/core");
-const simpleGit = require("simple-git");
+import fs from "fs";
+import path from "path";
+import * as core from "@actions/core";
+import simpleGit from "simple-git";
 
 const ENQUEUE_PUSH_RETRY_DELAY_MS = 1000;
 const LOCK_POLL_DELAY_MS = 5000;
@@ -249,7 +249,7 @@ function sleep(ms) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
 
-module.exports = {
+export {
   setUpRepo,
   syncBranch,
   enqueue,
